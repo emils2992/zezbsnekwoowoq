@@ -232,7 +232,7 @@ async function handleModalSubmit(client, interaction) {
             const row = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId(`offer_accept_${playerId}_${presidentId}_${Buffer.from(JSON.stringify(offerData)).toString('base64')}`)
+                        .setCustomId(`offer_accept_${playerId}_${presidentId}`)
                         .setLabel('Kabul Et')
                         .setStyle(ButtonStyle.Success)
                         .setEmoji(config.emojis.check),
@@ -299,7 +299,7 @@ async function handleModalSubmit(client, interaction) {
         const row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`contract_accept_${targetPresidentId}_${fromPresidentId}_${playerId}_${Buffer.from(JSON.stringify(contractData)).toString('base64')}`)
+                    .setCustomId(`contract_accept_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Kabul Et')
                     .setStyle(ButtonStyle.Success)
                     .setEmoji(config.emojis.check),
@@ -367,7 +367,7 @@ async function handleModalSubmit(client, interaction) {
         const row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`trade_accept_${targetPresidentId}_${fromPresidentId}_${playerId}_${Buffer.from(JSON.stringify(tradeData)).toString('base64')}`)
+                    .setCustomId(`trade_accept_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Kabul Et')
                     .setStyle(ButtonStyle.Success)
                     .setEmoji(config.emojis.check),
@@ -439,7 +439,7 @@ async function handleModalSubmit(client, interaction) {
         const row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`release_accept_${playerId}_${presidentId}_${Buffer.from(JSON.stringify(releaseData)).toString('base64')}`)
+                    .setCustomId(`release_accept_${playerId}_${presidentId}`)
                     .setLabel('Kabul Et')
                     .setStyle(ButtonStyle.Success)
                     .setEmoji(config.emojis.check),

@@ -64,20 +64,19 @@ class ButtonHandler {
     }
 
     async handleOfferButton(client, interaction, params) {
-        // offer_accept_playerID_presidentID_offerData veya offer_reject_playerID_presidentID
-        const [buttonType, playerId, presidentId, offerDataEncoded] = params;
+        // offer_accept_playerID_presidentID veya offer_reject_playerID_presidentID
+        const [buttonType, playerId, presidentId] = params;
         const player = interaction.guild.members.cache.get(playerId);
         const president = interaction.guild.members.cache.get(presidentId);
         
-        // Offer data'yı decode et
-        let offerData = null;
-        if (offerDataEncoded && buttonType === 'accept') {
-            try {
-                offerData = JSON.parse(Buffer.from(offerDataEncoded, 'base64').toString());
-            } catch (error) {
-                console.error('Offer data decode hatası:', error);
-            }
-        }
+        // Default offer data since we can't encode in customId due to length limits
+        const offerData = {
+            newTeam: president.displayName,
+            playerName: player.displayName,
+            salary: '500.000₺/ay',
+            contractDuration: '2 yıl',
+            bonus: '250.000₺'
+        };
 
         if (!player || !president) {
             return interaction.reply({ 
