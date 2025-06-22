@@ -1,4 +1,4 @@
-const { OverwriteType } = require('discord.js');
+const { ChannelType, PermissionFlagsBits } = require('discord.js');
 const config = require('../config');
 
 class ChannelManager {
@@ -29,17 +29,18 @@ class ChannelManager {
 
             // Müzakereler kategorisini bul veya oluştur
             let category = guild.channels.cache.find(c => 
-                c.type === 'GUILD_CATEGORY' && 
+                c.type === ChannelType.GuildCategory && 
                 c.name.toLowerCase().includes('müzakere')
             );
 
             if (!category) {
-                category = await guild.channels.create('🤝 Müzakereler', {
-                    type: 'GUILD_CATEGORY',
+                category = await guild.channels.create({
+                    name: '🤝 Müzakereler',
+                    type: ChannelType.GuildCategory,
                     permissionOverwrites: [
                         {
                             id: guild.roles.everyone,
-                            deny: ['VIEW_CHANNEL']
+                            deny: [PermissionFlagsBits.ViewChannel]
                         }
                     ]
                 });
@@ -49,15 +50,15 @@ class ChannelManager {
             const permissionOverwrites = [
                 {
                     id: guild.roles.everyone,
-                    deny: ['VIEW_CHANNEL']
+                    deny: [PermissionFlagsBits.ViewChannel]
                 },
                 {
                     id: user1.id,
-                    allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY']
+                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
                 },
                 {
                     id: user2.id,
-                    allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY']
+                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
                 }
             ];
 
@@ -65,14 +66,15 @@ class ChannelManager {
             if (player) {
                 permissionOverwrites.push({
                     id: player.id,
-                    allow: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY'],
-                    deny: ['SEND_MESSAGES'] // Oyuncu sadece okuyabilir
+                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory],
+                    deny: [PermissionFlagsBits.SendMessages] // Oyuncu sadece okuyabilir
                 });
             }
 
             // Kanalı oluştur
-            const channel = await guild.channels.create(channelName, {
-                type: 'GUILD_TEXT',
+            const channel = await guild.channels.create({
+                name: channelName,
+                type: ChannelType.GuildText,
                 parent: category,
                 permissionOverwrites: permissionOverwrites,
                 topic: `${type} müzakeresi - ${user1.username} & ${user2.username}${player ? ` (Oyuncu: ${player.username})` : ''}`
@@ -116,7 +118,7 @@ class ChannelManager {
         
         for (const name of channelNames) {
             const channel = guild.channels.cache.find(c => 
-                c.type === 'GUILD_TEXT' && 
+                c.type === ChannelType.GuildText && 
                 c.name.toLowerCase().includes(name)
             );
             if (channel) return channel;
@@ -140,7 +142,7 @@ class ChannelManager {
             );
 
             embed.setThumbnail(player.displayAvatarURL({ dynamic: true }));
-            embed.addField('📊 Oyuncu Bilgileri', 'Detaylar için oyuncuyla iletişime geçin', false);
+            embed.addFields({ name: '📊 Oyuncu Bilgileri', value: 'Detaylar için oyuncuyla iletişime geçin', inline: false });
 
             const message = await freeAgentChannel.send({
                 content: `${config.emojis.football} **Yeni Serbest Futbolcu Duyurusu**`,
