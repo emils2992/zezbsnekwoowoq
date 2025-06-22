@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 const embeds = require('../utils/embeds');
@@ -37,100 +37,89 @@ module.exports = {
                 return message.reply('❌ Bu futbolcu serbest değil! Sadece serbest futbolculara teklif gönderilebilir.');
             }
 
-            // Form doldurma embed'i oluştur
-            const formEmbed = new EmbedBuilder()
-                .setColor(config.colors.primary)
-                .setTitle(`${config.emojis.edit} Teklif Formu`)
-                .setDescription(`**${targetUser.username}** için teklif detaylarını doldurun.\n\nLütfen bu mesajı yanıtlayarak teklif bilgilerini şu formatta yazın:`)
-                .addFields(
-                    {
-                        name: '📝 Format',
-                        value: '```\nOyuncu İsmi: Cristiano Ronaldo\nMaaş: 750.000₺/ay\nİmza Primi: 2.000.000₺\nSözleşme Süresi: 3 yıl\nBonus: 500.000₺\n```',
-                        inline: false
-                    },
-                    {
-                        name: '💡 Bilgi',
-                        value: 'Tüm alanları doldurmanız gerekmez. Boş bırakılan alanlar varsayılan değerlerle doldurulur.',
-                        inline: false
-                    }
-                )
-                .setThumbnail(targetUser.displayAvatarURL({ dynamic: true }))
-                .setTimestamp()
-                .setFooter({ text: 'Transfer Sistemi' });
+            // Modal formu oluştur
+            const modal = new ModalBuilder()
+                .setCustomId(`offer_form_${targetUser.id}_${message.author.id}`)
+                .setTitle('Transfer Teklifi Formu');
 
-            await message.reply({ embeds: [formEmbed] });
+            // Form alanları
+            const playerNameInput = new TextInputBuilder()
+                .setCustomId('player_name')
+                .setLabel('Oyuncu İsmi')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Örn: Cristiano Ronaldo')
+                .setRequired(false);
 
-            // Mesaj filtreleme
-            const filter = (m) => m.author.id === message.author.id && m.channel.id === message.channel.id;
+            const salaryInput = new TextInputBuilder()
+                .setCustomId('salary')
+                .setLabel('Maaş')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Örn: 750.000₺/ay')
+                .setRequired(false);
+
+            const signingBonusInput = new TextInputBuilder()
+                .setCustomId('signing_bonus')
+                .setLabel('İmza Primi')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Örn: 2.000.000₺')
+                .setRequired(false);
+
+            const contractDurationInput = new TextInputBuilder()
+                .setCustomId('contract_duration')
+                .setLabel('Sözleşme Süresi')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Örn: 3 yıl')
+                .setRequired(false);
+
+            const bonusInput = new TextInputBuilder()
+                .setCustomId('bonus')
+                .setLabel('Bonuslar')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Örn: 500.000₺')
+                .setRequired(false);
+
+            // Action Row'lar oluştur
+            const row1 = new ActionRowBuilder().addComponents(playerNameInput);
+            const row2 = new ActionRowBuilder().addComponents(salaryInput);
+            const row3 = new ActionRowBuilder().addComponents(signingBonusInput);
+            const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
+            const row5 = new ActionRowBuilder().addComponents(bonusInput);
+
+            modal.addComponents(row1, row2, row3, row4, row5);
+
+            // Modal'ı göster
+            await message.reply(`${config.emojis.edit} **${targetUser.username}** için teklif formu açılıyor...`);
             
+            // Modal'ı DM ile gönder (eğer mümkünse)
             try {
-                const collected = await message.channel.awaitMessages({ 
-                    filter, 
-                    max: 1, 
-                    time: 300000, // 5 dakika
-                    errors: ['time'] 
+                await message.author.send({
+                    content: `${config.emojis.football} **Transfer Teklifi Formu**\n\n${targetUser.username} için teklif formunu doldurmak üzere aşağıdaki butona tıklayın.`,
+                    components: [
+                        new ActionRowBuilder().addComponents(
+                            new ButtonBuilder()
+                                .setCustomId(`show_offer_modal_${targetUser.id}_${message.author.id}`)
+                                .setLabel('Formu Aç')
+                                .setStyle(ButtonStyle.Primary)
+                                .setEmoji(config.emojis.edit)
+                        )
+                    ]
                 });
                 
-                const responseMessage = collected.first();
-                const content = responseMessage.content.trim();
-                
-                // Form verilerini parse et
-                const offerData = this.parseOfferForm(content);
-                
-                // Teklif formu embed'i oluştur
-                const offerEmbed = embeds.createOfferForm(message.author, targetUser, offerData);
-                
-                // Butonları oluştur
-                const row = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId(`offer_accept_${targetUser.id}_${message.author.id}_${Buffer.from(JSON.stringify(offerData)).toString('base64')}`)
-                            .setLabel('Kabul Et')
-                            .setStyle(ButtonStyle.Success)
-                            .setEmoji(config.emojis.check),
-                        new ButtonBuilder()
-                            .setCustomId(`offer_reject_${targetUser.id}_${message.author.id}`)
-                            .setLabel('Reddet')
-                            .setStyle(ButtonStyle.Danger)
-                            .setEmoji(config.emojis.cross)
-                    );
-
-                // Özel müzakere kanalı oluştur
-                const negotiationChannel = await channels.createNegotiationChannel(
-                    message.guild, 
-                    message.author, 
-                    targetUser,
-                    'offer'
-                );
-
-                if (!negotiationChannel) {
-                    return responseMessage.reply('❌ Müzakere kanalı oluşturulamadı!');
-                }
-
-                // Teklifi özel kanala gönder
-                await negotiationChannel.send({
-                    content: `${config.emojis.football} **Yeni Transfer Teklifi**\n${targetUser}, ${message.author} sizden bir teklif var!`,
-                    embeds: [offerEmbed],
-                    components: [row]
-                });
-
-                // Başarı mesajı
-                const successEmbed = new EmbedBuilder()
-                    .setColor(config.colors.success)
-                    .setTitle(`${config.emojis.check} Teklif Gönderildi`)
-                    .setDescription(`${targetUser} için teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
-                    .setTimestamp();
-
-                await responseMessage.reply({ embeds: [successEmbed] });
-
+                await message.followUp('✅ Teklif formu DM olarak gönderildi! Lütfen özel mesajlarınızı kontrol edin.');
             } catch (error) {
-                const timeoutEmbed = new EmbedBuilder()
-                    .setColor(config.colors.error)
-                    .setTitle(`${config.emojis.cross} Zaman Aşımı`)
-                    .setDescription('Teklif formu zaman aşımına uğradı. Lütfen tekrar deneyin.')
-                    .setTimestamp();
-                    
-                await message.followUp({ embeds: [timeoutEmbed] });
+                // DM gönderilemezse kanal üzerinden buton göster
+                await message.followUp({
+                    content: `${config.emojis.football} **Transfer Teklifi Formu**\n\n${targetUser.username} için teklif formunu doldurmak üzere aşağıdaki butona tıklayın.`,
+                    components: [
+                        new ActionRowBuilder().addComponents(
+                            new ButtonBuilder()
+                                .setCustomId(`show_offer_modal_${targetUser.id}_${message.author.id}`)
+                                .setLabel('Formu Aç')
+                                .setStyle(ButtonStyle.Primary)
+                                .setEmoji(config.emojis.edit)
+                        )
+                    ]
+                });
             }
 
         } catch (error) {

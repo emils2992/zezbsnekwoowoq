@@ -46,13 +46,15 @@ client.on('messageCreate', async message => {
     await commandHandler.handleCommand(client, message);
 });
 
-// Etkileşim dinleyicisi (butonlar ve select menüler)
+// Etkileşim dinleyicisi (butonlar, select menüler ve modaller)
 client.on('interactionCreate', async interaction => {
     try {
         if (interaction.isButton()) {
             await buttonHandler.handleButton(client, interaction);
         } else if (interaction.isStringSelectMenu()) {
             await handleSelectMenu(client, interaction);
+        } else if (interaction.isModalSubmit()) {
+            await handleModalSubmit(client, interaction);
         }
     } catch (error) {
         console.error('Etkileşim hatası:', error);
@@ -190,6 +192,81 @@ async function handleSelectMenu(client, interaction) {
                 
             await interaction.followUp({ embeds: [timeoutEmbed] });
         }
+    }
+}
+
+// Modal submission işleyicisi
+async function handleModalSubmit(client, interaction) {
+    const customId = interaction.customId;
+    const { ModalBuilder, TextInputBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+    const embeds = require('./utils/embeds');
+    const channels = require('./utils/channels');
+    const config = require('./config');
+
+    // Offer form modali
+    if (customId.startsWith('offer_form_')) {
+        const [, , playerId, presidentId] = customId.split('_');
+        const player = interaction.guild.members.cache.get(playerId);
+        const president = interaction.guild.members.cache.get(presidentId);
+
+        if (!player || !president) {
+            return interaction.reply({ content: '❌ Kullanıcılar bulunamadı!', ephemeral: true });
+        }
+
+        // Form verilerini al
+        const offerData = {
+            playerName: interaction.fields.getTextInputValue('player_name') || '',
+            salary: interaction.fields.getTextInputValue('salary') || '500.000₺/ay',
+            signingBonus: interaction.fields.getTextInputValue('signing_bonus') || '1.000.000₺',
+            contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl',
+            bonus: interaction.fields.getTextInputValue('bonus') || '250.000₺'
+        };
+
+        // Teklif embed'i oluştur
+        const offerEmbed = embeds.createOfferForm(president.user, player.user, offerData);
+        
+        // Butonları oluştur
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`offer_accept_${playerId}_${presidentId}_${Buffer.from(JSON.stringify(offerData)).toString('base64')}`)
+                    .setLabel('Kabul Et')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji(config.emojis.check),
+                new ButtonBuilder()
+                    .setCustomId(`offer_reject_${playerId}_${presidentId}`)
+                    .setLabel('Reddet')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji(config.emojis.cross)
+            );
+
+        // Müzakere kanalı oluştur
+        const negotiationChannel = await channels.createNegotiationChannel(
+            interaction.guild, 
+            president.user, 
+            player.user,
+            'offer'
+        );
+
+        if (!negotiationChannel) {
+            return interaction.reply({ content: '❌ Müzakere kanalı oluşturulamadı!', ephemeral: true });
+        }
+
+        // Teklifi kanala gönder
+        await negotiationChannel.send({
+            content: `${config.emojis.football} **Yeni Transfer Teklifi**\n${player.user}, ${president.user} sizden bir teklif var!`,
+            embeds: [offerEmbed],
+            components: [row]
+        });
+
+        // Başarı mesajı
+        const successEmbed = new EmbedBuilder()
+            .setColor(config.colors.success)
+            .setTitle(`${config.emojis.check} Teklif Gönderildi`)
+            .setDescription(`${player.user} için teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
+            .setTimestamp();
+
+        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
     }
 }
 

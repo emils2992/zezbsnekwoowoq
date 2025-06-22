@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 const embeds = require('../utils/embeds');
@@ -32,6 +32,11 @@ class ButtonHandler {
                         await this.handleContractPlayerButton(client, interaction, params.slice(1));
                     } else {
                         await this.handleContractButton(client, interaction, params);
+                    }
+                    break;
+                case 'show':
+                    if (params[0] === 'offer' && params[1] === 'modal') {
+                        await this.handleShowOfferModal(client, interaction, params.slice(2));
                     }
                     break;
                 default:
@@ -765,6 +770,63 @@ class ButtonHandler {
         } catch (error) {
             console.error('Transfer duyurusu gönderme hatası:', error);
         }
+    }
+
+    async handleShowOfferModal(client, interaction, params) {
+        const [playerId, presidentId] = params;
+        
+        // Modal formu oluştur
+        const modal = new ModalBuilder()
+            .setCustomId(`offer_form_${playerId}_${presidentId}`)
+            .setTitle('Transfer Teklifi Formu');
+
+        // Form alanları
+        const playerNameInput = new TextInputBuilder()
+            .setCustomId('player_name')
+            .setLabel('Oyuncu İsmi')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: Cristiano Ronaldo')
+            .setRequired(false);
+
+        const salaryInput = new TextInputBuilder()
+            .setCustomId('salary')
+            .setLabel('Maaş')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 750.000₺/ay')
+            .setRequired(false);
+
+        const signingBonusInput = new TextInputBuilder()
+            .setCustomId('signing_bonus')
+            .setLabel('İmza Primi')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 2.000.000₺')
+            .setRequired(false);
+
+        const contractDurationInput = new TextInputBuilder()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme Süresi')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 3 yıl')
+            .setRequired(false);
+
+        const bonusInput = new TextInputBuilder()
+            .setCustomId('bonus')
+            .setLabel('Bonuslar')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 500.000₺')
+            .setRequired(false);
+
+        // Action Row'lar oluştur
+        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
+        const row2 = new ActionRowBuilder().addComponents(salaryInput);
+        const row3 = new ActionRowBuilder().addComponents(signingBonusInput);
+        const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
+        const row5 = new ActionRowBuilder().addComponents(bonusInput);
+
+        modal.addComponents(row1, row2, row3, row4, row5);
+
+        // Modal'ı göster
+        await interaction.showModal(modal);
     }
 }
 
