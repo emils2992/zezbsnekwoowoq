@@ -53,10 +53,20 @@ class ButtonHandler {
     }
 
     async handleOfferButton(client, interaction, params) {
-        // offer_accept_playerID_presidentID veya offer_reject_playerID_presidentID
-        const [buttonType, playerId, presidentId] = params;
+        // offer_accept_playerID_presidentID_offerData veya offer_reject_playerID_presidentID
+        const [buttonType, playerId, presidentId, offerDataEncoded] = params;
         const player = interaction.guild.members.cache.get(playerId);
         const president = interaction.guild.members.cache.get(presidentId);
+        
+        // Offer data'yı decode et
+        let offerData = null;
+        if (offerDataEncoded && buttonType === 'accept') {
+            try {
+                offerData = JSON.parse(Buffer.from(offerDataEncoded, 'base64').toString());
+            } catch (error) {
+                console.error('Offer data decode hatası:', error);
+            }
+        }
 
         if (!player || !president) {
             return interaction.reply({ 
@@ -93,9 +103,11 @@ class ButtonHandler {
                     player: player.user,
                     team: president.displayName,
                     type: 'serbest_transfer',
-                    salary: '500.000₺/ay',
-                    bonus: '1.000.000₺',
-                    duration: '2 yıl'
+                    salary: offerData?.salary || '500.000₺/ay',
+                    bonus: offerData?.bonus || '250.000₺',
+                    duration: offerData?.contractDuration || '2 yıl',
+                    signingBonus: offerData?.signingBonus || '1.000.000₺',
+                    playerName: offerData?.playerName
                 });
 
                 // Transfer geçmişine kaydet
@@ -709,13 +721,14 @@ class ButtonHandler {
             }
 
             // Transfer duyuru embed'i oluştur
+            const playerDisplayName = transferData.playerName || transferData.player.username;
             const announcementEmbed = new EmbedBuilder()
                 .setColor(color)
                 .setTitle(`${config.emojis.football} ${title}`)
-                .setDescription(`**${transferData.player.username}** ${transferData.team} takımı ile anlaştı!`)
+                .setDescription(`**${playerDisplayName}** ${transferData.team} takımı ile anlaştı!`)
                 .setThumbnail(playerFace)
                 .addFields(
-                    { name: '⚽ Oyuncu', value: `${transferData.player}`, inline: true },
+                    { name: '⚽ Oyuncu', value: transferData.playerName ? `${transferData.player} (${transferData.playerName})` : `${transferData.player}`, inline: true },
                     { name: '🏆 Yeni Takım', value: transferData.team, inline: true },
                     { name: '📋 Transfer Türü', value: transferData.type === 'serbest_transfer' ? 'Serbest Transfer' : transferData.type.charAt(0).toUpperCase() + transferData.type.slice(1), inline: true }
                 );
@@ -731,7 +744,10 @@ class ButtonHandler {
                 announcementEmbed.addFields({ name: '📅 Sözleşme Süresi', value: transferData.duration, inline: true });
             }
             if (transferData.bonus) {
-                announcementEmbed.addFields({ name: '💎 İmza Parası', value: transferData.bonus, inline: true });
+                announcementEmbed.addFields({ name: '🎯 Bonuslar', value: transferData.bonus, inline: true });
+            }
+            if (transferData.signingBonus) {
+                announcementEmbed.addFields({ name: '💎 İmza Parası', value: transferData.signingBonus, inline: true });
             }
 
             announcementEmbed

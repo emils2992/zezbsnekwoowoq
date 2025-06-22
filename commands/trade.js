@@ -51,82 +51,142 @@ module.exports = {
                 return message.reply('❌ Serbest futbolcular takas edilemez! Serbest oyuncular için `.offer` komutunu kullanın.');
             }
 
-            // Ek miktar parse et
-            let additionalAmount = 0;
-            if (args.length > 2) {
-                const amountStr = args[args.length - 1].replace(/[^\d]/g, '');
-                additionalAmount = parseInt(amountStr) || 0;
-            }
-
-            // Takas formu embed'i oluştur
-            const tradeEmbed = embeds.createTradeForm(message.author, targetPresidentUser, playerUser, additionalAmount);
-            
-            // Butonları oluştur
-            const row = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId(`trade_accept_${targetPresidentUser.id}_${message.author.id}_${playerUser.id}_${additionalAmount}`)
-                        .setLabel('Kabul Et')
-                        .setStyle(ButtonStyle.Success)
-                        .setEmoji(config.emojis.check),
-                    new ButtonBuilder()
-                        .setCustomId(`trade_reject_${targetPresidentUser.id}_${message.author.id}_${playerUser.id}`)
-                        .setLabel('Reddet')
-                        .setStyle(ButtonStyle.Danger)
-                        .setEmoji(config.emojis.cross),
-                    new ButtonBuilder()
-                        .setCustomId(`trade_counter_${targetPresidentUser.id}_${message.author.id}_${playerUser.id}`)
-                        .setLabel('Sende Yap')
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji(config.emojis.handshake)
-                );
-
-            // Özel müzakere kanalı oluştur
-            const negotiationChannel = await channels.createNegotiationChannel(
-                message.guild, 
-                message.author, 
-                targetPresidentUser,
-                'trade',
-                playerUser
-            );
-
-            if (!negotiationChannel) {
-                return message.reply('❌ Müzakere kanalı oluşturulamadı!');
-            }
-
-            // Takas teklifini özel kanala gönder
-            await negotiationChannel.send({
-                content: `${config.emojis.transfer} **Yeni Takas Teklifi**\n${targetPresidentUser}, ${message.author} sizden bir takas teklifi var!\n\n**Oyuncu:** ${playerUser}`,
-                embeds: [tradeEmbed],
-                components: [row]
-            });
-
-            // Başarı mesajı
-            const successEmbed = new EmbedBuilder()
+            // Form doldurma embed'i oluştur
+            const formEmbed = new EmbedBuilder()
                 .setColor(config.colors.success)
-                .setTitle(`${config.emojis.transfer} Takas Teklifi Gönderildi`)
-                .setDescription(`${playerUser} için ${targetPresidentUser} ile takas müzakereniz başladı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
+                .setTitle(`${config.emojis.edit} Takas Formu`)
+                .setDescription(`**${playerUser.username}** için takas detaylarını doldurun.\n\nLütfen bu mesajı yanıtlayarak takas bilgilerini şu formatta yazın:`)
+                .addFields(
+                    {
+                        name: '📝 Format',
+                        value: '```\nOyuncu İsmi: Neymar Jr\nEk Miktar: 15.000.000₺\nMaaş: 1.500.000₺/ay\nSözleşme Süresi: 4 yıl\nBonus: 750.000₺\n```',
+                        inline: false
+                    },
+                    {
+                        name: '💡 Bilgi',
+                        value: 'Ek miktar belirtmezseniz sadece oyuncu takası yapılır. Diğer alanlar isteğe bağlıdır.',
+                        inline: false
+                    }
+                )
+                .setThumbnail(playerUser.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
 
-            await message.reply({ embeds: [successEmbed] });
+            await message.reply({ embeds: [formEmbed] });
 
-            // Hedef başkana bildirim gönder
+            // Mesaj filtreleme
+            const filter = (m) => m.author.id === message.author.id && m.channel.id === message.channel.id;
+            
             try {
-                const dmEmbed = new EmbedBuilder()
-                    .setColor(config.colors.primary)
-                    .setTitle(`${config.emojis.transfer} Yeni Takas Teklifi!`)
-                    .setDescription(`**${message.guild.name}** sunucusunda **${message.author.username}** sizden bir takas teklifi geldi!\n\n**Oyuncu:** ${playerUser.username}\n**Ek Miktar:** ${additionalAmount > 0 ? `${additionalAmount}₺` : 'Yok'}\n**Müzakere Kanalı:** ${negotiationChannel}`)
+                const collected = await message.channel.awaitMessages({ 
+                    filter, 
+                    max: 1, 
+                    time: 300000,
+                    errors: ['time'] 
+                });
+                
+                const responseMessage = collected.first();
+                const content = responseMessage.content.trim();
+                
+                // Form verilerini parse et
+                const tradeData = this.parseTradeForm(content);
+                
+                // Takas formu embed'i oluştur
+                const tradeEmbed = embeds.createTradeForm(message.author, targetPresidentUser, playerUser, tradeData);
+                
+                // Butonları oluştur
+                const row = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId(`trade_accept_${targetPresidentUser.id}_${message.author.id}_${playerUser.id}_${Buffer.from(JSON.stringify(tradeData)).toString('base64')}`)
+                            .setLabel('Kabul Et')
+                            .setStyle(ButtonStyle.Success)
+                            .setEmoji(config.emojis.check),
+                        new ButtonBuilder()
+                            .setCustomId(`trade_reject_${targetPresidentUser.id}_${message.author.id}_${playerUser.id}`)
+                            .setLabel('Reddet')
+                            .setStyle(ButtonStyle.Danger)
+                            .setEmoji(config.emojis.cross),
+                        new ButtonBuilder()
+                            .setCustomId(`trade_counter_${targetPresidentUser.id}_${message.author.id}_${playerUser.id}`)
+                            .setLabel('Sende Yap')
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji(config.emojis.handshake)
+                    );
+
+                // Özel müzakere kanalı oluştur
+                const negotiationChannel = await channels.createNegotiationChannel(
+                    message.guild, 
+                    message.author, 
+                    targetPresidentUser,
+                    'trade',
+                    playerUser
+                );
+
+                if (!negotiationChannel) {
+                    return responseMessage.reply('❌ Müzakere kanalı oluşturulamadı!');
+                }
+
+                // Takas teklifini özel kanala gönder
+                await negotiationChannel.send({
+                    content: `${config.emojis.transfer} **Yeni Takas Teklifi**\n${targetPresidentUser}, ${message.author} sizden bir takas teklifi var!\n\n**Oyuncu:** ${playerUser}`,
+                    embeds: [tradeEmbed],
+                    components: [row]
+                });
+
+                // Başarı mesajı
+                const successEmbed = new EmbedBuilder()
+                    .setColor(config.colors.success)
+                    .setTitle(`${config.emojis.check} Takas Teklifi Gönderildi`)
+                    .setDescription(`${playerUser} için takas teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
                     .setTimestamp();
 
-                await targetPresidentUser.send({ embeds: [dmEmbed] });
+                await responseMessage.reply({ embeds: [successEmbed] });
+
             } catch (error) {
-                console.log('DM gönderilemedi:', error.message);
+                const timeoutEmbed = new EmbedBuilder()
+                    .setColor(config.colors.error)
+                    .setTitle(`${config.emojis.cross} Zaman Aşımı`)
+                    .setDescription('Takas formu zaman aşımına uğradı. Lütfen tekrar deneyin.')
+                    .setTimestamp();
+                    
+                await message.followUp({ embeds: [timeoutEmbed] });
             }
 
         } catch (error) {
             console.error('Trade komutu hatası:', error);
             message.reply('❌ Takas teklifi gönderilirken bir hata oluştu!');
         }
+    },
+
+    parseTradeForm(content) {
+        const data = {
+            playerName: '',
+            additionalAmount: 0,
+            salary: '850.000₺/ay',
+            contractDuration: '4 yıl',
+            bonus: '400.000₺'
+        };
+
+        const lines = content.split('\n');
+        
+        for (const line of lines) {
+            const trimmed = line.trim();
+            
+            if (trimmed.toLowerCase().includes('oyuncu') && trimmed.includes(':')) {
+                data.playerName = trimmed.split(':')[1].trim();
+            } else if (trimmed.toLowerCase().includes('ek') && trimmed.includes(':')) {
+                const amountStr = trimmed.split(':')[1].replace(/[^\d]/g, '');
+                data.additionalAmount = parseInt(amountStr) || 0;
+            } else if (trimmed.toLowerCase().includes('maaş') && trimmed.includes(':')) {
+                data.salary = trimmed.split(':')[1].trim();
+            } else if (trimmed.toLowerCase().includes('sözleşme') && trimmed.includes(':')) {
+                data.contractDuration = trimmed.split(':')[1].trim();
+            } else if (trimmed.toLowerCase().includes('bonus') && trimmed.includes(':')) {
+                data.bonus = trimmed.split(':')[1].trim();
+            }
+        }
+
+        return data;
     }
 };
