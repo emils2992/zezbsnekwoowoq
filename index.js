@@ -197,77 +197,80 @@ async function handleSelectMenu(client, interaction) {
 
 // Modal submission işleyicisi
 async function handleModalSubmit(client, interaction) {
-    const customId = interaction.customId;
-    const { ModalBuilder, TextInputBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-    const embeds = require('./utils/embeds');
-    const channels = require('./utils/channels');
-    const config = require('./config');
-
-    // Offer form modali
-    if (customId.startsWith('offer_form_')) {
-        const [, , playerId, presidentId] = customId.split('_');
-        const player = interaction.guild.members.cache.get(playerId);
-        const president = interaction.guild.members.cache.get(presidentId);
-
-        if (!player || !president) {
-            return interaction.reply({ content: '❌ Kullanıcılar bulunamadı!', ephemeral: true });
-        }
-
-        // Form verilerini al
-        const offerData = {
-            newTeam: interaction.fields.getTextInputValue('new_team') || '',
-            playerName: interaction.fields.getTextInputValue('player_name') || '',
-            salary: interaction.fields.getTextInputValue('salary') || '500.000₺/ay',
-            contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl',
-            bonus: interaction.fields.getTextInputValue('bonus') || '250.000₺'
-        };
-
-        // Teklif embed'i oluştur
-        const offerEmbed = embeds.createOfferForm(president.user, player.user, offerData);
+    try {
+        const customId = interaction.customId;
+        const { ModalBuilder, TextInputBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+        const embeds = require('./utils/embeds');
+        const channels = require('./utils/channels');
+        const config = require('./config');
         
-        // Butonları oluştur
-        const row = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId(`offer_accept_${playerId}_${presidentId}_${Buffer.from(JSON.stringify(offerData)).toString('base64')}`)
-                    .setLabel('Kabul Et')
-                    .setStyle(ButtonStyle.Success)
-                    .setEmoji(config.emojis.check),
-                new ButtonBuilder()
-                    .setCustomId(`offer_reject_${playerId}_${presidentId}`)
-                    .setLabel('Reddet')
-                    .setStyle(ButtonStyle.Danger)
-                    .setEmoji(config.emojis.cross)
+        console.log('Modal submission received:', customId);
+
+        // Offer form modali
+        if (customId.startsWith('offer_form_')) {
+            const [, , playerId, presidentId] = customId.split('_');
+            const player = interaction.guild.members.cache.get(playerId);
+            const president = interaction.guild.members.cache.get(presidentId);
+
+            if (!player || !president) {
+                return interaction.reply({ content: '❌ Kullanıcılar bulunamadı!', ephemeral: true });
+            }
+
+            // Form verilerini al
+            const offerData = {
+                newTeam: interaction.fields.getTextInputValue('new_team') || '',
+                playerName: interaction.fields.getTextInputValue('player_name') || '',
+                salary: interaction.fields.getTextInputValue('salary') || '500.000₺/ay',
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl',
+                bonus: interaction.fields.getTextInputValue('bonus') || '250.000₺'
+            };
+
+            // Teklif embed'i oluştur
+            const offerEmbed = embeds.createOfferForm(president.user, player.user, offerData);
+            
+            // Butonları oluştur
+            const row = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`offer_accept_${playerId}_${presidentId}_${Buffer.from(JSON.stringify(offerData)).toString('base64')}`)
+                        .setLabel('Kabul Et')
+                        .setStyle(ButtonStyle.Success)
+                        .setEmoji(config.emojis.check),
+                    new ButtonBuilder()
+                        .setCustomId(`offer_reject_${playerId}_${presidentId}`)
+                        .setLabel('Reddet')
+                        .setStyle(ButtonStyle.Danger)
+                        .setEmoji(config.emojis.cross)
+                );
+
+            // Müzakere kanalı oluştur
+            const negotiationChannel = await channels.createNegotiationChannel(
+                interaction.guild, 
+                president.user, 
+                player.user,
+                'offer'
             );
 
-        // Müzakere kanalı oluştur
-        const negotiationChannel = await channels.createNegotiationChannel(
-            interaction.guild, 
-            president.user, 
-            player.user,
-            'offer'
-        );
+            if (!negotiationChannel) {
+                return interaction.reply({ content: '❌ Müzakere kanalı oluşturulamadı!', ephemeral: true });
+            }
 
-        if (!negotiationChannel) {
-            return interaction.reply({ content: '❌ Müzakere kanalı oluşturulamadı!', ephemeral: true });
+            // Teklifi kanala gönder
+            await negotiationChannel.send({
+                content: `${config.emojis.football} **Yeni Transfer Teklifi**\n${player.user}, ${president.user} sizden bir teklif var!`,
+                embeds: [offerEmbed],
+                components: [row]
+            });
+
+            // Başarı mesajı
+            const successEmbed = new EmbedBuilder()
+                .setColor(config.colors.success)
+                .setTitle(`${config.emojis.check} Teklif Gönderildi`)
+                .setDescription(`${player.user} için teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
+                .setTimestamp();
+
+            await interaction.reply({ embeds: [successEmbed], ephemeral: true });
         }
-
-        // Teklifi kanala gönder
-        await negotiationChannel.send({
-            content: `${config.emojis.football} **Yeni Transfer Teklifi**\n${player.user}, ${president.user} sizden bir teklif var!`,
-            embeds: [offerEmbed],
-            components: [row]
-        });
-
-        // Başarı mesajı
-        const successEmbed = new EmbedBuilder()
-            .setColor(config.colors.success)
-            .setTitle(`${config.emojis.check} Teklif Gönderildi`)
-            .setDescription(`${player.user} için teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
-            .setTimestamp();
-
-        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
-    }
     
     // Contract form modali
     else if (customId.startsWith('contract_form_')) {
@@ -475,6 +478,15 @@ async function handleModalSubmit(client, interaction) {
             .setTimestamp();
 
         await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+    }
+    } catch (error) {
+        console.error('Modal submission error:', error);
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({ 
+                content: '❌ Modal işlenirken hata oluştu! Lütfen tekrar deneyin.', 
+                ephemeral: true 
+            });
+        }
     }
 }
 
