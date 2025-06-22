@@ -69,14 +69,37 @@ class ButtonHandler {
         const player = interaction.guild.members.cache.get(playerId);
         const president = interaction.guild.members.cache.get(presidentId);
         
-        // Default offer data since we can't encode in customId due to length limits
-        const offerData = {
+        // Embed'den modal verilerini çıkar
+        let offerData = {
             newTeam: president.displayName,
             playerName: player.displayName,
             salary: '6.000.000₺/yıl',
             contractDuration: '2 yıl',
             bonus: '3.000.000₺'
         };
+
+        // Embed'deki verileri kullan
+        if (interaction.message && interaction.message.embeds.length > 0) {
+            const embed = interaction.message.embeds[0];
+            if (embed.fields) {
+                for (const field of embed.fields) {
+                    if (field.name.includes('Yeni Kulüp')) {
+                        offerData.newTeam = field.value !== 'Belirtilmedi' ? field.value : president.displayName;
+                    } else if (field.name.includes('Maaş')) {
+                        offerData.salary = field.value;
+                    } else if (field.name.includes('Sözleşme Süresi')) {
+                        offerData.contractDuration = field.value;
+                    } else if (field.name.includes('Bonus')) {
+                        offerData.bonus = field.value;
+                    } else if (field.name.includes('Futbolcu') && field.value.includes('(') && field.value.includes(')')) {
+                        const nameMatch = field.value.match(/\(([^)]+)\)/);
+                        if (nameMatch) {
+                            offerData.playerName = nameMatch[1];
+                        }
+                    }
+                }
+            }
+        }
 
         if (!player || !president) {
             return interaction.reply({ 
@@ -111,12 +134,12 @@ class ButtonHandler {
                 // Otomatik transfer duyurusu gönder
                 await this.sendTransferAnnouncement(interaction.guild, {
                     player: player.user,
-                    team: offerData?.newTeam || president.displayName,
+                    team: offerData.newTeam,
                     type: 'serbest_transfer',
-                    salary: offerData?.salary || '6.000.000₺/yıl',
-                    bonus: offerData?.bonus || '3.000.000₺',
-                    duration: offerData?.contractDuration || '2 yıl',
-                    playerName: offerData?.playerName
+                    salary: offerData.salary,
+                    bonus: offerData.bonus,
+                    duration: offerData.contractDuration,
+                    playerName: offerData.playerName
                 });
 
                 // Transfer geçmişine kaydet

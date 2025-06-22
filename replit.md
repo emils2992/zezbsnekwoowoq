@@ -109,6 +109,11 @@ The bot is configured for Replit deployment with:
   - Added comprehensive modal submission handlers in index.js for all transfer types
   - Enhanced button handler with modal display methods for all transfer commands
   - Implemented automatic announcement system for unilateral releases
+- June 22, 2025. Fixed modal interaction timeout issues and data consistency:
+  - Resolved Discord API timeout errors by implementing deferReply/editReply pattern for all modal submissions
+  - Fixed transfer announcements to use exact modal form data instead of default values
+  - Enhanced button handler to extract and use modal data from embed fields for accurate transfer announcements
+  - Changed salary format from monthly to yearly across all forms and announcements
 
 ## User Preferences
 
