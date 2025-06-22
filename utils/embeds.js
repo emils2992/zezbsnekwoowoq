@@ -15,6 +15,11 @@ class EmbedCreator {
                 inline: true
             },
             {
+                name: `🏆 Yeni Kulüp`,
+                value: offerData?.newTeam || 'Belirtilmedi',
+                inline: true
+            },
+            {
                 name: `⚽ Futbolcu`,
                 value: `${player} ${offerData?.playerName ? `(${offerData.playerName})` : ''}`,
                 inline: true
@@ -22,11 +27,6 @@ class EmbedCreator {
             {
                 name: `${config.emojis.money} Önerilen Maaş`,
                 value: offerData?.salary || '500.000₺/ay',
-                inline: true
-            },
-            {
-                name: `💎 İmza Parası`,
-                value: offerData?.signingBonus || '1.000.000₺',
                 inline: true
             },
             {

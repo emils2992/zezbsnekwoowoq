@@ -215,9 +215,9 @@ async function handleModalSubmit(client, interaction) {
 
         // Form verilerini al
         const offerData = {
+            newTeam: interaction.fields.getTextInputValue('new_team') || '',
             playerName: interaction.fields.getTextInputValue('player_name') || '',
             salary: interaction.fields.getTextInputValue('salary') || '500.000₺/ay',
-            signingBonus: interaction.fields.getTextInputValue('signing_bonus') || '1.000.000₺',
             contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl',
             bonus: interaction.fields.getTextInputValue('bonus') || '250.000₺'
         };
@@ -264,6 +264,214 @@ async function handleModalSubmit(client, interaction) {
             .setColor(config.colors.success)
             .setTitle(`${config.emojis.check} Teklif Gönderildi`)
             .setDescription(`${player.user} için teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
+            .setTimestamp();
+
+        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+    }
+    
+    // Contract form modali
+    else if (customId.startsWith('contract_form_')) {
+        const [, , targetPresidentId, fromPresidentId, playerId] = customId.split('_');
+        const targetPresident = interaction.guild.members.cache.get(targetPresidentId);
+        const fromPresident = interaction.guild.members.cache.get(fromPresidentId);
+        const player = interaction.guild.members.cache.get(playerId);
+
+        if (!targetPresident || !fromPresident || !player) {
+            return interaction.reply({ content: '❌ Kullanıcılar bulunamadı!', ephemeral: true });
+        }
+
+        // Form verilerini al
+        const contractData = {
+            playerName: interaction.fields.getTextInputValue('player_name') || '',
+            transferFee: interaction.fields.getTextInputValue('transfer_fee') || '2.500.000₺',
+            salary: interaction.fields.getTextInputValue('salary') || '750.000₺/ay',
+            contractDuration: interaction.fields.getTextInputValue('contract_duration') || '3 yıl',
+            bonus: interaction.fields.getTextInputValue('bonus') || '500.000₺'
+        };
+
+        // Sözleşme embed'i oluştur
+        const contractEmbed = embeds.createContractForm(fromPresident.user, targetPresident.user, player.user, contractData);
+        
+        // Butonları oluştur
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`contract_accept_${targetPresidentId}_${fromPresidentId}_${playerId}_${Buffer.from(JSON.stringify(contractData)).toString('base64')}`)
+                    .setLabel('Kabul Et')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji(config.emojis.check),
+                new ButtonBuilder()
+                    .setCustomId(`contract_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+                    .setLabel('Reddet')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji(config.emojis.cross)
+            );
+
+        // Müzakere kanalı oluştur
+        const negotiationChannel = await channels.createNegotiationChannel(
+            interaction.guild, 
+            fromPresident.user, 
+            targetPresident.user,
+            'contract',
+            player.user
+        );
+
+        if (!negotiationChannel) {
+            return interaction.reply({ content: '❌ Müzakere kanalı oluşturulamadı!', ephemeral: true });
+        }
+
+        // Sözleşme teklifini kanala gönder
+        await negotiationChannel.send({
+            content: `${config.emojis.contract} **Yeni Sözleşme Teklifi**\n${targetPresident.user}, ${fromPresident.user} sizden bir sözleşme teklifi var!\n\n**Oyuncu:** ${player.user}`,
+            embeds: [contractEmbed],
+            components: [row]
+        });
+
+        // Başarı mesajı
+        const successEmbed = new EmbedBuilder()
+            .setColor(config.colors.success)
+            .setTitle(`${config.emojis.check} Sözleşme Teklifi Gönderildi`)
+            .setDescription(`${player.user} için sözleşme teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
+            .setTimestamp();
+
+        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+    }
+
+    // Trade form modali
+    else if (customId.startsWith('trade_form_')) {
+        const [, , targetPresidentId, fromPresidentId, playerId] = customId.split('_');
+        const targetPresident = interaction.guild.members.cache.get(targetPresidentId);
+        const fromPresident = interaction.guild.members.cache.get(fromPresidentId);
+        const player = interaction.guild.members.cache.get(playerId);
+
+        if (!targetPresident || !fromPresident || !player) {
+            return interaction.reply({ content: '❌ Kullanıcılar bulunamadı!', ephemeral: true });
+        }
+
+        // Form verilerini al
+        const tradeData = {
+            playerName: interaction.fields.getTextInputValue('player_name') || '',
+            additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '0',
+            salary: interaction.fields.getTextInputValue('salary') || '850.000₺/ay',
+            contractDuration: interaction.fields.getTextInputValue('contract_duration') || '4 yıl',
+            bonus: interaction.fields.getTextInputValue('bonus') || '400.000₺'
+        };
+
+        // Takas embed'i oluştur
+        const tradeEmbed = embeds.createTradeForm(fromPresident.user, targetPresident.user, player.user, tradeData);
+        
+        // Butonları oluştur
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`trade_accept_${targetPresidentId}_${fromPresidentId}_${playerId}_${Buffer.from(JSON.stringify(tradeData)).toString('base64')}`)
+                    .setLabel('Kabul Et')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji(config.emojis.check),
+                new ButtonBuilder()
+                    .setCustomId(`trade_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+                    .setLabel('Reddet')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji(config.emojis.cross),
+                new ButtonBuilder()
+                    .setCustomId(`trade_counter_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+                    .setLabel('Sende Yap')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji(config.emojis.handshake)
+            );
+
+        // Müzakere kanalı oluştur
+        const negotiationChannel = await channels.createNegotiationChannel(
+            interaction.guild, 
+            fromPresident.user, 
+            targetPresident.user,
+            'trade',
+            player.user
+        );
+
+        if (!negotiationChannel) {
+            return interaction.reply({ content: '❌ Müzakere kanalı oluşturulamadı!', ephemeral: true });
+        }
+
+        // Takas teklifini kanala gönder
+        await negotiationChannel.send({
+            content: `${config.emojis.transfer} **Yeni Takas Teklifi**\n${targetPresident.user}, ${fromPresident.user} sizden bir takas teklifi var!\n\n**Oyuncu:** ${player.user}`,
+            embeds: [tradeEmbed],
+            components: [row]
+        });
+
+        // Başarı mesajı
+        const successEmbed = new EmbedBuilder()
+            .setColor(config.colors.success)
+            .setTitle(`${config.emojis.check} Takas Teklifi Gönderildi`)
+            .setDescription(`${player.user} için takas teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
+            .setTimestamp();
+
+        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+    }
+
+    // Release form modali (Karşılıklı fesih)
+    else if (customId.startsWith('release_form_')) {
+        const [, , playerId, presidentId, releaseType] = customId.split('_');
+        const player = interaction.guild.members.cache.get(playerId);
+        const president = interaction.guild.members.cache.get(presidentId);
+
+        if (!player || !president) {
+            return interaction.reply({ content: '❌ Kullanıcılar bulunamadı!', ephemeral: true });
+        }
+
+        // Form verilerini al
+        const releaseData = {
+            playerName: interaction.fields.getTextInputValue('player_name') || '',
+            compensation: interaction.fields.getTextInputValue('compensation') || '0₺',
+            reason: interaction.fields.getTextInputValue('reason') || 'Karşılıklı anlaşma ile ayrılık',
+            newTeam: interaction.fields.getTextInputValue('new_team') || 'Henüz belirlenmedi',
+            bonus: interaction.fields.getTextInputValue('bonus') || '0₺'
+        };
+
+        // Karşılıklı fesih embed'i oluştur
+        const releaseEmbed = embeds.createReleaseForm(president.user, player.user, 'karşılıklı', releaseData);
+        
+        // Butonları oluştur
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`release_accept_${playerId}_${presidentId}_${Buffer.from(JSON.stringify(releaseData)).toString('base64')}`)
+                    .setLabel('Kabul Et')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji(config.emojis.check),
+                new ButtonBuilder()
+                    .setCustomId(`release_reject_${playerId}_${presidentId}`)
+                    .setLabel('Reddet')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji(config.emojis.cross)
+            );
+
+        // Karşılıklı fesih teklifini gönder
+        await interaction.channel.send({
+            content: `${config.emojis.release} **Karşılıklı Fesih Teklifi**\n${player.user}, ${president.user} sizinle karşılıklı fesih yapmak istiyor!`,
+            embeds: [releaseEmbed],
+            components: [row]
+        });
+
+        // Futbolcuya bildirim gönder
+        try {
+            const dmEmbed = new EmbedBuilder()
+                .setColor(config.colors.warning)
+                .setTitle(`${config.emojis.release} Karşılıklı Fesih Teklifi`)
+                .setDescription(`**${interaction.guild.name}** sunucusunda **${president.user.username}** sizinle karşılıklı fesih yapmak istiyor!\n\nTeklifi değerlendirmek için sunucuya göz atın.`)
+                .setTimestamp();
+
+            await player.user.send({ embeds: [dmEmbed] });
+        } catch (error) {
+            console.log('DM gönderilemedi:', error.message);
+        }
+
+        // Başarı mesajı
+        const successEmbed = new EmbedBuilder()
+            .setColor(config.colors.success)
+            .setTitle(`${config.emojis.check} Karşılıklı Fesih Teklifi Gönderildi`)
+            .setDescription(`${player.user} için karşılıklı fesih teklifiniz gönderildi!`)
             .setTimestamp();
 
         await interaction.reply({ embeds: [successEmbed], ephemeral: true });

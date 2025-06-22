@@ -37,6 +37,12 @@ class ButtonHandler {
                 case 'show':
                     if (params[0] === 'offer' && params[1] === 'modal') {
                         await this.handleShowOfferModal(client, interaction, params.slice(2));
+                    } else if (params[0] === 'contract' && params[1] === 'modal') {
+                        await this.handleShowContractModal(client, interaction, params.slice(2));
+                    } else if (params[0] === 'trade' && params[1] === 'modal') {
+                        await this.handleShowTradeModal(client, interaction, params.slice(2));
+                    } else if (params[0] === 'release' && params[1] === 'modal') {
+                        await this.handleShowReleaseModal(client, interaction, params.slice(2));
                     }
                     break;
                 default:
@@ -458,8 +464,8 @@ class ButtonHandler {
     }
 
     async handleReleaseButton(client, interaction, params) {
-        // release_accept_playerID_presidentID veya release_confirm_playerID_presidentID
-        const [buttonType, playerId, presidentId] = params;
+        // release_accept_playerID_presidentID, release_confirm_playerID_presidentID_unilateral, release_cancel_playerID_presidentID
+        const [buttonType, playerId, presidentId, releaseType] = params;
         
         const player = interaction.guild.members.cache.get(playerId);
         const president = interaction.guild.members.cache.get(presidentId);
@@ -781,6 +787,13 @@ class ButtonHandler {
             .setTitle('Transfer Teklifi Formu');
 
         // Form alanları
+        const newTeamInput = new TextInputBuilder()
+            .setCustomId('new_team')
+            .setLabel('Yeni Kulüp')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: Real Madrid')
+            .setRequired(false);
+
         const playerNameInput = new TextInputBuilder()
             .setCustomId('player_name')
             .setLabel('Oyuncu İsmi')
@@ -793,13 +806,6 @@ class ButtonHandler {
             .setLabel('Maaş')
             .setStyle(TextInputStyle.Short)
             .setPlaceholder('Örn: 750.000₺/ay')
-            .setRequired(false);
-
-        const signingBonusInput = new TextInputBuilder()
-            .setCustomId('signing_bonus')
-            .setLabel('İmza Primi')
-            .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 2.000.000₺')
             .setRequired(false);
 
         const contractDurationInput = new TextInputBuilder()
@@ -817,10 +823,181 @@ class ButtonHandler {
             .setRequired(false);
 
         // Action Row'lar oluştur
-        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
-        const row2 = new ActionRowBuilder().addComponents(salaryInput);
-        const row3 = new ActionRowBuilder().addComponents(signingBonusInput);
+        const row1 = new ActionRowBuilder().addComponents(newTeamInput);
+        const row2 = new ActionRowBuilder().addComponents(playerNameInput);
+        const row3 = new ActionRowBuilder().addComponents(salaryInput);
         const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
+        const row5 = new ActionRowBuilder().addComponents(bonusInput);
+
+        modal.addComponents(row1, row2, row3, row4, row5);
+
+        // Modal'ı göster
+        await interaction.showModal(modal);
+    }
+
+    async handleShowContractModal(client, interaction, params) {
+        const [targetPresidentId, fromPresidentId, playerId] = params;
+        
+        // Modal formu oluştur
+        const modal = new ModalBuilder()
+            .setCustomId(`contract_form_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+            .setTitle('Sözleşme Teklifi Formu');
+
+        // Form alanları
+        const playerNameInput = new TextInputBuilder()
+            .setCustomId('player_name')
+            .setLabel('Oyuncu İsmi')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: Lionel Messi')
+            .setRequired(false);
+
+        const transferFeeInput = new TextInputBuilder()
+            .setCustomId('transfer_fee')
+            .setLabel('Transfer Bedeli')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 50.000.000₺')
+            .setRequired(false);
+
+        const salaryInput = new TextInputBuilder()
+            .setCustomId('salary')
+            .setLabel('Maaş')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 2.000.000₺/ay')
+            .setRequired(false);
+
+        const contractDurationInput = new TextInputBuilder()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme Süresi')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 4 yıl')
+            .setRequired(false);
+
+        const bonusInput = new TextInputBuilder()
+            .setCustomId('bonus')
+            .setLabel('Bonuslar')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 1.000.000₺')
+            .setRequired(false);
+
+        // Action Row'lar oluştur
+        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
+        const row2 = new ActionRowBuilder().addComponents(transferFeeInput);
+        const row3 = new ActionRowBuilder().addComponents(salaryInput);
+        const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
+        const row5 = new ActionRowBuilder().addComponents(bonusInput);
+
+        modal.addComponents(row1, row2, row3, row4, row5);
+
+        // Modal'ı göster
+        await interaction.showModal(modal);
+    }
+
+    async handleShowTradeModal(client, interaction, params) {
+        const [targetPresidentId, fromPresidentId, playerId] = params;
+        
+        // Modal formu oluştur
+        const modal = new ModalBuilder()
+            .setCustomId(`trade_form_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+            .setTitle('Takas Teklifi Formu');
+
+        // Form alanları
+        const playerNameInput = new TextInputBuilder()
+            .setCustomId('player_name')
+            .setLabel('Oyuncu İsmi')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: Neymar Jr')
+            .setRequired(false);
+
+        const additionalAmountInput = new TextInputBuilder()
+            .setCustomId('additional_amount')
+            .setLabel('Ek Miktar')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 15.000.000₺')
+            .setRequired(false);
+
+        const salaryInput = new TextInputBuilder()
+            .setCustomId('salary')
+            .setLabel('Maaş')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 1.500.000₺/ay')
+            .setRequired(false);
+
+        const contractDurationInput = new TextInputBuilder()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme Süresi')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 4 yıl')
+            .setRequired(false);
+
+        const bonusInput = new TextInputBuilder()
+            .setCustomId('bonus')
+            .setLabel('Bonuslar')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 750.000₺')
+            .setRequired(false);
+
+        // Action Row'lar oluştur
+        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
+        const row2 = new ActionRowBuilder().addComponents(additionalAmountInput);
+        const row3 = new ActionRowBuilder().addComponents(salaryInput);
+        const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
+        const row5 = new ActionRowBuilder().addComponents(bonusInput);
+
+        modal.addComponents(row1, row2, row3, row4, row5);
+
+        // Modal'ı göster
+        await interaction.showModal(modal);
+    }
+
+    async handleShowReleaseModal(client, interaction, params) {
+        const [playerId, presidentId, releaseType] = params;
+        
+        // Modal formu oluştur
+        const modal = new ModalBuilder()
+            .setCustomId(`release_form_${playerId}_${presidentId}_${releaseType}`)
+            .setTitle('Karşılıklı Fesih Formu');
+
+        // Form alanları
+        const playerNameInput = new TextInputBuilder()
+            .setCustomId('player_name')
+            .setLabel('Oyuncu İsmi')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: Eden Hazard')
+            .setRequired(false);
+
+        const compensationInput = new TextInputBuilder()
+            .setCustomId('compensation')
+            .setLabel('Ek Tazminat')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 5.000.000₺')
+            .setRequired(false);
+
+        const reasonInput = new TextInputBuilder()
+            .setCustomId('reason')
+            .setLabel('Fesih Sebebi')
+            .setStyle(TextInputStyle.Paragraph)
+            .setPlaceholder('Örn: Karşılıklı anlaşma ile ayrılık')
+            .setRequired(false);
+
+        const newTeamInput = new TextInputBuilder()
+            .setCustomId('new_team')
+            .setLabel('Yeni Takım (Opsiyonel)')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: Real Madrid')
+            .setRequired(false);
+
+        const bonusInput = new TextInputBuilder()
+            .setCustomId('bonus')
+            .setLabel('Ek Ödemeler')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 2.000.000₺')
+            .setRequired(false);
+
+        // Action Row'lar oluştur
+        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
+        const row2 = new ActionRowBuilder().addComponents(compensationInput);
+        const row3 = new ActionRowBuilder().addComponents(reasonInput);
+        const row4 = new ActionRowBuilder().addComponents(newTeamInput);
         const row5 = new ActionRowBuilder().addComponents(bonusInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);
