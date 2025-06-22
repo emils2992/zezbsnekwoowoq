@@ -198,6 +198,9 @@ async function handleSelectMenu(client, interaction) {
 // Modal submission işleyicisi
 async function handleModalSubmit(client, interaction) {
     try {
+        // Hemen defer et - 3 dakika timeout sorunu için
+        await interaction.deferReply({ ephemeral: true });
+        
         const customId = interaction.customId;
         const { ModalBuilder, TextInputBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
         const embeds = require('./utils/embeds');
@@ -213,7 +216,7 @@ async function handleModalSubmit(client, interaction) {
             const president = interaction.guild.members.cache.get(presidentId);
 
             if (!player || !president) {
-                return interaction.reply({ content: '❌ Kullanıcılar bulunamadı!', ephemeral: true });
+                return interaction.editReply({ content: '❌ Kullanıcılar bulunamadı!' });
             }
 
             // Form verilerini al
@@ -257,7 +260,7 @@ async function handleModalSubmit(client, interaction) {
             );
 
             if (!negotiationChannel) {
-                return interaction.reply({ content: '❌ Müzakere kanalı oluşturulamadı!', ephemeral: true });
+                return interaction.editReply({ content: '❌ Müzakere kanalı oluşturulamadı!' });
             }
 
             // Teklifi kanala gönder
@@ -274,7 +277,7 @@ async function handleModalSubmit(client, interaction) {
                 .setDescription(`${player.user} için teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
                 .setTimestamp();
 
-            await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+            await interaction.editReply({ embeds: [successEmbed] });
         }
     
     // Contract form modali
@@ -285,7 +288,7 @@ async function handleModalSubmit(client, interaction) {
         const player = interaction.guild.members.cache.get(playerId);
 
         if (!targetPresident || !fromPresident || !player) {
-            return interaction.reply({ content: '❌ Kullanıcılar bulunamadı!', ephemeral: true });
+            return interaction.editReply({ content: '❌ Kullanıcılar bulunamadı!' });
         }
 
         // Form verilerini al
@@ -325,7 +328,7 @@ async function handleModalSubmit(client, interaction) {
         );
 
         if (!negotiationChannel) {
-            return interaction.reply({ content: '❌ Müzakere kanalı oluşturulamadı!', ephemeral: true });
+            return interaction.editReply({ content: '❌ Müzakere kanalı oluşturulamadı!' });
         }
 
         // Sözleşme teklifini kanala gönder
@@ -342,7 +345,7 @@ async function handleModalSubmit(client, interaction) {
             .setDescription(`${player.user} için sözleşme teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
             .setTimestamp();
 
-        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+        await interaction.editReply({ embeds: [successEmbed] });
     }
 
     // Trade form modali
@@ -353,16 +356,16 @@ async function handleModalSubmit(client, interaction) {
         const player = interaction.guild.members.cache.get(playerId);
 
         if (!targetPresident || !fromPresident || !player) {
-            return interaction.reply({ content: '❌ Kullanıcılar bulunamadı!', ephemeral: true });
+            return interaction.editReply({ content: '❌ Kullanıcılar bulunamadı!' });
         }
 
         // Form verilerini al
         const tradeData = {
             playerName: interaction.fields.getTextInputValue('player_name') || '',
             additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '0',
-            salary: interaction.fields.getTextInputValue('salary') || '850.000₺/ay',
+            salary: interaction.fields.getTextInputValue('salary') || '10.000.000₺/yıl',
             contractDuration: interaction.fields.getTextInputValue('contract_duration') || '4 yıl',
-            bonus: interaction.fields.getTextInputValue('bonus') || '400.000₺'
+            bonus: interaction.fields.getTextInputValue('bonus') || '5.000.000₺'
         };
 
         // Takas embed'i oluştur
@@ -398,7 +401,7 @@ async function handleModalSubmit(client, interaction) {
         );
 
         if (!negotiationChannel) {
-            return interaction.reply({ content: '❌ Müzakere kanalı oluşturulamadı!', ephemeral: true });
+            return interaction.editReply({ content: '❌ Müzakere kanalı oluşturulamadı!' });
         }
 
         // Takas teklifini kanala gönder
@@ -415,7 +418,7 @@ async function handleModalSubmit(client, interaction) {
             .setDescription(`${player.user} için takas teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
             .setTimestamp();
 
-        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+        await interaction.editReply({ embeds: [successEmbed] });
     }
 
     // Release form modali (Karşılıklı fesih)
@@ -425,7 +428,7 @@ async function handleModalSubmit(client, interaction) {
         const president = interaction.guild.members.cache.get(presidentId);
 
         if (!player || !president) {
-            return interaction.reply({ content: '❌ Kullanıcılar bulunamadı!', ephemeral: true });
+            return interaction.editReply({ content: '❌ Kullanıcılar bulunamadı!' });
         }
 
         // Form verilerini al
@@ -482,11 +485,15 @@ async function handleModalSubmit(client, interaction) {
             .setDescription(`${player.user} için karşılıklı fesih teklifiniz gönderildi!`)
             .setTimestamp();
 
-        await interaction.reply({ embeds: [successEmbed], ephemeral: true });
+        await interaction.editReply({ embeds: [successEmbed] });
     }
     } catch (error) {
         console.error('Modal submission error:', error);
-        if (!interaction.replied && !interaction.deferred) {
+        if (interaction.deferred) {
+            await interaction.editReply({ 
+                content: '❌ Modal işlenirken hata oluştu! Lütfen tekrar deneyin.' 
+            });
+        } else if (!interaction.replied) {
             await interaction.reply({ 
                 content: '❌ Modal işlenirken hata oluştu! Lütfen tekrar deneyin.', 
                 ephemeral: true 
