@@ -545,7 +545,7 @@ class ButtonHandler {
                     });
                 }
 
-                const cancelEmbed = new MessageEmbed()
+                const cancelEmbed = new EmbedBuilder()
                     .setColor(config.colors.text)
                     .setTitle(`${config.emojis.cross} Fesih İptal Edildi`)
                     .setDescription('Fesih işlemi iptal edildi.')

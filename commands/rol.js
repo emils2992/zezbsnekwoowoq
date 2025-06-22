@@ -12,7 +12,7 @@ module.exports = {
     async execute(client, message, args) {
         try {
             // Admin yetkisi kontrolü
-            if (!message.member.permissions.has('ADMINISTRATOR')) {
+            if (!message.member.permissions.has('Administrator')) {
                 return message.reply('❌ Bu komutu sadece yöneticiler kullanabilir!');
             }
 
