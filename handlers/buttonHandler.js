@@ -88,7 +88,15 @@ class ButtonHandler {
                     components: [] 
                 });
 
-                // Transfer duyurusu otomatik değil, manuel .transfer-duyuru komutu ile yapılacak
+                // Otomatik transfer duyurusu gönder
+                await this.sendTransferAnnouncement(interaction.guild, {
+                    player: player.user,
+                    team: president.displayName,
+                    type: 'serbest_transfer',
+                    salary: '500.000₺/ay',
+                    bonus: '1.000.000₺',
+                    duration: '2 yıl'
+                });
 
                 // Transfer geçmişine kaydet
                 await api.logTransfer({
@@ -365,6 +373,16 @@ class ButtonHandler {
                     components: [] 
                 });
 
+                // Otomatik transfer duyurusu gönder
+                await this.sendTransferAnnouncement(interaction.guild, {
+                    player: player.user,
+                    team: fromPresident.displayName,
+                    type: 'takas',
+                    amount: amount && parseInt(amount) > 0 ? `${parseInt(amount).toLocaleString('tr-TR')}₺` : null,
+                    salary: '850.000₺/ay',
+                    duration: '4 yıl'
+                });
+
                 // Transfer geçmişine kaydet
                 await api.logTransfer({
                     type: 'trade_accepted',
@@ -404,16 +422,17 @@ class ButtonHandler {
 
                 break;
 
-            case 'negotiate':
-                if (interaction.user.id !== targetPresidentId && interaction.user.id !== fromPresidentId) {
+            case 'counter':
+                // "Sende Yap" butonu - hedef başkan kendi oyuncusunu teklif edecek
+                if (interaction.user.id !== targetPresidentId) {
                     return interaction.reply({ 
-                        content: '❌ Sadece başkanlar müzakere edebilir!', 
+                        content: '❌ Sadece hedef başkan karşı teklif yapabilir!', 
                         ephemeral: true 
                     });
                 }
 
                 await interaction.reply({ 
-                    content: `${config.emojis.transfer} Takas müzakeresi devam ediyor... Karşı tekliflerinizi bu kanalda belirtebilirsiniz!`, 
+                    content: `${config.emojis.transfer} ${targetPresident.displayName}, şimdi sizin hangi oyuncunuzu takas için teklif edeceğinizi belirtin!\n\nYeni takas komutu: \`.trade @${fromPresident.user.username} @oyuncunuz [ek_miktar]\``, 
                     ephemeral: false 
                 });
 
@@ -584,7 +603,15 @@ class ButtonHandler {
                     components: [] 
                 });
 
-                // Transfer duyurusu otomatik değil, manuel .transfer-duyuru komutu ile yapılacak
+                // Otomatik transfer duyurusu gönder
+                await this.sendTransferAnnouncement(interaction.guild, {
+                    player: player.user,
+                    team: fromPresident.displayName,
+                    type: 'transfer',
+                    amount: '2.500.000₺',
+                    salary: '750.000₺/ay',
+                    duration: '3 yıl'
+                });
 
                 // Transfer geçmişine kaydet
                 await api.logTransfer({
@@ -627,6 +654,100 @@ class ButtonHandler {
                 }, 5000);
 
                 break;
+        }
+    }
+
+    async sendTransferAnnouncement(guild, transferData) {
+        try {
+            // Transfer duyuru kanalını bul
+            const fs = require('fs');
+            const path = require('path');
+            const rolesPath = path.join(__dirname, '../data/roles.json');
+            
+            let allData = {};
+            try {
+                allData = JSON.parse(fs.readFileSync(rolesPath, 'utf8'));
+            } catch (error) {
+                console.log('Transfer duyuru kanalı ayarlanmamış');
+                return;
+            }
+            
+            const guildData = allData[guild.id];
+            if (!guildData || !guildData.transferChannel) {
+                console.log('Transfer duyuru kanalı ayarlanmamış');
+                return;
+            }
+            
+            const transferChannel = guild.channels.cache.get(guildData.transferChannel);
+            if (!transferChannel) {
+                console.log('Transfer duyuru kanalı bulunamadı');
+                return;
+            }
+
+            // Futbolcu yüzü al
+            const playerFace = await api.getPlayerFace();
+
+            // Transfer türüne göre renk ve başlık
+            let color = config.colors.success;
+            let title = '';
+            
+            switch (transferData.type) {
+                case 'serbest_transfer':
+                    color = config.colors.primary;
+                    title = 'SERBEST TRANSFER TAMAMLANDI';
+                    break;
+                case 'transfer':
+                    color = config.colors.success;
+                    title = 'SÖZLEŞME TRANSFER TAMAMLANDI';
+                    break;
+                case 'takas':
+                    color = config.colors.accent;
+                    title = 'TAKAS TRANSFER TAMAMLANDI';
+                    break;
+                default:
+                    title = 'TRANSFER TAMAMLANDI';
+            }
+
+            // Transfer duyuru embed'i oluştur
+            const announcementEmbed = new EmbedBuilder()
+                .setColor(color)
+                .setTitle(`${config.emojis.football} ${title}`)
+                .setDescription(`**${transferData.player.username}** ${transferData.team} takımı ile anlaştı!`)
+                .setThumbnail(playerFace)
+                .addFields(
+                    { name: '⚽ Oyuncu', value: `${transferData.player}`, inline: true },
+                    { name: '🏆 Yeni Takım', value: transferData.team, inline: true },
+                    { name: '📋 Transfer Türü', value: transferData.type === 'serbest_transfer' ? 'Serbest Transfer' : transferData.type.charAt(0).toUpperCase() + transferData.type.slice(1), inline: true }
+                );
+
+            // Transfer detayları ekle
+            if (transferData.amount) {
+                announcementEmbed.addFields({ name: '💰 Transfer Bedeli', value: transferData.amount, inline: true });
+            }
+            if (transferData.salary) {
+                announcementEmbed.addFields({ name: '💵 Maaş', value: transferData.salary, inline: true });
+            }
+            if (transferData.duration) {
+                announcementEmbed.addFields({ name: '📅 Sözleşme Süresi', value: transferData.duration, inline: true });
+            }
+            if (transferData.bonus) {
+                announcementEmbed.addFields({ name: '💎 İmza Parası', value: transferData.bonus, inline: true });
+            }
+
+            announcementEmbed
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Sistemi', iconURL: guild.iconURL() });
+
+            // Duyuruyu gönder
+            await transferChannel.send({
+                content: `🎉 **YENİ TRANSFER DUYURUSU** 🎉`,
+                embeds: [announcementEmbed]
+            });
+
+            console.log(`Transfer duyurusu gönderildi: ${transferData.player.username} -> ${transferData.team}`);
+
+        } catch (error) {
+            console.error('Transfer duyurusu gönderme hatası:', error);
         }
     }
 }
