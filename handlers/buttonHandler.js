@@ -73,9 +73,9 @@ class ButtonHandler {
         const offerData = {
             newTeam: president.displayName,
             playerName: player.displayName,
-            salary: '500.000₺/ay',
+            salary: '6.000.000₺/yıl',
             contractDuration: '2 yıl',
-            bonus: '250.000₺'
+            bonus: '3.000.000₺'
         };
 
         if (!player || !president) {
@@ -111,12 +111,11 @@ class ButtonHandler {
                 // Otomatik transfer duyurusu gönder
                 await this.sendTransferAnnouncement(interaction.guild, {
                     player: player.user,
-                    team: president.displayName,
+                    team: offerData?.newTeam || president.displayName,
                     type: 'serbest_transfer',
-                    salary: offerData?.salary || '500.000₺/ay',
-                    bonus: offerData?.bonus || '250.000₺',
+                    salary: offerData?.salary || '6.000.000₺/yıl',
+                    bonus: offerData?.bonus || '3.000.000₺',
                     duration: offerData?.contractDuration || '2 yıl',
-                    signingBonus: offerData?.signingBonus || '1.000.000₺',
                     playerName: offerData?.playerName
                 });
 
@@ -133,6 +132,69 @@ class ButtonHandler {
                 setTimeout(async () => {
                     await channels.deleteNegotiationChannel(interaction.channel, 'Transfer tamamlandı');
                 }, 5000);
+
+                break;
+
+            case 'edit':
+                // Sadece başkan düzenleyebilir
+                if (interaction.user.id !== presidentId) {
+                    return interaction.reply({ 
+                        content: '❌ Bu teklifi sadece başkan düzenleyebilir!', 
+                        ephemeral: true 
+                    });
+                }
+
+                // Modal'ı tekrar göster
+                const modal = new ModalBuilder()
+                    .setCustomId(`offer_form_${playerId}_${presidentId}`)
+                    .setTitle('Transfer Teklifi Düzenle');
+
+                // Form alanları
+                const newTeamInput = new TextInputBuilder()
+                    .setCustomId('new_team')
+                    .setLabel('Yeni Kulüp')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Örn: Real Madrid')
+                    .setRequired(false);
+
+                const playerNameInput = new TextInputBuilder()
+                    .setCustomId('player_name')
+                    .setLabel('Oyuncu İsmi')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Örn: Cristiano Ronaldo')
+                    .setRequired(false);
+
+                const salaryInput = new TextInputBuilder()
+                    .setCustomId('salary')
+                    .setLabel('Maaş')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Örn: 6.000.000₺/yıl')
+                    .setRequired(false);
+
+                const contractDurationInput = new TextInputBuilder()
+                    .setCustomId('contract_duration')
+                    .setLabel('Sözleşme Süresi')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Örn: 3 yıl')
+                    .setRequired(false);
+
+                const bonusInput = new TextInputBuilder()
+                    .setCustomId('bonus')
+                    .setLabel('Bonuslar')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Örn: 3.000.000₺')
+                    .setRequired(false);
+
+                // Action Row'lar oluştur
+                const row1 = new ActionRowBuilder().addComponents(newTeamInput);
+                const row2 = new ActionRowBuilder().addComponents(playerNameInput);
+                const row3 = new ActionRowBuilder().addComponents(salaryInput);
+                const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
+                const row5 = new ActionRowBuilder().addComponents(bonusInput);
+
+                modal.addComponents(row1, row2, row3, row4, row5);
+
+                await interaction.showModal(modal);
 
                 break;
 
@@ -804,7 +866,7 @@ class ButtonHandler {
             .setCustomId('salary')
             .setLabel('Maaş')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 750.000₺/ay')
+            .setPlaceholder('Örn: 6.000.000₺/yıl')
             .setRequired(false);
 
         const contractDurationInput = new TextInputBuilder()

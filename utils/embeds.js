@@ -26,7 +26,7 @@ class EmbedCreator {
             },
             {
                 name: `${config.emojis.money} Önerilen Maaş`,
-                value: offerData?.salary || '500.000₺/ay',
+                value: offerData?.salary || '6.000.000₺/yıl',
                 inline: true
             },
             {

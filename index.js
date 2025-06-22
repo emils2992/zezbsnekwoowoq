@@ -220,9 +220,9 @@ async function handleModalSubmit(client, interaction) {
             const offerData = {
                 newTeam: interaction.fields.getTextInputValue('new_team') || '',
                 playerName: interaction.fields.getTextInputValue('player_name') || '',
-                salary: interaction.fields.getTextInputValue('salary') || '500.000₺/ay',
+                salary: interaction.fields.getTextInputValue('salary') || '6.000.000₺/yıl',
                 contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl',
-                bonus: interaction.fields.getTextInputValue('bonus') || '250.000₺'
+                bonus: interaction.fields.getTextInputValue('bonus') || '3.000.000₺'
             };
 
             // Teklif embed'i oluştur
@@ -240,7 +240,12 @@ async function handleModalSubmit(client, interaction) {
                         .setCustomId(`offer_reject_${playerId}_${presidentId}`)
                         .setLabel('Reddet')
                         .setStyle(ButtonStyle.Danger)
-                        .setEmoji(config.emojis.cross)
+                        .setEmoji(config.emojis.cross),
+                    new ButtonBuilder()
+                        .setCustomId(`offer_edit_${playerId}_${presidentId}`)
+                        .setLabel('Tekrar Düzenle')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji(config.emojis.edit)
                 );
 
             // Müzakere kanalı oluştur
