@@ -835,25 +835,24 @@ class ButtonHandler {
         } else if (type === 'offer') {
             // Serbest futbolcu teklif transferi
             const newTeamField = embedFields.find(f => f.name.includes('Yeni Kulüp'));
-            const oldClubField = embedFields.find(f => f.name.includes('Eski Kulüp'));
+            const playerNameField = embedFields.find(f => f.name.includes('Oyuncu Adı'));
             const salaryField = embedFields.find(f => f.name.includes('Maaş'));
             const durationField = embedFields.find(f => f.name.includes('Sözleşme'));
             
             const newTeam = newTeamField ? newTeamField.value : 'Bilinmiyor';
-            const oldClub = oldClubField ? oldClubField.value : 'Bilinmiyor';
+            const playerName = playerNameField ? playerNameField.value : player.displayName;
             const salary = salaryField ? salaryField.value : 'Bilinmiyor';
             const duration = durationField ? durationField.value : 'Bilinmiyor';
             
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('✅ Transfer Teklifi Kabul Edildi!')
-                .setDescription(`**${player.displayName}** teklifi kabul etti ve **${newTeam}** kulübüne transfer oldu!`)
+                .setDescription(`**${playerName}** teklifi kabul etti ve **${newTeam}** kulübüne transfer oldu!`)
                 .addFields(
-                    { name: '⚽ Futbolcu', value: `${player}`, inline: true },
-                    { name: '🏴 Eski Kulüp', value: oldClub, inline: true },
+                    { name: '⚽ Oyuncu', value: playerName, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: newTeam, inline: true },
                     { name: '💰 Maaş', value: salary, inline: true },
-                    { name: '📅 Sözleşme Süresi', value: duration, inline: true }
+                    { name: '📅 Sözleşme + Bonus', value: duration, inline: true }
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
@@ -999,10 +998,9 @@ class ButtonHandler {
 
         const editableEmbed = embeds.createOfferForm(president.user, player.user, {
             newTeam: 'Düzenlenecek',
-            oldClub: 'Düzenlenecek', 
+            playerName: player.displayName, 
             salary: 'Düzenlenecek',
-            contractDuration: 'Düzenlenecek',
-            bonus: 'Düzenlenecek'
+            contractDuration: 'Düzenlenecek'
         });
 
         const buttons = new MessageActionRow()
@@ -1144,6 +1142,8 @@ class ButtonHandler {
 
     async handleShowOfferForm(client, interaction, params) {
         const [playerId, presidentId] = params;
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
         
         const modal = new Modal()
             .setCustomId(`offer_form_${playerId}_${presidentId}`)
@@ -1156,11 +1156,12 @@ class ButtonHandler {
             .setPlaceholder('Örn: Galatasaray')
             .setRequired(true);
 
-        const oldClubInput = new TextInputComponent()
-            .setCustomId('old_club')
-            .setLabel('Eski Kulüp')
+        const playerNameInput = new TextInputComponent()
+            .setCustomId('player_name')
+            .setLabel('Oyuncu Adı')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: Manchester United')
+            .setPlaceholder(`${player.displayName}`)
+            .setValue(`${player.displayName}`)
             .setRequired(true);
 
         const salaryInput = new TextInputComponent()
@@ -1172,25 +1173,17 @@ class ButtonHandler {
 
         const contractInput = new TextInputComponent()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme Süresi')
+            .setLabel('Sözleşme Süresi + İmza Bonusu')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 2 yıl')
+            .setPlaceholder('Örn: 2 yıl + 3.000.000₺ bonus')
             .setRequired(true);
 
-        const bonusInput = new TextInputComponent()
-            .setCustomId('bonus')
-            .setLabel('İmza Bonusu')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 3.000.000₺')
-            .setRequired(false);
-
         const row1 = new MessageActionRow().addComponents(newTeamInput);
-        const row2 = new MessageActionRow().addComponents(oldClubInput);
+        const row2 = new MessageActionRow().addComponents(playerNameInput);
         const row3 = new MessageActionRow().addComponents(salaryInput);
         const row4 = new MessageActionRow().addComponents(contractInput);
-        const row5 = new MessageActionRow().addComponents(bonusInput);
 
-        modal.addComponents(row1, row2, row3, row4, row5);
+        modal.addComponents(row1, row2, row3, row4);
 
         await interaction.showModal(modal);
     }

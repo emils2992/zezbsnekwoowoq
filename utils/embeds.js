@@ -10,11 +10,9 @@ class EmbedCreator {
             .addFields(
                 { name: `${config.emojis.handshake} Başkan`, value: `${president}`, inline: true },
                 { name: '🏆 Yeni Kulüp', value: offerData?.newTeam || 'Belirtilmedi', inline: true },
-                { name: '⚽ Futbolcu', value: `${player}`, inline: true },
-                { name: '🏴 Eski Kulüp', value: offerData?.oldClub || 'Belirtilmedi', inline: true },
+                { name: '⚽ Oyuncu Adı', value: offerData?.playerName || player.displayName, inline: true },
                 { name: `${config.emojis.money} Önerilen Maaş`, value: offerData?.salary || '6.000.000₺/yıl', inline: true },
-                { name: '📅 Sözleşme Süresi', value: offerData?.contractDuration || '2 yıl', inline: true },
-                { name: '🎯 Bonuslar', value: offerData?.bonus || '250.000₺', inline: true }
+                { name: '📅 Sözleşme + Bonus', value: offerData?.contractDuration || '2 yıl + 3.000.000₺ bonus', inline: true }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });

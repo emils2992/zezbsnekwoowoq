@@ -169,10 +169,9 @@ async function handleModalSubmit(client, interaction) {
 
             const offerData = {
                 newTeam: interaction.fields.getTextInputValue('new_team') || '',
-                oldClub: interaction.fields.getTextInputValue('old_club') || '',
+                playerName: interaction.fields.getTextInputValue('player_name') || player.displayName,
                 salary: interaction.fields.getTextInputValue('salary') || '6.000.000₺/yıl',
-                contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl',
-                bonus: interaction.fields.getTextInputValue('bonus') || '3.000.000₺'
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl + 3.000.000₺ bonus'
             };
 
             // Müzakere kanalı oluştur
