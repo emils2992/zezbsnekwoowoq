@@ -670,7 +670,7 @@ class ButtonHandler {
 
                 const acceptEmbed = embeds.createSuccess(
                     'Karşılıklı Fesih Kabul Edildi!',
-                    `${player} ile ${president.displayName} arasında karşılıklı fesih anlaşması tamamlandı!\n\n${player} artık serbest futbolcu statüsündedir.`
+                    `${player} ile ${president.displayName} arasında karşılıklı fesih anlaşması tamamlandı!\n\n**${releaseData.playerName || player.user.username}** SERBEST KALDI! 🆓`
                 );
 
                 await interaction.update({ 
@@ -731,7 +731,7 @@ class ButtonHandler {
 
                 const confirmEmbed = embeds.createSuccess(
                     'Tek Taraflı Fesih Tamamlandı!',
-                    `${president.displayName} tarafından ${player} ile tek taraflı fesih gerçekleştirildi!\n\n${player} artık serbest futbolcu statüsündedir.`
+                    `${president.displayName} tarafından **${releaseData.playerName || player.user.username}** ile tek taraflı fesih gerçekleştirildi!\n\n**${releaseData.playerName || player.user.username}** SERBEST KALDI! 🆓`
                 );
 
                 await interaction.update({ 
@@ -739,19 +739,14 @@ class ButtonHandler {
                     components: [] 
                 });
 
-                // Serbest-duyuru kanalına basit mesaj gönder
+                // Serbest-duyuru kanalına mesaj gönder
                 await this.sendSimpleFreeAgentAnnouncement(
                     interaction.guild, 
                     player.user, 
                     releaseData.playerName || player.user.username
                 );
 
-                // Mesaj 3 saniye sonra sil (tek taraflı için daha hızlı)
-                setTimeout(async () => {
-                    if (interaction.channel && interaction.channel.delete) {
-                        await interaction.channel.delete('Tek taraflı fesih tamamlandı');
-                    }
-                }, 3000);
+                // Tek taraflı fesihte kanal silinmez - sadece mesaj gönderilir
 
                 break;
 
@@ -1356,7 +1351,7 @@ class ButtonHandler {
             // Ping rolünü al
             const freeAgentRolesPath = path.join(__dirname, '../data/roles.json');
             
-            let pingContent = `${config.emojis.football} **Yeni Serbest Futbolcu Duyurusu**`;
+            let pingContent = `${config.emojis.football} **YENİ SERBEST FUTBOLCU DUYURUSU**`;
             
             try {
                 const allData = JSON.parse(fs.readFileSync(freeAgentRolesPath, 'utf8'));
@@ -1365,7 +1360,7 @@ class ButtonHandler {
                 if (guildData && guildData.freeAgentPingRole) {
                     const pingRole = guild.roles.cache.get(guildData.freeAgentPingRole);
                     if (pingRole) {
-                        pingContent = `${config.emojis.football} **Yeni Serbest Futbolcu Duyurusu**\n${pingRole}`;
+                        pingContent = `${config.emojis.football} **YENİ SERBEST FUTBOLCU DUYURUSU**\n${pingRole}`;
                     }
                 }
             } catch (error) {
