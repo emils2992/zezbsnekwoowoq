@@ -697,7 +697,7 @@ class ButtonHandler {
         console.log(`Trade button debug: User ${interaction.user.id} clicked ${buttonType}, WantedPlayer: ${wantedPlayerId}, GivenPlayer: ${givenPlayerId}`);
 
         if (buttonType === 'accept') {
-            // Check if user is one of the players
+            // Check if user is one of the players or transfer authority
             const member = interaction.member;
             const isAuthorizedPlayer = interaction.user.id === wantedPlayerId || interaction.user.id === givenPlayerId;
             const isTransferAuthority = permissions.isTransferAuthority(member);
@@ -729,14 +729,6 @@ class ButtonHandler {
                 console.log(`Initialized acceptance tracking for ${channelName}:`, global[acceptanceKey]);
             }
             
-            // Prevent duplicate acceptances
-            if ((interaction.user.id === wantedPlayerId && global[acceptanceKey].wantedPlayer) ||
-                (interaction.user.id === givenPlayerId && global[acceptanceKey].givenPlayer)) {
-                return interaction.editReply({
-                    content: `⚠️ Sen zaten takası kabul ettin! Diğer oyuncunun kararı bekleniyor...`
-                });
-            }
-
             // Mark this player as accepted - use string comparison for safety
             const userId = interaction.user.id.toString();
             const wantedId = wantedPlayerId.toString();
@@ -744,7 +736,49 @@ class ButtonHandler {
             
             console.log(`Trade acceptance check: User ${userId} vs Wanted ${wantedId} vs Given ${givenId}`);
             
-            if (userId === wantedId) {
+            // Use existing member and authority check from above
+            
+            // Prevent duplicate acceptances for regular players
+            if (!isTransferAuthority) {
+                if ((interaction.user.id === wantedPlayerId && global[acceptanceKey].wantedPlayer) ||
+                    (interaction.user.id === givenPlayerId && global[acceptanceKey].givenPlayer)) {
+                    return interaction.editReply({
+                        content: `⚠️ Sen zaten takası kabul ettin! Diğer oyuncunun kararı bekleniyor...`
+                    });
+                }
+            }
+            
+            // Transfer authorities can accept for either player
+            if (isTransferAuthority) {
+                // Ask which player they're accepting for if both haven't accepted yet
+                if (!global[acceptanceKey].wantedPlayer && !global[acceptanceKey].givenPlayer) {
+                    // Accept for the first player (wanted)
+                    global[acceptanceKey].wantedPlayer = true;
+                    console.log(`✅ Wanted player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
+                    await interaction.editReply({
+                        content: `✅ **${wantedPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
+                    });
+                } else if (!global[acceptanceKey].givenPlayer) {
+                    // Accept for the second player (given)
+                    global[acceptanceKey].givenPlayer = true;
+                    console.log(`✅ Given player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
+                    await interaction.editReply({
+                        content: `✅ **${givenPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! ${global[acceptanceKey].wantedPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
+                    });
+                } else if (!global[acceptanceKey].wantedPlayer) {
+                    // Accept for the first player (wanted) 
+                    global[acceptanceKey].wantedPlayer = true;
+                    console.log(`✅ Wanted player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
+                    await interaction.editReply({
+                        content: `✅ **${wantedPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! Her iki oyuncu da kabul etti!`
+                    });
+                } else {
+                    await interaction.editReply({
+                        content: `✅ Her iki oyuncu da zaten kabul etti!`
+                    });
+                    return;
+                }
+            } else if (userId === wantedId) {
                 global[acceptanceKey].wantedPlayer = true;
                 console.log(`✅ Wanted player ${wantedPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
                 await interaction.editReply({
@@ -757,9 +791,9 @@ class ButtonHandler {
                     content: `✅ **${givenPlayer.displayName}** takası kabul etti! ${global[acceptanceKey].wantedPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                 });
             } else {
-                console.log(`❌ Unknown user ${userId} (wanted: ${wantedId}, given: ${givenId})`);
+                console.log(`❌ Unauthorized user ${userId} (wanted: ${wantedId}, given: ${givenId})`);
                 await interaction.editReply({
-                    content: `❌ Sen bu takasta yer almıyorsun! (Debug: ${userId})`
+                    content: `❌ Sadece takas edilen oyuncular veya transfer yetkilileri kabul edebilir!`
                 });
                 return;
             }
