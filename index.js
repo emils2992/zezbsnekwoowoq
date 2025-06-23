@@ -56,6 +56,8 @@ client.on('interactionCreate', async interaction => {
             await buttonHandler.handleButton(client, interaction);
         } else if (interaction.isSelectMenu()) {
             await handleSelectMenu(client, interaction);
+        } else if (interaction.isModalSubmit && interaction.isModalSubmit()) {
+            await handleModalSubmit(client, interaction);
         }
     } catch (error) {
         console.error('Etkileşim hatası:', error);
@@ -140,6 +142,86 @@ function getRoleName(roleType) {
         'announcementPingRole': 'Duyur Duyuru Ping Rolü'
     };
     return names[roleType] || 'Bilinmeyen Rol';
+}
+
+// Modal submission işleyicisi
+async function handleModalSubmit(client, interaction) {
+    try {
+        await interaction.deferReply({ ephemeral: true });
+        
+        const customId = interaction.customId;
+        const embeds = require('./utils/embeds');
+        const channels = require('./utils/channels');
+        const config = require('./config');
+        
+        console.log('Modal submission received:', customId);
+
+        // Offer form modali
+        if (customId.startsWith('offer_form_')) {
+            const [, , playerId, presidentId] = customId.split('_');
+            const player = interaction.guild.members.cache.get(playerId);
+            const president = interaction.guild.members.cache.get(presidentId);
+
+            if (!player || !president) {
+                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+            }
+
+            const offerData = {
+                newTeam: interaction.fields.getTextInputValue('new_team') || '',
+                playerName: interaction.fields.getTextInputValue('player_name') || '',
+                salary: interaction.fields.getTextInputValue('salary') || '6.000.000₺/yıl',
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl',
+                bonus: interaction.fields.getTextInputValue('bonus') || '3.000.000₺'
+            };
+
+            // Müzakere kanalı oluştur
+            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'offer');
+            if (!channel) {
+                return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+            }
+
+            // Teklif embed'i oluştur
+            const offerEmbed = embeds.createOfferForm(president.user, player.user, offerData);
+            
+            const buttons = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(`offer_accept_${playerId}_${presidentId}`)
+                        .setLabel('Kabul Et')
+                        .setStyle('SUCCESS')
+                        .setEmoji(config.emojis.check),
+                    new MessageButton()
+                        .setCustomId(`offer_reject_${playerId}_${presidentId}`)
+                        .setLabel('Reddet')
+                        .setStyle('DANGER')
+                        .setEmoji(config.emojis.cross),
+                    new MessageButton()
+                        .setCustomId(`offer_edit_${playerId}_${presidentId}`)
+                        .setLabel('Düzenle')
+                        .setStyle('SECONDARY')
+                        .setEmoji(config.emojis.edit)
+                );
+
+            await channel.send({
+                embeds: [offerEmbed],
+                components: [buttons]
+            });
+
+            await interaction.editReply({ content: `Teklif müzakeresi ${channel} kanalında başlatıldı!` });
+        }
+    } catch (error) {
+        console.error('Modal submission error:', error);
+        if (interaction.deferred) {
+            await interaction.editReply({ 
+                content: 'Modal işlenirken hata oluştu! Lütfen tekrar deneyin.' 
+            });
+        } else if (!interaction.replied) {
+            await interaction.reply({ 
+                content: 'Modal işlenirken hata oluştu! Lütfen tekrar deneyin.', 
+                ephemeral: true 
+            });
+        }
+    }
 }
 
 // Hata yönetimi

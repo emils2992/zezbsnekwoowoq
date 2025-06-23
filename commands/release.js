@@ -38,40 +38,19 @@ module.exports = {
                 return message.reply('❌ Bu futbolcu zaten serbest!');
             }
 
-            // Müzakere kanalı oluştur
-            const channel = await channels.createNegotiationChannel(message.guild, message.author, targetUser, 'release');
-            if (!channel) {
-                return message.reply('❌ Müzakere kanalı oluşturulamadı!');
-            }
-
-            // Fesih embed'i oluştur
-            const releaseEmbed = embeds.createReleaseForm(message.author, targetUser, 'mutual');
-            
-            const buttons = new MessageActionRow()
-                .addComponents(
-                    new MessageButton()
-                        .setCustomId(`release_accept_${targetUser.id}_${message.author.id}_mutual`)
-                        .setLabel('Kabul Et')
-                        .setStyle('SUCCESS')
-                        .setEmoji('✅'),
-                    new MessageButton()
-                        .setCustomId(`release_reject_${targetUser.id}_${message.author.id}_mutual`)
-                        .setLabel('Reddet')
-                        .setStyle('DANGER')
-                        .setEmoji('❌'),
-                    new MessageButton()
-                        .setCustomId(`release_edit_${targetUser.id}_${message.author.id}_mutual`)
-                        .setLabel('Düzenle')
-                        .setStyle('SECONDARY')
-                        .setEmoji('✏️')
-                );
-
-            await channel.send({
-                embeds: [releaseEmbed],
-                components: [buttons]
+            // Modal formu butonunu göster
+            await message.reply({
+                content: `${config.emojis.handshake} **Karşılıklı Fesih Teklifi Formu**\n\n${targetUser.username} için fesih formunu doldurmak üzere aşağıdaki butona tıklayın.`,
+                components: [
+                    new MessageActionRow().addComponents(
+                        new MessageButton()
+                            .setCustomId(`show_release_modal_${targetUser.id}_${message.author.id}_mutual`)
+                            .setLabel('Fesih Formu Aç')
+                            .setStyle('PRIMARY')
+                            .setEmoji(config.emojis.edit)
+                    )
+                ]
             });
-
-            await message.reply(`✅ Karşılıklı fesih müzakeresi ${channel} kanalında başlatıldı!`);
 
         } catch (error) {
             console.error('Release komutu hatası:', error);

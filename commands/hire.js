@@ -45,40 +45,19 @@ module.exports = {
                 return message.reply('❌ Etiketlenen kişi bir futbolcu değil!');
             }
 
-            // Müzakere kanalı oluştur
-            const channel = await channels.createNegotiationChannel(message.guild, message.author, targetMember.user, 'hire', player.user);
-            if (!channel) {
-                return message.reply('❌ Müzakere kanalı oluşturulamadı!');
-            }
-
-            // Kiralık embed'i oluştur
-            const hireEmbed = embeds.createHireForm(message.author, targetMember.user, player.user);
-            
-            const buttons = new MessageActionRow()
-                .addComponents(
-                    new MessageButton()
-                        .setCustomId(`hire_accept_${player.id}_${message.author.id}`)
-                        .setLabel('Kabul Et')
-                        .setStyle('SUCCESS')
-                        .setEmoji('✅'),
-                    new MessageButton()
-                        .setCustomId(`hire_reject_${player.id}_${message.author.id}`)
-                        .setLabel('Reddet')
-                        .setStyle('DANGER')
-                        .setEmoji('❌'),
-                    new MessageButton()
-                        .setCustomId(`hire_edit_${player.id}_${message.author.id}`)
-                        .setLabel('Düzenle')
-                        .setStyle('SECONDARY')
-                        .setEmoji('✏️')
-                );
-
-            await channel.send({
-                embeds: [hireEmbed],
-                components: [buttons]
+            // Modal formu butonunu göster
+            await message.reply({
+                content: `${config.emojis.contract} **Kiralık Sözleşme Teklifi Formu**\n\n${playerUser.username} için kiralık formunu doldurmak üzere aşağıdaki butona tıklayın.`,
+                components: [
+                    new MessageActionRow().addComponents(
+                        new MessageButton()
+                            .setCustomId(`show_hire_modal_${playerUser.id}_${message.author.id}`)
+                            .setLabel('Kiralık Formu Aç')
+                            .setStyle('PRIMARY')
+                            .setEmoji(config.emojis.edit)
+                    )
+                ]
             });
-
-            await message.reply(`✅ Kiralık müzakeresi ${channel} kanalında başlatıldı!`);
 
         } catch (error) {
             console.error('Hire komutu hatası:', error);

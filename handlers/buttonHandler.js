@@ -378,50 +378,190 @@ class ButtonHandler {
 
     async handleShowOfferForm(client, interaction, params) {
         const [playerId, presidentId] = params;
-        const guild = interaction.guild;
-        const player = await guild.members.fetch(playerId);
-        const president = await guild.members.fetch(presidentId);
-
-        // Create negotiation channel for the offer
-        const channel = await channels.createNegotiationChannel(guild, president.user, player.user, 'offer');
-        if (!channel) {
-            return interaction.reply({
-                content: '❌ Müzakere kanalı oluşturulamadı!',
-                ephemeral: true
-            });
-        }
-
-        // Create offer embed with form buttons
-        const offerEmbed = embeds.createOfferForm(president.user, player.user);
         
-        const buttons = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setCustomId(`offer_accept_${playerId}_${presidentId}`)
-                    .setLabel('Kabul Et')
-                    .setStyle('SUCCESS')
-                    .setEmoji('✅'),
-                new MessageButton()
-                    .setCustomId(`offer_reject_${playerId}_${presidentId}`)
-                    .setLabel('Reddet')
-                    .setStyle('DANGER')
-                    .setEmoji('❌'),
-                new MessageButton()
-                    .setCustomId(`offer_edit_${playerId}_${presidentId}`)
-                    .setLabel('Düzenle')
-                    .setStyle('SECONDARY')
-                    .setEmoji('✏️')
-            );
+        const modal = new Modal()
+            .setCustomId(`offer_form_${playerId}_${presidentId}`)
+            .setTitle('Transfer Teklifi Formu');
 
-        await channel.send({
-            embeds: [offerEmbed],
-            components: [buttons]
-        });
+        const newTeamInput = new TextInputComponent()
+            .setCustomId('new_team')
+            .setLabel('Yeni Kulüp')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Galatasaray')
+            .setRequired(true);
 
-        await interaction.reply({
-            content: `✅ Teklif müzakeresi ${channel} kanalında başlatıldı!`,
-            ephemeral: true
-        });
+        const playerNameInput = new TextInputComponent()
+            .setCustomId('player_name')
+            .setLabel('Oyuncu Adı')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Lionel Messi')
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Maaş (Yıllık)')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 6.000.000₺/yıl')
+            .setRequired(true);
+
+        const contractInput = new TextInputComponent()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme Süresi')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 2 yıl')
+            .setRequired(true);
+
+        const bonusInput = new TextInputComponent()
+            .setCustomId('bonus')
+            .setLabel('İmza Bonusu')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 3.000.000₺')
+            .setRequired(false);
+
+        const row1 = new MessageActionRow().addComponents(newTeamInput);
+        const row2 = new MessageActionRow().addComponents(playerNameInput);
+        const row3 = new MessageActionRow().addComponents(salaryInput);
+        const row4 = new MessageActionRow().addComponents(contractInput);
+        const row5 = new MessageActionRow().addComponents(bonusInput);
+
+        modal.addComponents(row1, row2, row3, row4, row5);
+
+        await interaction.showModal(modal);
+    }
+
+    async handleShowContractForm(client, interaction, params) {
+        const [playerId, presidentId] = params;
+        
+        const modal = new Modal()
+            .setCustomId(`contract_form_${playerId}_${presidentId}`)
+            .setTitle('Sözleşme Teklifi Formu');
+
+        const transferFeeInput = new TextInputComponent()
+            .setCustomId('transfer_fee')
+            .setLabel('Transfer Bedeli')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 15.000.000₺')
+            .setRequired(true);
+
+        const newClubInput = new TextInputComponent()
+            .setCustomId('new_club')
+            .setLabel('Yeni Kulüp')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Galatasaray')
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Maaş (Yıllık)')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 8.000.000₺/yıl')
+            .setRequired(true);
+
+        const contractInput = new TextInputComponent()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme Süresi')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 3 yıl')
+            .setRequired(true);
+
+        const row1 = new MessageActionRow().addComponents(transferFeeInput);
+        const row2 = new MessageActionRow().addComponents(newClubInput);
+        const row3 = new MessageActionRow().addComponents(salaryInput);
+        const row4 = new MessageActionRow().addComponents(contractInput);
+
+        modal.addComponents(row1, row2, row3, row4);
+
+        await interaction.showModal(modal);
+    }
+
+    async handleShowTradeForm(client, interaction, params) {
+        const [playerId, presidentId] = params;
+        
+        const modal = new Modal()
+            .setCustomId(`trade_form_${playerId}_${presidentId}`)
+            .setTitle('Takas Teklifi Formu');
+
+        const additionalAmountInput = new TextInputComponent()
+            .setCustomId('additional_amount')
+            .setLabel('Ek Miktar')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 5.000.000₺')
+            .setRequired(false);
+
+        const wantedPlayerInput = new TextInputComponent()
+            .setCustomId('wanted_player')
+            .setLabel('İstenen Oyuncu')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Cristiano Ronaldo')
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Maaş (Yıllık)')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 10.000.000₺/yıl')
+            .setRequired(true);
+
+        const contractInput = new TextInputComponent()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme Süresi')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 2 yıl')
+            .setRequired(true);
+
+        const row1 = new MessageActionRow().addComponents(additionalAmountInput);
+        const row2 = new MessageActionRow().addComponents(wantedPlayerInput);
+        const row3 = new MessageActionRow().addComponents(salaryInput);
+        const row4 = new MessageActionRow().addComponents(contractInput);
+
+        modal.addComponents(row1, row2, row3, row4);
+
+        await interaction.showModal(modal);
+    }
+
+    async handleShowHireForm(client, interaction, params) {
+        const [playerId, presidentId] = params;
+        
+        const modal = new Modal()
+            .setCustomId(`hire_form_${playerId}_${presidentId}`)
+            .setTitle('Kiralık Sözleşme Formu');
+
+        const loanFeeInput = new TextInputComponent()
+            .setCustomId('loan_fee')
+            .setLabel('Kiralık Bedeli')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 2.000.000₺')
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Maaş (Yıllık)')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 4.000.000₺/yıl')
+            .setRequired(true);
+
+        const loanDurationInput = new TextInputComponent()
+            .setCustomId('loan_duration')
+            .setLabel('Kiralık Süresi')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 1 yıl')
+            .setRequired(true);
+
+        const optionToBuyInput = new TextInputComponent()
+            .setCustomId('option_to_buy')
+            .setLabel('Satın Alma Opsiyonu')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 12.000.000₺')
+            .setRequired(false);
+
+        const row1 = new MessageActionRow().addComponents(loanFeeInput);
+        const row2 = new MessageActionRow().addComponents(salaryInput);
+        const row3 = new MessageActionRow().addComponents(loanDurationInput);
+        const row4 = new MessageActionRow().addComponents(optionToBuyInput);
+
+        modal.addComponents(row1, row2, row3, row4);
+
+        await interaction.showModal(modal);
     }
 
     async handleShowContractForm(client, interaction, params) {
@@ -578,50 +718,46 @@ class ButtonHandler {
     async handleShowReleaseForm(client, interaction, params) {
         const [playerId, presidentId, releaseType] = params;
         
-        const guild = interaction.guild;
-        const player = await guild.members.fetch(playerId);
-        const president = await guild.members.fetch(presidentId);
+        const modal = new Modal()
+            .setCustomId(`release_form_${playerId}_${presidentId}_${releaseType}`)
+            .setTitle('Karşılıklı Fesih Formu');
 
-        // Create negotiation channel for the release
-        const channel = await channels.createNegotiationChannel(guild, president.user, player.user, 'release');
-        if (!channel) {
-            return interaction.reply({
-                content: 'Müzakere kanalı oluşturulamadı!',
-                ephemeral: true
-            });
-        }
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Galatasaray')
+            .setRequired(true);
 
-        // Create release embed with form buttons
-        const releaseEmbed = embeds.createReleaseForm(president.user, player.user, releaseType);
-        
-        const buttons = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setCustomId(`release_accept_${playerId}_${presidentId}_${releaseType}`)
-                    .setLabel('Kabul Et')
-                    .setStyle('SUCCESS')
-                    .setEmoji('✅'),
-                new MessageButton()
-                    .setCustomId(`release_reject_${playerId}_${presidentId}_${releaseType}`)
-                    .setLabel('Reddet')
-                    .setStyle('DANGER')
-                    .setEmoji('❌'),
-                new MessageButton()
-                    .setCustomId(`release_edit_${playerId}_${presidentId}_${releaseType}`)
-                    .setLabel('Düzenle')
-                    .setStyle('SECONDARY')
-                    .setEmoji('✏️')
-            );
+        const reasonInput = new TextInputComponent()
+            .setCustomId('reason')
+            .setLabel('Fesih Sebebi')
+            .setStyle('PARAGRAPH')
+            .setPlaceholder('Örn: Karşılıklı anlaşma ile ayrılık')
+            .setRequired(true);
 
-        await channel.send({
-            embeds: [releaseEmbed],
-            components: [buttons]
-        });
+        const compensationInput = new TextInputComponent()
+            .setCustomId('compensation')
+            .setLabel('Tazminat Miktarı')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 500.000₺')
+            .setRequired(false);
 
-        await interaction.reply({
-            content: `Fesih müzakeresi ${channel} kanalında başlatıldı!`,
-            ephemeral: true
-        });
+        const newTeamInput = new TextInputComponent()
+            .setCustomId('new_team')
+            .setLabel('Yeni Takım (İsteğe Bağlı)')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Henüz belirlenmedi')
+            .setRequired(false);
+
+        const row1 = new MessageActionRow().addComponents(oldClubInput);
+        const row2 = new MessageActionRow().addComponents(reasonInput);
+        const row3 = new MessageActionRow().addComponents(compensationInput);
+        const row4 = new MessageActionRow().addComponents(newTeamInput);
+
+        modal.addComponents(row1, row2, row3, row4);
+
+        await interaction.showModal(modal);
     }
 }
 

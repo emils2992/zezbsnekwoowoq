@@ -32,40 +32,19 @@ module.exports = {
                 return message.reply('❌ Bu kişi serbest futbolcu değil! Sadece serbest futbolculara teklif gönderilebilir.');
             }
 
-            // Müzakere kanalı oluştur
-            const channel = await channels.createNegotiationChannel(message.guild, message.author, targetUser, 'offer');
-            if (!channel) {
-                return message.reply('❌ Müzakere kanalı oluşturulamadı!');
-            }
-
-            // Teklif embed'i oluştur
-            const offerEmbed = embeds.createOfferForm(message.author, targetUser);
-            
-            const buttons = new MessageActionRow()
-                .addComponents(
-                    new MessageButton()
-                        .setCustomId(`offer_accept_${targetUser.id}_${message.author.id}`)
-                        .setLabel('Kabul Et')
-                        .setStyle('SUCCESS')
-                        .setEmoji('✅'),
-                    new MessageButton()
-                        .setCustomId(`offer_reject_${targetUser.id}_${message.author.id}`)
-                        .setLabel('Reddet')
-                        .setStyle('DANGER')
-                        .setEmoji('❌'),
-                    new MessageButton()
-                        .setCustomId(`offer_edit_${targetUser.id}_${message.author.id}`)
-                        .setLabel('Düzenle')
-                        .setStyle('SECONDARY')
-                        .setEmoji('✏️')
-                );
-
-            await channel.send({
-                embeds: [offerEmbed],
-                components: [buttons]
+            // Modal formu butonunu göster
+            await message.reply({
+                content: `${config.emojis.football} **Transfer Teklifi Formu**\n\n${targetUser.username} için teklif formunu doldurmak üzere aşağıdaki butona tıklayın.`,
+                components: [
+                    new MessageActionRow().addComponents(
+                        new MessageButton()
+                            .setCustomId(`show_offer_modal_${targetUser.id}_${message.author.id}`)
+                            .setLabel('Teklif Formu Aç')
+                            .setStyle('PRIMARY')
+                            .setEmoji(config.emojis.edit)
+                    )
+                ]
             });
-
-            await message.reply(`✅ Teklif müzakeresi ${channel} kanalında başlatıldı!`);
 
         } catch (error) {
             console.error('Offer komutu hatası:', error);
