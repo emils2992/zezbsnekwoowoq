@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, StringSelectMenuBuilder } = require('discord.js');
 const config = require('../config');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
@@ -1043,7 +1043,11 @@ class ButtonHandler {
                     await this.handleRoleSetup(client, interaction, roleParams);
                     break;
                 case 'back':
-                    await this.handleRoleBackButton(client, interaction);
+                    if (roleParams[0] === 'main') {
+                        await this.showRoleSetupMenu(interaction);
+                    } else {
+                        await this.showCurrentRoles(interaction);
+                    }
                     break;
                 case 'reset':
                     await this.handleRoleResetButton(client, interaction);
@@ -1289,6 +1293,54 @@ class ButtonHandler {
             'announcementPingRole': 'Duyur Duyuru Ping Rolü'
         };
         return names[roleType] || 'Bilinmeyen Rol';
+    }
+
+    async showCurrentRoles(interaction) {
+        const roleData = permissions.getRoleData(interaction.guild.id);
+        
+        const listEmbed = new EmbedBuilder()
+            .setColor(config.colors.primary)
+            .setTitle(`📋 Mevcut Rol Ayarları`)
+            .setDescription(`**${interaction.guild.name}** sunucusu için mevcut rol ayarları:`)
+            .setTimestamp()
+            .setFooter({ text: 'Transfer Sistemi' });
+
+        // Rolleri listele
+        const roleTypes = [
+            { key: 'president', name: 'Takım Başkanı', emoji: '👑' },
+            { key: 'player', name: 'Futbolcu', emoji: '⚽' },
+            { key: 'freeAgent', name: 'Serbest Futbolcu', emoji: '🆓' },
+            { key: 'transferAuthority', name: 'Transfer Yetkilisi', emoji: '📢' },
+            { key: 'transferPingRole', name: 'Transfer Duyuru Ping', emoji: '🔔' },
+            { key: 'freeAgentPingRole', name: 'Serbest Duyuru Ping', emoji: '🔔' },
+            { key: 'announcementPingRole', name: 'Duyur Duyuru Ping', emoji: '🔔' }
+        ];
+
+        for (const roleType of roleTypes) {
+            const roleId = roleData[roleType.key];
+            const role = roleId ? interaction.guild.roles.cache.get(roleId) : null;
+            
+            listEmbed.addFields({
+                name: `${roleType.emoji} ${roleType.name}`,
+                value: role ? `${role}` : '❌ Ayarlanmamış',
+                inline: true
+            });
+        }
+
+        // Geri dön butonu
+        const backButton = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('role_setup_back_main')
+                    .setLabel('Ana Menüye Dön')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🏠')
+            );
+
+        await interaction.update({ 
+            embeds: [listEmbed], 
+            components: [backButton] 
+        });
     }
 
     async handleContractPlayerButton(client, interaction, params) {

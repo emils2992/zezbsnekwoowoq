@@ -155,6 +155,15 @@ The bot is configured for Replit deployment with:
   - Enhanced announcement system to automatically mention configured ping roles when transfers are completed
   - Fixed .contract command modal structure with "Yeni Kulüp" field replacing bonus field and updated to use yearly salary format
   - Corrected .trelease command color configuration error preventing unilateral termination from working properly
+  - Completely overhauled .rol command system with interactive button-based role assignment:
+    - Fixed ButtonBuilder import error that was preventing role setup from working
+    - Added comprehensive role selection system using Discord select menus
+    - Implemented "geri dön" (back) functionality allowing users to navigate between role setup screens
+    - Added visual role list display showing current role assignments with proper formatting
+    - Enhanced role setup with server role filtering and member count display
+    - Added one-click role reset functionality with confirmation
+    - Improved error handling and user feedback throughout role management process
+    - Role system now fully functional with intuitive navigation and setup process
 
 ## User Preferences
 
