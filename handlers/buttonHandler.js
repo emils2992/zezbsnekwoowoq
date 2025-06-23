@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton, Modal, TextInputComponent } = require('discord.js');
 const config = require('../config');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
@@ -367,10 +367,56 @@ class ButtonHandler {
     }
 
     async handleShowOfferForm(client, interaction, params) {
-        await interaction.reply({
-            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
-            ephemeral: true
-        });
+        const [playerId, presidentId] = params;
+        
+        const modal = new Modal()
+            .setCustomId(`offer_form_${playerId}_${presidentId}`)
+            .setTitle('Transfer Teklifi Formu');
+
+        const teamNameInput = new TextInputComponent()
+            .setCustomId('team_name')
+            .setLabel('Takım Adı')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Galatasaray')
+            .setRequired(true);
+
+        const playerNameInput = new TextInputComponent()
+            .setCustomId('player_name')
+            .setLabel('Oyuncu Adı')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Lionel Messi')
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Yıllık Maaş')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 6.000.000₺/yıl')
+            .setRequired(true);
+
+        const contractYearsInput = new TextInputComponent()
+            .setCustomId('contract_years')
+            .setLabel('Sözleşme Süresi')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 2 yıl')
+            .setRequired(true);
+
+        const bonusInput = new TextInputComponent()
+            .setCustomId('bonus')
+            .setLabel('Bonuslar')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 250.000₺')
+            .setRequired(false);
+
+        const row1 = new MessageActionRow().addComponents(teamNameInput);
+        const row2 = new MessageActionRow().addComponents(playerNameInput);
+        const row3 = new MessageActionRow().addComponents(salaryInput);
+        const row4 = new MessageActionRow().addComponents(contractYearsInput);
+        const row5 = new MessageActionRow().addComponents(bonusInput);
+
+        modal.addComponents(row1, row2, row3, row4, row5);
+
+        await interaction.showModal(modal);
     }
 
     async handleShowContractForm(client, interaction, params) {
@@ -402,10 +448,56 @@ class ButtonHandler {
     }
 
     async handleShowReleaseForm(client, interaction, params) {
-        await interaction.reply({
-            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
-            ephemeral: true
-        });
+        const [playerId, presidentId, releaseType] = params;
+        
+        const modal = new Modal()
+            .setCustomId(`release_form_${playerId}_${presidentId}_${releaseType}`)
+            .setTitle('Karşılıklı Fesih Formu');
+
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Galatasaray')
+            .setRequired(true);
+
+        const reasonInput = new TextInputComponent()
+            .setCustomId('reason')
+            .setLabel('Fesih Sebebi')
+            .setStyle('PARAGRAPH')
+            .setPlaceholder('Örn: Karşılıklı anlaşma ile ayrılık')
+            .setRequired(true);
+
+        const compensationInput = new TextInputComponent()
+            .setCustomId('compensation')
+            .setLabel('Tazminat Miktarı')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 500.000₺')
+            .setRequired(false);
+
+        const newTeamInput = new TextInputComponent()
+            .setCustomId('new_team')
+            .setLabel('Yeni Takım (İsteğe Bağlı)')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Henüz belirlenmedi')
+            .setRequired(false);
+
+        const bonusInput = new TextInputComponent()
+            .setCustomId('bonus')
+            .setLabel('Bonuslar (İsteğe Bağlı)')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 0₺')
+            .setRequired(false);
+
+        const row1 = new MessageActionRow().addComponents(oldClubInput);
+        const row2 = new MessageActionRow().addComponents(reasonInput);
+        const row3 = new MessageActionRow().addComponents(compensationInput);
+        const row4 = new MessageActionRow().addComponents(newTeamInput);
+        const row5 = new MessageActionRow().addComponents(bonusInput);
+
+        modal.addComponents(row1, row2, row3, row4, row5);
+
+        await interaction.showModal(modal);
     }
 }
 
