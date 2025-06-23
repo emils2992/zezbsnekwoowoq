@@ -913,10 +913,20 @@ class ButtonHandler {
         const roleData = permissions.getRoleData(guild.id);
         let mention = '';
         
-        if (roleData.transferPing) {
-            const pingRole = guild.roles.cache.get(roleData.transferPing);
+        // Use appropriate ping role based on transfer type
+        let pingRoleId = null;
+        if (type === 'offer' || type === 'contract' || type === 'trade' || type === 'hire') {
+            pingRoleId = roleData.transferPingRole || roleData.transferPing;
+        } else if (type === 'release') {
+            pingRoleId = roleData.freeAgentPingRole || roleData.freeAgentPing;
+        } else {
+            pingRoleId = roleData.transferPingRole || roleData.transferPing;
+        }
+        
+        if (pingRoleId) {
+            const pingRole = guild.roles.cache.get(pingRoleId);
             if (pingRole) {
-                mention = `<@&${roleData.transferPing}>`;
+                mention = `<@&${pingRoleId}>`;
             }
         }
 
@@ -972,10 +982,11 @@ class ButtonHandler {
         const roleData = permissions.getRoleData(guild.id);
         let mention = '';
         
-        if (roleData.freeAgentPing) {
-            const pingRole = guild.roles.cache.get(roleData.freeAgentPing);
+        if (roleData.freeAgentPingRole || roleData.freeAgentPing) {
+            const pingRoleId = roleData.freeAgentPingRole || roleData.freeAgentPing;
+            const pingRole = guild.roles.cache.get(pingRoleId);
             if (pingRole) {
-                mention = `<@&${roleData.freeAgentPing}>`;
+                mention = `<@&${pingRoleId}>`;
             }
         }
 

@@ -318,14 +318,16 @@ class ButtonHandler {
                 .setFooter('Transfer Duyuruları');
         }
 
-        // Ping rollerini kontrol et ve ekle
+        // Ping rollerini kontrol et ve ekle - appropriate ping role based on transfer type
         const roleData = permissions.getRoleData(guild.id);
         let mention = '';
         
-        if (roleData.transferPing) {
-            const pingRole = guild.roles.cache.get(roleData.transferPing);
+        // Use transferPingRole for general transfers
+        const pingRoleId = roleData.transferPingRole || roleData.transferPing;
+        if (pingRoleId) {
+            const pingRole = guild.roles.cache.get(pingRoleId);
             if (pingRole) {
-                mention = `<@&${roleData.transferPing}>`;
+                mention = `<@&${pingRoleId}>`;
             }
         }
 

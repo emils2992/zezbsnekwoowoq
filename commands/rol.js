@@ -125,8 +125,11 @@ module.exports = {
                 'yetkili': 'transferAuthority',
                 'admin': 'transferAuthority',
                 'ping_transfer': 'transferPingRole',
+                'transfer_ping': 'transferPingRole',
                 'ping_serbest': 'freeAgentPingRole',
-                'ping_duyuru': 'announcementPingRole'
+                'serbest_ping': 'freeAgentPingRole',
+                'ping_duyuru': 'announcementPingRole',
+                'duyuru_ping': 'announcementPingRole'
             };
             
             const mappedRoleType = roleMapping[roleType];
