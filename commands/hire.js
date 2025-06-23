@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { MessageEmbed, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 const embeds = require('../utils/embeds');
@@ -45,7 +45,7 @@ module.exports = {
             }
 
             // Kiralık sözleşme embed'i oluştur
-            const hireEmbed = new EmbedBuilder()
+            const hireEmbed = new MessageEmbed()
                 .setColor(config.colors.warning)
                 .setTitle(`${config.emojis.contract} Kiralık Sözleşme Teklifi`)
                 .setDescription(`**${message.author.username}** tarafından **${targetPresident.username}**'e kiralık sözleşme teklifi yapılıyor.`)

@@ -1,300 +1,129 @@
-const { EmbedBuilder } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const config = require('../config');
 
 class EmbedCreator {
     createOfferForm(president, player, offerData = null) {
-        const embed = new EmbedBuilder()
+        const embed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.football} Transfer Teklifi`)
-            .setDescription(`**${president.username}** tarafından **${player.username}** için yapılan teklif:`);
-
-        embed.addFields(
-            {
-                name: `${config.emojis.handshake} Başkan`,
-                value: `${president}`,
-                inline: true
-            },
-            {
-                name: `🏆 Yeni Kulüp`,
-                value: offerData?.newTeam || 'Belirtilmedi',
-                inline: true
-            },
-            {
-                name: `⚽ Futbolcu`,
-                value: `${player}`,
-                inline: true
-            },
-            {
-                name: `⚽ Oyuncu İsmi`,
-                value: offerData?.playerName || 'Belirtilmedi',
-                inline: true
-            },
-            {
-                name: `${config.emojis.money} Önerilen Maaş`,
-                value: offerData?.salary || '6.000.000₺/yıl',
-                inline: true
-            },
-            {
-                name: '📅 Sözleşme Süresi & Ek Madde',
-                value: offerData?.contractDuration || '2 yıl',
-                inline: true
-            },
-            {
-                name: '🎯 Bonuslar',
-                value: offerData?.bonus || '250.000₺',
-                inline: true
-            }
-        );
-
-        return embed
+            .setDescription(`**${president.username}** tarafından **${player.username}** için yapılan teklif:`)
+            .addField(`${config.emojis.handshake} Başkan`, `${president}`, true)
+            .addField(`🏆 Yeni Kulüp`, offerData?.newTeam || 'Belirtilmedi', true)
+            .addField(`⚽ Futbolcu`, `${player}`, true)
+            .addField(`⚽ Oyuncu İsmi`, offerData?.playerName || 'Belirtilmedi', true)
+            .addField(`${config.emojis.money} Önerilen Maaş`, offerData?.salary || '6.000.000₺/yıl', true)
+            .addField('📅 Sözleşme Süresi', offerData?.contractDuration || '2 yıl', true)
+            .addField('🎯 Bonuslar', offerData?.bonus || '250.000₺', true)
             .setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .setFooter('Transfer Sistemi');
+
+        return embed;
     }
 
     createContractForm(fromPresident, toPresident, player, contractData = null) {
-        const embed = new EmbedBuilder()
+        const embed = new MessageEmbed()
             .setColor(config.colors.accent)
             .setTitle(`${config.emojis.contract} Sözleşme Teklifi`)
-            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}**'e yapılan sözleşme teklifi:`);
-
-        embed.addFields(
-            {
-                name: `👑 Teklif Veren Başkan`,
-                value: `${fromPresident}`,
-                inline: true
-            },
-            {
-                name: `👑 Hedef Başkan`,
-                value: `${toPresident}`,
-                inline: true
-            },
-            {
-                name: `⚽ Oyuncu`,
-                value: `${player}`,
-                inline: true
-            },
-            {
-                name: `🏆 Eski Kulüp`,
-                value: contractData?.oldClub || 'Belirtilmedi',
-                inline: true
-            },
-            {
-                name: `🏟️ Yeni Kulüp`,
-                value: contractData?.newClub || 'Belirtilmemiş',
-                inline: true
-            },
-            {
-                name: `${config.emojis.money} Transfer Bedeli`,
-                value: contractData?.transferFee || '2.500.000₺',
-                inline: true
-            },
-            {
-                name: `💰 Yıllık Maaş`,
-                value: contractData?.salary || '24.000.000₺/yıl',
-                inline: true
-            },
-            {
-                name: '📅 Sözleşme Süresi & Ek Madde',
-                value: contractData?.contractDuration || '3 yıl',
-                inline: true
-            }
-        );
-
-        return embed
+            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan sözleşme teklifi:`)
+            .addField(`${config.emojis.handshake} Teklif Yapan`, `${fromPresident}`, true)
+            .addField(`🏆 Yeni Kulüp`, contractData?.newClub || 'Belirtilmemiş', true)
+            .addField(`🏠 Eski Kulüp`, contractData?.oldClub || 'Belirtilmemiş', true)
+            .addField(`⚽ Futbolcu`, `${player}`, true)
+            .addField(`${config.emojis.money} Transfer Bedeli`, contractData?.transferFee || '2.500.000₺', true)
+            .addField(`💰 Yıllık Maaş`, contractData?.salary || '24.000.000₺/yıl', true)
+            .addField('📅 Sözleşme Süresi', contractData?.contractDuration || '3 yıl', true)
             .setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .setFooter('Transfer Sistemi');
+
+        return embed;
     }
 
     createTradeForm(fromPresident, toPresident, player, tradeData = null) {
-        const embed = new EmbedBuilder()
-            .setColor(config.colors.success)
-            .setTitle(`${config.emojis.transfer} Takas Teklifi`)
-            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}**'e yapılan takas teklifi:`);
-
-        embed.addFields(
-            {
-                name: `👑 Teklif Veren Başkan`,
-                value: `${fromPresident}`,
-                inline: true
-            },
-            {
-                name: `👑 Hedef Başkan`,
-                value: `${toPresident}`,
-                inline: true
-            },
-            {
-                name: `⚽ Takas Edilecek Oyuncu`,
-                value: `${player} ${tradeData?.playerName ? `(${tradeData.playerName})` : ''}`,
-                inline: true
-            }
-        );
-
-        if (tradeData?.additionalAmount > 0) {
-            embed.addFields({
-                name: `${config.emojis.money} Ek Miktar`,
-                value: `${tradeData.additionalAmount.toLocaleString('tr-TR')}₺`,
-                inline: true
-            });
-        }
-
-        embed.addFields(
-            {
-                name: `💰 Maaş Teklifi`,
-                value: tradeData?.salary || '850.000₺/ay',
-                inline: true
-            },
-            {
-                name: '📅 Sözleşme Süresi & Ek Madde',
-                value: tradeData?.contractDuration || '4 yıl',
-                inline: true
-            },
-            {
-                name: '⚽ İstenen Oyuncu',
-                value: tradeData?.targetPlayer || 'Belirtilmedi',
-                inline: true
-            }
-        );
-
-        return embed
+        const embed = new MessageEmbed()
+            .setColor(config.colors.warning)
+            .setTitle(`${config.emojis.trade} Takas Teklifi`)
+            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan takas teklifi:`)
+            .addField(`${config.emojis.handshake} Teklif Yapan`, `${fromPresident}`, true)
+            .addField(`⚽ Futbolcu`, `${player}`, true)
+            .addField(`🔄 İstenen Oyuncu`, tradeData?.requestedPlayer || 'Belirtilmemiş', true)
+            .addField(`${config.emojis.money} Ek Miktar`, tradeData?.additionalAmount || '0₺', true)
+            .addField(`💰 Yıllık Maaş`, tradeData?.salary || '18.000.000₺/yıl', true)
+            .addField('📅 Sözleşme Süresi', tradeData?.contractDuration || '2 yıl', true)
             .setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .setFooter('Transfer Sistemi');
+
+        return embed;
     }
 
     createHireForm(fromPresident, toPresident, player, hireData = null) {
-        const embed = new EmbedBuilder()
-            .setColor(config.colors.warning)
-            .setTitle(`${config.emojis.contract} Kiralık Sözleşme Teklifi`)
-            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}**'e yapılan kiralık sözleşme teklifi:`);
-
-        embed.addFields(
-            {
-                name: `👑 Teklif Veren Başkan`,
-                value: `${fromPresident}`,
-                inline: true
-            },
-            {
-                name: `👑 Hedef Başkan`,
-                value: `${toPresident}`,
-                inline: true
-            },
-            {
-                name: `⚽ Oyuncu`,
-                value: `${player}`,
-                inline: true
-            },
-            {
-                name: `🏆 Eski Kulüp`,
-                value: hireData?.oldClub || 'Belirtilmedi',
-                inline: true
-            },
-            {
-                name: `🏟️ Yeni Kulüp`,
-                value: hireData?.newClub || 'Belirtilmemiş',
-                inline: true
-            },
-            {
-                name: `${config.emojis.money} Kiralık Bedeli`,
-                value: hireData?.loanFee || '5.000.000₺',
-                inline: true
-            },
-            {
-                name: `💰 Kiralık Maaş`,
-                value: hireData?.salary || '800.000₺/ay',
-                inline: true
-            },
-            {
-                name: '📅 Kiralık Süresi & Ek Madde',
-                value: hireData?.loanDuration || '1 sezon',
-                inline: true
-            }
-        );
-
-        return embed
+        const embed = new MessageEmbed()
+            .setColor(config.colors.info)
+            .setTitle(`${config.emojis.hire} Kiralık Teklifi`)
+            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan kiralık teklifi:`)
+            .addField(`${config.emojis.handshake} Teklif Yapan`, `${fromPresident}`, true)
+            .addField(`⚽ Futbolcu`, `${player}`, true)
+            .addField(`${config.emojis.money} Kiralık Bedeli`, hireData?.hireFee || '500.000₺', true)
+            .addField(`💰 Maaş Katkısı`, hireData?.salaryContribution || '%50', true)
+            .addField('📅 Kiralık Süresi', hireData?.hireDuration || '6 ay', true)
+            .addField('🔄 Satın Alma Opsiyonu', hireData?.buyOption || 'Yok', true)
             .setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .setFooter('Transfer Sistemi');
+
+        return embed;
     }
 
     createReleaseForm(president, player, releaseType, releaseData = null) {
-        const embed = new EmbedBuilder()
-            .setColor(config.colors.warning)
-            .setTitle(`${config.emojis.release} ${releaseType === 'mutual' ? 'Karşılıklı' : 'Tek Taraflı'} Fesih`)
-            .setThumbnail(player.displayAvatarURL({ dynamic: true }))
-            .addFields(
-                { name: '👑 Başkan', value: `${president}`, inline: true },
-                { name: '⚽ Oyuncu', value: releaseData && releaseData.playerName ? `${player} (${releaseData.playerName})` : `${player}`, inline: true },
-                { name: '📋 Fesih Türü', value: releaseType === 'mutual' ? 'Karşılıklı Anlaşma' : 'Tek Taraflı', inline: true }
-            );
+        const color = releaseType === 'mutual' ? config.colors.warning : config.colors.error;
+        const title = releaseType === 'mutual' ? 'Karşılıklı Fesih' : 'Tek Taraflı Fesih';
+        
+        const embed = new MessageEmbed()
+            .setColor(color)
+            .setTitle(`${config.emojis.release} ${title}`)
+            .setDescription(`**${president.username}** tarafından **${player.username}** için yapılan fesih teklifi:`)
+            .addField(`${config.emojis.handshake} Başkan`, `${president}`, true)
+            .addField(`⚽ Futbolcu`, `${player}`, true)
+            .addField('📋 Fesih Türü', title, true);
 
-        if (releaseData) {
-            if (releaseData.playerName) {
-                embed.addFields({ name: '📝 Oyuncu İsmi', value: releaseData.playerName, inline: true });
-            }
-            if (releaseData.compensation) {
-                embed.addFields({ name: '💰 Ek Tazminat', value: releaseData.compensation, inline: true });
-            }
-            if (releaseData.reason) {
-                embed.addFields({ name: '📋 Fesih Sebebi', value: releaseData.reason, inline: false });
-            }
-            if (releaseData.newTeam) {
-                embed.addFields({ name: '🏆 Yeni Takım', value: releaseData.newTeam, inline: true });
-            }
-            if (releaseData.bonus) {
-                embed.addFields({ name: '💎 Ek Ödemeler', value: releaseData.bonus, inline: true });
-            }
-        } else {
-            embed.addFields(
-                { name: '💰 Ek Tazminat', value: 'Belirtilmedi', inline: true },
-                { name: '📋 Fesih Sebebi', value: 'Sözleşme feshi', inline: true },
-                { name: '🏆 Yeni Takım', value: 'Belirtilmedi', inline: true }
-            );
+        if (releaseType === 'mutual' && releaseData) {
+            embed.addField(`${config.emojis.money} Tazminat`, releaseData.compensation || '0₺', true)
+                 .addField('📝 Fesih Nedeni', releaseData.reason || 'Belirtilmemiş', true)
+                 .addField('📅 Fesih Tarihi', releaseData.releaseDate || 'Hemen', true);
         }
 
         return embed
+            .setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .setFooter('Transfer Sistemi');
     }
 
     createNegotiationStarted(channel, participants) {
-        return new EmbedBuilder()
+        return new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.handshake} Müzakere Başladı`)
-            .setDescription(`Özel müzakere kanalı oluşturuldu!\n\n**Katılımcılar:**\n${participants.map(p => `• ${p}`).join('\n')}`)
-            .addFields(
-                {
-                    name: '📋 Kurallar',
-                    value: '• Saygılı bir dil kullanın\n• Tüm şartları açık belirtin\n• Anlaşma sağlandığında butonu kullanın',
-                    inline: false
-                },
-                {
-                    name: '⏰ Süre',
-                    value: 'Bu kanal 24 saat sonra otomatik silinir',
-                    inline: false
-                }
-            )
+            .setDescription(`Müzakere kanalı oluşturuldu: ${channel}`)
+            .addField('👥 Katılımcılar', participants.map(p => p.toString()).join('\n'), false)
             .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .setFooter('Transfer Sistemi');
     }
 
     createError(title, description) {
-        return new EmbedBuilder()
+        return new MessageEmbed()
             .setColor(config.colors.error)
             .setTitle(`${config.emojis.cross} ${title}`)
             .setDescription(description)
-            .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .setTimestamp();
     }
 
     createSuccess(title, description) {
-        return new EmbedBuilder()
+        return new MessageEmbed()
             .setColor(config.colors.success)
             .setTitle(`${config.emojis.check} ${title}`)
             .setDescription(description)
-            .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .setTimestamp();
     }
 }
 

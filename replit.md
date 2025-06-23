@@ -164,6 +164,17 @@ The bot is configured for Replit deployment with:
     - Enhanced error handling with clear format examples and guidance
     - System now stable and user-friendly without confusing navigation loops
     - Role assignment works via simple text commands with 60-second timeout
+- June 23, 2025. Discord.js v13.17.1 migration completed:
+    - Downgraded from Discord.js v14.20.0 to v13.17.1 as requested by user
+    - Updated all API calls: GatewayIntentBits → Intents.FLAGS, EmbedBuilder → MessageEmbed
+    - Converted button components: ButtonBuilder → MessageButton, ActionRowBuilder → MessageActionRow
+    - Fixed interaction handlers: isStringSelectMenu() → isSelectMenu()
+    - Removed modal API usage (not available in v13) - kept form-based systems
+    - Updated embed methods: addFields() → addField(), setFooter() format changes
+    - Fixed button styles to use string format: 'SUCCESS', 'DANGER', 'SECONDARY'
+    - Completely rebuilt embeds utility with v13-compatible MessageEmbed class
+    - All transfer commands now fully compatible with Discord.js v13.17.1
+    - Bot successfully running without errors on downgraded version
 
 ## User Preferences
 

@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, StringSelectMenuBuilder } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
 const config = require('../config');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
@@ -235,11 +235,11 @@ class ButtonHandler {
                     .setRequired(false);
 
                 // Action Row'lar oluştur
-                const row1 = new ActionRowBuilder().addComponents(newTeamInput);
-                const row2 = new ActionRowBuilder().addComponents(playerNameInput);
-                const row3 = new ActionRowBuilder().addComponents(salaryInput);
-                const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
-                const row5 = new ActionRowBuilder().addComponents(targetPlayerInput);
+                const row1 = new MessageActionRow().addComponents(newTeamInput);
+                const row2 = new MessageActionRow().addComponents(playerNameInput);
+                const row3 = new MessageActionRow().addComponents(salaryInput);
+                const row4 = new MessageActionRow().addComponents(contractDurationInput);
+                const row5 = new MessageActionRow().addComponents(targetPlayerInput);
 
                 modal.addComponents(row1, row2, row3, row4, row5);
 
@@ -283,11 +283,11 @@ class ButtonHandler {
                 }
 
                 // Teklif düzenleme formu
-                const editEmbed = new EmbedBuilder()
+                const editEmbed = new MessageEmbed()
                     .setColor(config.colors.accent)
                     .setTitle(`${config.emojis.edit} Teklif Düzenleme`)
                     .setDescription(`${player} için yeni teklif şartlarını ayarlayın:`)
-                    .addFields(
+                    .addField(
                         { name: '💰 Maaş (aylık)', value: '750.000₺', inline: true },
                         { name: '💎 İmza Parası', value: '1.500.000₺', inline: true },
                         { name: '📅 Sözleşme Süresi', value: '3 yıl', inline: true },
@@ -295,22 +295,22 @@ class ButtonHandler {
                     )
                     .setTimestamp();
 
-                const editRow = new ActionRowBuilder()
+                const editRow = new MessageActionRow()
                     .addComponents(
-                        new ButtonBuilder()
+                        new MessageButton()
                             .setCustomId(`offer_accept_${playerId}_${presidentId}`)
                             .setLabel('Kabul Et')
-                            .setStyle(ButtonStyle.Success)
+                            .setStyle(Success)
                             .setEmoji(config.emojis.check),
-                        new ButtonBuilder()
+                        new MessageButton()
                             .setCustomId(`offer_reject_${playerId}_${presidentId}`)
                             .setLabel('Reddet')
-                            .setStyle(ButtonStyle.Danger)
+                            .setStyle(Danger)
                             .setEmoji(config.emojis.cross),
-                        new ButtonBuilder()
+                        new MessageButton()
                             .setCustomId(`offer_edit_${playerId}_${presidentId}`)
                             .setLabel('Tekrar Düzenle')
-                            .setStyle(ButtonStyle.Secondary)
+                            .setStyle(Secondary)
                             .setEmoji(config.emojis.edit)
                     );
 
@@ -392,17 +392,17 @@ class ButtonHandler {
                     playerEmbed.setTitle(`${config.emojis.contract} Sözleşme Onayı - Oyuncu Kararı`);
                     playerEmbed.setDescription(`**${player.user.username}**, ${fromPresident.displayName} takımının sözleşme teklifi kabul edildi!\n\nArtık kararı size kalmış. Bu teklifi kabul ediyor musunuz?`);
 
-                    const playerRow = new ActionRowBuilder()
+                    const playerRow = new MessageActionRow()
                         .addComponents(
-                            new ButtonBuilder()
+                            new MessageButton()
                                 .setCustomId(`contract_player_accept_${playerId}_${fromPresidentId}_${targetPresidentId}`)
                                 .setLabel('Kabul Et')
-                                .setStyle(ButtonStyle.Success)
+                                .setStyle(Success)
                                 .setEmoji(config.emojis.check),
-                            new ButtonBuilder()
+                            new MessageButton()
                                 .setCustomId(`contract_player_reject_${playerId}_${fromPresidentId}_${targetPresidentId}`)
                                 .setLabel('Reddet')
-                                .setStyle(ButtonStyle.Danger)
+                                .setStyle(Danger)
                                 .setEmoji(config.emojis.cross)
                         );
 
@@ -469,22 +469,22 @@ class ButtonHandler {
                     { name: '📋 Güncellenmiş Şartlar', value: '• Kiralama opsiyonu yok\n• Satış opsiyon bedeli: %25\n• Performans bonusları dahil', inline: false }
                 ]);
 
-                const editRow = new ActionRowBuilder()
+                const editRow = new MessageActionRow()
                     .addComponents(
-                        new ButtonBuilder()
+                        new MessageButton()
                             .setCustomId(`contract_accept_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                             .setLabel('Kabul Et')
-                            .setStyle(ButtonStyle.Success)
+                            .setStyle(Success)
                             .setEmoji(config.emojis.check),
-                        new ButtonBuilder()
+                        new MessageButton()
                             .setCustomId(`contract_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                             .setLabel('Reddet')
-                            .setStyle(ButtonStyle.Danger)
+                            .setStyle(Danger)
                             .setEmoji(config.emojis.cross),
-                        new ButtonBuilder()
+                        new MessageButton()
                             .setCustomId(`contract_edit_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                             .setLabel('Tekrar Düzenle')
-                            .setStyle(ButtonStyle.Secondary)
+                            .setStyle(Secondary)
                             .setEmoji(config.emojis.edit)
                     );
 
@@ -782,7 +782,7 @@ class ButtonHandler {
                     });
                 }
 
-                const cancelEmbed = new EmbedBuilder()
+                const cancelEmbed = new MessageEmbed()
                     .setColor(config.colors.text)
                     .setTitle(`${config.emojis.cross} Fesih İptal Edildi`)
                     .setDescription('Fesih işlemi iptal edildi.')
@@ -921,11 +921,11 @@ class ButtonHandler {
     }
 
     async handleTransferInfoHelp(client, interaction) {
-        const infoEmbed = new EmbedBuilder()
+        const infoEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle('📖 Transfer Sistemi Nasıl Kullanılır?')
             .setDescription('**Transfer işlemlerini başlatmak için:**')
-            .addFields(
+            .addField(
                 {
                     name: '1️⃣ Transfer Başlatma',
                     value: '• Komutları kullanarak transfer tekliflerini başlatın\n• Hedef başkan ve futbolcu etiketleyin\n• Otomatik müzakere kanalı oluşturulur',
@@ -953,11 +953,11 @@ class ButtonHandler {
     }
 
     async handleTransferRolesHelp(client, interaction) {
-        const rolesEmbed = new EmbedBuilder()
+        const rolesEmbed = new MessageEmbed()
             .setColor(config.colors.accent)
             .setTitle('👥 Rol Sistemi')
             .setDescription('**Transfer sisteminde kullanılan roller:**')
-            .addFields(
+            .addField(
                 {
                     name: '👑 Başkan Rolü',
                     value: '• Transfer teklifleri yapabilir\n• Sözleşme müzakerelerinde bulunabilir\n• Futbolcu bırakma işlemleri yapabilir',
@@ -990,11 +990,11 @@ class ButtonHandler {
     }
 
     async handleTransferFeaturesHelp(client, interaction) {
-        const featuresEmbed = new EmbedBuilder()
+        const featuresEmbed = new MessageEmbed()
             .setColor(config.colors.success)
             .setTitle('⚡ Sistem Özellikleri')
             .setDescription('**Transfer sisteminin gelişmiş özellikleri:**')
-            .addFields(
+            .addField(
                 {
                     name: '🤖 Otomatik Duyuru Sistemi',
                     value: '• Tüm transferler otomatik duyurulur\n• Serbest kalma bildirimleri\n• Özelleştirilebilir duyuru kanalları',
@@ -1206,7 +1206,7 @@ class ButtonHandler {
 
             // Transfer duyuru embed'i oluştur - oyuncunun avatarını kullan
             const playerDisplayName = transferData.playerName || transferData.player.username;
-            const announcementEmbed = new EmbedBuilder()
+            const announcementEmbed = new MessageEmbed()
                 .setColor(color)
                 .setTitle(`${config.emojis.football} ${title}`)
                 .setDescription(`**${playerDisplayName}** ${transferData.team} takımı ile anlaştı!`)
@@ -1214,14 +1214,14 @@ class ButtonHandler {
 
             // Serbest transfer ve takas için eski kulüp gösterme
             if (transferData.type === 'takas' || transferData.type === 'serbest_transfer') {
-                announcementEmbed.addFields(
+                announcementEmbed.addField(
                     { name: '⚽ Oyuncu', value: transferData.playerName ? `${transferData.player} (${transferData.playerName})` : `${transferData.player}`, inline: true },
                     { name: '🏟️ Yeni Takım', value: transferData.team, inline: true },
                     { name: '📋 Transfer Türü', value: transferData.type === 'takas' ? 'Takas Transfer' : 'Serbest Transfer', inline: true }
                 );
             } else {
                 // Diğer transfer türleri için eski kulüp göster
-                announcementEmbed.addFields(
+                announcementEmbed.addField(
                     { name: '⚽ Oyuncu', value: `${transferData.player}`, inline: true },
                     { name: '🏆 Eski Kulüp', value: transferData.oldClub || 'Belirtilmedi', inline: true },
                     { name: '🏟️ Yeni Takım', value: transferData.team, inline: true },
@@ -1231,22 +1231,22 @@ class ButtonHandler {
 
             // Transfer detayları ekle - sadece dolu alanları göster
             if (transferData.amount && transferData.amount.trim() && transferData.amount !== '0') {
-                announcementEmbed.addFields({ name: '💰 Transfer Bedeli', value: transferData.amount, inline: true });
+                announcementEmbed.addField({ name: '💰 Transfer Bedeli', value: transferData.amount, inline: true });
             }
             if (transferData.salary && transferData.salary.trim()) {
-                announcementEmbed.addFields({ name: '💵 Maaş', value: transferData.salary, inline: true });
+                announcementEmbed.addField({ name: '💵 Maaş', value: transferData.salary, inline: true });
             }
             if (transferData.duration && transferData.duration.trim()) {
-                announcementEmbed.addFields({ name: '📅 Sözleşme Süresi & Ek Madde', value: transferData.duration, inline: true });
+                announcementEmbed.addField({ name: '📅 Sözleşme Süresi & Ek Madde', value: transferData.duration, inline: true });
             }
             if (transferData.bonus && transferData.bonus.trim()) {
-                announcementEmbed.addFields({ name: '🎯 Bonuslar', value: transferData.bonus, inline: true });
+                announcementEmbed.addField({ name: '🎯 Bonuslar', value: transferData.bonus, inline: true });
             }
             if (transferData.targetPlayer && transferData.targetPlayer !== 'Belirtilmedi' && transferData.targetPlayer.trim()) {
-                announcementEmbed.addFields({ name: '⚽ İstenen Oyuncu', value: transferData.targetPlayer, inline: true });
+                announcementEmbed.addField({ name: '⚽ İstenen Oyuncu', value: transferData.targetPlayer, inline: true });
             }
             if (transferData.signingBonus && transferData.signingBonus.trim()) {
-                announcementEmbed.addFields({ name: '💎 İmza Parası', value: transferData.signingBonus, inline: true });
+                announcementEmbed.addField({ name: '💎 İmza Parası', value: transferData.signingBonus, inline: true });
             }
 
             announcementEmbed
@@ -1330,11 +1330,11 @@ class ButtonHandler {
             .setRequired(false);
 
         // Action Row'lar oluştur
-        const row1 = new ActionRowBuilder().addComponents(newTeamInput);
-        const row2 = new ActionRowBuilder().addComponents(playerNameInput);
-        const row3 = new ActionRowBuilder().addComponents(salaryInput);
-        const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
-        const row5 = new ActionRowBuilder().addComponents(bonusInput);
+        const row1 = new MessageActionRow().addComponents(newTeamInput);
+        const row2 = new MessageActionRow().addComponents(playerNameInput);
+        const row3 = new MessageActionRow().addComponents(salaryInput);
+        const row4 = new MessageActionRow().addComponents(contractDurationInput);
+        const row5 = new MessageActionRow().addComponents(bonusInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);
 
@@ -1387,11 +1387,11 @@ class ButtonHandler {
             .setRequired(true);
 
         // Action Row'lar oluştur
-        const row1 = new ActionRowBuilder().addComponents(newClubInput);
-        const row2 = new ActionRowBuilder().addComponents(oldClubInput);
-        const row3 = new ActionRowBuilder().addComponents(transferFeeInput);
-        const row4 = new ActionRowBuilder().addComponents(salaryInput);
-        const row5 = new ActionRowBuilder().addComponents(contractDurationInput);
+        const row1 = new MessageActionRow().addComponents(newClubInput);
+        const row2 = new MessageActionRow().addComponents(oldClubInput);
+        const row3 = new MessageActionRow().addComponents(transferFeeInput);
+        const row4 = new MessageActionRow().addComponents(salaryInput);
+        const row5 = new MessageActionRow().addComponents(contractDurationInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);
 
@@ -1444,11 +1444,11 @@ class ButtonHandler {
             .setRequired(true);
 
         // Action Row'lar oluştur
-        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
-        const row2 = new ActionRowBuilder().addComponents(additionalAmountInput);
-        const row3 = new ActionRowBuilder().addComponents(salaryInput);
-        const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
-        const row5 = new ActionRowBuilder().addComponents(targetPlayerInput);
+        const row1 = new MessageActionRow().addComponents(playerNameInput);
+        const row2 = new MessageActionRow().addComponents(additionalAmountInput);
+        const row3 = new MessageActionRow().addComponents(salaryInput);
+        const row4 = new MessageActionRow().addComponents(contractDurationInput);
+        const row5 = new MessageActionRow().addComponents(targetPlayerInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);
 
@@ -1501,11 +1501,11 @@ class ButtonHandler {
             .setRequired(false);
 
         // Action Row'lar oluştur
-        const row1 = new ActionRowBuilder().addComponents(oldClubInput);
-        const row2 = new ActionRowBuilder().addComponents(compensationInput);
-        const row3 = new ActionRowBuilder().addComponents(reasonInput);
-        const row4 = new ActionRowBuilder().addComponents(newTeamInput);
-        const row5 = new ActionRowBuilder().addComponents(bonusInput);
+        const row1 = new MessageActionRow().addComponents(oldClubInput);
+        const row2 = new MessageActionRow().addComponents(compensationInput);
+        const row3 = new MessageActionRow().addComponents(reasonInput);
+        const row4 = new MessageActionRow().addComponents(newTeamInput);
+        const row5 = new MessageActionRow().addComponents(bonusInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);
 
@@ -1558,11 +1558,11 @@ class ButtonHandler {
             .setRequired(true);
 
         // Action Row'lar oluştur
-        const row1 = new ActionRowBuilder().addComponents(newClubInput);
-        const row2 = new ActionRowBuilder().addComponents(oldClubInput);
-        const row3 = new ActionRowBuilder().addComponents(loanFeeInput);
-        const row4 = new ActionRowBuilder().addComponents(salaryInput);
-        const row5 = new ActionRowBuilder().addComponents(loanDurationInput);
+        const row1 = new MessageActionRow().addComponents(newClubInput);
+        const row2 = new MessageActionRow().addComponents(oldClubInput);
+        const row3 = new MessageActionRow().addComponents(loanFeeInput);
+        const row4 = new MessageActionRow().addComponents(salaryInput);
+        const row5 = new MessageActionRow().addComponents(loanDurationInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);
 
@@ -1615,11 +1615,11 @@ class ButtonHandler {
             .setRequired(false);
 
         // Action Row'lar oluştur (en fazla 5 tane olabilir)
-        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
-        const row2 = new ActionRowBuilder().addComponents(newClubInput);
-        const row3 = new ActionRowBuilder().addComponents(salaryInput);
-        const row4 = new ActionRowBuilder().addComponents(contractYearsInput);
-        const row5 = new ActionRowBuilder().addComponents(signingBonusInput);
+        const row1 = new MessageActionRow().addComponents(playerNameInput);
+        const row2 = new MessageActionRow().addComponents(newClubInput);
+        const row3 = new MessageActionRow().addComponents(salaryInput);
+        const row4 = new MessageActionRow().addComponents(contractYearsInput);
+        const row5 = new MessageActionRow().addComponents(signingBonusInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);
 
@@ -1637,33 +1637,33 @@ class ButtonHandler {
                 return null;
             }
 
-            const { EmbedBuilder } = require('discord.js');
+            const { MessageEmbed } = require('discord.js');
             const config = require('../config');
 
             const playerDisplayName = releaseData.playerName || player.username;
             const reason = releaseData.reason !== 'Sözleşme feshi' ? releaseData.reason : defaultReason;
             
-            const embed = new EmbedBuilder()
+            const embed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('🆓 Yeni Serbest Futbolcu')
                 .setDescription(`**${playerDisplayName}** artık serbest futbolcu!\n\nTransfer teklifleri için \`.offer\` komutunu kullanabilirsiniz.`)
                 .setThumbnail(player.displayAvatarURL({ dynamic: true }))
-                .addFields(
+                .addField(
                     { name: '⚽ Oyuncu', value: releaseData.playerName ? `${player} (${releaseData.playerName})` : `${player}`, inline: true },
                     { name: '📋 Fesih Sebebi', value: reason, inline: true }
                 );
 
             // Ek bilgileri ekle
             if (releaseData.compensation && releaseData.compensation !== 'Belirtilmedi' && releaseData.compensation.trim() !== '') {
-                embed.addFields({ name: '💰 Tazminat', value: releaseData.compensation, inline: true });
+                embed.addField({ name: '💰 Tazminat', value: releaseData.compensation, inline: true });
             }
             
             if (releaseData.newTeam && releaseData.newTeam !== 'Belirtilmedi' && releaseData.newTeam.trim() !== '') {
-                embed.addFields({ name: '🏆 Potansiyel Yeni Takım', value: releaseData.newTeam, inline: true });
+                embed.addField({ name: '🏆 Potansiyel Yeni Takım', value: releaseData.newTeam, inline: true });
             }
 
             if (releaseData.bonus && releaseData.bonus !== 'Belirtilmedi' && releaseData.bonus.trim() !== '') {
-                embed.addFields({ name: '💎 Ek Ödemeler', value: releaseData.bonus, inline: true });
+                embed.addField({ name: '💎 Ek Ödemeler', value: releaseData.bonus, inline: true });
             }
 
             embed.setTimestamp()
@@ -1733,12 +1733,12 @@ class ButtonHandler {
             }
 
             // Release form verilerini kullanarak transfer duyurusu oluştur
-            const embed = new EmbedBuilder()
+            const embed = new MessageEmbed()
                 .setColor(config.colors.warning)
                 .setTitle(`${config.emojis.release} FESIH TRANSFER TAMAMLANDI`)
                 .setDescription(`**${player.username}** için fesih işlemi tamamlandı!`)
                 .setThumbnail(player.displayAvatarURL({ dynamic: true }))
-                .addFields(
+                .addField(
                     { name: '⚽ Oyuncu', value: player.username, inline: true },
                     { name: '🏆 Eski Kulüp', value: releaseData.oldClub || 'Belirtilmedi', inline: true },
                     { name: '📋 Fesih Türü', value: releaseType === 'mutual' ? 'Karşılıklı Anlaşma' : 'Tek Taraflı', inline: true },
@@ -1747,19 +1747,19 @@ class ButtonHandler {
 
             // Sadece dolu alanları ekle
             if (releaseData.reason && releaseData.reason !== 'Sözleşme feshi' && releaseData.reason.trim()) {
-                embed.addFields({ name: '📄 Sebep', value: releaseData.reason, inline: false });
+                embed.addField({ name: '📄 Sebep', value: releaseData.reason, inline: false });
             }
 
             if (releaseData.compensation && releaseData.compensation !== 'Belirtilmedi' && releaseData.compensation.trim()) {
-                embed.addFields({ name: '💰 Tazminat', value: releaseData.compensation, inline: true });
+                embed.addField({ name: '💰 Tazminat', value: releaseData.compensation, inline: true });
             }
 
             if (releaseData.newTeam && releaseData.newTeam !== 'Belirtilmedi' && releaseData.newTeam.trim()) {
-                embed.addFields({ name: '🏆 Potansiyel Yeni Takım', value: releaseData.newTeam, inline: true });
+                embed.addField({ name: '🏆 Potansiyel Yeni Takım', value: releaseData.newTeam, inline: true });
             }
 
             if (releaseData.bonus && releaseData.bonus !== 'Belirtilmedi' && releaseData.bonus.trim()) {
-                embed.addFields({ name: '💎 Ek Ödemeler', value: releaseData.bonus, inline: true });
+                embed.addField({ name: '💎 Ek Ödemeler', value: releaseData.bonus, inline: true });
             }
 
             embed.setTimestamp()
@@ -1816,12 +1816,12 @@ class ButtonHandler {
             }
 
             // Detaylı serbest futbolcu duyurusu
-            const embed = new EmbedBuilder()
+            const embed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('🆓 YENİ SERBEST FUTBOLCU')
                 .setDescription(`**${player.username}** artık serbest futbolcu!\n\nTransfer teklifleri için \`.offer\` komutunu kullanabilirsiniz.`)
                 .setThumbnail(player.displayAvatarURL({ dynamic: true }))
-                .addFields(
+                .addField(
                     { name: '⚽ Oyuncu', value: `${player}`, inline: true },
                     { name: '🏆 Eski Kulüp', value: releaseData.oldClub || 'Belirtilmedi', inline: true },
                     { name: '📋 Fesih Sebebi', value: releaseData.reason || 'Karşılıklı anlaşma', inline: true }
@@ -1829,15 +1829,15 @@ class ButtonHandler {
 
             // Sadece dolu alanları ekle
             if (releaseData.compensation && releaseData.compensation !== 'Belirtilmedi' && releaseData.compensation.trim()) {
-                embed.addFields({ name: '💰 Alınan Tazminat', value: releaseData.compensation, inline: true });
+                embed.addField({ name: '💰 Alınan Tazminat', value: releaseData.compensation, inline: true });
             }
 
             if (releaseData.newTeam && releaseData.newTeam !== 'Belirtilmedi' && releaseData.newTeam.trim()) {
-                embed.addFields({ name: '🏆 Potansiyel Yeni Takım', value: releaseData.newTeam, inline: true });
+                embed.addField({ name: '🏆 Potansiyel Yeni Takım', value: releaseData.newTeam, inline: true });
             }
 
             if (releaseData.bonus && releaseData.bonus !== 'Belirtilmedi' && releaseData.bonus.trim()) {
-                embed.addFields({ name: '💎 Ek Ödemeler', value: releaseData.bonus, inline: true });
+                embed.addField({ name: '💎 Ek Ödemeler', value: releaseData.bonus, inline: true });
             }
 
             embed.setTimestamp()

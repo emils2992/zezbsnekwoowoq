@@ -48,9 +48,9 @@ class CommandHandler {
 
     async listCommands(client, message) {
         try {
-            const { EmbedBuilder } = require('discord.js');
+            const { MessageEmbed } = require('discord.js');
             
-            const helpEmbed = new EmbedBuilder()
+            const helpEmbed = new MessageEmbed()
                 .setColor(config.colors.primary)
                 .setTitle(`${config.emojis.football} Transfer Bot Komutları`)
                 .setDescription('Mevcut komutlar ve kullanımları:')

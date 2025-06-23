@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { MessageEmbed, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 

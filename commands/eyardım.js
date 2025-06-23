@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { MessageEmbed, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const config = require('../config');
 
 module.exports = {
@@ -8,7 +8,7 @@ module.exports = {
     
     async execute(client, message, args) {
         try {
-            const helpEmbed = new EmbedBuilder()
+            const helpEmbed = new MessageEmbed()
                 .setColor(config.colors.primary)
                 .setTitle(`${config.emojis.help || '❓'} Transfer Sistemi Komutları`)
                 .setDescription('🏈 **Futbol Transfer Sistemi** - Tüm transfer işlemlerinizi kolayca yönetin!')

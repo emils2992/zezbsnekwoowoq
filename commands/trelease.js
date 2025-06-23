@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { MessageEmbed, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 const embeds = require('../utils/embeds');
@@ -30,7 +30,7 @@ module.exports = {
             }
 
             // Tek taraflı fesih embed'i oluştur
-            const releaseEmbed = new EmbedBuilder()
+            const releaseEmbed = new MessageEmbed()
                 .setColor(config.colors.error)
                 .setTitle(`${config.emojis.release} Tek Taraflı Fesih`)
                 .setDescription(`**${message.author.username}** tarafından **${player.user.username}** için tek taraflı fesih talebi:`)

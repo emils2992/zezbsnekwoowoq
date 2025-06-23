@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 const channels = require('../utils/channels');
@@ -26,7 +26,7 @@ module.exports = {
             permissions.setRole(message.guild.id, 'freeAgentChannel', targetChannel.id);
 
             // Kanalı ayarla (bu örnekte sadece bilgi mesajı gönderiyoruz)
-            const setupEmbed = new EmbedBuilder()
+            const setupEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.check} Serbest Futbolcu Kanalı Ayarlandı`)
                 .setDescription(`${targetChannel} artık serbest futbolcu duyuru kanalı olarak ayarlandı!`)
@@ -43,7 +43,7 @@ module.exports = {
             await message.reply({ embeds: [setupEmbed] });
 
             // Test duyurusu gönder
-            const testEmbed = new EmbedBuilder()
+            const testEmbed = new MessageEmbed()
                 .setColor(config.colors.primary)
                 .setTitle(`${config.emojis.football} Serbest Futbolcu Kanalı Aktif`)
                 .setDescription('Bu kanal artık serbest futbolcu duyuruları için aktif!')

@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, Collection } = require('discord.js');
+const { Client, Intents, Collection } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
@@ -8,10 +8,9 @@ const buttonHandler = require('./handlers/buttonHandler');
 // Bot client oluştur
 const client = new Client({
     intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.MessageContent
+        Intents.FLAGS.GUILDS,
+        Intents.FLAGS.GUILD_MESSAGES,
+        Intents.FLAGS.GUILD_MEMBERS
     ]
 });
 
@@ -51,7 +50,7 @@ client.on('interactionCreate', async interaction => {
     try {
         if (interaction.isButton()) {
             await buttonHandler.handleButton(client, interaction);
-        } else if (interaction.isStringSelectMenu()) {
+        } else if (interaction.isSelectMenu()) {
             await handleSelectMenu(client, interaction);
         } else if (interaction.isModalSubmit()) {
             await handleModalSubmit(client, interaction);
@@ -73,7 +72,7 @@ async function handleSelectMenu(client, interaction) {
         const selectedRoleId = interaction.values[0];
         
         const permissions = require('./utils/permissions');
-        const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+        const { MessageEmbed, MessageActionRow, MessageButton, ButtonStyle } = require('discord.js');
         
         try {
             // Seçilen rolü al
@@ -90,11 +89,11 @@ async function handleSelectMenu(client, interaction) {
             permissions.setRole(interaction.guild.id, roleType, selectedRoleId);
             
             // Başarı mesajı
-            const successEmbed = new EmbedBuilder()
+            const successEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('✅ Rol Başarıyla Ayarlandı')
                 .setDescription(`**${getRoleName(roleType)}** olarak ${selectedRole} rolü ayarlandı!`)
-                .addFields({
+                .addField({
                     name: '📊 Rol Bilgileri',
                     value: `**Rol Adı:** ${selectedRole.name}\n**Üye Sayısı:** ${selectedRole.members.size}\n**Renk:** ${selectedRole.hexColor}`,
                     inline: false
@@ -102,17 +101,17 @@ async function handleSelectMenu(client, interaction) {
                 .setTimestamp();
 
             // Geri dön butonu
-            const backButton = new ActionRowBuilder()
+            const backButton = new MessageActionRow()
                 .addComponents(
-                    new ButtonBuilder()
+                    new MessageButton()
                         .setCustomId('role_setup_back_main')
                         .setLabel('Ana Menüye Dön')
-                        .setStyle(ButtonStyle.Primary)
+                        .setStyle(Primary)
                         .setEmoji('🏠'),
-                    new ButtonBuilder()
+                    new MessageButton()
                         .setCustomId('role_back')
                         .setLabel('Mevcut Rolleri Göster')
-                        .setStyle(ButtonStyle.Secondary)
+                        .setStyle(Secondary)
                         .setEmoji('📋')
                 );
 
@@ -152,7 +151,7 @@ async function handleModalSubmit(client, interaction) {
         await interaction.deferReply({ ephemeral: true });
         
         const customId = interaction.customId;
-        const { ModalBuilder, TextInputBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+        const { ModalBuilder, TextInputBuilder, MessageActionRow, MessageButton, ButtonStyle, MessageEmbed } = require('discord.js');
         const embeds = require('./utils/embeds');
         const channels = require('./utils/channels');
         const config = require('./config');
@@ -182,22 +181,22 @@ async function handleModalSubmit(client, interaction) {
             const offerEmbed = embeds.createOfferForm(president.user, player.user, offerData);
             
             // Butonları oluştur
-            const row = new ActionRowBuilder()
+            const row = new MessageActionRow()
                 .addComponents(
-                    new ButtonBuilder()
+                    new MessageButton()
                         .setCustomId(`offer_accept_${playerId}_${presidentId}`)
                         .setLabel('Kabul Et')
-                        .setStyle(ButtonStyle.Success)
+                        .setStyle('SUCCESS')
                         .setEmoji(config.emojis.check),
-                    new ButtonBuilder()
+                    new MessageButton()
                         .setCustomId(`offer_reject_${playerId}_${presidentId}`)
                         .setLabel('Reddet')
-                        .setStyle(ButtonStyle.Danger)
+                        .setStyle('DANGER')
                         .setEmoji(config.emojis.cross),
-                    new ButtonBuilder()
+                    new MessageButton()
                         .setCustomId(`edit_offer_${playerId}_${presidentId}`)
                         .setLabel('Düzenle')
-                        .setStyle(ButtonStyle.Secondary)
+                        .setStyle('SECONDARY')
                         .setEmoji(config.emojis.edit)
                 );
 
@@ -221,7 +220,7 @@ async function handleModalSubmit(client, interaction) {
             });
 
             // Başarı mesajı
-            const successEmbed = new EmbedBuilder()
+            const successEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.check} Teklif Gönderildi`)
                 .setDescription(`${player.user} için teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
@@ -254,22 +253,22 @@ async function handleModalSubmit(client, interaction) {
         const contractEmbed = embeds.createContractForm(fromPresident.user, targetPresident.user, player.user, contractData);
         
         // Butonları oluştur
-        const row = new ActionRowBuilder()
+        const row = new MessageActionRow()
             .addComponents(
-                new ButtonBuilder()
+                new MessageButton()
                     .setCustomId(`contract_accept_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Kabul Et')
-                    .setStyle(ButtonStyle.Success)
+                    .setStyle(Success)
                     .setEmoji(config.emojis.check),
-                new ButtonBuilder()
+                new MessageButton()
                     .setCustomId(`contract_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Reddet')
-                    .setStyle(ButtonStyle.Danger)
+                    .setStyle(Danger)
                     .setEmoji(config.emojis.cross),
-                new ButtonBuilder()
+                new MessageButton()
                     .setCustomId(`edit_contract_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Düzenle')
-                    .setStyle(ButtonStyle.Secondary)
+                    .setStyle(Secondary)
                     .setEmoji(config.emojis.edit)
             );
 
@@ -294,7 +293,7 @@ async function handleModalSubmit(client, interaction) {
         });
 
         // Başarı mesajı
-        const successEmbed = new EmbedBuilder()
+        const successEmbed = new MessageEmbed()
             .setColor(config.colors.success)
             .setTitle(`${config.emojis.check} Sözleşme Teklifi Gönderildi`)
             .setDescription(`${player.user} için sözleşme teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
@@ -327,22 +326,22 @@ async function handleModalSubmit(client, interaction) {
         const tradeEmbed = embeds.createTradeForm(fromPresident.user, targetPresident.user, player.user, tradeData);
         
         // Butonları oluştur
-        const row = new ActionRowBuilder()
+        const row = new MessageActionRow()
             .addComponents(
-                new ButtonBuilder()
+                new MessageButton()
                     .setCustomId(`trade_accept_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Kabul Et')
-                    .setStyle(ButtonStyle.Success)
+                    .setStyle(Success)
                     .setEmoji(config.emojis.check),
-                new ButtonBuilder()
+                new MessageButton()
                     .setCustomId(`trade_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Reddet')
-                    .setStyle(ButtonStyle.Danger)
+                    .setStyle(Danger)
                     .setEmoji(config.emojis.cross),
-                new ButtonBuilder()
+                new MessageButton()
                     .setCustomId(`edit_trade_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Düzenle')
-                    .setStyle(ButtonStyle.Secondary)
+                    .setStyle(Secondary)
                     .setEmoji(config.emojis.edit)
             );
 
@@ -367,7 +366,7 @@ async function handleModalSubmit(client, interaction) {
         });
 
         // Başarı mesajı
-        const successEmbed = new EmbedBuilder()
+        const successEmbed = new MessageEmbed()
             .setColor(config.colors.success)
             .setTitle(`${config.emojis.check} Takas Teklifi Gönderildi`)
             .setDescription(`${player.user} için takas teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
@@ -400,22 +399,22 @@ async function handleModalSubmit(client, interaction) {
         const hireEmbed = embeds.createHireForm(fromPresident.user, targetPresident.user, player.user, hireData);
         
         // Butonları oluştur
-        const row = new ActionRowBuilder()
+        const row = new MessageActionRow()
             .addComponents(
-                new ButtonBuilder()
+                new MessageButton()
                     .setCustomId(`hire_accept_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Kabul Et')
-                    .setStyle(ButtonStyle.Success)
+                    .setStyle(Success)
                     .setEmoji(config.emojis.check),
-                new ButtonBuilder()
+                new MessageButton()
                     .setCustomId(`hire_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Reddet')
-                    .setStyle(ButtonStyle.Danger)
+                    .setStyle(Danger)
                     .setEmoji(config.emojis.cross),
-                new ButtonBuilder()
+                new MessageButton()
                     .setCustomId(`edit_hire_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Düzenle')
-                    .setStyle(ButtonStyle.Secondary)
+                    .setStyle(Secondary)
                     .setEmoji(config.emojis.edit)
             );
 
@@ -440,7 +439,7 @@ async function handleModalSubmit(client, interaction) {
         });
 
         // Başarı mesajı
-        const successEmbed = new EmbedBuilder()
+        const successEmbed = new MessageEmbed()
             .setColor(config.colors.success)
             .setTitle(`${config.emojis.check} Kiralık Sözleşme Teklifi Gönderildi`)
             .setDescription(`${player.user} için kiralık sözleşme teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
@@ -472,17 +471,17 @@ async function handleModalSubmit(client, interaction) {
         const releaseEmbed = embeds.createReleaseForm(president.user, player.user, 'karşılıklı', releaseData);
         
         // Butonları oluştur
-        const row = new ActionRowBuilder()
+        const row = new MessageActionRow()
             .addComponents(
-                new ButtonBuilder()
+                new MessageButton()
                     .setCustomId(`release_accept_${playerId}_${presidentId}`)
                     .setLabel('Kabul Et')
-                    .setStyle(ButtonStyle.Success)
+                    .setStyle(Success)
                     .setEmoji(config.emojis.check),
-                new ButtonBuilder()
+                new MessageButton()
                     .setCustomId(`release_reject_${playerId}_${presidentId}`)
                     .setLabel('Reddet')
-                    .setStyle(ButtonStyle.Danger)
+                    .setStyle(Danger)
                     .setEmoji(config.emojis.cross)
             );
 
@@ -507,7 +506,7 @@ async function handleModalSubmit(client, interaction) {
 
         // Futbolcuya bildirim gönder
         try {
-            const dmEmbed = new EmbedBuilder()
+            const dmEmbed = new MessageEmbed()
                 .setColor(config.colors.warning)
                 .setTitle(`${config.emojis.release} Karşılıklı Fesih Teklifi`)
                 .setDescription(`**${interaction.guild.name}** sunucusunda **${president.user.username}** sizinle karşılıklı fesih yapmak istiyor!\n\nTeklifi değerlendirmek için sunucuya göz atın.`)
@@ -519,7 +518,7 @@ async function handleModalSubmit(client, interaction) {
         }
 
         // Başarı mesajı
-        const successEmbed = new EmbedBuilder()
+        const successEmbed = new MessageEmbed()
             .setColor(config.colors.success)
             .setTitle(`${config.emojis.check} Karşılıklı Fesih Teklifi Gönderildi`)
             .setDescription(`${player.user} için karşılıklı fesih teklifiniz gönderildi!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
@@ -557,12 +556,12 @@ async function handleModalSubmit(client, interaction) {
         }
 
         // Duyuru embed'i oluştur
-        const announcementEmbed = new EmbedBuilder()
+        const announcementEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.football} Serbest Futbolcu Duyurusu`)
             .setDescription(`**${announcementData.playerName}** ${announcementData.newClub} takımına transfer oldu!`)
             .setThumbnail(player.displayAvatarURL({ dynamic: true }))
-            .addFields(
+            .addField(
                 { name: '⚽ Oyuncu', value: `${player} (${announcementData.playerName})`, inline: true },
                 { name: '🏆 Yeni Kulüp', value: announcementData.newClub, inline: true },
                 { name: '💰 Maaş', value: announcementData.salary, inline: true }
@@ -570,10 +569,10 @@ async function handleModalSubmit(client, interaction) {
 
         // Sadece dolu alanları ekle
         if (announcementData.contractYears && announcementData.contractYears.trim()) {
-            announcementEmbed.addFields({ name: '📅 Sözleşme Yılı', value: announcementData.contractYears, inline: true });
+            announcementEmbed.addField({ name: '📅 Sözleşme Yılı', value: announcementData.contractYears, inline: true });
         }
         if (announcementData.signingBonus && announcementData.signingBonus.trim()) {
-            announcementEmbed.addFields({ name: '💎 Bonus', value: announcementData.signingBonus, inline: true });
+            announcementEmbed.addField({ name: '💎 Bonus', value: announcementData.signingBonus, inline: true });
         }
 
         announcementEmbed
@@ -608,7 +607,7 @@ async function handleModalSubmit(client, interaction) {
         });
 
         // Başarı mesajı
-        const successEmbed = new EmbedBuilder()
+        const successEmbed = new MessageEmbed()
             .setColor(config.colors.success)
             .setTitle(`${config.emojis.check} Duyuru Gönderildi`)
             .setDescription(`Duyurunuz başarıyla ${announcementChannel} kanalına gönderildi!`)

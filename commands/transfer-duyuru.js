@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 const api = require('../utils/api');
@@ -45,7 +45,7 @@ module.exports = {
             fs.writeFileSync(rolesPath, JSON.stringify(allData, null, 2));
 
             // Başarı mesajı
-            const successEmbed = new EmbedBuilder()
+            const successEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.check} Transfer Duyuru Kanalı Ayarlandı`)
                 .setDescription(`${targetChannel} artık transfer duyuru kanalı olarak ayarlandı!\n\nArtık transfer kabul edildiğinde otomatik olarak bu kanala duyuru gönderilecek.`)
@@ -62,7 +62,7 @@ module.exports = {
             await message.reply({ embeds: [successEmbed] });
 
             // Test duyurusu gönder
-            const testEmbed = new EmbedBuilder()
+            const testEmbed = new MessageEmbed()
                 .setColor(config.colors.primary)
                 .setTitle(`${config.emojis.football} Transfer Duyuru Kanalı Aktif`)
                 .setDescription('Bu kanal artık otomatik transfer duyuruları için ayarlandı!')

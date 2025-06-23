@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { MessageEmbed, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 const embeds = require('../utils/embeds');
@@ -38,7 +38,7 @@ module.exports = {
             }
 
             // Karşılıklı fesih embed'i oluştur
-            const releaseEmbed = new EmbedBuilder()
+            const releaseEmbed = new MessageEmbed()
                 .setColor(config.colors.primary)
                 .setTitle(`${config.emojis.release} Karşılıklı Fesih Teklifi`)
                 .setDescription(`**${message.author.username}** tarafından **${targetUser.username}**'e karşılıklı fesih teklifi yapılıyor.`)

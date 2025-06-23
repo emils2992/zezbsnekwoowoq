@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton, ButtonStyle } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 const fs = require('fs');
@@ -40,11 +40,11 @@ module.exports = {
     },
 
     async showHelp(message) {
-        const helpEmbed = new EmbedBuilder()
+        const helpEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.warning} Rol Yönetimi Yardım`)
             .setDescription('Transfer sistemi için rol ayarlarını yönetin')
-            .addFields(
+            .addField(
                 {
                     name: '📋 Komutlar',
                     value: '`.rol liste` - Mevcut rol ayarlarını görüntüle\n`.rol ayarla` - Rolleri ayarla\n`.rol sıfırla` - Rol ayarlarını sıfırla',
@@ -65,7 +65,7 @@ module.exports = {
     async showRoleList(message) {
         const roleData = permissions.getRoleData(message.guild.id);
         
-        const listEmbed = new EmbedBuilder()
+        const listEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.football} Mevcut Rol Ayarları`)
             .setDescription(`**${message.guild.name}** sunucusu için rol ayarları:`)
@@ -87,7 +87,7 @@ module.exports = {
             const roleId = roleData[roleType.key];
             const role = roleId ? message.guild.roles.cache.get(roleId) : null;
             
-            listEmbed.addFields({
+            listEmbed.addField({
                 name: `${roleType.emoji} ${roleType.name}`,
                 value: role ? `${role}` : '❌ Ayarlanmamış',
                 inline: true
@@ -98,11 +98,11 @@ module.exports = {
     },
 
     async setupRoles(message) {
-        const setupEmbed = new EmbedBuilder()
+        const setupEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.settings} Rol Ayarlama Sistemi`)
             .setDescription('Bu mesajı **yanıtlayarak** rolleri ayarlayın:\n\n**Format:** `rol_türü @rol_adı` veya `rol_türü rol_id`\n\n**Örnekler:**\n`başkan @Başkan`\n`futbolcu @Oyuncu`\n`serbest @Serbest`\n`yetkili @Transfer Admin`\n`ping_transfer @Transfer Ping`\n`ping_serbest @Serbest Ping`\n`ping_duyuru @Duyuru Ping`')
-            .addFields(
+            .addField(
                 {
                     name: '📋 Kullanılabilir Rol Türleri',
                     value: '**başkan** - Transfer yapabilir\n**futbolcu** - Transfer edilebilir\n**serbest** - Serbest oyuncular\n**yetkili** - Transfer yetkilisi\n**ping_transfer** - Transfer ping\n**ping_serbest** - Serbest ping\n**ping_duyuru** - Duyuru ping',
@@ -189,11 +189,11 @@ module.exports = {
                 'announcementPingRole': 'Duyuru Duyuru Ping'
             };
             
-            const successEmbed = new EmbedBuilder()
+            const successEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.check} Rol Ayarlandı`)
                 .setDescription(`**${roleNames[mappedRoleType]}** başarıyla ${role} olarak ayarlandı!`)
-                .addFields({
+                .addField({
                     name: '📊 Rol Bilgileri',
                     value: `**Rol:** ${role.name}\n**Üye Sayısı:** ${role.members.size}\n**Rol ID:** ${role.id}`,
                     inline: false
@@ -203,7 +203,7 @@ module.exports = {
             await responseMessage.reply({ embeds: [successEmbed] });
             
         } catch (error) {
-            const timeoutEmbed = new EmbedBuilder()
+            const timeoutEmbed = new MessageEmbed()
                 .setColor(config.colors.error)
                 .setTitle(`${config.emojis.cross} Zaman Aşımı`)
                 .setDescription('Rol ayarlama işlemi zaman aşımına uğradı (60 saniye). Lütfen `.rol ayarla` komutunu tekrar çalıştırın.')
@@ -217,7 +217,7 @@ module.exports = {
         try {
             permissions.resetRoles(message.guild.id);
             
-            const resetEmbed = new EmbedBuilder()
+            const resetEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.check} Roller Sıfırlandı`)
                 .setDescription('Tüm rol ayarları başarıyla sıfırlandı!')

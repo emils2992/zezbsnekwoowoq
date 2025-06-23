@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 
@@ -24,7 +24,7 @@ module.exports = {
             permissions.setRole(message.guild.id, 'announcementChannel', targetChannel.id);
 
             // Kanalı ayarla
-            const setupEmbed = new EmbedBuilder()
+            const setupEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.check} Duyuru Kanalı Ayarlandı`)
                 .setDescription(`${targetChannel} artık serbest futbolcu duyuru kanalı olarak ayarlandı!`)
@@ -41,7 +41,7 @@ module.exports = {
             await message.reply({ embeds: [setupEmbed] });
 
             // Test duyurusu gönder
-            const testEmbed = new EmbedBuilder()
+            const testEmbed = new MessageEmbed()
                 .setColor(config.colors.primary)
                 .setTitle(`${config.emojis.football} Duyuru Kanalı Aktif`)
                 .setDescription('Bu kanal artık serbest futbolcu duyuruları için aktif!')
