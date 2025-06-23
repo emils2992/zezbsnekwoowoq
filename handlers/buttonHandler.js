@@ -39,7 +39,12 @@ class ButtonHandler {
                     await this.handleOfferButton(client, interaction, params);
                     break;
                 case 'contract':
-                    await this.handleContractButton(client, interaction, params);
+                    // Check if it's a player-specific contract button
+                    if (customId.includes('contract_player_')) {
+                        await this.handleContractPlayerButton(client, interaction, params);
+                    } else {
+                        await this.handleContractButton(client, interaction, params);
+                    }
                     break;
                 case 'contract_player':
                     await this.handleContractPlayerButton(client, interaction, params);
@@ -223,6 +228,9 @@ class ButtonHandler {
     async handleContractButton(client, interaction, params) {
         const [buttonType, playerId, presidentId] = params;
         const guild = interaction.guild;
+        
+        console.log('Contract button debug:', { buttonType, playerId, presidentId });
+        
         const player = await guild.members.fetch(playerId);
         const president = await guild.members.fetch(presidentId);
 
@@ -464,6 +472,20 @@ class ButtonHandler {
                     console.error('KANAL SİLME HATASI:', error);
                 }
             }, 1500);
+        } else if (buttonType === 'edit') {
+            // Check if user is authorized (target player, president, or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || interaction.user.id === presidentId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
+                return interaction.reply({
+                    content: '❌ Sadece oyuncu, başkan veya transfer yetkilileri düzenleyebilir!',
+                    ephemeral: true
+                });
+            }
+
+            // Extract existing data from embed and show pre-filled modal
+            await this.showEditContractModal(client, interaction, playerId, presidentId);
         }
     }
 
