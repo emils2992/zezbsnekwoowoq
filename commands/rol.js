@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 const fs = require('fs');
@@ -192,9 +192,24 @@ module.exports = {
                     .setEmoji('🔔')
             );
 
+        // Dördüncü satır - geri dön ve sıfırla butonları
+        const row4 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('role_setup_back')
+                    .setLabel('Ana Menüye Dön')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('↩️'),
+                new ButtonBuilder()
+                    .setCustomId('role_setup_reset')
+                    .setLabel('Tümünü Sıfırla')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('🗑️')
+            );
+
         await message.reply({ 
             embeds: [setupEmbed], 
-            components: [row1, row2, row3] 
+            components: [row1, row2, row3, row4] 
         });
     },
 

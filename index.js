@@ -68,134 +68,81 @@ client.on('interactionCreate', async interaction => {
 async function handleSelectMenu(client, interaction) {
     const customId = interaction.customId;
     
-    if (customId.startsWith('role_setup_')) {
-        const userId = customId.split('_')[2];
+    if (customId.startsWith('role_select_')) {
+        const roleType = customId.split('_')[2];
+        const selectedRoleId = interaction.values[0];
         
-        // Sadece komutu çalıştıran kişi seçim yapabilir
-        if (interaction.user.id !== userId) {
-            return interaction.reply({ content: '❌ Bu menüyü sadece komutu çalıştıran kişi kullanabilir!', ephemeral: true });
-        }
-        
-        const roleType = interaction.values[0];
         const permissions = require('./utils/permissions');
-        const { EmbedBuilder } = require('discord.js');
-        const config = require('./config');
-        
-        // Rol türü açıklamaları
-        const roleDescriptions = {
-            'president': 'Takım Başkanı',
-            'player': 'Futbolcu', 
-            'freeAgent': 'Serbest Futbolcu',
-            'transferChannel': 'Transfer Duyuru Kanalı',
-            'transferAuthority': 'Transfer Yetkilisi',
-            'transferPingRole': 'Transfer Duyuru Ping',
-            'freeAgentPingRole': 'Serbest Duyuru Ping',
-            'announcementPingRole': 'Duyur Duyuru Ping'
-        };
-        
-        const embed = new EmbedBuilder()
-            .setColor(config.colors.primary)
-            .setTitle(`${config.emojis.edit} Rol/Kanal Ayarlama`)
-            .setDescription(`**${roleDescriptions[roleType]}** için ayarlama yapmak üzeresiniz.\n\nLütfen bu mesajı yanıtlayarak aşağıdakilerden birini belirtin:\n\n${roleType === 'transferChannel' ? '• **Kanal:** #kanal-adı veya kanal ID\'si' : '• **Rol:** @rol-adı veya rol ID\'si'}`)
-            .addFields({
-                name: '💡 Nasıl Ayarlanır?',
-                value: roleType === 'transferChannel' 
-                    ? 'Bu mesajı yanıtlayarak kanal etiketini (#transfer-duyuru) veya kanal ID\'sini yazın.'
-                    : 'Bu mesajı yanıtlayarak rol etiketini (@Başkan) veya rol ID\'sini yazın.',
-                inline: false
-            })
-            .setFooter({ text: 'Ayarlama işlemini iptal etmek için başka bir komut kullanabilirsiniz.' })
-            .setTimestamp();
-            
-        await interaction.update({ embeds: [embed], components: [] });
-        
-        // Mesaj filtreleme - sadece bu kullanıcıdan ve bu kanaldan
-        const filter = (m) => m.author.id === interaction.user.id && m.channel.id === interaction.channel.id;
+        const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
         
         try {
-            const collected = await interaction.channel.awaitMessages({ 
-                filter, 
-                max: 1, 
-                time: 60000, 
-                errors: ['time'] 
-            });
+            // Seçilen rolü al
+            const selectedRole = interaction.guild.roles.cache.get(selectedRoleId);
             
-            const responseMessage = collected.first();
-            const content = responseMessage.content.trim();
-            
-            if (roleType === 'transferChannel') {
-                // Kanal ayarlama
-                let channel = null;
-                
-                // Kanal mention kontrolü
-                const channelMatch = content.match(/<#(\d+)>/);
-                if (channelMatch) {
-                    channel = interaction.guild.channels.cache.get(channelMatch[1]);
-                } else {
-                    // ID veya isim ile arama
-                    channel = interaction.guild.channels.cache.get(content) || 
-                             interaction.guild.channels.cache.find(ch => ch.name.toLowerCase() === content.toLowerCase());
-                }
-                
-                if (!channel) {
-                    return responseMessage.reply('❌ Kanal bulunamadı! Lütfen geçerli bir kanal etiket (#kanal) veya ID belirtin.');
-                }
-                
-                if (!channel.isTextBased()) {
-                    return responseMessage.reply('❌ Sadece metin kanalları seçilebilir!');
-                }
-                
-                // Kanal ayarını kaydet
-                permissions.setRole(interaction.guild.id, roleType, channel.id);
-                
-                const successEmbed = new EmbedBuilder()
-                    .setColor(config.colors.success)
-                    .setTitle(`${config.emojis.check} Kanal Ayarlandı`)
-                    .setDescription(`**Transfer Duyuru Kanalı** başarıyla ${channel} olarak ayarlandı!`)
-                    .setTimestamp();
-                    
-                await responseMessage.reply({ embeds: [successEmbed] });
-                
-            } else {
-                // Rol ayarlama
-                let role = null;
-                
-                // Rol mention kontrolü
-                const roleMatch = content.match(/<@&(\d+)>/);
-                if (roleMatch) {
-                    role = interaction.guild.roles.cache.get(roleMatch[1]);
-                } else {
-                    // ID veya isim ile arama
-                    role = interaction.guild.roles.cache.get(content) || 
-                          interaction.guild.roles.cache.find(r => r.name.toLowerCase() === content.toLowerCase());
-                }
-                
-                if (!role) {
-                    return responseMessage.reply('❌ Rol bulunamadı! Lütfen geçerli bir rol etiket (@rol) veya ID belirtin.');
-                }
-                
-                // Rol ayarını kaydet
-                permissions.setRole(interaction.guild.id, roleType, role.id);
-                
-                const successEmbed = new EmbedBuilder()
-                    .setColor(config.colors.success)
-                    .setTitle(`${config.emojis.check} Rol Ayarlandı`)
-                    .setDescription(`**${roleDescriptions[roleType]}** rolü başarıyla ${role} olarak ayarlandı!`)
-                    .setTimestamp();
-                    
-                await responseMessage.reply({ embeds: [successEmbed] });
+            if (!selectedRole) {
+                return interaction.reply({
+                    content: '❌ Seçilen rol bulunamadı!',
+                    ephemeral: true
+                });
             }
+
+            // Rol ayarını kaydet
+            permissions.setRole(interaction.guild.id, roleType, selectedRoleId);
             
-        } catch (error) {
-            const timeoutEmbed = new EmbedBuilder()
-                .setColor(config.colors.error)
-                .setTitle(`${config.emojis.cross} Zaman Aşımı`)
-                .setDescription('Rol/kanal ayarlama işlemi zaman aşımına uğradı. Lütfen tekrar deneyin.')
+            // Başarı mesajı
+            const successEmbed = new EmbedBuilder()
+                .setColor(config.colors.success)
+                .setTitle('✅ Rol Başarıyla Ayarlandı')
+                .setDescription(`**${getRoleName(roleType)}** olarak ${selectedRole} rolü ayarlandı!`)
+                .addFields({
+                    name: '📊 Rol Bilgileri',
+                    value: `**Rol Adı:** ${selectedRole.name}\n**Üye Sayısı:** ${selectedRole.members.size}\n**Renk:** ${selectedRole.hexColor}`,
+                    inline: false
+                })
                 .setTimestamp();
-                
-            await interaction.followUp({ embeds: [timeoutEmbed] });
+
+            // Geri dön butonu
+            const backButton = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('role_setup_back_main')
+                        .setLabel('Ana Menüye Dön')
+                        .setStyle(ButtonStyle.Primary)
+                        .setEmoji('🏠'),
+                    new ButtonBuilder()
+                        .setCustomId('role_back')
+                        .setLabel('Mevcut Rolleri Göster')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji('📋')
+                );
+
+            await interaction.update({
+                embeds: [successEmbed],
+                components: [backButton]
+            });
+
+        } catch (error) {
+            console.error('Rol ayarlama hatası:', error);
+            await interaction.reply({
+                content: '❌ Rol ayarlanırken bir hata oluştu!',
+                ephemeral: true
+            });
         }
     }
+}
+
+// Rol ismi helper fonksiyonu
+function getRoleName(roleType) {
+    const names = {
+        'president': 'Başkan Rolü',
+        'player': 'Futbolcu Rolü',
+        'freeAgent': 'Serbest Futbolcu Rolü',
+        'transferAuthority': 'Transfer Yetkili Rolü',
+        'transferPingRole': 'Transfer Duyuru Ping Rolü',
+        'freeAgentPingRole': 'Serbest Duyuru Ping Rolü',
+        'announcementPingRole': 'Duyur Duyuru Ping Rolü'
+    };
+    return names[roleType] || 'Bilinmeyen Rol';
 }
 
 // Modal submission işleyicisi
