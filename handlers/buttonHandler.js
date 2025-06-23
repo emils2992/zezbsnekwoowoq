@@ -1388,50 +1388,58 @@ class ButtonHandler {
 
     async handleShowContractForm(client, interaction, params) {
         const [playerId, presidentId] = params;
-        const guild = interaction.guild;
-        const player = await guild.members.fetch(playerId);
-        const president = await guild.members.fetch(presidentId);
-
-        // Create negotiation channel for the contract
-        const channel = await channels.createNegotiationChannel(guild, president.user, player.user, 'contract');
-        if (!channel) {
-            return interaction.reply({
-                content: '❌ Müzakere kanalı oluşturulamadı!',
-                ephemeral: true
-            });
-        }
-
-        // Create contract embed with form buttons
-        const contractEmbed = embeds.createContractForm(president.user, player.user, player.user);
         
-        const buttons = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setCustomId(`contract_accept_${playerId}_${presidentId}`)
-                    .setLabel('Kabul Et')
-                    .setStyle('SUCCESS')
-                    .setEmoji('✅'),
-                new MessageButton()
-                    .setCustomId(`contract_reject_${playerId}_${presidentId}`)
-                    .setLabel('Reddet')
-                    .setStyle('DANGER')
-                    .setEmoji('❌'),
-                new MessageButton()
-                    .setCustomId(`contract_edit_${playerId}_${presidentId}`)
-                    .setLabel('Düzenle')
-                    .setStyle('SECONDARY')
-                    .setEmoji('✏️')
+        try {
+            // Contract modal oluştur
+            const contractModal = new Modal()
+                .setCustomId(`contract_form_${playerId}_${presidentId}`)
+                .setTitle('Sözleşme Formu');
+
+            const transferFeeInput = new TextInputComponent()
+                .setCustomId('transfer_fee')
+                .setLabel('Transfer Ücreti')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 5M€')
+                .setRequired(true);
+
+            const newClubInput = new TextInputComponent()
+                .setCustomId('new_club')
+                .setLabel('Yeni Kulüp')
+                .setStyle('SHORT')
+                .setPlaceholder('Kulüp adını girin')
+                .setRequired(true);
+
+            const salaryInput = new TextInputComponent()
+                .setCustomId('salary')
+                .setLabel('Yıllık Maaş')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 2M€')
+                .setRequired(true);
+
+            const contractDurationInput = new TextInputComponent()
+                .setCustomId('contract_duration')
+                .setLabel('Sözleşme Süresi')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 3 yıl')
+                .setRequired(true);
+
+            contractModal.addComponents(
+                new MessageActionRow().addComponents(transferFeeInput),
+                new MessageActionRow().addComponents(newClubInput),
+                new MessageActionRow().addComponents(salaryInput),
+                new MessageActionRow().addComponents(contractDurationInput)
             );
 
-        await channel.send({
-            embeds: [contractEmbed],
-            components: [buttons]
-        });
-
-        await interaction.reply({
-            content: `✅ Sözleşme müzakeresi ${channel} kanalında başlatıldı!`,
-            ephemeral: true
-        });
+            await interaction.showModal(contractModal);
+        } catch (error) {
+            console.error('Contract modal error:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({
+                    content: '❌ Modal açılırken hata oluştu!',
+                    ephemeral: true
+                });
+            }
+        }
     }
 
     async handleShowTradeForm(client, interaction, params) {
