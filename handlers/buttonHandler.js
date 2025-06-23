@@ -620,7 +620,9 @@ class ButtonHandler {
 
         } else if (buttonType === 'reject') {
             // Defer immediately to prevent timeout
-            await interaction.deferReply();
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.deferReply();
+            }
             
             // Check if user is authorized (target president only)
             const member = interaction.member;
@@ -754,20 +756,21 @@ class ButtonHandler {
         console.log(`Trade button debug: User ${interaction.user.id} clicked ${buttonType}, WantedPlayer: ${wantedPlayerId}, GivenPlayer: ${givenPlayerId}`);
 
         if (buttonType === 'accept') {
+            // Defer immediately to prevent timeout
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.deferReply();
+            }
+            
             // Check if user is one of the players or transfer authority
             const member = interaction.member;
             const isAuthorizedPlayer = interaction.user.id === wantedPlayerId || interaction.user.id === givenPlayerId;
             const isTransferAuthority = permissions.isTransferAuthority(member);
             
             if (!isAuthorizedPlayer && !isTransferAuthority) {
-                return interaction.reply({
-                    content: '❌ Sadece takas edilen oyuncular veya transfer yetkilileri onaylayabilir!',
-                    ephemeral: true
+                return interaction.editReply({
+                    content: '❌ Sadece takas edilen oyuncular veya transfer yetkilileri onaylayabilir!'
                 });
             }
-
-            // Defer immediately to prevent timeout
-            await interaction.deferReply();
 
             // Debug user fetching
             console.log(`Fetching users for trade acceptance:`);
@@ -822,15 +825,13 @@ class ButtonHandler {
                 if (!global[acceptanceKey].wantedPlayer) {
                     global[acceptanceKey].wantedPlayer = true;
                     console.log(`✅ Wanted player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
-                    const replyMethod = interaction.deferred ? 'editReply' : 'reply';
-                    await interaction[replyMethod]({
+                    await interaction.editReply({
                         content: `✅ **${wantedPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                     });
                 } else if (!global[acceptanceKey].givenPlayer) {
                     global[acceptanceKey].givenPlayer = true;
                     console.log(`✅ Given player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
-                    const replyMethod = interaction.deferred ? 'editReply' : 'reply';
-                    await interaction[replyMethod]({
+                    await interaction.editReply({
                         content: `✅ **${givenPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! Her iki oyuncu da kabul etti!`
                     });
                     
@@ -844,21 +845,18 @@ class ButtonHandler {
             } else if (userId === wantedId) {
                 global[acceptanceKey].wantedPlayer = true;
                 console.log(`✅ Wanted player ${wantedPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
-                const replyMethod = interaction.deferred ? 'editReply' : 'reply';
-                await interaction[replyMethod]({
+                await interaction.editReply({
                     content: `✅ **${wantedPlayer.displayName}** takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                 });
             } else if (userId === givenId) {
                 global[acceptanceKey].givenPlayer = true;
                 console.log(`✅ Given player ${givenPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
-                const replyMethod = interaction.deferred ? 'editReply' : 'reply';
-                await interaction[replyMethod]({
+                await interaction.editReply({
                     content: `✅ **${givenPlayer.displayName}** takası kabul etti! ${global[acceptanceKey].wantedPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                 });
             } else {
                 console.log(`❌ Unauthorized user ${userId} (wanted: ${wantedId}, given: ${givenId})`);
-                const replyMethod = interaction.deferred ? 'editReply' : 'reply';
-                await interaction[replyMethod]({
+                await interaction.editReply({
                     content: `❌ Sadece takas edilen oyuncular veya transfer yetkilileri kabul edebilir!`
                 });
                 return;

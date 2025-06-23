@@ -394,6 +394,13 @@ The bot is configured for Replit deployment with:
     - Added timeout-based forced completion as fallback when normal completion flow fails
     - Enhanced dual acceptance checking with strict boolean comparison and comprehensive logging
     - Trade system now guarantees completion and channel deletion regardless of interaction state
+- June 23, 2025. Fixed critical interaction timeout issues preventing trade system functionality:
+    - Implemented immediate deferReply for all button interactions to prevent Discord's 3-second timeout
+    - Updated all interaction responses to use consistent editReply pattern instead of dynamic reply methods
+    - Fixed button authorization checks with proper error handling and response patterns
+    - Enhanced trade edit modal processing to handle salary updates without timeouts
+    - Trade system now responds immediately to all button clicks without getting stuck in "thinking" state
+    - Maintained complete three-stage workflow: presidents negotiate → target accepts → players approve with salary editing → announcements
 
 ## User Preferences
 
