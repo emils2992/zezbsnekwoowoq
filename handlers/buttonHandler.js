@@ -1322,10 +1322,10 @@ class ButtonHandler {
 
         const bonusInput = new TextInputBuilder()
             .setCustomId('bonus')
-            .setLabel('Bonuslar')
+            .setLabel('Bonuslar (İsteğe Bağlı)')
             .setStyle(TextInputStyle.Short)
             .setPlaceholder('Örn: 500.000₺')
-            .setRequired(true);
+            .setRequired(false);
 
         // Action Row'lar oluştur
         const row1 = new ActionRowBuilder().addComponents(newTeamInput);
@@ -1607,10 +1607,10 @@ class ButtonHandler {
 
         const signingBonusInput = new TextInputBuilder()
             .setCustomId('signing_bonus')
-            .setLabel('Bonus')
+            .setLabel('Bonus (İsteğe Bağlı)')
             .setStyle(TextInputStyle.Short)
             .setPlaceholder('Örn: 1.000.000₺')
-            .setRequired(true);
+            .setRequired(false);
 
         // Action Row'lar oluştur (en fazla 5 tane olabilir)
         const row1 = new ActionRowBuilder().addComponents(playerNameInput);
