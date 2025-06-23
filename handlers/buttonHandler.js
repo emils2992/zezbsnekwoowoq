@@ -1211,19 +1211,20 @@ class ButtonHandler {
                 .setDescription(`**${playerDisplayName}** ${transferData.team} takımı ile anlaştı!`)
                 .setThumbnail(transferData.player.displayAvatarURL({ dynamic: true }));
 
-            // Trade için farklı format, diğerleri için eski kulüp
-            if (transferData.type === 'takas') {
+            // Serbest transfer ve takas için eski kulüp gösterme
+            if (transferData.type === 'takas' || transferData.type === 'serbest_transfer') {
                 announcementEmbed.addFields(
                     { name: '⚽ Oyuncu', value: transferData.playerName ? `${transferData.player} (${transferData.playerName})` : `${transferData.player}`, inline: true },
                     { name: '🏟️ Yeni Takım', value: transferData.team, inline: true },
-                    { name: '📋 Transfer Türü', value: 'Takas', inline: true }
+                    { name: '📋 Transfer Türü', value: transferData.type === 'takas' ? 'Takas Transfer' : 'Serbest Transfer', inline: true }
                 );
             } else {
+                // Diğer transfer türleri için eski kulüp göster
                 announcementEmbed.addFields(
                     { name: '⚽ Oyuncu', value: `${transferData.player}`, inline: true },
                     { name: '🏆 Eski Kulüp', value: transferData.oldClub || 'Belirtilmedi', inline: true },
                     { name: '🏟️ Yeni Takım', value: transferData.team, inline: true },
-                    { name: '📋 Transfer Türü', value: transferData.type === 'serbest_transfer' ? 'Serbest Transfer' : transferData.type === 'kiralik' ? 'Kiralık Transfer' : transferData.type.charAt(0).toUpperCase() + transferData.type.slice(1), inline: true }
+                    { name: '📋 Transfer Türü', value: transferData.type === 'kiralik' ? 'Kiralık Transfer' : transferData.type.charAt(0).toUpperCase() + transferData.type.slice(1), inline: true }
                 );
             }
 
