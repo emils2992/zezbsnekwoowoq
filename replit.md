@@ -231,6 +231,12 @@ The bot is configured for Replit deployment with:
     - Enhanced button click prevention to include confirm buttons for single-click behavior
     - Trelease command now properly disables buttons after confirmation/cancellation
     - Unilateral release announcements automatically posted to configured serbest-duyuru channel
+- June 23, 2025. Fixed .release command channel deletion and interaction timeout issues:
+    - Enhanced channel deletion logic to recognize release/fesih channel patterns
+    - Fixed interaction timeout errors in trelease commands with proper deferReply implementation
+    - Added comprehensive channel deletion logging for debugging
+    - Release command channels now delete properly after accept/reject button interactions
+    - Improved error handling for button interactions to prevent duplicate responses
 
 ## User Preferences
 

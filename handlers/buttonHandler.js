@@ -124,7 +124,7 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik") || interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
                         await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
@@ -164,7 +164,7 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik") || interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
                         await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
@@ -230,7 +230,7 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik") || interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
                         await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
@@ -270,7 +270,7 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik") || interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
                         await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
@@ -335,7 +335,7 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik") || interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
                         await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
@@ -375,7 +375,7 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik") || interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
                         await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
@@ -402,6 +402,11 @@ class ButtonHandler {
         
         // Handle trelease confirm/cancel buttons
         if (buttonType === 'confirm') {
+            // Check if interaction has already been responded to
+            if (interaction.replied || interaction.deferred) {
+                return;
+            }
+
             // Only the president who initiated can confirm
             if (interaction.user.id !== presidentId) {
                 return interaction.reply({
@@ -409,6 +414,9 @@ class ButtonHandler {
                     ephemeral: true
                 });
             }
+
+            // Defer the reply to prevent timeout
+            await interaction.deferReply();
 
             const guild = interaction.guild;
             const player = await guild.members.fetch(playerId);
@@ -429,9 +437,8 @@ class ButtonHandler {
             // Send announcement to free agent channel
             await this.sendReleaseTransferAnnouncement(guild, player.user, releaseData, 'unilateral');
 
-            await interaction.reply({
-                content: `✅ **${player.displayName}** tek taraflı fesih ile serbest futbolcu oldu!`,
-                ephemeral: false
+            await interaction.editReply({
+                content: `✅ **${player.displayName}** tek taraflı fesih ile serbest futbolcu oldu!`
             });
 
             // Disable all buttons
@@ -453,6 +460,11 @@ class ButtonHandler {
         }
 
         if (buttonType === 'cancel') {
+            // Check if interaction has already been responded to
+            if (interaction.replied || interaction.deferred) {
+                return;
+            }
+
             // Only the president who initiated can cancel
             if (interaction.user.id !== presidentId) {
                 return interaction.reply({
@@ -533,7 +545,7 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik") || interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
                         await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
@@ -574,7 +586,7 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik") || interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
                         await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
@@ -641,7 +653,7 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik") || interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
                         await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
@@ -682,7 +694,7 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik") || interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
                         await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
