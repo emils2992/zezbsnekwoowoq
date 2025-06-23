@@ -401,40 +401,86 @@ async function handleModalSubmit(client, interaction) {
                 contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
             };
 
-            // İlk başkan ile hedef başkan arasında müzakere kanalı oluştur
-            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, targetPresident.user, 'contract');
-            if (!channel) {
-                return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
-            }
+            // Check if we're in a negotiation channel (editing existing form)
+            const isNegotiationChannel = interaction.channel && interaction.channel.name && 
+                (interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("contract") || interaction.channel.name.includes("muzakere"));
 
-            // Sözleşme embed'i oluştur
-            const contractEmbed = embeds.createContractForm(president.user, targetPresident.user, player.user, contractData);
-            
-            const buttons = new MessageActionRow()
-                .addComponents(
-                    new MessageButton()
-                        .setCustomId(`contract_accept_${targetPresidentId}_${playerId}_${presidentId}`)
-                        .setLabel('Kabul Et')
-                        .setStyle('SUCCESS')
-                        .setEmoji('✅'),
-                    new MessageButton()
-                        .setCustomId(`contract_reject_${targetPresidentId}_${playerId}_${presidentId}`)
-                        .setLabel('Reddet')
-                        .setStyle('DANGER')
-                        .setEmoji('❌'),
-                    new MessageButton()
-                        .setCustomId(`contract_edit_${targetPresidentId}_${playerId}_${presidentId}`)
-                        .setLabel('Düzenle')
-                        .setStyle('SECONDARY')
-                        .setEmoji('✏️')
+            if (isNegotiationChannel) {
+                // Update existing embed in the same channel
+                const contractEmbed = embeds.createContractForm(president.user, targetPresident.user, player.user, contractData);
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`contract_accept_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`contract_reject_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`contract_edit_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                // Find and update the original message
+                const messages = await interaction.channel.messages.fetch({ limit: 10 });
+                const originalMessage = messages.find(msg => 
+                    msg.embeds.length > 0 && 
+                    msg.components.length > 0 &&
+                    msg.components[0].components.some(btn => btn.customId && btn.customId.includes('contract_'))
                 );
 
-            await channel.send({
-                embeds: [contractEmbed],
-                components: [buttons]
-            });
+                if (originalMessage) {
+                    await originalMessage.edit({
+                        embeds: [contractEmbed],
+                        components: [buttons]
+                    });
+                    await interaction.editReply({ content: `✅ Sözleşme formu güncellendi!` });
+                } else {
+                    await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
+                }
+            } else {
+                // Create new negotiation channel only if not in a negotiation channel
+                const channel = await channels.createNegotiationChannel(interaction.guild, president.user, targetPresident.user, 'contract');
+                if (!channel) {
+                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                }
 
-            await interaction.editReply({ content: `✅ Sözleşme müzakeresi ${channel} kanalında başlatıldı!` });
+                // Sözleşme embed'i oluştur
+                const contractEmbed = embeds.createContractForm(president.user, targetPresident.user, player.user, contractData);
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`contract_accept_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`contract_reject_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`contract_edit_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                await channel.send({
+                    embeds: [contractEmbed],
+                    components: [buttons]
+                });
+
+                await interaction.editReply({ content: `✅ Sözleşme müzakeresi ${channel} kanalında başlatıldı!` });
+            }
         }
 
         // Trade form modali

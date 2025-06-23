@@ -314,6 +314,8 @@ The bot is configured for Replit deployment with:
     - Contract announcements now show complete transfer details instead of default placeholder values
     - Updated contract modal and announcements to show "Sözleşme+Ek Madde" instead of just "Sözleşme Süresi"
     - Contract system now consistently displays additional clauses field across all interfaces
+    - Fixed contract edit button to update existing message in same channel instead of creating new channel
+    - Contract edit functionality now works like offer system with in-channel updates
 
 ## User Preferences
 
