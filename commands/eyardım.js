@@ -12,17 +12,19 @@ module.exports = {
                 .setColor(config.colors.primary)
                 .setTitle(`${config.emojis.help || '❓'} Transfer Sistemi Komutları`)
                 .setDescription('🏈 **Futbol Transfer Sistemi** - Tüm transfer işlemlerinizi kolayca yönetin!')
-                .addField(`${config.emojis.offer || '💰'} .offer @başkan @futbolcu`, 'Bir futbolcu için transfer teklifi gönder', false)
-                .addField(`${config.emojis.contract || '📋'} .contract @başkan @futbolcu`, 'Sözleşme transfer işlemi başlat', false)
-                .addField(`${config.emojis.contract || '📋'} .hire @başkan @futbolcu`, 'Kiralık transfer işlemi başlat', false)
-                .addField(`${config.emojis.trade || '🔄'} .trade @başkan @futbolcu`, 'Takas transfer işlemi başlat', false)
-                .addField(`${config.emojis.release || '❌'} .release @futbolcu`, 'Futbolcu ile karşılıklı fesih yap', false)
-                .addField(`${config.emojis.trelease || '🚫'} .trelease @futbolcu`, 'Futbolcuyu tek taraflı fesih et', false)
-                .addField(`${config.emojis.settings || '⚙️'} .rol`, 'Sistem rollerini ayarla ve görüntüle', false)
-                .addField(`${config.emojis.announcement || '📢'} .duyur @futbolcu`, 'Manuel transfer duyurusu yap', false)
-                .addField(`${config.emojis.settings || '⚙️'} .duyur-ayarla #kanal`, 'Otomatik duyuru kanalını ayarla', false)
-                .addField(`${config.emojis.settings || '⚙️'} .serbest-ayarla #kanal`, 'Serbest oyuncu duyuru kanalını ayarla', false)
-                .addField(`${config.emojis.transfer || '📊'} .transfer-duyuru`, 'Transfer geçmişi ve istatistikleri', false)
+                .addFields(
+                    { name: `${config.emojis.offer || '💰'} .offer @başkan @futbolcu`, value: 'Bir futbolcu için transfer teklifi gönder', inline: false },
+                    { name: `${config.emojis.contract || '📋'} .contract @başkan @futbolcu`, value: 'Sözleşme transfer işlemi başlat', inline: false },
+                    { name: `${config.emojis.contract || '📋'} .hire @başkan @futbolcu`, value: 'Kiralık transfer işlemi başlat', inline: false },
+                    { name: `${config.emojis.trade || '🔄'} .trade @başkan @futbolcu`, value: 'Takas transfer işlemi başlat', inline: false },
+                    { name: `${config.emojis.release || '❌'} .release @futbolcu`, value: 'Futbolcu ile karşılıklı fesih yap', inline: false },
+                    { name: `${config.emojis.trelease || '🚫'} .trelease @futbolcu`, value: 'Futbolcuyu tek taraflı fesih et', inline: false },
+                    { name: `${config.emojis.settings || '⚙️'} .rol`, value: 'Sistem rollerini ayarla ve görüntüle', inline: false },
+                    { name: `${config.emojis.announcement || '📢'} .duyur @futbolcu`, value: 'Manuel transfer duyurusu yap', inline: false },
+                    { name: `${config.emojis.settings || '⚙️'} .duyur-ayarla #kanal`, value: 'Otomatik duyuru kanalını ayarla', inline: false },
+                    { name: `${config.emojis.settings || '⚙️'} .serbest-ayarla #kanal`, value: 'Serbest oyuncu duyuru kanalını ayarla', inline: false },
+                    { name: `${config.emojis.transfer || '📊'} .transfer-duyuru`, value: 'Transfer geçmişi ve istatistikleri', inline: false }
+                )
                 .setThumbnail(message.guild.iconURL({ dynamic: true }))
                 .setFooter({ text: 'Transfer Sistemi v2.0 | Otomatik duyuru sistemi aktif' })
                 .setTimestamp();

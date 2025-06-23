@@ -217,6 +217,13 @@ The bot is configured for Replit deployment with:
     - Updated edit buttons to open modal forms in same channel instead of creating new channels
     - Fixed all addField deprecation warnings by converting to addFields format in embeds utility
     - Enhanced user experience with single-click button behavior and proper channel cleanup
+- June 23, 2025. Fixed critical channel deletion and syntax issues:
+    - Resolved syntax errors in buttonHandler.js that were preventing bot startup
+    - Enhanced channel deletion logic to detect all negotiation channel types (muzakere, teklif, sozlesme, takas, kiralik)
+    - Fixed remaining addField deprecation warnings in trelease.js and eyardım.js commands
+    - Improved channel deletion timeout to 3 seconds for more reliable operation
+    - Added comprehensive logging for channel deletion debugging
+    - Bot now successfully deletes channels after accept/reject button interactions
 
 ## User Preferences
 

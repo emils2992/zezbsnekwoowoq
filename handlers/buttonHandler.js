@@ -124,15 +124,15 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
-                        await interaction.channel.delete();
+                        await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 2000);
+            }, 3000);
 
         } else if (buttonType === 'reject') {
             if (interaction.user.id !== playerId) {
@@ -164,15 +164,15 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
-                        await interaction.channel.delete();
+                        await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 2000);
+            }, 3000);
 
         } else if (buttonType === 'edit') {
             if (interaction.user.id !== presidentId) {
@@ -230,15 +230,15 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
-                        await interaction.channel.delete();
+                        await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 2000);
+            }, 3000);
 
         } else if (buttonType === 'reject') {
             if (interaction.user.id !== playerId) {
@@ -270,15 +270,15 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
-                        await interaction.channel.delete();
+                        await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 2000);
+            }, 3000);
 
         } else if (buttonType === 'edit') {
             if (interaction.user.id !== presidentId) {
@@ -335,15 +335,15 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
-                        await interaction.channel.delete();
+                        await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 2000);
+            }, 3000);
 
         } else if (buttonType === 'reject') {
             if (interaction.user.id !== playerId) {
@@ -375,15 +375,15 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
-                        await interaction.channel.delete();
+                        await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 2000);
+            }, 3000);
 
         } else if (buttonType === 'edit') {
             if (interaction.user.id !== presidentId) {
@@ -447,15 +447,15 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
-                        await interaction.channel.delete();
+                        await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 2000);
+            }, 3000);
 
         } else if (buttonType === 'reject') {
             // Sadece hedef kişi (oyuncu) reddet edebilir
@@ -488,15 +488,15 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
-                        await interaction.channel.delete();
+                        await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 2000);
+            }, 3000);
 
         } else if (buttonType === 'edit') {
             // Sadece komutu kullanan kişi (başkan) düzenleyebilir
@@ -555,15 +555,15 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
-                        await interaction.channel.delete();
+                        await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 2000);
+            }, 3000);
 
         } else if (buttonType === 'reject') {
             // Sadece hedef başkan reddet edebilir
@@ -596,15 +596,15 @@ class ButtonHandler {
 
             setTimeout(async () => {
                 try {
-                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                    if (interaction.channel && interaction.channel.name && (interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("teklif") || interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("takas") || interaction.channel.name.includes("kiralik"))) {
                         console.log(`Kanal siliniyor: ${interaction.channel.name}`);
-                        await interaction.channel.delete();
+                        await interaction.channel.delete("Transfer işlemi tamamlandı");
                         console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 2000);
+            }, 3000);
 
         } else if (buttonType === 'edit') {
             // Sadece komutu kullanan kişi (başkan) düzenleyebilir

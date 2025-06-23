@@ -34,10 +34,12 @@ module.exports = {
                 .setColor(config.colors.error)
                 .setTitle(`${config.emojis.release} Tek Taraflı Fesih`)
                 .setDescription(`**${message.author.username}** tarafından **${player.user.username}** için tek taraflı fesih talebi:`)
-                .addField('👑 Başkan', `${message.author}`, true)
-                .addField('⚽ Oyuncu', `${player}`, true)
-                .addField('📋 Fesih Türü', 'Tek Taraflı', true)
-                .addField('⚠️ Uyarı', 'Bu işlem geri alınamaz! Oyuncu otomatik olarak serbest futbolcu statüsüne geçer.', false)
+                .addFields(
+                    { name: '👑 Başkan', value: `${message.author}`, inline: true },
+                    { name: '⚽ Oyuncu', value: `${player}`, inline: true },
+                    { name: '📋 Fesih Türü', value: 'Tek Taraflı', inline: true },
+                    { name: '⚠️ Uyarı', value: 'Bu işlem geri alınamaz! Oyuncu otomatik olarak serbest futbolcu statüsüne geçer.', inline: false }
+                )
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
 
