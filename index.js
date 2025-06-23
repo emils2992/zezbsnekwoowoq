@@ -171,8 +171,7 @@ async function handleModalSubmit(client, interaction) {
                 newTeam: interaction.fields.getTextInputValue('new_team') || '',
                 playerName: interaction.fields.getTextInputValue('player_name') || player.displayName,
                 salary: interaction.fields.getTextInputValue('salary') || '6.000.000₺/yıl',
-                contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl',
-                bonus: interaction.fields.getTextInputValue('bonus') || '3.000.000₺'
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl - İmza bonusu: 3.000.000₺'
             };
 
             // Müzakere kanalı oluştur

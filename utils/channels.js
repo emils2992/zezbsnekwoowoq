@@ -97,6 +97,19 @@ class ChannelManager {
                 topic: `${type} müzakeresi - ${user1.username} & ${user2.username}${player ? ` (Oyuncu: ${player.username})` : ''}`
             });
 
+            // Kullanıcıları etiketleyerek hoş geldin mesajı gönder
+            const typeNames = {
+                'offer': 'TRANSFER TEKLİFİ',
+                'contract': 'SÖZLEŞME',
+                'trade': 'TAKAS',
+                'hire': 'KİRALIK',
+                'release': 'FESİH'
+            };
+            
+            const typeName = typeNames[type] || type.toUpperCase();
+            const welcomeMessage = `${user1} ${user2}\n\n🏈 **${typeName} Müzakeresi Başladı**\n\nBu kanalda transfer detaylarını görüşebilirsiniz. Formu doldurup onay/red verebilirsiniz.`;
+            await channel.send(welcomeMessage);
+
             // 24 saat sonra kanalı sil
             setTimeout(async () => {
                 try {

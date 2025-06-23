@@ -12,8 +12,7 @@ class EmbedCreator {
                 { name: '🏆 Yeni Kulüp', value: offerData?.newTeam || 'Belirtilmedi', inline: true },
                 { name: '⚽ Oyuncu Adı', value: offerData?.playerName || player.displayName, inline: true },
                 { name: `${config.emojis.money} Önerilen Maaş`, value: offerData?.salary || '6.000.000₺/yıl', inline: true },
-                { name: '📅 Sözleşme Süresi', value: offerData?.contractDuration || '2 yıl', inline: true },
-                { name: '🎯 İmza Bonusu', value: offerData?.bonus || '3.000.000₺', inline: true }
+                { name: '📅 Sözleşme ve Bonus', value: offerData?.contractDuration || '2 yıl - İmza bonusu: 3.000.000₺', inline: false }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });

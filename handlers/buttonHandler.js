@@ -844,14 +844,12 @@ class ButtonHandler {
             const newTeamField = embedFields.find(f => f.name.includes('Yeni Kulüp'));
             const playerNameField = embedFields.find(f => f.name.includes('Oyuncu Adı'));
             const salaryField = embedFields.find(f => f.name.includes('Maaş'));
-            const durationField = embedFields.find(f => f.name.includes('Sözleşme Süresi'));
-            const bonusField = embedFields.find(f => f.name.includes('İmza Bonusu'));
+            const contractField = embedFields.find(f => f.name.includes('Sözleşme ve Bonus'));
             
             const newTeam = newTeamField ? newTeamField.value : 'Bilinmiyor';
             const playerName = playerNameField ? playerNameField.value : player.displayName;
             const salary = salaryField ? salaryField.value : 'Bilinmiyor';
-            const duration = durationField ? durationField.value : 'Bilinmiyor';
-            const bonus = bonusField ? bonusField.value : 'Bilinmiyor';
+            const contractDetails = contractField ? contractField.value : 'Bilinmiyor';
             
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
@@ -861,8 +859,7 @@ class ButtonHandler {
                     { name: '⚽ Oyuncu', value: playerName, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: newTeam, inline: true },
                     { name: '💰 Maaş', value: salary, inline: true },
-                    { name: '📅 Sözleşme Süresi', value: duration, inline: true },
-                    { name: '🎯 İmza Bonusu', value: bonus, inline: true }
+                    { name: '📅 Sözleşme Detayları', value: contractDetails, inline: false }
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
@@ -1012,8 +1009,7 @@ class ButtonHandler {
             newTeam: 'Düzenlenecek',
             playerName: player.displayName, 
             salary: 'Düzenlenecek',
-            contractDuration: 'Düzenlenecek',
-            bonus: 'Düzenlenecek'
+            contractDuration: 'Düzenlenecek'
         });
 
         const buttons = new MessageActionRow()
@@ -1186,25 +1182,17 @@ class ButtonHandler {
 
         const contractInput = new TextInputComponent()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme Süresi')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 2 yıl')
+            .setLabel('Sözleşme Süresi ve İmza Bonusu')
+            .setStyle('LONG')
+            .setPlaceholder('Örn: 2 yıl - İmza bonusu: 3.000.000₺')
             .setRequired(true);
-
-        const bonusInput = new TextInputComponent()
-            .setCustomId('bonus')
-            .setLabel('İmza Bonusu')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 3.000.000₺')
-            .setRequired(false);
 
         const row1 = new MessageActionRow().addComponents(newTeamInput);
         const row2 = new MessageActionRow().addComponents(playerNameInput);
         const row3 = new MessageActionRow().addComponents(salaryInput);
         const row4 = new MessageActionRow().addComponents(contractInput);
-        const row5 = new MessageActionRow().addComponents(bonusInput);
 
-        modal.addComponents(row1, row2, row3, row4, row5);
+        modal.addComponents(row1, row2, row3, row4);
 
         await interaction.showModal(modal);
     }
