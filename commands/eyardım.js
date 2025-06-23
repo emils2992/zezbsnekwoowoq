@@ -1,72 +1,108 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const config = require('../config');
 
 module.exports = {
     name: 'eyardım',
-    description: 'Bot komutlarının yardım menüsünü gösterir',
+    description: 'Transfer sisteminin tüm komutlarını gösterir',
     usage: '.eyardım',
     
     async execute(client, message, args) {
         try {
             const helpEmbed = new EmbedBuilder()
                 .setColor(config.colors.primary)
-                .setTitle(`${config.emojis.football} Transfer Bot Yardım Menüsü`)
-                .setDescription('Futbol transfer sisteminin tüm komutları ve kullanımları:')
-                .setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
+                .setTitle(`${config.emojis.help || '❓'} Transfer Sistemi Komutları`)
+                .setDescription('🏈 **Futbol Transfer Sistemi** - Tüm transfer işlemlerinizi kolayca yönetin!')
                 .addFields(
                     {
-                        name: '⚽ Transfer Komutları',
-                        value: '`.offer @futbolcu` - Serbest futbolcuya teklif gönder\n' +
-                               '`.contract @başkan @futbolcu` - Başkanlar arası sözleşme\n' +
-                               '`.trade @başkan @futbolcu` - Futbolcu takası\n' +
-                               '`.release @futbolcu` - Karşılıklı fesih\n' +
-                               '`.trelease @futbolcu` - Tek taraflı fesih',
+                        name: `${config.emojis.offer || '💰'} .offer @başkan @futbolcu`,
+                        value: 'Bir futbolcu için transfer teklifi gönder',
                         inline: false
                     },
                     {
-                        name: '📢 Duyuru Komutları',
-                        value: '`.duyur` - Serbest futbolcu kendi duyurusunu yap\n' +
-                               '`.duyur-ayarla #kanal` - Duyuru kanalını ayarla\n' +
-                               '`.serbest-ayarla #kanal` - Serbest futbolcu kanalını ayarla\n' +
-                               '`.transfer-duyuru #kanal` - Transfer duyuru kanalını ayarla',
+                        name: `${config.emojis.contract || '📋'} .contract @başkan @futbolcu`,
+                        value: 'Sözleşme transfer işlemi başlat',
                         inline: false
                     },
                     {
-                        name: '🔧 Yönetim Komutları',
-                        value: '`.rol` - Rol ayarlama menüsü\n' +
-                               '`.rol liste` - Mevcut rolleri göster\n' +
-                               '`.rol sıfırla` - Tüm rol ayarlarını sıfırla',
+                        name: `${config.emojis.contract || '📋'} .hire @başkan @futbolcu`,
+                        value: 'Kiralık transfer işlemi başlat',
                         inline: false
                     },
                     {
-                        name: '📋 Nasıl Çalışır?',
-                        value: '1️⃣ **Roller ayarlanır**: Başkan, Futbolcu, Serbest Futbolcu rolleri\n' +
-                               '2️⃣ **Kanallar ayarlanır**: Duyuru kanalları belirlenir\n' +
-                               '3️⃣ **Transferler başlar**: Modal formlarla teklif/sözleşme/takas\n' +
-                               '4️⃣ **Müzakereler**: Özel kanallarda görüşmeler\n' +
-                               '5️⃣ **Duyurular**: Kabul edilen transferler otomatik duyurulur',
+                        name: `${config.emojis.trade || '🔄'} .trade @başkan @futbolcu`,
+                        value: 'Takas transfer işlemi başlat',
                         inline: false
                     },
                     {
-                        name: '💡 İpuçları',
-                        value: '• Tüm formlar zorunlu alanlar içerir\n' +
-                               '• Müzakere kanalları 24 saat sonra silinir\n' +
-                               '• Transfer yetkilileri tüm müzakereleri görebilir\n' +
-                               '• Serbest futbolcular kendi duyurularını yapabilir\n' +
-                               '• Boş bırakılan alanlar duyurularda gözükmez',
+                        name: `${config.emojis.release || '❌'} .release @futbolcu`,
+                        value: 'Futbolcu ile karşılıklı fesih yap',
+                        inline: false
+                    },
+                    {
+                        name: `${config.emojis.trelease || '🚫'} .trelease @futbolcu`,
+                        value: 'Futbolcuyu tek taraflı fesih et',
+                        inline: false
+                    },
+                    {
+                        name: `${config.emojis.settings || '⚙️'} .rol`,
+                        value: 'Sistem rollerini ayarla ve görüntüle',
+                        inline: false
+                    },
+                    {
+                        name: `${config.emojis.announcement || '📢'} .duyur @futbolcu`,
+                        value: 'Manuel transfer duyurusu yap',
+                        inline: false
+                    },
+                    {
+                        name: `${config.emojis.settings || '⚙️'} .duyur-ayarla #kanal`,
+                        value: 'Otomatik duyuru kanalını ayarla',
+                        inline: false
+                    },
+                    {
+                        name: `${config.emojis.settings || '⚙️'} .serbest-ayarla #kanal`,
+                        value: 'Serbest oyuncu duyuru kanalını ayarla',
+                        inline: false
+                    },
+                    {
+                        name: `${config.emojis.transfer || '📊'} .transfer-duyuru`,
+                        value: 'Transfer geçmişi ve istatistikleri',
                         inline: false
                     }
                 )
-                .setTimestamp()
+                .setThumbnail(message.guild.iconURL({ dynamic: true }))
                 .setFooter({ 
-                    text: 'Transfer Sistemi v2.0 | Komut öneki: .', 
-                    iconURL: message.guild.iconURL() 
-                });
+                    text: 'Transfer Sistemi v2.0 | Otomatik duyuru sistemi aktif',
+                    iconURL: client.user.displayAvatarURL({ dynamic: true })
+                })
+                .setTimestamp();
 
-            await message.reply({ embeds: [helpEmbed] });
+            // Bilgi butonları ekle
+            const infoRow = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('transfer_info_help')
+                        .setLabel('Nasıl Kullanılır?')
+                        .setStyle(ButtonStyle.Primary)
+                        .setEmoji('📖'),
+                    new ButtonBuilder()
+                        .setCustomId('transfer_roles_help')
+                        .setLabel('Rol Sistemi')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji('👥'),
+                    new ButtonBuilder()
+                        .setCustomId('transfer_features_help')
+                        .setLabel('Özellikler')
+                        .setStyle(ButtonStyle.Success)
+                        .setEmoji('⚡')
+                );
+
+            await message.reply({ 
+                embeds: [helpEmbed],
+                components: [infoRow]
+            });
 
         } catch (error) {
-            console.error('Yardım komutu hatası:', error);
+            console.error('Eyardım komutu hatası:', error);
             message.reply('❌ Yardım menüsü gösterilirken bir hata oluştu!');
         }
     }

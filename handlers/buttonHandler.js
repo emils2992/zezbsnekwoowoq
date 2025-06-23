@@ -32,6 +32,15 @@ class ButtonHandler {
                 case 'hire':
                     await this.handleHireButton(client, interaction, params);
                     break;
+                case 'transfer':
+                    if (params[0] === 'info' && params[1] === 'help') {
+                        await this.handleTransferInfoHelp(client, interaction);
+                    } else if (params[0] === 'roles' && params[1] === 'help') {
+                        await this.handleTransferRolesHelp(client, interaction);
+                    } else if (params[0] === 'features' && params[1] === 'help') {
+                        await this.handleTransferFeaturesHelp(client, interaction);
+                    }
+                    break;
                 case 'contract':
                     if (params[0] === 'player') {
                         await this.handleContractPlayerButton(client, interaction, params.slice(1));
@@ -898,6 +907,112 @@ class ButtonHandler {
 
                 break;
         }
+    }
+
+    async handleTransferInfoHelp(client, interaction) {
+        const infoEmbed = new EmbedBuilder()
+            .setColor(config.colors.primary)
+            .setTitle('📖 Transfer Sistemi Nasıl Kullanılır?')
+            .setDescription('**Transfer işlemlerini başlatmak için:**')
+            .addFields(
+                {
+                    name: '1️⃣ Transfer Başlatma',
+                    value: '• Komutları kullanarak transfer tekliflerini başlatın\n• Hedef başkan ve futbolcu etiketleyin\n• Otomatik müzakere kanalı oluşturulur',
+                    inline: false
+                },
+                {
+                    name: '2️⃣ Form Doldurma',
+                    value: '• Modal form açılır, transfer detaylarını girin\n• Maaş, süre, bonuslar gibi bilgileri doldurun\n• "& Ek Madde" alanında özel şartları belirtin',
+                    inline: false
+                },
+                {
+                    name: '3️⃣ Müzakere',
+                    value: '• Özel müzakere kanalında görüşün\n• Kabul/Red butonları ile işlemi tamamlayın\n• Otomatik duyuru sistemi çalışır',
+                    inline: false
+                },
+                {
+                    name: '4️⃣ Duyuru',
+                    value: '• Transfer tamamlandığında otomatik duyuru\n• Serbest kalma durumunda bildirim\n• Transfer geçmişi kaydedilir',
+                    inline: false
+                }
+            )
+            .setTimestamp();
+
+        await interaction.reply({ embeds: [infoEmbed], ephemeral: true });
+    }
+
+    async handleTransferRolesHelp(client, interaction) {
+        const rolesEmbed = new EmbedBuilder()
+            .setColor(config.colors.secondary)
+            .setTitle('👥 Rol Sistemi')
+            .setDescription('**Transfer sisteminde kullanılan roller:**')
+            .addFields(
+                {
+                    name: '👑 Başkan Rolü',
+                    value: '• Transfer teklifleri yapabilir\n• Sözleşme müzakerelerinde bulunabilir\n• Futbolcu bırakma işlemleri yapabilir',
+                    inline: false
+                },
+                {
+                    name: '⚽ Futbolcu Rolü',
+                    value: '• Transfer tekliflerinin hedefi olabilir\n• Serbest kalma durumunda bildirim alır\n• Transfer geçmişinde görünür',
+                    inline: false
+                },
+                {
+                    name: '🆓 Serbest Oyuncu Rolü',
+                    value: '• Takımı olmayan oyuncular\n• Herhangi bir takıma transfer olabilir\n• Özel duyuru kanalında listelenir',
+                    inline: false
+                },
+                {
+                    name: '⚖️ Transfer Otoritesi',
+                    value: '• Sistem ayarlarını yapabilir\n• Kanal ayarlamaları yapabilir\n• Rol atamaları yapabilir',
+                    inline: false
+                },
+                {
+                    name: '🔧 Rol Ayarlama',
+                    value: '`.rol` komutu ile rolleri ayarlayabilirsiniz',
+                    inline: false
+                }
+            )
+            .setTimestamp();
+
+        await interaction.reply({ embeds: [rolesEmbed], ephemeral: true });
+    }
+
+    async handleTransferFeaturesHelp(client, interaction) {
+        const featuresEmbed = new EmbedBuilder()
+            .setColor(config.colors.success)
+            .setTitle('⚡ Sistem Özellikleri')
+            .setDescription('**Transfer sisteminin gelişmiş özellikleri:**')
+            .addFields(
+                {
+                    name: '🤖 Otomatik Duyuru Sistemi',
+                    value: '• Tüm transferler otomatik duyurulur\n• Serbest kalma bildirimleri\n• Özelleştirilebilir duyuru kanalları',
+                    inline: false
+                },
+                {
+                    name: '💬 Özel Müzakere Kanalları',
+                    value: '• Her transfer için özel kanal\n• Türkçe kanal isimleri\n• Otomatik silme sistemi',
+                    inline: false
+                },
+                {
+                    name: '📋 Transfer Türleri',
+                    value: '• **Teklif:** .offer\n• **Sözleşme:** .contract\n• **Kiralık:** .hire\n• **Takas:** .trade\n• **Fesih:** .release / .trelease',
+                    inline: false
+                },
+                {
+                    name: '📊 Gelişmiş Formlar',
+                    value: '• Modal tabanlı form sistemi\n• Ek madde desteği\n• Bonus ve şart belirtme\n• Karakter sınırı optimizasyonu',
+                    inline: false
+                },
+                {
+                    name: '🔒 Güvenlik',
+                    value: '• Yetki kontrolü\n• Kullanıcı doğrulama\n• Hata yönetimi\n• Log sistemi',
+                    inline: false
+                }
+            )
+            .setTimestamp();
+
+        await interaction.reply({ embeds: [featuresEmbed], ephemeral: true });
     }
 
     async handleRoleButton(client, interaction, params) {
