@@ -798,7 +798,11 @@ async function handleModalSubmit(client, interaction) {
         // Trade form submission handler  
         else if (customId.startsWith('trade_form_')) {
             console.log('Trade form submission started:', customId);
-            await interaction.deferReply({ ephemeral: true });
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.deferReply({ ephemeral: true });
+                    console.log('✅ Trade form interaction deferred');
+                }
 
             const params = customId.split('_');
             const targetPresidentId = params[2];
@@ -808,8 +812,7 @@ async function handleModalSubmit(client, interaction) {
 
             console.log('Parsed IDs:', { targetPresidentId, wantedPlayerId, givenPlayerId, presidentId });
 
-            try {
-                const guild = interaction.guild;
+            const guild = interaction.guild;
                 const targetPresident = await guild.members.fetch(targetPresidentId);
                 const wantedPlayer = await guild.members.fetch(wantedPlayerId);
                 const givenPlayer = await guild.members.fetch(givenPlayerId);
@@ -929,6 +932,7 @@ async function handleModalSubmit(client, interaction) {
         
         // Continue with existing salary form handler
         else if (customId.startsWith('trade_salary_')) {
+            try {
             const { targetPresidentId, wantedPlayerId, givenPlayerId, presidentId } = params;
             const guild = interaction.guild;
             
@@ -1016,6 +1020,17 @@ async function handleModalSubmit(client, interaction) {
                     interaction.editReply({ content: `❌ Bu işlem sadece müzakere kanallarında yapılabilir!` }) :
                     interaction.reply({ content: `❌ Bu işlem sadece müzakere kanallarında yapılabilir!`, ephemeral: true });
                 await reply;
+            }
+            } catch (error) {
+                console.error('Trade player salary modal error:', error);
+                try {
+                    const reply = interaction.replied || interaction.deferred ? 
+                        interaction.editReply({ content: 'Modal işlenirken hata oluştu!' }) :
+                        interaction.reply({ content: 'Modal işlenirken hata oluştu!', ephemeral: true });
+                    await reply;
+                } catch (replyError) {
+                    console.error('Failed to send error reply:', replyError);
+                }
             }
         }
     } catch (error) {

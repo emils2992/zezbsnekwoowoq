@@ -585,9 +585,14 @@ class ButtonHandler {
                 components: [playerButtons]
             });
 
-            await interaction.editReply({
-                content: `✅ Takas başkanlar tarafından kabul edildi! Oyuncuların onayı için ${playersChannel} kanalı oluşturuldu.\n\n${wantedPlayer.user} ${givenPlayer.user} ${targetPresident.user} ${president.user} - Lütfen ${playersChannel} kanalına gidin ve takası onaylayın.`
-            });
+            try {
+                await interaction.editReply({
+                    content: `✅ Takas başkanlar tarafından kabul edildi! Oyuncuların onayı için ${playersChannel} kanalı oluşturuldu.\n\n${wantedPlayer.user} ${givenPlayer.user} ${targetPresident.user} ${president.user} - Lütfen ${playersChannel} kanalına gidin ve takası onaylayın.`
+                });
+                console.log('✅ Trade accept response sent successfully');
+            } catch (error) {
+                console.error('❌ Trade accept response error:', error);
+            }
 
             // Disable current buttons
             const disabledButtons = interaction.message.components[0].components.map(button => 
