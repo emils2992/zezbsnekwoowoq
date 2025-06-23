@@ -292,6 +292,18 @@ The bot is configured for Replit deployment with:
     - Removed ephemeral replies that were preventing proper button functionality
     - Added debug logging for contract player button interactions
     - Contract system now works properly in both approval stages with all buttons functional
+- June 23, 2025. Major contract system fixes - resolved room opening and button interaction issues:
+    - Fixed critical parameter handling bug in contract system that was preventing proper room creation
+    - Updated contract command to use targetPresidentId, playerId, presidentId parameter structure
+    - Corrected authorization logic so only the target president (first tagged person) can accept contracts
+    - Fixed channel creation to open rooms between correct participants (initiating president and target president)
+    - Updated button handlers throughout contract system with proper parameter passing
+    - Fixed contract modal submission handler to handle new parameter structure
+    - Resolved button interaction errors that were preventing contract negotiations
+    - Updated contract player approval stage with correct user ID handling
+    - Fixed edit button functionality in contract negotiations with proper modal pre-filling
+    - Contract system now fully operational: commands work, rooms open correctly, buttons function properly
+    - Bot successfully running and tested - all contract workflow issues resolved
 
 ## User Preferences
 

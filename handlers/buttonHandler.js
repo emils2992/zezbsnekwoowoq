@@ -226,18 +226,19 @@ class ButtonHandler {
     }
 
     async handleContractButton(client, interaction, params) {
-        const [buttonType, playerId, presidentId] = params;
+        const [buttonType, targetPresidentId, playerId, presidentId] = params;
         const guild = interaction.guild;
         
-        console.log('Contract button debug:', { buttonType, playerId, presidentId });
+        console.log('Contract button debug:', { buttonType, targetPresidentId, playerId, presidentId });
         
         const player = await guild.members.fetch(playerId);
         const president = await guild.members.fetch(presidentId);
+        const targetPresident = await guild.members.fetch(targetPresidentId);
 
         if (buttonType === 'accept') {
-            // Check if user is authorized (target president or transfer authority)
+            // Check if user is the target president or transfer authority
             const member = interaction.member;
-            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
             
             if (!isAuthorized) {
                 return interaction.reply({
@@ -249,7 +250,7 @@ class ButtonHandler {
             await interaction.deferReply();
             
             // İkinci aşama: Oyuncu ile müzakere kanalı oluştur
-            const playerChannel = await channels.createNegotiationChannel(guild, president.user, player.user, 'contract-player');
+            const playerChannel = await channels.createNegotiationChannel(guild, targetPresident.user, player.user, 'contract-player');
             if (!playerChannel) {
                 return interaction.editReply({ content: 'Oyuncu müzakere kanalı oluşturulamadı!' });
             }
@@ -259,17 +260,17 @@ class ButtonHandler {
             const playerButtons = new MessageActionRow()
                 .addComponents(
                     new MessageButton()
-                        .setCustomId(`contract_player_accept_${playerId}_${presidentId}`)
+                        .setCustomId(`contract_player_accept_${targetPresidentId}_${playerId}_${presidentId}`)
                         .setLabel('Kabul Et')
                         .setStyle('SUCCESS')
                         .setEmoji('✅'),
                     new MessageButton()
-                        .setCustomId(`contract_player_reject_${playerId}_${presidentId}`)
+                        .setCustomId(`contract_player_reject_${targetPresidentId}_${playerId}_${presidentId}`)
                         .setLabel('Reddet')
                         .setStyle('DANGER')
                         .setEmoji('❌'),
                     new MessageButton()
-                        .setCustomId(`contract_player_edit_${playerId}_${presidentId}`)
+                        .setCustomId(`contract_player_edit_${targetPresidentId}_${playerId}_${presidentId}`)
                         .setLabel('Düzenle')
                         .setStyle('SECONDARY')
                         .setEmoji('✏️')
@@ -361,18 +362,19 @@ class ButtonHandler {
             }
 
             // Extract existing data from embed and show pre-filled modal
-            await this.showEditContractModal(client, interaction, playerId, presidentId);
+            await this.showEditContractModal(client, interaction, targetPresidentId, playerId, presidentId);
         }
     }
 
     async handleContractPlayerButton(client, interaction, params) {
-        const [buttonType, playerId, presidentId] = params;
+        const [buttonType, targetPresidentId, playerId, presidentId] = params;
         const guild = interaction.guild;
         
-        console.log('Contract player button debug:', { buttonType, playerId, presidentId });
+        console.log('Contract player button debug:', { buttonType, targetPresidentId, playerId, presidentId });
         
         const player = await guild.members.fetch(playerId);
         const president = await guild.members.fetch(presidentId);
+        const targetPresident = await guild.members.fetch(targetPresidentId);
 
         if (buttonType === 'accept') {
             // Check if user is authorized (target player or transfer authority)
@@ -1463,7 +1465,7 @@ class ButtonHandler {
         await interaction.showModal(modal);
     }
 
-    async showEditContractModal(client, interaction, playerId, presidentId) {
+    async showEditContractModal(client, interaction, targetPresidentId, playerId, presidentId) {
         const embed = interaction.message.embeds[0];
         const fields = embed.fields;
         
@@ -1477,7 +1479,7 @@ class ButtonHandler {
         };
 
         const modal = new Modal()
-            .setCustomId(`contract_form_${playerId}_${presidentId}`)
+            .setCustomId(`contract_form_${targetPresidentId}_${playerId}_${presidentId}`)
             .setTitle('Sözleşme Düzenle');
 
         const transferFeeInput = new TextInputComponent()
@@ -1745,10 +1747,10 @@ class ButtonHandler {
     }
 
     async handleShowContractForm(client, interaction, params) {
-        const [playerId, presidentId] = params;
+        const [targetPresidentId, playerId, presidentId] = params;
         
         const modal = new Modal()
-            .setCustomId(`contract_form_${playerId}_${presidentId}`)
+            .setCustomId(`contract_form_${targetPresidentId}_${playerId}_${presidentId}`)
             .setTitle('Sözleşme Teklifi Formu');
 
         const transferFeeInput = new TextInputComponent()

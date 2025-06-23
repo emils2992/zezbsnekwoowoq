@@ -366,19 +366,20 @@ async function handleModalSubmit(client, interaction) {
 
         // Contract form modali
         else if (customId.startsWith('contract_form_')) {
-            const [, , playerId, presidentId] = customId.split('_');
-            console.log(`Contract form - Player ID: ${playerId}, President ID: ${presidentId}`);
+            const [, , targetPresidentId, playerId, presidentId] = customId.split('_');
+            console.log(`Contract form - Target President ID: ${targetPresidentId}, Player ID: ${playerId}, President ID: ${presidentId}`);
             
-            let player, president;
+            let player, president, targetPresident;
             try {
                 player = await interaction.guild.members.fetch(playerId);
                 president = await interaction.guild.members.fetch(presidentId);
+                targetPresident = await interaction.guild.members.fetch(targetPresidentId);
             } catch (error) {
                 console.error('Error fetching members:', error);
                 return interaction.editReply({ content: 'Kullanıcılar bulunamadı! Lütfen tekrar deneyin.' });
             }
 
-            if (!player || !president) {
+            if (!player || !president || !targetPresident) {
                 return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
             }
 
@@ -390,29 +391,29 @@ async function handleModalSubmit(client, interaction) {
                 contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
             };
 
-            // İlk başkan ile hedef başkan (player) arasında müzakere kanalı oluştur
-            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'contract');
+            // İlk başkan ile hedef başkan arasında müzakere kanalı oluştur
+            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, targetPresident.user, 'contract');
             if (!channel) {
                 return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
             }
 
             // Sözleşme embed'i oluştur
-            const contractEmbed = embeds.createContractForm(president.user, player.user, player.user, contractData);
+            const contractEmbed = embeds.createContractForm(president.user, targetPresident.user, player.user, contractData);
             
             const buttons = new MessageActionRow()
                 .addComponents(
                     new MessageButton()
-                        .setCustomId(`contract_accept_${playerId}_${presidentId}`)
+                        .setCustomId(`contract_accept_${targetPresidentId}_${playerId}_${presidentId}`)
                         .setLabel('Kabul Et')
                         .setStyle('SUCCESS')
                         .setEmoji('✅'),
                     new MessageButton()
-                        .setCustomId(`contract_reject_${playerId}_${presidentId}`)
+                        .setCustomId(`contract_reject_${targetPresidentId}_${playerId}_${presidentId}`)
                         .setLabel('Reddet')
                         .setStyle('DANGER')
                         .setEmoji('❌'),
                     new MessageButton()
-                        .setCustomId(`contract_edit_${playerId}_${presidentId}`)
+                        .setCustomId(`contract_edit_${targetPresidentId}_${playerId}_${presidentId}`)
                         .setLabel('Düzenle')
                         .setStyle('SECONDARY')
                         .setEmoji('✏️')

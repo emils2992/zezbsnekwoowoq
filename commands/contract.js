@@ -66,7 +66,7 @@ module.exports = {
                 components: [
                     new MessageActionRow().addComponents(
                         new MessageButton()
-                            .setCustomId(`show_contract_modal_${playerUser.id}_${message.author.id}`)
+                            .setCustomId(`show_contract_modal_${targetPresidentUser.id}_${playerUser.id}_${message.author.id}`)
                             .setLabel('Sözleşme Formu Aç')
                             .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)
