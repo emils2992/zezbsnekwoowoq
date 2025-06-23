@@ -525,7 +525,7 @@ class ButtonHandler {
             await interaction.deferReply();
             
             // Stage 2: Create channel between the two players for their approval
-            const playersChannel = await channels.createNegotiationChannel(guild, wantedPlayer.user, givenPlayer.user, 'trade-players');
+            const playersChannel = await channels.createNegotiationChannel(guild, wantedPlayer.user, givenPlayer.user, 'trade');
             if (!playersChannel) {
                 return interaction.editReply({ content: '❌ Oyuncular için müzakere kanalı oluşturulamadı!' });
             }
@@ -586,7 +586,7 @@ class ButtonHandler {
             });
 
             await interaction.editReply({
-                content: `✅ Takas başkanlar tarafından kabul edildi! Oyuncuların onayı için ${playersChannel} kanalı oluşturuldu.`
+                content: `✅ Takas başkanlar tarafından kabul edildi! Oyuncuların onayı için ${playersChannel} kanalı oluşturuldu.\n\n${wantedPlayer.user} ${givenPlayer.user} - Lütfen ${playersChannel} kanalına gidin ve takası onaylayın.`
             });
 
             // Disable current buttons
@@ -2228,7 +2228,7 @@ class ButtonHandler {
         const [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
         
         const modal = new Modal()
-            .setCustomId(`trade_player_salary_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+            .setCustomId(`trade_salary_${targetPresidentId.slice(-8)}_${wantedPlayerId.slice(-8)}_${givenPlayerId.slice(-8)}_${presidentId.slice(-8)}`)
             .setTitle('Oyuncu Maaşları Düzenleme');
 
         const wantedPlayerSalaryInput = new TextInputComponent()

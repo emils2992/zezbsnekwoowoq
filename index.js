@@ -599,7 +599,7 @@ async function handleModalSubmit(client, interaction) {
                     components: [buttons]
                 });
 
-                await interaction.editReply({ content: `✅ Takas müzakeresi ${channel} kanalında başlatıldı!` });
+                await interaction.editReply({ content: `✅ Takas müzakeresi ${channel} kanalında başlatıldı!\n\n${targetPresident.user} ${president.user} - Lütfen ${channel} kanalına gidin ve müzakereyi tamamlayın.` });
             }
             } catch (error) {
                 console.error('Trade form submission error:', error);
@@ -731,13 +731,17 @@ async function handleModalSubmit(client, interaction) {
         }
 
         // Trade player salary form modali (başkanlar anlaştığında oyuncu maaşları düzenleme)
-        else if (customId.startsWith('trade_player_salary_form_')) {
-            const [, , , , targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = customId.split('_');
+        else if (customId.startsWith('trade_salary_')) {
+            const [, , targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = customId.split('_');
             
-            const targetPresident = interaction.guild.members.cache.get(targetPresidentId);
-            const wantedPlayer = interaction.guild.members.cache.get(wantedPlayerId);
-            const givenPlayer = interaction.guild.members.cache.get(givenPlayerId);
-            const president = interaction.guild.members.cache.get(presidentId);
+            // Find full user IDs from shortened ones
+            const guild = interaction.guild;
+            const allMembers = await guild.members.fetch();
+            
+            const targetPresident = allMembers.find(m => m.id.endsWith(targetPresidentId));
+            const wantedPlayer = allMembers.find(m => m.id.endsWith(wantedPlayerId));
+            const givenPlayer = allMembers.find(m => m.id.endsWith(givenPlayerId));
+            const president = allMembers.find(m => m.id.endsWith(presidentId));
 
             if (!targetPresident || !wantedPlayer || !givenPlayer || !president) {
                 return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });

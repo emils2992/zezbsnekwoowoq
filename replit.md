@@ -352,6 +352,13 @@ The bot is configured for Replit deployment with:
     - Transfer announcements only sent when both players accept (dual acceptance requirement)
     - All salary and contract modifications remain in same channel without creating new channels
     - Complete trade workflow: Presidents negotiate → Target accepts → Players approve with salary editing → Both accept → Comprehensive announcement
+- June 23, 2025. Fixed trade system technical issues and improved user experience:
+    - Fixed custom ID length limitation for trade player salary modal (shortened IDs to prevent 100+ character limit)
+    - Enhanced channel creation notifications with proper user mentions for better navigation
+    - Fixed modal submission handler for shortened trade salary form IDs
+    - Added comprehensive success messages when trade channels are created
+    - Updated channel type consistency for better tracking and management
+    - Trade system now provides clear notifications at each stage with user mentions directing participants to correct channels
 
 ## User Preferences
 
