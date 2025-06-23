@@ -142,6 +142,23 @@ class PermissionManager {
             return false;
         }
     }
+
+    getTransferAuthorities(guild) {
+        try {
+            const roleData = this.getRoleData(guild.id);
+            const authorities = [];
+            
+            if (roleData.transferAuthority) {
+                const role = guild.roles.cache.get(roleData.transferAuthority);
+                if (role) authorities.push(role);
+            }
+            
+            return authorities;
+        } catch (error) {
+            console.error('Transfer yetkilileri alınırken hata:', error);
+            return [];
+        }
+    }
 }
 
 module.exports = new PermissionManager();

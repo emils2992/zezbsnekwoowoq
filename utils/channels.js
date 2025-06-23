@@ -71,6 +71,16 @@ class ChannelManager {
                 });
             }
 
+            // Transfer yetkililerine erişim ver
+            const permissions = require('./permissions');
+            const transferAuthorities = permissions.getTransferAuthorities(guild);
+            for (const authorityRole of transferAuthorities) {
+                permissionOverwrites.push({
+                    id: authorityRole.id,
+                    allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory]
+                });
+            }
+
             // Kanalı oluştur
             const channel = await guild.channels.create({
                 name: channelName,

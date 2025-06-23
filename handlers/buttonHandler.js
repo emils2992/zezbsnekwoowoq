@@ -313,6 +313,32 @@ class ButtonHandler {
             });
         }
 
+        // Embed'den modal verilerini çıkar
+        let contractData = {
+            transferFee: '5.000.000₺',
+            salary: '10.000.000₺/yıl',
+            contractDuration: '4 yıl',
+            bonus: '3.000.000₺'
+        };
+
+        // Embed'deki verileri kullan
+        if (interaction.message && interaction.message.embeds.length > 0) {
+            const embed = interaction.message.embeds[0];
+            if (embed.fields) {
+                for (const field of embed.fields) {
+                    if (field.name.includes('Transfer Bedeli')) {
+                        contractData.transferFee = field.value;
+                    } else if (field.name.includes('Maaş')) {
+                        contractData.salary = field.value;
+                    } else if (field.name.includes('Sözleşme Süresi')) {
+                        contractData.contractDuration = field.value;
+                    } else if (field.name.includes('Bonuslar')) {
+                        contractData.bonus = field.value;
+                    }
+                }
+            }
+        }
+
         switch (buttonType) {
             case 'accept':
                 // Sadece hedef başkan kabul edebilir
@@ -336,7 +362,7 @@ class ButtonHandler {
                 );
 
                 if (playerChannel) {
-                    const playerEmbed = embeds.createContractForm(fromPresident.user, targetPresident.user, player.user);
+                    const playerEmbed = embeds.createContractForm(fromPresident.user, targetPresident.user, player.user, contractData);
                     playerEmbed.setTitle(`${config.emojis.contract} Sözleşme Onayı - Oyuncu Kararı`);
                     playerEmbed.setDescription(`**${player.user.username}**, ${fromPresident.displayName} takımının sözleşme teklifi kabul edildi!\n\nArtık kararı size kalmış. Bu teklifi kabul ediyor musunuz?`);
 
@@ -647,12 +673,11 @@ class ButtonHandler {
                     components: [] 
                 });
 
-                // Serbest futbolcu duyurusu yap
-                await this.createEnhancedFreeAgentAnnouncement(
+                // Serbest-duyuru kanalına basit mesaj gönder
+                await this.sendSimpleFreeAgentAnnouncement(
                     interaction.guild, 
                     player.user, 
-                    releaseData,
-                    'Karşılıklı fesih anlaşması'
+                    releaseData.playerName || player.user.username
                 );
 
                 break;
@@ -699,12 +724,11 @@ class ButtonHandler {
                     components: [] 
                 });
 
-                // Serbest futbolcu duyurusu yap
-                await this.createEnhancedFreeAgentAnnouncement(
+                // Serbest-duyuru kanalına basit mesaj gönder
+                await this.sendSimpleFreeAgentAnnouncement(
                     interaction.guild, 
                     player.user, 
-                    releaseData,
-                    'Tek taraflı fesih'
+                    releaseData.playerName || player.user.username
                 );
 
                 break;
@@ -755,6 +779,32 @@ class ButtonHandler {
             });
         }
 
+        // Embed'den modal verilerini çıkar
+        let contractData = {
+            transferFee: '5.000.000₺',
+            salary: '10.000.000₺/yıl',
+            contractDuration: '4 yıl',
+            bonus: '3.000.000₺'
+        };
+
+        // Embed'deki verileri kullan
+        if (interaction.message && interaction.message.embeds.length > 0) {
+            const embed = interaction.message.embeds[0];
+            if (embed.fields) {
+                for (const field of embed.fields) {
+                    if (field.name.includes('Transfer Bedeli')) {
+                        contractData.transferFee = field.value;
+                    } else if (field.name.includes('Maaş')) {
+                        contractData.salary = field.value;
+                    } else if (field.name.includes('Sözleşme Süresi')) {
+                        contractData.contractDuration = field.value;
+                    } else if (field.name.includes('Bonuslar')) {
+                        contractData.bonus = field.value;
+                    }
+                }
+            }
+        }
+
         switch (buttonType) {
             case 'accept':
                 // Sadece oyuncu kabul edebilir
@@ -780,9 +830,10 @@ class ButtonHandler {
                     player: player.user,
                     team: fromPresident.displayName,
                     type: 'transfer',
-                    amount: '2.500.000₺',
-                    salary: '750.000₺/ay',
-                    duration: '3 yıl'
+                    amount: contractData.transferFee,
+                    salary: contractData.salary,
+                    duration: contractData.contractDuration,
+                    bonus: contractData.bonus
                 });
 
                 // Transfer geçmişine kaydet
@@ -1209,6 +1260,33 @@ class ButtonHandler {
             // Fallback olarak standart duyuru
             const channels = require('../utils/channels');
             return await channels.createFreeAgentAnnouncement(guild, player, defaultReason);
+        }
+    }
+
+    async sendSimpleFreeAgentAnnouncement(guild, player, playerName) {
+        try {
+            // Serbest-duyuru kanalını bul
+            const announcementChannel = guild.channels.cache.find(c => 
+                c.type === 0 && // GuildText
+                (c.name.includes('serbest-duyuru') || c.name.includes('serbest-oyuncu'))
+            );
+            
+            if (!announcementChannel) {
+                console.log('Serbest-duyuru kanalı bulunamadı');
+                return null;
+            }
+
+            const config = require('../config');
+            
+            // Basit serbest futbolcu mesajı
+            await announcementChannel.send({
+                content: `${config.emojis.football} **${playerName}** serbest kaldı!`
+            });
+
+            console.log(`Serbest futbolcu duyurusu gönderildi: ${playerName}`);
+
+        } catch (error) {
+            console.error('Basit serbest futbolcu duyurusu hatası:', error);
         }
     }
 }

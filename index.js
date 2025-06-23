@@ -458,8 +458,20 @@ async function handleModalSubmit(client, interaction) {
                     .setEmoji(config.emojis.cross)
             );
 
-        // Karşılıklı fesih teklifini gönder
-        await interaction.channel.send({
+        // Müzakere kanalı oluştur
+        const negotiationChannel = await channels.createNegotiationChannel(
+            interaction.guild, 
+            president.user, 
+            player.user,
+            'release'
+        );
+
+        if (!negotiationChannel) {
+            return interaction.editReply({ content: '❌ Müzakere kanalı oluşturulamadı!' });
+        }
+
+        // Karşılıklı fesih teklifini kanala gönder
+        await negotiationChannel.send({
             content: `${config.emojis.release} **Karşılıklı Fesih Teklifi**\n${player.user}, ${president.user} sizinle karşılıklı fesih yapmak istiyor!`,
             embeds: [releaseEmbed],
             components: [row]
@@ -482,7 +494,7 @@ async function handleModalSubmit(client, interaction) {
         const successEmbed = new EmbedBuilder()
             .setColor(config.colors.success)
             .setTitle(`${config.emojis.check} Karşılıklı Fesih Teklifi Gönderildi`)
-            .setDescription(`${player.user} için karşılıklı fesih teklifiniz gönderildi!`)
+            .setDescription(`${player.user} için karşılıklı fesih teklifiniz gönderildi!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
             .setTimestamp();
 
         await interaction.editReply({ embeds: [successEmbed] });
