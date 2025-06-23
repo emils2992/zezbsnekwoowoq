@@ -816,8 +816,19 @@ class ButtonHandler {
         const announcementChannel = await channels.findAnnouncementChannel(guild);
         console.log('Found announcement channel:', announcementChannel ? announcementChannel.name : 'NOT FOUND');
         if (!announcementChannel) {
-            console.log('No announcement channel found - skipping announcement');
-            return;
+            console.log('No announcement channel found - trying to find any text channel...');
+            // Last resort - try to find any general channel
+            const generalChannel = guild.channels.cache.find(c => 
+                c.type === 'GUILD_TEXT' && 
+                (c.name.includes('genel') || c.name.includes('general') || c.name.includes('chat'))
+            );
+            if (generalChannel) {
+                console.log('Using general channel:', generalChannel.name);
+                // Continue with general channel
+            } else {
+                console.log('No suitable channel found - skipping announcement');
+                return;
+            }
         }
 
         const { type, player, president, embed } = transferData;
@@ -899,12 +910,21 @@ class ButtonHandler {
             }
         }
 
-        console.log('Sending announcement to channel:', announcementChannel.name);
-        await announcementChannel.send({
-            content: mention,
-            embeds: [announcementEmbed]
-        });
-        console.log('Announcement sent successfully!');
+        const channelToUse = announcementChannel || guild.channels.cache.find(c => 
+            c.type === 'GUILD_TEXT' && 
+            (c.name.includes('genel') || c.name.includes('general') || c.name.includes('chat'))
+        );
+        
+        if (channelToUse) {
+            console.log('Sending announcement to channel:', channelToUse.name);
+            await channelToUse.send({
+                content: mention,
+                embeds: [announcementEmbed]
+            });
+            console.log('Announcement sent successfully!');
+        } else {
+            console.log('No channel available for announcement');
+        }
     }
 
     async sendReleaseTransferAnnouncement(guild, player, releaseData, releaseType) {

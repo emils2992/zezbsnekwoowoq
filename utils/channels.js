@@ -195,6 +195,21 @@ class ChannelManager {
             console.log('Ayarlanmış duyuru kanalı bulunamadı:', error);
         }
         
+        // Fallback - try to find transfer announcement channels by name
+        console.log('Trying fallback channel search...');
+        const channelNames = ['transfer-duyuru', 'transfer-duyurusu', 'transfer-duyurular', 'duyuru', 'duyurular', 'announcements'];
+        
+        for (const name of channelNames) {
+            const channel = guild.channels.cache.find(c => 
+                c.type === 'GUILD_TEXT' && 
+                c.name.toLowerCase().includes(name.toLowerCase())
+            );
+            if (channel) {
+                console.log('Found fallback channel:', channel.name);
+                return channel;
+            }
+        }
+        
         return null;
     }
 
