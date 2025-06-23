@@ -804,33 +804,48 @@ class ButtonHandler {
             const givenId = givenPlayerId.toString();
             
             console.log(`Trade acceptance check: User ${userId} vs Wanted ${wantedId} vs Given ${givenId}`);
+            console.log(`Transfer authority check: ${isTransferAuthority}`);
+            console.log(`Current acceptance state:`, global[acceptanceKey]);
             
-            // Use existing member and authority check from above
-            
-            // Prevent duplicate acceptances for regular players
+            // Check for duplicate acceptances first
             if (!isTransferAuthority) {
                 if ((interaction.user.id === wantedPlayerId && global[acceptanceKey].wantedPlayer) ||
                     (interaction.user.id === givenPlayerId && global[acceptanceKey].givenPlayer)) {
-                    const replyMethod = interaction.deferred ? 'editReply' : 'reply';
-                    return interaction[replyMethod]({
-                        content: `⚠️ Sen zaten takası kabul ettin! Diğer oyuncunun kararı bekleniyor...`
-                    });
+                    console.log('❌ Duplicate acceptance attempt by regular player');
+                    try {
+                        await interaction.editReply({
+                            content: `⚠️ Sen zaten takası kabul ettin! Diğer oyuncunun kararı bekleniyor...`
+                        });
+                        console.log('✅ Duplicate warning sent');
+                    } catch (error) {
+                        console.error('❌ Duplicate warning failed:', error.message);
+                    }
+                    return;
                 }
             }
             
-            // Transfer authorities can accept for either player
+            // Handle authority and player acceptances
+            console.log('🔄 Processing acceptance...');
             if (isTransferAuthority) {
+                console.log('🛡️ Processing authority acceptance...');
+                
                 // If both already accepted, don't allow more clicks
                 if (global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
-                    const replyMethod = interaction.deferred ? 'editReply' : 'reply';
-                    await interaction[replyMethod]({
-                        content: `✅ Her iki oyuncu da zaten kabul etti! Duyuru gönderiliyor...`
-                    });
+                    console.log('❌ Both already accepted by authority');
+                    try {
+                        await interaction.editReply({
+                            content: `✅ Her iki oyuncu da zaten kabul etti! Duyuru gönderiliyor...`
+                        });
+                        console.log('✅ Both accepted warning sent');
+                    } catch (error) {
+                        console.error('❌ Both accepted warning failed:', error.message);
+                    }
                     return;
                 }
                 
                 // Accept for whichever player hasn't been accepted yet  
                 if (!global[acceptanceKey].wantedPlayer) {
+                    console.log('⭐ Authority accepting for wanted player...');
                     global[acceptanceKey].wantedPlayer = true;
                     console.log(`✅ Wanted player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
                     
@@ -845,6 +860,7 @@ class ButtonHandler {
                         // Continue execution regardless of response error
                     }
                 } else if (!global[acceptanceKey].givenPlayer) {
+                    console.log('⭐ Authority accepting for given player...');
                     global[acceptanceKey].givenPlayer = true;
                     console.log(`✅ Given player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
                     
@@ -859,19 +875,19 @@ class ButtonHandler {
                         // Continue execution regardless of response error
                     }
                 } else {
+                    console.log('❌ Authority trying to accept but both already accepted');
                     try {
                         await interaction.editReply({
                             content: `❌ Her iki oyuncu da zaten kabul etti!`
                         });
                         console.log('✅ Authority duplicate response sent - SUCCESS');
                     } catch (error) {
-                        console.error('❌ Authority duplicate response FAILED:', error);
-                        // Don't throw error, just log it and continue
-                        console.log('⚠️ Continuing despite editReply error...');
+                        console.error('❌ Authority duplicate response FAILED (non-blocking):', error.message);
                     }
                     return;
                 }
             } else if (userId === wantedId) {
+                console.log('⭐ Regular wanted player accepting...');
                 global[acceptanceKey].wantedPlayer = true;
                 console.log(`✅ Wanted player ${wantedPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
                 
@@ -883,9 +899,9 @@ class ButtonHandler {
                     console.log('✅ Wanted player response sent - SUCCESS');
                 } catch (error) {
                     console.error('❌ Wanted player response FAILED (non-blocking):', error.message);
-                    // Continue execution regardless of response error
                 }
             } else if (userId === givenId) {
+                console.log('⭐ Regular given player accepting...');
                 global[acceptanceKey].givenPlayer = true;
                 console.log(`✅ Given player ${givenPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
                 
@@ -897,10 +913,10 @@ class ButtonHandler {
                     console.log('✅ Given player response sent - SUCCESS');
                 } catch (error) {
                     console.error('❌ Given player response FAILED (non-blocking):', error.message);
-                    // Continue execution regardless of response error
                 }
             } else {
                 console.log(`❌ Unauthorized user ${userId} (wanted: ${wantedId}, given: ${givenId})`);
+                console.log('🚫 Sending unauthorized response...');
                 
                 // Send error response without throwing on error
                 try {
@@ -910,10 +926,12 @@ class ButtonHandler {
                     console.log('✅ Unauthorized response sent - SUCCESS');
                 } catch (error) {
                     console.error('❌ Unauthorized response FAILED (non-blocking):', error.message);
-                    // Continue execution regardless of response error
                 }
+                console.log('🔚 Ending unauthorized interaction');
                 return;
             }
+            
+            console.log('✅ Acceptance processing completed, proceeding to dual check...');
 
             // CRITICAL: Check if both players have accepted immediately after marking acceptance
             console.log(`🔍 CHECKING DUAL ACCEPTANCE for channel ${channelName}:`, global[acceptanceKey]);
