@@ -149,6 +149,10 @@ The bot is configured for Replit deployment with:
   - Enhanced announcements to only display populated fields, hiding empty ones for cleaner presentation
   - Added .eyardım command with comprehensive help menu explaining all bot features and usage
   - Enhanced negotiations category positioning to always stay at the top of the server
+  - Extended .rol command with ping role options for transfer, free agent, and announcement notifications
+  - Implemented role mention system in all announcements - transfer, free agent, and player duyuru posts
+  - Updated role management interface with dedicated ping role buttons for each announcement type
+  - Enhanced announcement system to automatically mention configured ping roles when transfers are completed
 
 ## User Preferences
 

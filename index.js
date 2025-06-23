@@ -87,7 +87,10 @@ async function handleSelectMenu(client, interaction) {
             'player': 'Futbolcu', 
             'freeAgent': 'Serbest Futbolcu',
             'transferChannel': 'Transfer Duyuru Kanalı',
-            'transferAuthority': 'Transfer Yetkilisi'
+            'transferAuthority': 'Transfer Yetkilisi',
+            'transferPingRole': 'Transfer Duyuru Ping',
+            'freeAgentPingRole': 'Serbest Duyuru Ping',
+            'announcementPingRole': 'Duyur Duyuru Ping'
         };
         
         const embed = new EmbedBuilder()
@@ -552,9 +555,30 @@ async function handleModalSubmit(client, interaction) {
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi', iconURL: interaction.guild.iconURL() });
 
+        // Ping rolünü al
+        const fs = require('fs');
+        const path = require('path');
+        const rolesPath = path.join(__dirname, 'data/roles.json');
+        
+        let pingContent = `${config.emojis.football} **YENİ SERBEST FUTBOLCU DUYURUSU** ${config.emojis.football}`;
+        
+        try {
+            const allData = JSON.parse(fs.readFileSync(rolesPath, 'utf8'));
+            const guildData = allData[interaction.guild.id];
+            
+            if (guildData && guildData.announcementPingRole) {
+                const pingRole = interaction.guild.roles.cache.get(guildData.announcementPingRole);
+                if (pingRole) {
+                    pingContent = `${config.emojis.football} **YENİ SERBEST FUTBOLCU DUYURUSU** ${config.emojis.football}\n${pingRole}`;
+                }
+            }
+        } catch (error) {
+            console.log('Ping rol bulunamadı:', error.message);
+        }
+
         // Duyuruyu gönder
         await announcementChannel.send({
-            content: `${config.emojis.football} **YENİ SERBEST FUTBOLCU DUYURUSU** ${config.emojis.football}`,
+            content: pingContent,
             embeds: [announcementEmbed]
         });
 

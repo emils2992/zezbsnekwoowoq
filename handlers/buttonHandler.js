@@ -4,6 +4,8 @@ const permissions = require('../utils/permissions');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
 const api = require('../utils/api');
+const fs = require('fs');
+const path = require('path');
 
 class ButtonHandler {
     async handleButton(client, interaction) {
@@ -992,9 +994,28 @@ class ButtonHandler {
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi', iconURL: guild.iconURL() });
 
+            // Ping rolünü al
+            const transferRolesPath = path.join(__dirname, '../data/roles.json');
+            
+            let pingContent = `🎉 **YENİ TRANSFER DUYURUSU** 🎉`;
+            
+            try {
+                const allData = JSON.parse(fs.readFileSync(transferRolesPath, 'utf8'));
+                const guildData = allData[guild.id];
+                
+                if (guildData && guildData.transferPingRole) {
+                    const pingRole = guild.roles.cache.get(guildData.transferPingRole);
+                    if (pingRole) {
+                        pingContent = `🎉 **YENİ TRANSFER DUYURUSU** 🎉\n${pingRole}`;
+                    }
+                }
+            } catch (error) {
+                console.log('Ping rol bulunamadı:', error.message);
+            }
+
             // Duyuruyu gönder
             await transferChannel.send({
-                content: `🎉 **YENİ TRANSFER DUYURUSU** 🎉`,
+                content: pingContent,
                 embeds: [announcementEmbed]
             });
 
@@ -1332,8 +1353,27 @@ class ButtonHandler {
             embed.setTimestamp()
                 .setFooter({ text: 'Serbest Futbolcu Sistemi', iconURL: guild.iconURL() });
 
+            // Ping rolünü al
+            const freeAgentRolesPath = path.join(__dirname, '../data/roles.json');
+            
+            let pingContent = `${config.emojis.football} **Yeni Serbest Futbolcu Duyurusu**`;
+            
+            try {
+                const allData = JSON.parse(fs.readFileSync(freeAgentRolesPath, 'utf8'));
+                const guildData = allData[guild.id];
+                
+                if (guildData && guildData.freeAgentPingRole) {
+                    const pingRole = guild.roles.cache.get(guildData.freeAgentPingRole);
+                    if (pingRole) {
+                        pingContent = `${config.emojis.football} **Yeni Serbest Futbolcu Duyurusu**\n${pingRole}`;
+                    }
+                }
+            } catch (error) {
+                console.log('Ping rol bulunamadı:', error.message);
+            }
+
             const message = await freeAgentChannel.send({
-                content: `${config.emojis.football} **Yeni Serbest Futbolcu Duyurusu**`,
+                content: pingContent,
                 embeds: [embed]
             });
 

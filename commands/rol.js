@@ -77,7 +77,10 @@ module.exports = {
             { key: 'president', name: 'Takım Başkanı', emoji: '👑' },
             { key: 'player', name: 'Futbolcu', emoji: '⚽' },
             { key: 'freeAgent', name: 'Serbest Futbolcu', emoji: '🆓' },
-            { key: 'transferAuthority', name: 'Transfer Yetkilisi', emoji: '📢' }
+            { key: 'transferAuthority', name: 'Transfer Yetkilisi', emoji: '📢' },
+            { key: 'transferPingRole', name: 'Transfer Duyuru Ping', emoji: '🔔' },
+            { key: 'freeAgentPingRole', name: 'Serbest Duyuru Ping', emoji: '🔔' },
+            { key: 'announcementPingRole', name: 'Duyur Duyuru Ping', emoji: '🔔' }
         ];
 
         for (const roleType of roleTypes) {
@@ -96,46 +99,102 @@ module.exports = {
 
     async setupRoles(message) {
         const setupEmbed = new EmbedBuilder()
-            .setColor(config.colors.accent)
-            .setTitle(`${config.emojis.edit} Rol Ayarlama`)
-            .setDescription('Aşağıdaki menüden ayarlamak istediğiniz rol türünü seçin:')
-            .setTimestamp();
-
-        const selectMenu = new StringSelectMenuBuilder()
-            .setCustomId(`role_setup_${message.author.id}`)
-            .setPlaceholder('Rol türünü seçin...')
-            .addOptions([
+            .setColor(config.colors.primary)
+            .setTitle(`${config.emojis.settings} Rol Ayarlama Sistemi`)
+            .setDescription('Aşağıdaki butonları kullanarak rolleri ayarlayın:')
+            .addFields(
                 {
-                    label: 'Takım Başkanı',
-                    description: 'Transfer yetkisi olan kişiler',
-                    value: 'president',
-                    emoji: '👑'
+                    name: '👑 Başkan Rolü',
+                    value: 'Transfer teklifleri yapabilir, sözleşme imzalayabilir',
+                    inline: true
                 },
                 {
-                    label: 'Futbolcu',
-                    description: 'Transfer edilebilir oyuncular',
-                    value: 'player',
-                    emoji: '⚽'
+                    name: '⚽ Futbolcu Rolü', 
+                    value: 'Transfer tekliflerini kabul/red edebilir',
+                    inline: true
                 },
                 {
-                    label: 'Serbest Futbolcu',
-                    description: 'Sözleşmesiz oyuncular',
-                    value: 'freeAgent',
-                    emoji: '🆓'
+                    name: '🆓 Serbest Futbolcu Rolü',
+                    value: 'Serbest oyuncular için özel işlemler',
+                    inline: true
                 },
                 {
-                    label: 'Transfer Yetkilisi',
-                    description: 'Duyuru yapabilir',
-                    value: 'transferAuthority',
-                    emoji: '📢'
+                    name: '🔧 Transfer Yetkili Rolü',
+                    value: 'Tüm müzakereleri görebilir ve müdahale edebilir',
+                    inline: true
+                },
+                {
+                    name: '📢 Transfer Duyuru Kanalı',
+                    value: 'Tamamlanan transferlerin duyurulacağı kanal',
+                    inline: true
+                },
+                {
+                    name: '🔔 Ping Rolleri',
+                    value: 'Duyurularda etiketlenecek roller',
+                    inline: true
                 }
-            ]);
+            )
+            .setTimestamp()
+            .setFooter({ text: 'Transfer Sistemi' });
 
-        const row = new ActionRowBuilder().addComponents(selectMenu);
+        // İlk satır butonları
+        const row1 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('role_setup_president')
+                    .setLabel('Başkan Rolü')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('👑'),
+                new ButtonBuilder()
+                    .setCustomId('role_setup_player')
+                    .setLabel('Futbolcu Rolü')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('⚽'),
+                new ButtonBuilder()
+                    .setCustomId('role_setup_freeAgent')
+                    .setLabel('Serbest Futbolcu Rolü')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🆓')
+            );
+
+        // İkinci satır butonları
+        const row2 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('role_setup_transferAuthority')
+                    .setLabel('Transfer Yetkili Rolü')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('🔧'),
+                new ButtonBuilder()
+                    .setCustomId('role_setup_transferChannel')
+                    .setLabel('Transfer Duyuru Kanalı')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('📢')
+            );
+
+        // Üçüncü satır - ping rolleri
+        const row3 = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('role_setup_transferPingRole')
+                    .setLabel('Transfer Duyuru Ping')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🔔'),
+                new ButtonBuilder()
+                    .setCustomId('role_setup_freeAgentPingRole')
+                    .setLabel('Serbest Duyuru Ping')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🔔'),
+                new ButtonBuilder()
+                    .setCustomId('role_setup_announcementPingRole')
+                    .setLabel('Duyur Duyuru Ping')
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('🔔')
+            );
 
         await message.reply({ 
             embeds: [setupEmbed], 
-            components: [row] 
+            components: [row1, row2, row3] 
         });
     },
 
