@@ -279,6 +279,12 @@ The bot is configured for Replit deployment with:
       * announcementPingRole - Used only for manual .duyur command announcements
     - Removed fallback to old role names to prevent cross-contamination between announcement types
     - Updated role setup descriptions to clarify each ping role's specific purpose
+- June 23, 2025. Fixed mention parsing and added edit buttons to contract/trade channels:
+    - Fixed duplicate user mention issue in contract, trade, and hire commands using Array.from() indexing
+    - Added comprehensive debug logging to identify mention parsing problems
+    - Added edit buttons to contract and trade negotiation channels in index.js
+    - Edit buttons now show pre-filled modals with existing data for easy modification
+    - All transfer commands now have consistent edit functionality in negotiation channels
 
 ## User Preferences
 
