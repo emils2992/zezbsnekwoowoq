@@ -250,6 +250,13 @@ The bot is configured for Replit deployment with:
     - Form editing now updates the original embed in the same channel with new data from modal submissions
     - All transfer commands now properly handle form updates without creating duplicate channels
     - Fixed interaction timeout issues across all button handlers (offer, contract, trade, release, hire)
+- June 23, 2025. Implemented robust channel deletion and form update system:
+    - Enhanced channel deletion with forced deletion logic using channelToDelete.deletable check
+    - Reduced deletion timeout to 1.5 seconds for faster channel cleanup
+    - Updated modal form handler to properly detect negotiation channels and update existing embeds
+    - Fixed channel deletion to work consistently across all transfer types
+    - Added comprehensive logging for debugging channel deletion issues
+    - All accept/reject buttons now properly delete channels after interactions
 
 ## User Preferences
 
