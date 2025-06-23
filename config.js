@@ -20,7 +20,13 @@ module.exports = {
         check: '✅',
         cross: '❌',
         edit: '✏️',
-        warning: '⚠️'
+        warning: '⚠️',
+        help: '❓',
+        offer: '💰',
+        trade: '🔄',
+        trelease: '🚫',
+        settings: '⚙️',
+        announcement: '📢'
     },
     api: {
         playerFaceUrl: 'https://thispersondoesnotexist.com/image' // Ücretsiz yüz API'si

@@ -943,7 +943,7 @@ class ButtonHandler {
 
     async handleTransferRolesHelp(client, interaction) {
         const rolesEmbed = new EmbedBuilder()
-            .setColor(config.colors.secondary)
+            .setColor(config.colors.accent)
             .setTitle('👥 Rol Sistemi')
             .setDescription('**Transfer sisteminde kullanılan roller:**')
             .addFields(
