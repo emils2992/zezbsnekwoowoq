@@ -186,6 +186,8 @@ The bot is configured for Replit deployment with:
     - Updated release modal handler to use real modal forms instead of placeholder messages
     - Modal submission handlers properly integrated with existing negotiation channel system
     - Fixed undefined button style constants (Success, Danger, Secondary) to use proper string format
+    - Resolved user lookup issues in modal submission handlers with proper parameter parsing
+    - Added debug logging for troubleshooting modal form submissions
     - Bot successfully running without errors or warnings on Discord.js v13.17.1
     - All button interaction errors resolved and transfer system fully operational with working modals
 

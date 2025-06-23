@@ -454,11 +454,25 @@ async function handleModalSubmit(client, interaction) {
 
     // Release form modali (Karşılıklı fesih)
     else if (customId.startsWith('release_form_')) {
-        const [, , playerId, presidentId, releaseType] = customId.split('_');
-        const player = interaction.guild.members.cache.get(playerId);
-        const president = interaction.guild.members.cache.get(presidentId);
+        // Format: release_form_playerId_presidentId_releaseType
+        const parts = customId.split('_');
+        const playerId = parts[2];
+        const presidentId = parts[3]; 
+        const releaseType = parts[4];
+        
+        console.log('Release form - Player ID:', playerId, 'President ID:', presidentId, 'Release Type:', releaseType);
+        
+        let player, president;
+        try {
+            player = await interaction.guild.members.fetch(playerId);
+            president = await interaction.guild.members.fetch(presidentId);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            return interaction.editReply({ content: '❌ Kullanıcılar bulunamadı!' });
+        }
 
         if (!player || !president) {
+            console.log('Player found:', !!player, 'President found:', !!president);
             return interaction.editReply({ content: '❌ Kullanıcılar bulunamadı!' });
         }
 
