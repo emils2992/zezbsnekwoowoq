@@ -750,33 +750,27 @@ class ButtonHandler {
             
             // Transfer authorities can accept for either player
             if (isTransferAuthority) {
-                // Ask which player they're accepting for if both haven't accepted yet
-                if (!global[acceptanceKey].wantedPlayer && !global[acceptanceKey].givenPlayer) {
-                    // Accept for the first player (wanted)
+                // If both already accepted, don't allow more clicks
+                if (global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
+                    await interaction.editReply({
+                        content: `✅ Her iki oyuncu da zaten kabul etti! Duyuru gönderiliyor...`
+                    });
+                    return;
+                }
+                
+                // Accept for whichever player hasn't been accepted yet
+                if (!global[acceptanceKey].wantedPlayer) {
                     global[acceptanceKey].wantedPlayer = true;
                     console.log(`✅ Wanted player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
                     await interaction.editReply({
                         content: `✅ **${wantedPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                     });
                 } else if (!global[acceptanceKey].givenPlayer) {
-                    // Accept for the second player (given)
                     global[acceptanceKey].givenPlayer = true;
                     console.log(`✅ Given player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
                     await interaction.editReply({
-                        content: `✅ **${givenPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! ${global[acceptanceKey].wantedPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
+                        content: `✅ **${givenPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! Her iki oyuncu da kabul etti!`
                     });
-                } else if (!global[acceptanceKey].wantedPlayer) {
-                    // Accept for the first player (wanted) 
-                    global[acceptanceKey].wantedPlayer = true;
-                    console.log(`✅ Wanted player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
-                    await interaction.editReply({
-                        content: `✅ **${wantedPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! Her iki oyuncu da kabul etti!`
-                    });
-                } else {
-                    await interaction.editReply({
-                        content: `✅ Her iki oyuncu da zaten kabul etti!`
-                    });
-                    return;
                 }
             } else if (userId === wantedId) {
                 global[acceptanceKey].wantedPlayer = true;
@@ -798,13 +792,11 @@ class ButtonHandler {
                 return;
             }
 
-            // Check if both players have accepted after this acceptance
+            // Check if both players have accepted immediately after marking acceptance
             console.log(`Checking dual acceptance for channel ${channelName}:`, global[acceptanceKey]);
             
-            // Use setTimeout to check acceptance after this interaction completes
-            setTimeout(async () => {
-                if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
-                    console.log('Both players accepted! Sending announcement...');
+            if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
+                console.log('Both players accepted! Sending announcement immediately...');
                     
                     // Extract trade data from embed for complete announcement
                     const embed = interaction.message.embeds[0];
@@ -881,8 +873,7 @@ class ButtonHandler {
                             console.error('KANAL SİLME HATASI:', error);
                         }
                     }, 3000);
-                }
-            }, 500);
+            }
 
         } else if (buttonType === 'reject') {
             // Check if user is one of the players
