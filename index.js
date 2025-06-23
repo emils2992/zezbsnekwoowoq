@@ -2,8 +2,12 @@ const { Client, Intents, Collection } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
-const commandHandler = require('./handlers/commandHandler');
-const buttonHandler = require('./handlers/buttonHandler');
+const CommandHandler = require('./handlers/commandHandler');
+const ButtonHandler = require('./handlers/buttonHandler');
+
+// Handler instances oluştur
+const commandHandler = new CommandHandler();
+const buttonHandler = new ButtonHandler();
 
 // Bot client oluştur
 const client = new Client({

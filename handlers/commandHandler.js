@@ -74,11 +74,7 @@ class CommandHandler {
                 }
                 
                 if (categoryCommands.length > 0) {
-                    helpEmbed.addFields({
-                        name: `${config.emojis.handshake} ${category}`,
-                        value: categoryCommands.join('\n\n'),
-                        inline: false
-                    });
+                    helpEmbed.addField(`${config.emojis.handshake} ${category}`, categoryCommands.join('\n\n'), false);
                 }
             }
 
@@ -91,4 +87,4 @@ class CommandHandler {
     }
 }
 
-module.exports = new CommandHandler();
+module.exports = CommandHandler;
