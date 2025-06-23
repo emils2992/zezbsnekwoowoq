@@ -56,7 +56,7 @@ client.on('interactionCreate', async interaction => {
             await buttonHandler.handleButton(client, interaction);
         } else if (interaction.isSelectMenu()) {
             await handleSelectMenu(client, interaction);
-
+        }
     } catch (error) {
         console.error('Etkileşim hatası:', error);
         if (!interaction.replied && !interaction.deferred) {
@@ -142,17 +142,12 @@ function getRoleName(roleType) {
     return names[roleType] || 'Bilinmeyen Rol';
 }
 
-// Note: Modal submissions removed - Discord.js v13 uses channel-based negotiations instead
-// All transfer negotiations now happen in dedicated channels with button interactions
+// Hata yönetimi
+client.on('error', console.error);
 
-        // Offer form modali
-        if (customId.startsWith('offer_form_')) {
-            const [, , playerId, presidentId] = customId.split('_');
-            const player = interaction.guild.members.cache.get(playerId);
-            const president = interaction.guild.members.cache.get(presidentId);
+process.on('unhandledRejection', error => {
+    console.error('Unhandled promise rejection:', error);
+});
 
-            if (!player || !president) {
-                return interaction.editReply({ content: '❌ Kullanıcılar bulunamadı!' });
-            }
-
-            // Form verilerini al
+// Bot'u başlat
+client.login(process.env.DISCORD_TOKEN);

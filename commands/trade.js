@@ -51,19 +51,40 @@ module.exports = {
                 return message.reply('❌ Serbest futbolcular takas edilemez! Serbest oyuncular için `.offer` komutunu kullanın.');
             }
 
-            // Modal formu butonunu göster
-            await message.reply({
-                content: `${config.emojis.transfer} **Takas Teklifi Formu**\n\n${playerUser.username} için takas formunu doldurmak üzere aşağıdaki butona tıklayın.`,
-                components: [
-                    new MessageActionRow().addComponents(
-                        new MessageButton()
-                            .setCustomId(`show_trade_modal_${playerUser.id}_${message.author.id}`)
-                            .setLabel('Takas Formu Aç')
-                            .setStyle('PRIMARY')
-                            .setEmoji(config.emojis.edit)
-                    )
-                ]
+            // Müzakere kanalı oluştur
+            const channel = await channels.createNegotiationChannel(message.guild, message.author, targetPresidentUser, 'trade', playerUser);
+            if (!channel) {
+                return message.reply('❌ Müzakere kanalı oluşturulamadı!');
+            }
+
+            // Takas embed'i oluştur
+            const tradeEmbed = embeds.createTradeForm(message.author, targetPresidentUser, playerUser);
+            
+            const buttons = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(`trade_accept_${playerUser.id}_${message.author.id}`)
+                        .setLabel('Kabul Et')
+                        .setStyle('SUCCESS')
+                        .setEmoji('✅'),
+                    new MessageButton()
+                        .setCustomId(`trade_reject_${playerUser.id}_${message.author.id}`)
+                        .setLabel('Reddet')
+                        .setStyle('DANGER')
+                        .setEmoji('❌'),
+                    new MessageButton()
+                        .setCustomId(`trade_edit_${playerUser.id}_${message.author.id}`)
+                        .setLabel('Düzenle')
+                        .setStyle('SECONDARY')
+                        .setEmoji('✏️')
+                );
+
+            await channel.send({
+                embeds: [tradeEmbed],
+                components: [buttons]
             });
+
+            await message.reply(`✅ Takas müzakeresi ${channel} kanalında başlatıldı!`);
 
         } catch (error) {
             console.error('Trade komutu hatası:', error);

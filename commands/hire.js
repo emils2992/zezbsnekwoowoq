@@ -44,34 +44,40 @@ module.exports = {
                 return message.reply('❌ Etiketlenen kişi bir futbolcu değil!');
             }
 
-            // Kiralık sözleşme embed'i oluştur
-            const hireEmbed = new MessageEmbed()
-                .setColor(config.colors.warning)
-                .setTitle(`${config.emojis.contract} Kiralık Sözleşme Teklifi`)
-                .setDescription(`**${message.author.username}** tarafından **${targetPresident.username}**'e kiralık sözleşme teklifi yapılıyor.`)
-                .addField(
-                    { name: '👑 Teklif Veren Başkan', value: `${message.author}`, inline: true },
-                    { name: '👑 Hedef Başkan', value: `${targetPresident}`, inline: true },
-                    { name: '⚽ Oyuncu', value: `${playerUser}`, inline: true },
-                    { name: '📋 Sözleşme Türü', value: 'Kiralık Transfer', inline: true },
-                    { name: '💡 Bilgi', value: 'Kiralık şartlarını belirlemek için formu doldurun.', inline: false }
-                )
-                .setTimestamp()
-                .setFooter({ text: 'Transfer Sistemi' });
+            // Müzakere kanalı oluştur
+            const channel = await channels.createNegotiationChannel(message.guild, message.author, targetMember.user, 'hire', player.user);
+            if (!channel) {
+                return message.reply('❌ Müzakere kanalı oluşturulamadı!');
+            }
 
-            await message.reply({
-                content: `${config.emojis.contract} **Kiralık Sözleşme Teklifi**`,
+            // Kiralık embed'i oluştur
+            const hireEmbed = embeds.createHireForm(message.author, targetMember.user, player.user);
+            
+            const buttons = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(`hire_accept_${player.id}_${message.author.id}`)
+                        .setLabel('Kabul Et')
+                        .setStyle('SUCCESS')
+                        .setEmoji('✅'),
+                    new MessageButton()
+                        .setCustomId(`hire_reject_${player.id}_${message.author.id}`)
+                        .setLabel('Reddet')
+                        .setStyle('DANGER')
+                        .setEmoji('❌'),
+                    new MessageButton()
+                        .setCustomId(`hire_edit_${player.id}_${message.author.id}`)
+                        .setLabel('Düzenle')
+                        .setStyle('SECONDARY')
+                        .setEmoji('✏️')
+                );
+
+            await channel.send({
                 embeds: [hireEmbed],
-                components: [
-                    new MessageActionRow().addComponents(
-                        new MessageButton()
-                            .setCustomId(`show_hire_modal_${playerUser.id}_${message.author.id}`)
-                            .setLabel('Kiralık Formu Aç')
-                            .setStyle('PRIMARY')
-                            .setEmoji(config.emojis.edit)
-                    )
-                ]
+                components: [buttons]
             });
+
+            await message.reply(`✅ Kiralık müzakeresi ${channel} kanalında başlatıldı!`);
 
         } catch (error) {
             console.error('Hire komutu hatası:', error);

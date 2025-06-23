@@ -14,18 +14,10 @@ module.exports = {
                 return message.reply('❌ Bu komutu sadece serbest futbolcular kullanabilir!');
             }
 
-            // Modal formu butonunu göster
+            // Doğrudan duyuru formu talimatları göster
             await message.reply({
-                content: `${config.emojis.football} **Serbest Futbolcu Duyuru Formu**\n\nKendi duyurunuzu oluşturmak için aşağıdaki butona tıklayın.`,
-                components: [
-                    new MessageActionRow().addComponents(
-                        new MessageButton()
-                            .setCustomId(`show_announcement_modal_${message.author.id}`)
-                            .setLabel('Duyuru Formu Aç')
-                            .setStyle('PRIMARY')
-                            .setEmoji(config.emojis.edit)
-                    )
-                ]
+                content: `${config.emojis.football} **Serbest Futbolcu Duyuru Formu**\n\nLütfen duyuru bilgilerinizi şu formatta yazın:\n\`\`\`\nOyuncu: [Oyuncu Adı]\nYeni Kulüp: [Kulüp Adı]\nMaaş: [Maaş Bilgisi]\nSözleşme: [Süre]\nBonus: [Bonus Bilgisi]\n\`\`\`\n\nÖrnek:\n\`\`\`\nOyuncu: Lionel Messi\nYeni Kulüp: Galatasaray\nMaaş: 6.000.000₺/yıl\nSözleşme: 2 yıl\nBonus: 250.000₺\n\`\`\`\n\nBu mesajı yanıtlayarak duyurunuzu gönderin.`,
+                ephemeral: false
             });
 
         } catch (error) {
