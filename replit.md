@@ -119,6 +119,8 @@ The bot is configured for Replit deployment with:
   - Replaced "Bonuslar" field with "İstenen Oyuncu" in trade and offer forms for better trade negotiations
   - Modified trade transfer announcements to display "Başkanlar takasladi" message instead of generic club transfer text
   - Ensured complete modal data consistency across all transfer types (offer, contract, trade, release)
+  - Enhanced release system to extract modal data and create detailed free agent announcements in serbest-ayarla channel
+  - Eliminated separate transfer announcements for releases - only enhanced free agent announcements using exact modal input
 
 ## User Preferences
 

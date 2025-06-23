@@ -595,6 +595,35 @@ class ButtonHandler {
             });
         }
 
+        // Embed'den modal verilerini çıkar
+        let releaseData = {
+            playerName: player.displayName,
+            compensation: 'Belirtilmedi',
+            reason: 'Sözleşme feshi',
+            newTeam: 'Belirtilmedi'
+        };
+
+        // Embed'deki verileri kullan
+        if (interaction.message && interaction.message.embeds.length > 0) {
+            const embed = interaction.message.embeds[0];
+            if (embed.fields) {
+                for (const field of embed.fields) {
+                    if (field.name.includes('Tazminat')) {
+                        releaseData.compensation = field.value;
+                    } else if (field.name.includes('Sebep')) {
+                        releaseData.reason = field.value;
+                    } else if (field.name.includes('Yeni Takım')) {
+                        releaseData.newTeam = field.value;
+                    } else if (field.name.includes('Oyuncu') && field.value.includes('(') && field.value.includes(')')) {
+                        const nameMatch = field.value.match(/\(([^)]+)\)/);
+                        if (nameMatch) {
+                            releaseData.playerName = nameMatch[1];
+                        }
+                    }
+                }
+            }
+        }
+
         switch (buttonType) {
             case 'accept':
                 // Karşılıklı fesih - sadece futbolcu kabul edebilir
@@ -619,9 +648,10 @@ class ButtonHandler {
                 });
 
                 // Serbest futbolcu duyurusu yap
-                await channels.createFreeAgentAnnouncement(
+                await this.createEnhancedFreeAgentAnnouncement(
                     interaction.guild, 
                     player.user, 
+                    releaseData,
                     'Karşılıklı fesih anlaşması'
                 );
 
@@ -670,9 +700,10 @@ class ButtonHandler {
                 });
 
                 // Serbest futbolcu duyurusu yap
-                await channels.createFreeAgentAnnouncement(
+                await this.createEnhancedFreeAgentAnnouncement(
                     interaction.guild, 
                     player.user, 
+                    releaseData,
                     'Tek taraflı fesih'
                 );
 
@@ -1125,6 +1156,60 @@ class ButtonHandler {
 
         // Modal'ı göster
         await interaction.showModal(modal);
+    }
+
+    async createEnhancedFreeAgentAnnouncement(guild, player, releaseData, defaultReason) {
+        try {
+            const channels = require('../utils/channels');
+            const freeAgentChannel = await channels.findFreeAgentChannel(guild);
+            
+            if (!freeAgentChannel) {
+                console.log('Serbest futbolcu kanalı bulunamadı');
+                return null;
+            }
+
+            const { EmbedBuilder } = require('discord.js');
+            const config = require('../config');
+
+            const playerDisplayName = releaseData.playerName || player.username;
+            const reason = releaseData.reason !== 'Sözleşme feshi' ? releaseData.reason : defaultReason;
+            
+            const embed = new EmbedBuilder()
+                .setColor(config.colors.success)
+                .setTitle('🆓 Yeni Serbest Futbolcu')
+                .setDescription(`**${playerDisplayName}** artık serbest futbolcu!\n\nTransfer teklifleri için \`.offer\` komutunu kullanabilirsiniz.`)
+                .setThumbnail(player.displayAvatarURL({ dynamic: true }))
+                .addFields(
+                    { name: '⚽ Oyuncu', value: releaseData.playerName ? `${player} (${releaseData.playerName})` : `${player}`, inline: true },
+                    { name: '📋 Fesih Sebebi', value: reason, inline: true }
+                );
+
+            // Ek bilgileri ekle
+            if (releaseData.compensation !== 'Belirtilmedi') {
+                embed.addFields({ name: '💰 Tazminat', value: releaseData.compensation, inline: true });
+            }
+            
+            if (releaseData.newTeam !== 'Belirtilmedi') {
+                embed.addFields({ name: '🏆 Potansiyel Yeni Takım', value: releaseData.newTeam, inline: true });
+            }
+
+            embed.setTimestamp()
+                .setFooter({ text: 'Serbest Futbolcu Sistemi', iconURL: guild.iconURL() });
+
+            const message = await freeAgentChannel.send({
+                content: `${config.emojis.football} **Yeni Serbest Futbolcu Duyurusu**`,
+                embeds: [embed]
+            });
+
+            console.log(`Serbest futbolcu duyurusu gönderildi: ${player.username}`);
+            return message;
+
+        } catch (error) {
+            console.error('Gelişmiş serbest futbolcu duyurusu hatası:', error);
+            // Fallback olarak standart duyuru
+            const channels = require('../utils/channels');
+            return await channels.createFreeAgentAnnouncement(guild, player, defaultReason);
+        }
     }
 }
 
