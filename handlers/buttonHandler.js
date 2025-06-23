@@ -215,8 +215,8 @@ class ButtonHandler {
                 });
             }
 
-            // Directly show the modal form
-            await this.handleShowOfferForm(client, interaction, [playerId, presidentId]);
+            // Extract existing data from embed and show pre-filled modal
+            await this.showEditOfferModal(client, interaction, playerId, presidentId);
         }
     }
 
@@ -347,8 +347,8 @@ class ButtonHandler {
                 });
             }
 
-            // Update the message with editable form in the same channel
-            await this.showEditableContractForm(client, interaction, playerId, presidentId);
+            // Extract existing data from embed and show pre-filled modal
+            await this.showEditContractModal(client, interaction, playerId, presidentId);
         }
     }
 
@@ -585,8 +585,8 @@ class ButtonHandler {
                 });
             }
 
-            // Update the message with editable form in the same channel
-            await this.showEditableTradeForm(client, interaction, playerId, presidentId);
+            // Extract existing data from embed and show pre-filled modal
+            await this.showEditTradeModal(client, interaction, playerId, presidentId);
         }
     }
 
@@ -824,8 +824,8 @@ class ButtonHandler {
                 });
             }
 
-            // Open modal directly for editing without showing "Formu Düzenle" button
-            await this.handleShowReleaseForm(client, interaction, [playerId, presidentId, releaseType]);
+            // Extract existing data from embed and show pre-filled modal
+            await this.showEditReleaseModal(client, interaction, playerId, presidentId, releaseType);
         }
     }
 
@@ -949,7 +949,8 @@ class ButtonHandler {
                 });
             }
 
-            await this.handleShowHireForm(client, interaction, [playerId, presidentId]);
+            // Extract existing data from embed and show pre-filled modal
+            await this.showEditHireModal(client, interaction, playerId, presidentId);
         }
     }
 
@@ -1363,6 +1364,295 @@ class ButtonHandler {
             embeds: [editableEmbed],
             components: [buttons]
         });
+    }
+
+    // Pre-filled edit modal functions
+    async showEditOfferModal(client, interaction, playerId, presidentId) {
+        const embed = interaction.message.embeds[0];
+        const fields = embed.fields;
+        
+        // Extract existing data from embed fields
+        const existingData = {
+            newTeam: fields.find(f => f.name.includes('Yeni Kulüp'))?.value || '',
+            playerName: fields.find(f => f.name.includes('Oyuncu Adı'))?.value || '',
+            salary: fields.find(f => f.name.includes('Maaş'))?.value || '',
+            contractDuration: fields.find(f => f.name.includes('Sözleşme'))?.value || '',
+            bonus: fields.find(f => f.name.includes('Bonus'))?.value || ''
+        };
+
+        const modal = new Modal()
+            .setCustomId(`offer_form_${playerId}_${presidentId}`)
+            .setTitle('Transfer Teklifi Düzenle');
+
+        const newTeamInput = new TextInputComponent()
+            .setCustomId('new_team')
+            .setLabel('Yeni Kulüp')
+            .setStyle('SHORT')
+            .setValue(existingData.newTeam)
+            .setRequired(true);
+
+        const playerNameInput = new TextInputComponent()
+            .setCustomId('player_name')
+            .setLabel('Oyuncu Adı')
+            .setStyle('SHORT')
+            .setValue(existingData.playerName)
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Maaş (Yıllık)')
+            .setStyle('SHORT')
+            .setValue(existingData.salary)
+            .setRequired(true);
+
+        const contractInput = new TextInputComponent()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme+Ekmadde')
+            .setStyle('SHORT')
+            .setValue(existingData.contractDuration)
+            .setRequired(true);
+
+        const bonusInput = new TextInputComponent()
+            .setCustomId('bonus')
+            .setLabel('İmza Bonusu')
+            .setStyle('SHORT')
+            .setValue(existingData.bonus || '')
+            .setRequired(false);
+
+        modal.addComponents(
+            new MessageActionRow().addComponents(newTeamInput),
+            new MessageActionRow().addComponents(playerNameInput),
+            new MessageActionRow().addComponents(salaryInput),
+            new MessageActionRow().addComponents(contractInput),
+            new MessageActionRow().addComponents(bonusInput)
+        );
+
+        await interaction.showModal(modal);
+    }
+
+    async showEditContractModal(client, interaction, playerId, presidentId) {
+        const embed = interaction.message.embeds[0];
+        const fields = embed.fields;
+        
+        // Extract existing data from embed fields
+        const existingData = {
+            transferFee: fields.find(f => f.name.includes('Transfer'))?.value || '',
+            oldClub: fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
+            newClub: fields.find(f => f.name.includes('Yeni Kulüp'))?.value || '',
+            salary: fields.find(f => f.name.includes('Maaş'))?.value || '',
+            contractDuration: fields.find(f => f.name.includes('Sözleşme'))?.value || ''
+        };
+
+        const modal = new Modal()
+            .setCustomId(`contract_form_${playerId}_${presidentId}`)
+            .setTitle('Sözleşme Düzenle');
+
+        const transferFeeInput = new TextInputComponent()
+            .setCustomId('transfer_fee')
+            .setLabel('Transfer Ücreti')
+            .setStyle('SHORT')
+            .setValue(existingData.transferFee)
+            .setRequired(true);
+
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
+            .setStyle('SHORT')
+            .setValue(existingData.oldClub)
+            .setRequired(true);
+
+        const newClubInput = new TextInputComponent()
+            .setCustomId('new_club')
+            .setLabel('Yeni Kulüp')
+            .setStyle('SHORT')
+            .setValue(existingData.newClub)
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Yıllık Maaş')
+            .setStyle('SHORT')
+            .setValue(existingData.salary)
+            .setRequired(true);
+
+        const contractDurationInput = new TextInputComponent()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme+Ekmadde')
+            .setStyle('SHORT')
+            .setValue(existingData.contractDuration)
+            .setRequired(true);
+
+        modal.addComponents(
+            new MessageActionRow().addComponents(transferFeeInput),
+            new MessageActionRow().addComponents(oldClubInput),
+            new MessageActionRow().addComponents(newClubInput),
+            new MessageActionRow().addComponents(salaryInput),
+            new MessageActionRow().addComponents(contractDurationInput)
+        );
+
+        await interaction.showModal(modal);
+    }
+
+    async showEditTradeModal(client, interaction, playerId, presidentId) {
+        const embed = interaction.message.embeds[0];
+        const fields = embed.fields;
+        
+        // Extract existing data from embed fields
+        const existingData = {
+            additionalAmount: fields.find(f => f.name.includes('Ek Miktar'))?.value || '',
+            wantedPlayer: fields.find(f => f.name.includes('İstenen Oyuncu'))?.value || '',
+            salary: fields.find(f => f.name.includes('Maaş'))?.value || '',
+            contractDuration: fields.find(f => f.name.includes('Sözleşme'))?.value || ''
+        };
+
+        const modal = new Modal()
+            .setCustomId(`trade_form_${playerId}_${presidentId}`)
+            .setTitle('Takas Düzenle');
+
+        const additionalAmountInput = new TextInputComponent()
+            .setCustomId('additional_amount')
+            .setLabel('Ek Miktar')
+            .setStyle('SHORT')
+            .setValue(existingData.additionalAmount)
+            .setRequired(false);
+
+        const wantedPlayerInput = new TextInputComponent()
+            .setCustomId('wanted_player')
+            .setLabel('İstenen Oyuncu')
+            .setStyle('SHORT')
+            .setValue(existingData.wantedPlayer)
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Maaş (Yıllık)')
+            .setStyle('SHORT')
+            .setValue(existingData.salary)
+            .setRequired(true);
+
+        const contractInput = new TextInputComponent()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme+Ekmadde')
+            .setStyle('SHORT')
+            .setValue(existingData.contractDuration)
+            .setRequired(true);
+
+        modal.addComponents(
+            new MessageActionRow().addComponents(additionalAmountInput),
+            new MessageActionRow().addComponents(wantedPlayerInput),
+            new MessageActionRow().addComponents(salaryInput),
+            new MessageActionRow().addComponents(contractInput)
+        );
+
+        await interaction.showModal(modal);
+    }
+
+    async showEditHireModal(client, interaction, playerId, presidentId) {
+        const embed = interaction.message.embeds[0];
+        const fields = embed.fields;
+        
+        // Extract existing data from embed fields
+        const existingData = {
+            loanFee: fields.find(f => f.name.includes('Kiralık Bedeli'))?.value || '',
+            salary: fields.find(f => f.name.includes('Maaş'))?.value || '',
+            loanDuration: fields.find(f => f.name.includes('Kiralık Süresi'))?.value || '',
+            optionToBuy: fields.find(f => f.name.includes('Satın Alma'))?.value || ''
+        };
+
+        const modal = new Modal()
+            .setCustomId(`hire_form_${playerId}_${presidentId}`)
+            .setTitle('Kiralık Düzenle');
+
+        const loanFeeInput = new TextInputComponent()
+            .setCustomId('loan_fee')
+            .setLabel('Kiralık Bedeli')
+            .setStyle('SHORT')
+            .setValue(existingData.loanFee)
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Maaş (Yıllık)')
+            .setStyle('SHORT')
+            .setValue(existingData.salary)
+            .setRequired(true);
+
+        const loanDurationInput = new TextInputComponent()
+            .setCustomId('loan_duration')
+            .setLabel('Kiralık Süresi')
+            .setStyle('SHORT')
+            .setValue(existingData.loanDuration)
+            .setRequired(true);
+
+        const optionToBuyInput = new TextInputComponent()
+            .setCustomId('option_to_buy')
+            .setLabel('Satın Alma Opsiyonu')
+            .setStyle('SHORT')
+            .setValue(existingData.optionToBuy || '')
+            .setRequired(false);
+
+        modal.addComponents(
+            new MessageActionRow().addComponents(loanFeeInput),
+            new MessageActionRow().addComponents(salaryInput),
+            new MessageActionRow().addComponents(loanDurationInput),
+            new MessageActionRow().addComponents(optionToBuyInput)
+        );
+
+        await interaction.showModal(modal);
+    }
+
+    async showEditReleaseModal(client, interaction, playerId, presidentId, releaseType) {
+        const embed = interaction.message.embeds[0];
+        const fields = embed.fields;
+        
+        // Extract existing data from embed fields
+        const existingData = {
+            oldClub: fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
+            reason: fields.find(f => f.name.includes('Fesih Nedeni'))?.value || '',
+            compensation: fields.find(f => f.name.includes('Tazminat'))?.value || '',
+            newTeam: fields.find(f => f.name.includes('Yeni Takım'))?.value || ''
+        };
+
+        const modal = new Modal()
+            .setCustomId(`release_form_${playerId}_${presidentId}_${releaseType}`)
+            .setTitle('Fesih Düzenle');
+
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
+            .setStyle('SHORT')
+            .setValue(existingData.oldClub)
+            .setRequired(true);
+
+        const reasonInput = new TextInputComponent()
+            .setCustomId('reason')
+            .setLabel('Fesih Nedeni')
+            .setStyle('PARAGRAPH')
+            .setValue(existingData.reason)
+            .setRequired(true);
+
+        const compensationInput = new TextInputComponent()
+            .setCustomId('compensation')
+            .setLabel('Tazminat')
+            .setStyle('SHORT')
+            .setValue(existingData.compensation || '')
+            .setRequired(false);
+
+        const newTeamInput = new TextInputComponent()
+            .setCustomId('new_team')
+            .setLabel('Yeni Takım')
+            .setStyle('SHORT')
+            .setValue(existingData.newTeam || '')
+            .setRequired(false);
+
+        modal.addComponents(
+            new MessageActionRow().addComponents(oldClubInput),
+            new MessageActionRow().addComponents(reasonInput),
+            new MessageActionRow().addComponents(compensationInput),
+            new MessageActionRow().addComponents(newTeamInput)
+        );
+
+        await interaction.showModal(modal);
     }
 
     async handleShowOfferForm(client, interaction, params) {
