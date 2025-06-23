@@ -1764,6 +1764,13 @@ class ButtonHandler {
             .setPlaceholder('Örn: 15.000.000₺')
             .setRequired(true);
 
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Fenerbahçe')
+            .setRequired(true);
+
         const newClubInput = new TextInputComponent()
             .setCustomId('new_club')
             .setLabel('Yeni Kulüp')
@@ -1786,11 +1793,12 @@ class ButtonHandler {
             .setRequired(true);
 
         const row1 = new MessageActionRow().addComponents(transferFeeInput);
-        const row2 = new MessageActionRow().addComponents(newClubInput);
-        const row3 = new MessageActionRow().addComponents(salaryInput);
-        const row4 = new MessageActionRow().addComponents(contractInput);
+        const row2 = new MessageActionRow().addComponents(oldClubInput);
+        const row3 = new MessageActionRow().addComponents(newClubInput);
+        const row4 = new MessageActionRow().addComponents(salaryInput);
+        const row5 = new MessageActionRow().addComponents(contractInput);
 
-        modal.addComponents(row1, row2, row3, row4);
+        modal.addComponents(row1, row2, row3, row4, row5);
 
         await interaction.showModal(modal);
     }

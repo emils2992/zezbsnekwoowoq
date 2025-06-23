@@ -307,6 +307,7 @@ The bot is configured for Replit deployment with:
     - Removed duplicate handleShowContractForm function that was causing parameter parsing errors
     - Fixed "Müzakere kanalı oluşturulamadı" error by ensuring all three parameters are properly passed
     - Contract system parameter flow completely debugged and functional
+    - Added "Eski Kulüp" field to contract modal form (5 fields total: Transfer Fee, Old Club, New Club, Salary, Duration)
 
 ## User Preferences
 
