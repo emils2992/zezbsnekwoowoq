@@ -709,7 +709,10 @@ class ButtonHandler {
                 });
             }
 
-            await interaction.deferReply();
+            // Check if interaction is already acknowledged
+            if (!interaction.deferred && !interaction.replied) {
+                await interaction.deferReply();
+            }
 
             // Debug user fetching
             console.log(`Fetching users for trade acceptance:`);
@@ -742,7 +745,8 @@ class ButtonHandler {
             if (!isTransferAuthority) {
                 if ((interaction.user.id === wantedPlayerId && global[acceptanceKey].wantedPlayer) ||
                     (interaction.user.id === givenPlayerId && global[acceptanceKey].givenPlayer)) {
-                    return interaction.editReply({
+                    const replyMethod = interaction.deferred ? 'editReply' : 'reply';
+                    return interaction[replyMethod]({
                         content: `⚠️ Sen zaten takası kabul ettin! Diğer oyuncunun kararı bekleniyor...`
                     });
                 }
@@ -752,7 +756,8 @@ class ButtonHandler {
             if (isTransferAuthority) {
                 // If both already accepted, don't allow more clicks
                 if (global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
-                    await interaction.editReply({
+                    const replyMethod = interaction.deferred ? 'editReply' : 'reply';
+                    await interaction[replyMethod]({
                         content: `✅ Her iki oyuncu da zaten kabul etti! Duyuru gönderiliyor...`
                     });
                     return;
@@ -762,31 +767,36 @@ class ButtonHandler {
                 if (!global[acceptanceKey].wantedPlayer) {
                     global[acceptanceKey].wantedPlayer = true;
                     console.log(`✅ Wanted player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
-                    await interaction.editReply({
+                    const replyMethod = interaction.deferred ? 'editReply' : 'reply';
+                    await interaction[replyMethod]({
                         content: `✅ **${wantedPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                     });
                 } else if (!global[acceptanceKey].givenPlayer) {
                     global[acceptanceKey].givenPlayer = true;
                     console.log(`✅ Given player accepted by authority ${interaction.user.username}! Status:`, global[acceptanceKey]);
-                    await interaction.editReply({
+                    const replyMethod = interaction.deferred ? 'editReply' : 'reply';
+                    await interaction[replyMethod]({
                         content: `✅ **${givenPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! Her iki oyuncu da kabul etti!`
                     });
                 }
             } else if (userId === wantedId) {
                 global[acceptanceKey].wantedPlayer = true;
                 console.log(`✅ Wanted player ${wantedPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
-                await interaction.editReply({
+                const replyMethod = interaction.deferred ? 'editReply' : 'reply';
+                await interaction[replyMethod]({
                     content: `✅ **${wantedPlayer.displayName}** takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                 });
             } else if (userId === givenId) {
                 global[acceptanceKey].givenPlayer = true;
                 console.log(`✅ Given player ${givenPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
-                await interaction.editReply({
+                const replyMethod = interaction.deferred ? 'editReply' : 'reply';
+                await interaction[replyMethod]({
                     content: `✅ **${givenPlayer.displayName}** takası kabul etti! ${global[acceptanceKey].wantedPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                 });
             } else {
                 console.log(`❌ Unauthorized user ${userId} (wanted: ${wantedId}, given: ${givenId})`);
-                await interaction.editReply({
+                const replyMethod = interaction.deferred ? 'editReply' : 'reply';
+                await interaction[replyMethod]({
                     content: `❌ Sadece takas edilen oyuncular veya transfer yetkilileri kabul edebilir!`
                 });
                 return;
@@ -1401,14 +1411,18 @@ class ButtonHandler {
         if (transferData.type === 'trade') {
             const { wantedPlayer, givenPlayer, targetPresident, president, tradeData } = transferData;
             
+            // Create a composite image URL with both player avatars side by side
+            const wantedPlayerAvatar = wantedPlayer.user.displayAvatarURL({ format: 'png', size: 256 });
+            const givenPlayerAvatar = givenPlayer.user.displayAvatarURL({ format: 'png', size: 256 });
+            
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('🔄 Takas Gerçekleşti!')
-                .setDescription(`**${wantedPlayer.user.username}** <> **${givenPlayer.user.username}**\n\n**Başkanlar takasladi**`)
+                .setDescription(`**${wantedPlayer.user.username}** ↔ **${givenPlayer.user.username}**`)
                 .addFields(
                     { name: '📈 İstenen Oyuncu', value: `${wantedPlayer.user}`, inline: true },
                     { name: '📉 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true },
-                    { name: '🏟️ Kulüpler', value: `${targetPresident.user.username} ↔ ${president.user.username}`, inline: false }
+                    { name: '🏟️ Kulüpler', value: `${targetPresident.displayName}'nin takımı ↔ ${president.displayName}'nin takımı`, inline: false }
                 );
 
             // Add salary and contract details if available from tradeData
@@ -1434,7 +1448,8 @@ class ButtonHandler {
             }
 
             announcementEmbed
-                .setThumbnail(wantedPlayer.user.displayAvatarURL({ dynamic: true }))
+                .setImage(wantedPlayerAvatar) // Main image shows wanted player
+                .setThumbnail(givenPlayerAvatar) // Thumbnail shows given player
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Duyuruları' });
         } else if (transferData.type === 'offer') {

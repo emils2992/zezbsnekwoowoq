@@ -380,6 +380,13 @@ The bot is configured for Replit deployment with:
     - Fixed channel deletion and announcement issues when both players accept trades
     - Enhanced debugging output to track trade completion workflow step-by-step
     - Trade system now properly sends announcements and deletes channels after dual acceptance
+- June 23, 2025. Enhanced trade announcements and fixed interaction errors:
+    - Fixed "Interaction has already been acknowledged" error by implementing proper reply method detection
+    - Updated trade announcement format: removed "Başkanlar takasladi" text per user request
+    - Enhanced visual presentation with dual player avatars (main image + thumbnail for split display)
+    - Updated clubs field to show actual Discord server display names instead of usernames
+    - Format now shows: "targetPresident'nin takımı ↔ president'nin takımı"
+    - All interaction replies now use dynamic method selection (reply vs editReply) to prevent conflicts
 
 ## User Preferences
 
