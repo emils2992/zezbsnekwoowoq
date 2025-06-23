@@ -121,7 +121,7 @@ class ButtonHandler {
             console.log('TRANSFER ANNOUNCEMENT SENT');
 
             // Role management - remove free agent role and add player role
-            const permissions = require('../utils/permissions');
+            // permissions already imported at top
             try {
                 // Remove free agent role
                 await permissions.signPlayer(player);
@@ -859,6 +859,7 @@ class ButtonHandler {
                         console.error('❌ Authority response FAILED (non-blocking):', error.message);
                         // Continue execution regardless of response error
                     }
+                    console.log('✅ Authority wanted player acceptance completed');
                 } else if (!global[acceptanceKey].givenPlayer) {
                     console.log('⭐ Authority accepting for given player...');
                     global[acceptanceKey].givenPlayer = true;
@@ -874,6 +875,7 @@ class ButtonHandler {
                         console.error('❌ Authority response FAILED (non-blocking):', error.message);
                         // Continue execution regardless of response error
                     }
+                    console.log('✅ Authority given player acceptance completed');
                 } else {
                     console.log('❌ Authority trying to accept but both already accepted');
                     try {
@@ -900,6 +902,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('❌ Wanted player response FAILED (non-blocking):', error.message);
                 }
+                console.log('✅ Regular wanted player acceptance completed');
             } else if (userId === givenId) {
                 console.log('⭐ Regular given player accepting...');
                 global[acceptanceKey].givenPlayer = true;
@@ -914,6 +917,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('❌ Given player response FAILED (non-blocking):', error.message);
                 }
+                console.log('✅ Regular given player acceptance completed');
             } else {
                 console.log(`❌ Unauthorized user ${userId} (wanted: ${wantedId}, given: ${givenId})`);
                 console.log('🚫 Sending unauthorized response...');
