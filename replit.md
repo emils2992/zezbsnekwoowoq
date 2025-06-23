@@ -181,6 +181,7 @@ The bot is configured for Replit deployment with:
     - Removed all modal-related code (not supported in v13) and fixed button interactions
     - Fixed handler class instantiation issues and proper module exports
     - Eliminated all deprecation warnings: converted setFooter to object format and addField to addFields
+    - Added missing button handlers for show_ prefixed interactions (offer, contract, trade, hire, announcement modals)
     - Bot successfully running without errors or warnings on Discord.js v13.17.1
 
 ## User Preferences

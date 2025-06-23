@@ -9,6 +9,7 @@ class ButtonHandler {
         try {
             const customId = interaction.customId;
             const [action, ...params] = customId.split('_');
+            console.log(`Button interaction: ${customId} | Action: ${action} | Params: ${params.join(', ')}`);
 
             switch (action) {
                 case 'offer':
@@ -25,6 +26,9 @@ class ButtonHandler {
                     break;
                 case 'hire':
                     await this.handleHireButton(client, interaction, params);
+                    break;
+                case 'show':
+                    await this.handleShowButton(client, interaction, params);
                     break;
                 case 'transfer':
                     if (params[0] === 'info' && params[1] === 'help') {
@@ -317,6 +321,78 @@ class ButtonHandler {
         await freeAgentChannel.send({
             content: mention,
             embeds: [releaseEmbed]
+        });
+    }
+
+    async handleShowButton(client, interaction, params) {
+        const [type, ...additionalParams] = params;
+        
+        switch (type) {
+            case 'offer':
+                if (additionalParams[0] === 'modal') {
+                    await this.handleShowOfferForm(client, interaction, additionalParams.slice(1));
+                }
+                break;
+            case 'contract':
+                if (additionalParams[0] === 'modal') {
+                    await this.handleShowContractForm(client, interaction, additionalParams.slice(1));
+                }
+                break;
+            case 'trade':
+                if (additionalParams[0] === 'modal') {
+                    await this.handleShowTradeForm(client, interaction, additionalParams.slice(1));
+                }
+                break;
+            case 'hire':
+                if (additionalParams[0] === 'modal') {
+                    await this.handleShowHireForm(client, interaction, additionalParams.slice(1));
+                }
+                break;
+            case 'announcement':
+                if (additionalParams[0] === 'modal') {
+                    await this.handleShowAnnouncementForm(client, interaction, additionalParams.slice(1));
+                }
+                break;
+            default:
+                await interaction.reply({
+                    content: `❌ Bilinmeyen form türü: ${type}`,
+                    ephemeral: true
+                });
+        }
+    }
+
+    async handleShowOfferForm(client, interaction, params) {
+        await interaction.reply({
+            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
+            ephemeral: true
+        });
+    }
+
+    async handleShowContractForm(client, interaction, params) {
+        await interaction.reply({
+            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
+            ephemeral: true
+        });
+    }
+
+    async handleShowTradeForm(client, interaction, params) {
+        await interaction.reply({
+            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
+            ephemeral: true
+        });
+    }
+
+    async handleShowHireForm(client, interaction, params) {
+        await interaction.reply({
+            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
+            ephemeral: true
+        });
+    }
+
+    async handleShowAnnouncementForm(client, interaction, params) {
+        await interaction.reply({
+            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
+            ephemeral: true
         });
     }
 }
