@@ -571,15 +571,15 @@ async function handleModalSubmit(client, interaction) {
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
 
-            // Ping rolü kontrolü
+            // Ping rolü kontrolü - duyuru için announcementPingRole kullan
             const permissions = require('./utils/permissions');
             const roleData = permissions.getRoleData(interaction.guild.id);
             let mention = '';
             
-            if (roleData.transferPing) {
-                const pingRole = interaction.guild.roles.cache.get(roleData.transferPing);
+            if (roleData.announcementPingRole) {
+                const pingRole = interaction.guild.roles.cache.get(roleData.announcementPingRole);
                 if (pingRole) {
-                    mention = `<@&${roleData.transferPing}>`;
+                    mention = `<@&${roleData.announcementPingRole}>`;
                 }
             }
 
