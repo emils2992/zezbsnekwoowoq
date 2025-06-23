@@ -984,7 +984,7 @@ class ButtonHandler {
                 announcementEmbed.addFields({ name: '💵 Maaş', value: transferData.salary, inline: true });
             }
             if (transferData.duration && transferData.duration.trim()) {
-                announcementEmbed.addFields({ name: '📅 Sözleşme Süresi', value: transferData.duration, inline: true });
+                announcementEmbed.addFields({ name: '📅 Sözleşme Süresi & Ek Madde', value: transferData.duration, inline: true });
             }
             if (transferData.bonus && transferData.bonus.trim()) {
                 announcementEmbed.addFields({ name: '🎯 Bonuslar', value: transferData.bonus, inline: true });
@@ -1064,9 +1064,9 @@ class ButtonHandler {
 
         const contractDurationInput = new TextInputBuilder()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme Süresi')
+            .setLabel('Sözleşme Süresi & Ek Madde')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 3 yıl')
+            .setPlaceholder('Örn: 3 yıl, Gol bonusu 50k')
             .setRequired(true);
 
         const bonusInput = new TextInputBuilder()
@@ -1128,9 +1128,9 @@ class ButtonHandler {
 
         const contractDurationInput = new TextInputBuilder()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme Süresi')
+            .setLabel('Sözleşme Süresi & Ek Madde')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 4 yıl')
+            .setPlaceholder('Örn: 4 yıl, Kaleci bonusu 100k')
             .setRequired(true);
 
         // Action Row'lar oluştur
@@ -1178,9 +1178,9 @@ class ButtonHandler {
 
         const contractDurationInput = new TextInputBuilder()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme Süresi')
+            .setLabel('Sözleşme Süresi & Ek Madde')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 4 yıl')
+            .setPlaceholder('Örn: 4 yıl, Taraftar bonusu')
             .setRequired(true);
 
         const targetPlayerInput = new TextInputBuilder()
@@ -1292,9 +1292,9 @@ class ButtonHandler {
 
         const contractYearsInput = new TextInputBuilder()
             .setCustomId('contract_years')
-            .setLabel('Sözleşme Yılı')
+            .setLabel('Sözleşme Yılı & Ek Madde')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 3 yıl')
+            .setPlaceholder('Örn: 3 yıl, Performans bonusu')
             .setRequired(true);
 
         const signingBonusInput = new TextInputBuilder()

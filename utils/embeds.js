@@ -35,7 +35,7 @@ class EmbedCreator {
                 inline: true
             },
             {
-                name: '📅 Sözleşme Süresi',
+                name: '📅 Sözleşme Süresi & Ek Madde',
                 value: offerData?.contractDuration || '2 yıl',
                 inline: true
             },
@@ -95,7 +95,7 @@ class EmbedCreator {
                 inline: true
             },
             {
-                name: '📅 Sözleşme Süresi',
+                name: '📅 Sözleşme Süresi & Ek Madde',
                 value: contractData?.contractDuration || '3 yıl',
                 inline: true
             }
@@ -146,7 +146,7 @@ class EmbedCreator {
                 inline: true
             },
             {
-                name: '📅 Sözleşme Süresi',
+                name: '📅 Sözleşme Süresi & Ek Madde',
                 value: tradeData?.contractDuration || '4 yıl',
                 inline: true
             },
