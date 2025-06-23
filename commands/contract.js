@@ -22,8 +22,10 @@ module.exports = {
                 return message.reply('❌ Lütfen bir başkan ve bir oyuncu etiketleyin!\nKullanım: `.contract @başkan @oyuncu`');
             }
 
-            const targetPresidentUser = mentions.first();
-            const playerUser = mentions.last();
+            // Mentions'ı array'e çevir ve doğru sırayla al
+            const mentionsArray = Array.from(mentions.values());
+            const targetPresidentUser = mentionsArray[0];
+            const playerUser = mentionsArray[1];
 
             if (targetPresidentUser.id === playerUser.id) {
                 return message.reply('❌ Başkan ve oyuncu farklı kişiler olmalı!');
