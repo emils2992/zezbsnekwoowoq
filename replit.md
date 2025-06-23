@@ -308,6 +308,8 @@ The bot is configured for Replit deployment with:
     - Fixed "Müzakere kanalı oluşturulamadı" error by ensuring all three parameters are properly passed
     - Contract system parameter flow completely debugged and functional
     - Added "Eski Kulüp" field to contract modal form (5 fields total: Transfer Fee, Old Club, New Club, Salary, Duration)
+    - Fixed contract player button parameter parsing error causing "Value 'accept' is not snowflake" Discord API error
+    - Corrected parameter extraction in handleContractPlayerButton to properly handle button types and user IDs
 
 ## User Preferences
 
