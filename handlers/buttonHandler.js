@@ -1094,6 +1094,34 @@ class ButtonHandler {
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
+        } else if (type === 'contract') {
+            // Contract transfer announcement
+            const transferFeeField = embedFields.find(f => f.name.includes('Transfer Bedeli'));
+            const oldClubField = embedFields.find(f => f.name.includes('Eski Kulüp'));
+            const newClubField = embedFields.find(f => f.name.includes('Yeni Kulüp'));
+            const salaryField = embedFields.find(f => f.name.includes('Maaş'));
+            const durationField = embedFields.find(f => f.name.includes('Sözleşme'));
+            
+            const transferFee = transferFeeField ? transferFeeField.value : 'Belirtilmemiş';
+            const oldClub = oldClubField ? oldClubField.value : 'Belirtilmemiş';
+            const newClub = newClubField ? newClubField.value : 'Belirtilmemiş';
+            const salary = salaryField ? salaryField.value : 'Belirtilmemiş';
+            const duration = durationField ? durationField.value : 'Belirtilmemiş';
+            
+            announcementEmbed = new MessageEmbed()
+                .setColor(config.colors.success)
+                .setTitle('✅ Sözleşme Transferi Gerçekleşti!')
+                .setDescription(`**${player.displayName}** kulüp değiştirdi!\n\n${oldClub} ➤ ${newClub}`)
+                .addFields(
+                    { name: '⚽ Oyuncu', value: player.displayName, inline: true },
+                    { name: '🏆 Eski Kulüp', value: oldClub, inline: true },
+                    { name: '🏟️ Yeni Kulüp', value: newClub, inline: true },
+                    { name: '💰 Transfer Bedeli', value: transferFee, inline: true },
+                    { name: '💸 Yıllık Maaş', value: salary, inline: true },
+                    { name: '📅 Sözleşme Süresi', value: duration, inline: true }
+                ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Sistemi' });
         } else {
             // Genel transfer (diğer durumlar)
             const salaryField = embedFields.find(f => f.name.includes('Maaş'));

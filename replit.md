@@ -310,6 +310,8 @@ The bot is configured for Replit deployment with:
     - Added "Eski Kulüp" field to contract modal form (5 fields total: Transfer Fee, Old Club, New Club, Salary, Duration)
     - Fixed contract player button parameter parsing error causing "Value 'accept' is not snowflake" Discord API error
     - Corrected parameter extraction in handleContractPlayerButton to properly handle button types and user IDs
+    - Fixed contract transfer announcements to display actual form data (transfer fee, old club, new club, salary, duration)
+    - Contract announcements now show complete transfer details instead of default placeholder values
 
 ## User Preferences
 
