@@ -685,12 +685,16 @@ class ButtonHandler {
     }
 
     async handleTradePlayerButton(client, interaction, params) {
+        console.log('Trade player button clicked:', { buttonType: buttonType, params: params, userId: interaction.user.id });
+        
         const [buttonType, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
         const guild = interaction.guild;
         const targetPresident = await guild.members.fetch(targetPresidentId);
         const wantedPlayer = await guild.members.fetch(wantedPlayerId);
         const givenPlayer = await guild.members.fetch(givenPlayerId);
         const president = await guild.members.fetch(presidentId);
+        
+        console.log(`Trade button debug: User ${interaction.user.id} clicked ${buttonType}, WantedPlayer: ${wantedPlayerId}, GivenPlayer: ${givenPlayerId}`);
 
         if (buttonType === 'accept') {
             // Check if user is one of the players
@@ -706,6 +710,14 @@ class ButtonHandler {
             }
 
             await interaction.deferReply();
+
+            // Debug user fetching
+            console.log(`Fetching users for trade acceptance:`);
+            console.log(`targetPresidentId: ${targetPresidentId}`);
+            console.log(`wantedPlayerId: ${wantedPlayerId}`);  
+            console.log(`givenPlayerId: ${givenPlayerId}`);
+            console.log(`presidentId: ${presidentId}`);
+            console.log(`User clicking button: ${interaction.user.id}`);
 
             // Check if this channel already has acceptances stored
             const channelName = interaction.channel.name;
@@ -725,19 +737,31 @@ class ButtonHandler {
                 });
             }
 
-            // Mark this player as accepted
-            if (interaction.user.id === wantedPlayerId) {
+            // Mark this player as accepted - use string comparison for safety
+            const userId = interaction.user.id.toString();
+            const wantedId = wantedPlayerId.toString();
+            const givenId = givenPlayerId.toString();
+            
+            console.log(`Trade acceptance check: User ${userId} vs Wanted ${wantedId} vs Given ${givenId}`);
+            
+            if (userId === wantedId) {
                 global[acceptanceKey].wantedPlayer = true;
-                console.log(`Wanted player ${wantedPlayer.displayName} accepted. Current status:`, global[acceptanceKey]);
+                console.log(`✅ Wanted player ${wantedPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
                 await interaction.editReply({
                     content: `✅ **${wantedPlayer.displayName}** takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                 });
-            } else if (interaction.user.id === givenPlayerId) {
+            } else if (userId === givenId) {
                 global[acceptanceKey].givenPlayer = true;
-                console.log(`Given player ${givenPlayer.displayName} accepted. Current status:`, global[acceptanceKey]);
+                console.log(`✅ Given player ${givenPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
                 await interaction.editReply({
                     content: `✅ **${givenPlayer.displayName}** takası kabul etti! ${global[acceptanceKey].wantedPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                 });
+            } else {
+                console.log(`❌ Unknown user ${userId} (wanted: ${wantedId}, given: ${givenId})`);
+                await interaction.editReply({
+                    content: `❌ Sen bu takasta yer almıyorsun! (Debug: ${userId})`
+                });
+                return;
             }
 
             // Check if both players have accepted after this acceptance
