@@ -549,6 +549,7 @@ async function handleModalSubmit(client, interaction) {
             }
 
             // Duyuru embed'i oluştur
+            const { MessageEmbed } = require('discord.js');
             const announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.primary)
                 .setTitle('📢 Futbolcu Duyurusu')

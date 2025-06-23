@@ -9,7 +9,11 @@ module.exports = {
     
     async execute(client, message, args) {
         try {
-            // Herkes kullanabilir - sadece kendi duyurusunu yapabilir
+            // Serbest futbolcu rolü kontrolü
+            if (!permissions.isFreeAgent(message.member)) {
+                return message.reply('❌ Bu komutu sadece serbest futbolcular kullanabilir!');
+            }
+
             // Modal formu butonunu göster
             await message.reply({
                 content: `${config.emojis.announcement || '📢'} **Manuel Transfer Duyurusu**\n\nDuyuru formunu doldurmak için aşağıdaki butona tıklayın.`,
