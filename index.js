@@ -497,8 +497,7 @@ async function handleModalSubmit(client, interaction) {
 
             const tradeData = {
                 additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '',
-                wantedPlayerSalary: interaction.fields.getTextInputValue('wanted_player_salary') || '',
-                givenPlayerSalary: interaction.fields.getTextInputValue('given_player_salary') || '',
+                bonus: interaction.fields.getTextInputValue('bonus') || '',
                 contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
             };
 

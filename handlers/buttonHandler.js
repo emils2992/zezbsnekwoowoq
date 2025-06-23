@@ -2200,13 +2200,6 @@ class ButtonHandler {
             .setPlaceholder('Örn: 5.000.000₺')
             .setRequired(false);
 
-        const wantedPlayerInput = new TextInputComponent()
-            .setCustomId('wanted_player')
-            .setLabel('İstenen Oyuncu')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: Cristiano Ronaldo')
-            .setRequired(true);
-
         const bonusInput = new TextInputComponent()
             .setCustomId('bonus')
             .setLabel('Bonus')
@@ -2222,11 +2215,10 @@ class ButtonHandler {
             .setRequired(true);
 
         const row1 = new MessageActionRow().addComponents(additionalAmountInput);
-        const row2 = new MessageActionRow().addComponents(wantedPlayerInput);
-        const row3 = new MessageActionRow().addComponents(bonusInput);
-        const row4 = new MessageActionRow().addComponents(contractInput);
+        const row2 = new MessageActionRow().addComponents(bonusInput);
+        const row3 = new MessageActionRow().addComponents(contractInput);
 
-        modal.addComponents(row1, row2, row3, row4);
+        modal.addComponents(row1, row2, row3);
 
         await interaction.showModal(modal);
     }
