@@ -624,7 +624,7 @@ class ButtonHandler {
 
         // Embed'den modal verilerini çıkar
         let releaseData = {
-            playerName: player.displayName,
+            oldClub: 'Belirtilmedi',
             compensation: 'Belirtilmedi',
             reason: 'Sözleşme feshi',
             newTeam: 'Belirtilmedi'
@@ -643,13 +643,8 @@ class ButtonHandler {
                         releaseData.newTeam = field.value;
                     } else if (field.name.includes('Ek Ödemeler')) {
                         releaseData.bonus = field.value;
-                    } else if (field.name.includes('Oyuncu İsmi')) {
-                        releaseData.playerName = field.value;
-                    } else if (field.name.includes('Oyuncu') && field.value.includes('(') && field.value.includes(')')) {
-                        const nameMatch = field.value.match(/\(([^)]+)\)/);
-                        if (nameMatch) {
-                            releaseData.playerName = nameMatch[1];
-                        }
+                    } else if (field.name.includes('Eski Kulüp')) {
+                        releaseData.oldClub = field.value;
                     }
                 }
             }
@@ -670,7 +665,7 @@ class ButtonHandler {
 
                 const acceptEmbed = embeds.createSuccess(
                     'Karşılıklı Fesih Kabul Edildi!',
-                    `${player} ile ${president.displayName} arasında karşılıklı fesih anlaşması tamamlandı!\n\n**${releaseData.playerName || player.user.username}** SERBEST KALDI! 🆓`
+                    `${player} ile ${president.displayName} arasında karşılıklı fesih anlaşması tamamlandı!\n\n**${player.user.username}** SERBEST KALDI! 🆓`
                 );
 
                 await interaction.update({ 
@@ -738,7 +733,7 @@ class ButtonHandler {
 
                 const confirmEmbed = embeds.createSuccess(
                     'Tek Taraflı Fesih Tamamlandı!',
-                    `${president.displayName} tarafından **${releaseData.playerName || player.user.username}** ile tek taraflı fesih gerçekleştirildi!\n\n**${releaseData.playerName || player.user.username}** SERBEST KALDI! 🆓`
+                    `${president.displayName} tarafından **${player.user.username}** ile tek taraflı fesih gerçekleştirildi!\n\n**${player.user.username}** SERBEST KALDI! 🆓`
                 );
 
                 await interaction.update({ 
@@ -750,7 +745,7 @@ class ButtonHandler {
                 await this.sendSimpleFreeAgentAnnouncement(
                     interaction.guild, 
                     player.user, 
-                    releaseData.playerName || player.user.username
+                    player.user.username
                 );
 
                 // Tek taraflı fesihte kanal silinmez - sadece mesaj gönderilir
@@ -1208,11 +1203,11 @@ class ButtonHandler {
             .setTitle('Karşılıklı Fesih Formu');
 
         // Form alanları
-        const playerNameInput = new TextInputBuilder()
-            .setCustomId('player_name')
-            .setLabel('Oyuncu İsmi')
+        const oldClubInput = new TextInputBuilder()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: Eden Hazard')
+            .setPlaceholder('Örn: Real Madrid')
             .setRequired(true);
 
         const compensationInput = new TextInputBuilder()
@@ -1244,7 +1239,7 @@ class ButtonHandler {
             .setRequired(false);
 
         // Action Row'lar oluştur
-        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
+        const row1 = new ActionRowBuilder().addComponents(oldClubInput);
         const row2 = new ActionRowBuilder().addComponents(compensationInput);
         const row3 = new ActionRowBuilder().addComponents(reasonInput);
         const row4 = new ActionRowBuilder().addComponents(newTeamInput);
@@ -1422,10 +1417,11 @@ class ButtonHandler {
             const embed = new EmbedBuilder()
                 .setColor(config.colors.warning)
                 .setTitle(`${config.emojis.release} FESIH TRANSFER TAMAMLANDI`)
-                .setDescription(`**${releaseData.playerName || player.username}** için fesih işlemi tamamlandı!`)
+                .setDescription(`**${player.username}** için fesih işlemi tamamlandı!`)
                 .setThumbnail(player.displayAvatarURL({ dynamic: true }))
                 .addFields(
-                    { name: '⚽ Oyuncu', value: releaseData.playerName || player.username, inline: true },
+                    { name: '⚽ Oyuncu', value: player.username, inline: true },
+                    { name: '🏆 Eski Kulüp', value: releaseData.oldClub || 'Belirtilmedi', inline: true },
                     { name: '📋 Fesih Türü', value: releaseType === 'mutual' ? 'Karşılıklı Anlaşma' : 'Tek Taraflı', inline: true },
                     { name: '💡 Durum', value: 'Serbest Futbolcu', inline: true }
                 );
@@ -1504,10 +1500,11 @@ class ButtonHandler {
             const embed = new EmbedBuilder()
                 .setColor(config.colors.success)
                 .setTitle('🆓 YENİ SERBEST FUTBOLCU')
-                .setDescription(`**${releaseData.playerName || player.username}** artık serbest futbolcu!\n\nTransfer teklifleri için \`.offer\` komutunu kullanabilirsiniz.`)
+                .setDescription(`**${player.username}** artık serbest futbolcu!\n\nTransfer teklifleri için \`.offer\` komutunu kullanabilirsiniz.`)
                 .setThumbnail(player.displayAvatarURL({ dynamic: true }))
                 .addFields(
-                    { name: '⚽ Oyuncu', value: `${player} (${releaseData.playerName || player.username})`, inline: true },
+                    { name: '⚽ Oyuncu', value: `${player}`, inline: true },
+                    { name: '🏆 Eski Kulüp', value: releaseData.oldClub || 'Belirtilmedi', inline: true },
                     { name: '📋 Fesih Sebebi', value: releaseData.reason || 'Karşılıklı anlaşma', inline: true }
                 );
 

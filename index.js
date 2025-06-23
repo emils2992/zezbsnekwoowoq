@@ -436,7 +436,7 @@ async function handleModalSubmit(client, interaction) {
 
         // Form verilerini al
         const releaseData = {
-            playerName: interaction.fields.getTextInputValue('player_name') || '',
+            oldClub: interaction.fields.getTextInputValue('old_club') || '',
             compensation: interaction.fields.getTextInputValue('compensation') || '0₺',
             reason: interaction.fields.getTextInputValue('reason') || 'Karşılıklı anlaşma ile ayrılık',
             newTeam: interaction.fields.getTextInputValue('new_team') || 'Henüz belirlenmedi',
