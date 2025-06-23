@@ -41,6 +41,9 @@ class ButtonHandler {
                 case 'contract':
                     await this.handleContractButton(client, interaction, params);
                     break;
+                case 'contract_player':
+                    await this.handleContractPlayerButton(client, interaction, params);
+                    break;
                 case 'trade':
                     await this.handleTradeButton(client, interaction, params);
                     break;
@@ -235,49 +238,53 @@ class ButtonHandler {
                 });
             }
 
-            await this.sendTransferAnnouncement(guild, {
-                type: 'contract',
-                player: player,
-                president: president,
-                embed: interaction.message.embeds[0]
-            });
-
             await interaction.deferReply();
             
+            // İkinci aşama: Oyuncu ile müzakere kanalı oluştur
+            const playerChannel = await channels.createNegotiationChannel(guild, player.user, player.user, 'contract-player');
+            if (!playerChannel) {
+                return interaction.editReply({ content: 'Oyuncu müzakere kanalı oluşturulamadı!' });
+            }
+
+            // Oyuncu için sözleşme embed'i oluştur
+            const contractEmbed = interaction.message.embeds[0];
+            const playerButtons = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(`contract_player_accept_${playerId}_${presidentId}`)
+                        .setLabel('Kabul Et')
+                        .setStyle('SUCCESS')
+                        .setEmoji('✅'),
+                    new MessageButton()
+                        .setCustomId(`contract_player_reject_${playerId}_${presidentId}`)
+                        .setLabel('Reddet')
+                        .setStyle('DANGER')
+                        .setEmoji('❌')
+                );
+
+            await playerChannel.send({
+                content: `<@${player.id}> Sizin için bir sözleşme teklifi onaylandı! Lütfen karar verin:`,
+                embeds: [contractEmbed],
+                components: [playerButtons]
+            });
+
             await interaction.editReply({
-                content: `✅ Sözleşme kabul edildi!`
+                content: `✅ Başkan onayı tamamlandı! Oyuncu onayı için ${playerChannel} kanalı oluşturuldu.`
             });
 
-            // Disable all buttons immediately
-            const disabledButtons = interaction.message.components[0].components.map(button => 
-                new MessageButton()
-                    .setCustomId(button.customId)
-                    .setLabel(button.label)
-                    .setStyle(button.style)
-                    .setDisabled(true)
-                    .setEmoji(button.emoji || null)
-            );
-
-            await interaction.message.edit({
-                embeds: interaction.message.embeds,
-                components: [new MessageActionRow().addComponents(disabledButtons)]
-            });
-
-            // Force channel deletion
+            // Bu kanalı kapat
             setTimeout(async () => {
                 try {
                     const channelToDelete = interaction.channel;
                     if (channelToDelete && channelToDelete.deletable) {
                         console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                        await channelToDelete.delete("İşlem tamamlandı - Kanal otomatik silindi");
+                        await channelToDelete.delete("Başkan onayı tamamlandı");
                         console.log('KANAL BAŞARIYLA SİLİNDİ');
-                    } else {
-                        console.log('Kanal silinemez veya bulunamadı');
                     }
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 3000);
 
         } else if (buttonType === 'reject') {
             // Check if user is authorized (target president or transfer authority)
@@ -342,6 +349,116 @@ class ButtonHandler {
 
             // Update the message with editable form in the same channel
             await this.showEditableContractForm(client, interaction, playerId, presidentId);
+        }
+    }
+
+    async handleContractPlayerButton(client, interaction, params) {
+        const [buttonType, playerId, presidentId] = params;
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+
+        if (buttonType === 'accept') {
+            // Check if user is authorized (target player or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef oyuncu veya transfer yetkilileri sözleşme teklifini kabul edebilir!',
+                    ephemeral: true
+                });
+            }
+
+            // Final contract acceptance - send announcement
+            await this.sendTransferAnnouncement(guild, {
+                type: 'contract',
+                player: player,
+                president: president,
+                embed: interaction.message.embeds[0]
+            });
+
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `✅ Sözleşme kabul edildi! Transfer tamamlandı.`
+            });
+
+            // Disable all buttons
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            // Delete channel after announcement
+            setTimeout(async () => {
+                try {
+                    const channelToDelete = interaction.channel;
+                    if (channelToDelete && channelToDelete.deletable) {
+                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
+                        await channelToDelete.delete("Transfer tamamlandı");
+                        console.log('KANAL BAŞARIYLA SİLİNDİ');
+                    }
+                } catch (error) {
+                    console.error('KANAL SİLME HATASI:', error);
+                }
+            }, 1500);
+
+        } else if (buttonType === 'reject') {
+            // Check if user is authorized (target player or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef oyuncu veya transfer yetkilileri sözleşme teklifini reddedebilir!',
+                    ephemeral: true
+                });
+            }
+
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `❌ Sözleşme oyuncu tarafından reddedildi!`
+            });
+
+            // Disable all buttons
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            // Delete channel
+            setTimeout(async () => {
+                try {
+                    const channelToDelete = interaction.channel;
+                    if (channelToDelete && channelToDelete.deletable) {
+                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
+                        await channelToDelete.delete("Sözleşme reddedildi");
+                        console.log('KANAL BAŞARIYLA SİLİNDİ');
+                    }
+                } catch (error) {
+                    console.error('KANAL SİLME HATASI:', error);
+                }
+            }, 1500);
         }
     }
 

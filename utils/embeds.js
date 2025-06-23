@@ -25,7 +25,7 @@ class EmbedCreator {
         const embed = new MessageEmbed()
             .setColor(config.colors.accent)
             .setTitle(`${config.emojis.contract} Sözleşme Teklifi`)
-            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan sözleşme teklifi:`)
+            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan sözleşme teklifi:\n\n*Bu teklifin onaylanması için önce başkan onayı, sonra oyuncu onayı gereklidir.*`)
             .addFields(
                 { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
                 { name: '🏠 Eski Kulüp', value: contractData?.oldClub || 'Belirtilmemiş', inline: true },

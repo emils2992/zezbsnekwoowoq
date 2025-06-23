@@ -390,8 +390,8 @@ async function handleModalSubmit(client, interaction) {
                 contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
             };
 
-            // Müzakere kanalı oluştur
-            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'contract');
+            // İlk başkan ile müzakere kanalı oluştur (contract offer yapan başkan)
+            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, president.user, 'contract');
             if (!channel) {
                 return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
             }
