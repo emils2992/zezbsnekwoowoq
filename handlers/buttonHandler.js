@@ -796,8 +796,9 @@ class ButtonHandler {
             console.log(`Checking dual acceptance for channel ${channelName}:`, global[acceptanceKey]);
             
             if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
-                console.log('Both players accepted! Sending announcement immediately...');
-                    
+                console.log('🎉 BOTH PLAYERS ACCEPTED! Starting completion process...');
+                
+                try {
                     // Extract trade data from embed for complete announcement
                     const embed = interaction.message.embeds[0];
                     const fields = embed.fields;
@@ -811,6 +812,9 @@ class ButtonHandler {
                         bonus: fields.find(f => f.name.includes('Bonus'))?.value || 'Yok'
                     };
 
+                    console.log('📊 Trade data extracted:', tradeData);
+
+                    console.log('📢 Sending transfer announcement...');
                     await this.sendTransferAnnouncement(guild, {
                         type: 'trade',
                         wantedPlayer: wantedPlayer,
@@ -820,13 +824,17 @@ class ButtonHandler {
                         embed: interaction.message.embeds[0],
                         tradeData: tradeData
                     });
+                    console.log('✅ Transfer announcement sent successfully!');
 
                     // Send completion message to channel
+                    console.log('📨 Sending completion message...');
                     await interaction.channel.send({
                         content: `🎉 **HER İKİ OYUNCU DA KABUL ETTİ!** Takas tamamlandı ve otomatik duyuru gönderildi!\n\n${targetPresident.user} ${president.user}\n\n⏰ Kanal 3 saniye sonra otomatik olarak silinecek...`
                     });
+                    console.log('✅ Completion message sent!');
 
                     // Disable all buttons
+                    console.log('🔒 Disabling all buttons...');
                     const disabledButtons = interaction.message.components[0].components.map(button => 
                         new MessageButton()
                             .setCustomId(button.customId)
@@ -840,11 +848,14 @@ class ButtonHandler {
                         embeds: interaction.message.embeds,
                         components: [new MessageActionRow().addComponents(disabledButtons)]
                     });
+                    console.log('✅ Buttons disabled!');
 
                     // Clean up acceptances
                     delete global[acceptanceKey];
+                    console.log('🧹 Acceptance tracking cleaned up');
 
                     // Delete channel after delay with countdown
+                    console.log('⏰ Starting channel deletion countdown...');
                     setTimeout(async () => {
                         try {
                             await interaction.channel.send('⏰ **2 saniye sonra kanal silinecek...**');
@@ -865,14 +876,23 @@ class ButtonHandler {
                         try {
                             const channelToDelete = interaction.channel;
                             if (channelToDelete && channelToDelete.deletable) {
-                                console.log(`🗑️ TAKAs TAMAMLANDI - KANAL SİLİNİYOR: ${channelToDelete.name}`);
+                                console.log(`🗑️ TRADE COMPLETED - DELETING CHANNEL: ${channelToDelete.name}`);
                                 await channelToDelete.delete("✅ Takas başarıyla tamamlandı - Kanal otomatik silindi");
-                                console.log('✅ TAKAS KANALI BAŞARIYLA SİLİNDİ');
+                                console.log('✅ TRADE CHANNEL SUCCESSFULLY DELETED');
+                            } else {
+                                console.log('❌ Channel not deletable or not found');
                             }
                         } catch (error) {
-                            console.error('KANAL SİLME HATASI:', error);
+                            console.error('❌ CHANNEL DELETION ERROR:', error);
                         }
                     }, 3000);
+                    
+                } catch (error) {
+                    console.error('❌ ERROR in trade completion process:', error);
+                    await interaction.channel.send({
+                        content: `❌ Takas tamamlanırken bir hata oluştu: ${error.message}`
+                    });
+                }
             }
 
         } else if (buttonType === 'reject') {
@@ -1347,21 +1367,29 @@ class ButtonHandler {
     }
 
     async sendTransferAnnouncement(guild, transferData) {
-        console.log('Transfer announcement attempt for type:', transferData.type);
+        console.log('🚀 STARTING sendTransferAnnouncement for type:', transferData.type);
+        console.log('📊 Transfer data received:', {
+            type: transferData.type,
+            hasWantedPlayer: !!transferData.wantedPlayer,
+            hasGivenPlayer: !!transferData.givenPlayer,
+            hasTradeData: !!transferData.tradeData
+        });
+        
         const announcementChannel = await channels.findAnnouncementChannel(guild);
-        console.log('Found announcement channel:', announcementChannel ? announcementChannel.name : 'NOT FOUND');
+        console.log('📍 Found announcement channel:', announcementChannel ? announcementChannel.name : 'NOT FOUND');
+        
         if (!announcementChannel) {
-            console.log('No announcement channel found - trying to find any text channel...');
+            console.log('⚠️ No announcement channel found - trying to find any text channel...');
             // Last resort - try to find any general channel
             const generalChannel = guild.channels.cache.find(c => 
                 c.type === 'GUILD_TEXT' && 
                 (c.name.includes('genel') || c.name.includes('general') || c.name.includes('chat'))
             );
             if (generalChannel) {
-                console.log('Using general channel:', generalChannel.name);
+                console.log('✅ Using general channel:', generalChannel.name);
                 // Continue with general channel
             } else {
-                console.log('No suitable channel found - skipping announcement');
+                console.log('❌ No suitable channel found - skipping announcement');
                 return;
             }
         }
@@ -1409,8 +1437,9 @@ class ButtonHandler {
                 .setThumbnail(wantedPlayer.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Duyuruları' });
-        } else if (type === 'offer') {
+        } else if (transferData.type === 'offer') {
             // Serbest futbolcu teklif transferi
+            const { player, president } = transferData;
             const newTeamField = embedFields.find(f => f.name.includes('Yeni Kulüp'));
             const playerNameField = embedFields.find(f => f.name.includes('Oyuncu Adı'));
             const salaryField = embedFields.find(f => f.name.includes('Maaş'));
@@ -1436,8 +1465,9 @@ class ButtonHandler {
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
-        } else if (type === 'contract') {
+        } else if (transferData.type === 'contract') {
             // Contract transfer announcement
+            const { player, president } = transferData;
             const transferFeeField = embedFields.find(f => f.name.includes('Transfer Bedeli'));
             const oldClubField = embedFields.find(f => f.name.includes('Eski Kulüp'));
             const newClubField = embedFields.find(f => f.name.includes('Yeni Kulüp'));
@@ -1466,6 +1496,7 @@ class ButtonHandler {
                 .setFooter({ text: 'Transfer Sistemi' });
         } else {
             // Genel transfer (diğer durumlar)
+            const { player, president } = transferData;
             const salaryField = embedFields.find(f => f.name.includes('Maaş'));
             const durationField = embedFields.find(f => f.name.includes('Süre'));
             const teamField = embedFields.find(f => f.name.includes('Kulüp') || f.name.includes('Takım'));
@@ -1491,12 +1522,11 @@ class ButtonHandler {
         let mention = '';
         
         // Use appropriate ping role based on transfer type
-        const type = transferData.type;
         let pingRoleId = null;
-        if (type === 'offer' || type === 'contract' || type === 'trade' || type === 'hire') {
+        if (transferData.type === 'offer' || transferData.type === 'contract' || transferData.type === 'trade' || transferData.type === 'hire') {
             // Use transferPingRole for general transfers
             pingRoleId = roleData.transferPingRole;
-        } else if (type === 'release') {
+        } else if (transferData.type === 'release') {
             // Use freeAgentPingRole for releases
             pingRoleId = roleData.freeAgentPingRole;
         } else {
@@ -1517,15 +1547,21 @@ class ButtonHandler {
         );
         
         if (channelToUse) {
-            console.log('Sending announcement to channel:', channelToUse.name);
+            console.log('📤 Sending announcement to channel:', channelToUse.name);
             const content = mention && mention.trim() !== '' ? mention : '🏈 **Transfer Duyurusu**';
-            await channelToUse.send({
-                content: content,
-                embeds: [announcementEmbed]
-            });
-            console.log('Announcement sent successfully!');
+            try {
+                await channelToUse.send({
+                    content: content,
+                    embeds: [announcementEmbed]
+                });
+                console.log('✅ Announcement sent successfully to', channelToUse.name);
+            } catch (error) {
+                console.error('❌ Error sending announcement:', error);
+                throw error;
+            }
         } else {
-            console.log('No channel available for announcement');
+            console.log('❌ No channel available for announcement');
+            throw new Error('No announcement channel found');
         }
     }
 
