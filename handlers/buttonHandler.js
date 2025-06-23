@@ -1198,11 +1198,13 @@ class ButtonHandler {
             .setPlaceholder('Örn: 3.000.000₺')
             .setRequired(false);
 
-        const row1 = new MessageActionRow().addComponents(newTeamInput, playerNameInput);
-        const row2 = new MessageActionRow().addComponents(salaryInput, contractInput);
-        const row3 = new MessageActionRow().addComponents(bonusInput);
+        const row1 = new MessageActionRow().addComponents(newTeamInput);
+        const row2 = new MessageActionRow().addComponents(playerNameInput);
+        const row3 = new MessageActionRow().addComponents(salaryInput);
+        const row4 = new MessageActionRow().addComponents(contractInput);
+        const row5 = new MessageActionRow().addComponents(bonusInput);
 
-        modal.addComponents(row1, row2, row3);
+        modal.addComponents(row1, row2, row3, row4, row5);
 
         await interaction.showModal(modal);
     }
