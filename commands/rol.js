@@ -101,116 +101,116 @@ module.exports = {
         const setupEmbed = new EmbedBuilder()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.settings} Rol Ayarlama Sistemi`)
-            .setDescription('Aşağıdaki butonları kullanarak rolleri ayarlayın:')
+            .setDescription('Bu mesajı **yanıtlayarak** rolleri ayarlayın:\n\n**Format:** `rol_türü @rol_adı` veya `rol_türü rol_id`\n\n**Örnekler:**\n`başkan @Başkan`\n`futbolcu @Oyuncu`\n`serbest @Serbest`\n`yetkili @Transfer Admin`\n`ping_transfer @Transfer Ping`\n`ping_serbest @Serbest Ping`\n`ping_duyuru @Duyuru Ping`')
             .addFields(
                 {
-                    name: '👑 Başkan Rolü',
-                    value: 'Transfer teklifleri yapabilir, sözleşme imzalayabilir',
-                    inline: true
-                },
-                {
-                    name: '⚽ Futbolcu Rolü', 
-                    value: 'Transfer tekliflerini kabul/red edebilir',
-                    inline: true
-                },
-                {
-                    name: '🆓 Serbest Futbolcu Rolü',
-                    value: 'Serbest oyuncular için özel işlemler',
-                    inline: true
-                },
-                {
-                    name: '🔧 Transfer Yetkili Rolü',
-                    value: 'Tüm müzakereleri görebilir ve müdahale edebilir',
-                    inline: true
-                },
-                {
-                    name: '📢 Transfer Duyuru Kanalı',
-                    value: 'Tamamlanan transferlerin duyurulacağı kanal',
-                    inline: true
-                },
-                {
-                    name: '🔔 Ping Rolleri',
-                    value: 'Duyurularda etiketlenecek roller',
-                    inline: true
+                    name: '📋 Kullanılabilir Rol Türleri',
+                    value: '**başkan** - Transfer yapabilir\n**futbolcu** - Transfer edilebilir\n**serbest** - Serbest oyuncular\n**yetkili** - Transfer yetkilisi\n**ping_transfer** - Transfer ping\n**ping_serbest** - Serbest ping\n**ping_duyuru** - Duyuru ping',
+                    inline: false
                 }
             )
-            .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .setFooter({ text: 'Bu mesajı yanıtlayarak rol ayarlarını yapın. Örnek: başkan @Başkan' })
+            .setTimestamp();
 
-        // İlk satır butonları
-        const row1 = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('role_setup_president')
-                    .setLabel('Başkan Rolü')
-                    .setStyle(ButtonStyle.Primary)
-                    .setEmoji('👑'),
-                new ButtonBuilder()
-                    .setCustomId('role_setup_player')
-                    .setLabel('Futbolcu Rolü')
-                    .setStyle(ButtonStyle.Primary)
-                    .setEmoji('⚽'),
-                new ButtonBuilder()
-                    .setCustomId('role_setup_freeAgent')
-                    .setLabel('Serbest Futbolcu Rolü')
-                    .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🆓')
-            );
-
-        // İkinci satır butonları
-        const row2 = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('role_setup_transferAuthority')
-                    .setLabel('Transfer Yetkili Rolü')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('🔧'),
-                new ButtonBuilder()
-                    .setCustomId('role_setup_transferChannel')
-                    .setLabel('Transfer Duyuru Kanalı')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('📢')
-            );
-
-        // Üçüncü satır - ping rolleri
-        const row3 = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('role_setup_transferPingRole')
-                    .setLabel('Transfer Duyuru Ping')
-                    .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔔'),
-                new ButtonBuilder()
-                    .setCustomId('role_setup_freeAgentPingRole')
-                    .setLabel('Serbest Duyuru Ping')
-                    .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔔'),
-                new ButtonBuilder()
-                    .setCustomId('role_setup_announcementPingRole')
-                    .setLabel('Duyur Duyuru Ping')
-                    .setStyle(ButtonStyle.Primary)
-                    .setEmoji('🔔')
-            );
-
-        // Dördüncü satır - geri dön ve sıfırla butonları
-        const row4 = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('role_setup_back')
-                    .setLabel('Ana Menüye Dön')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('↩️'),
-                new ButtonBuilder()
-                    .setCustomId('role_setup_reset')
-                    .setLabel('Tümünü Sıfırla')
-                    .setStyle(ButtonStyle.Danger)
-                    .setEmoji('🗑️')
-            );
-
-        await message.reply({ 
-            embeds: [setupEmbed], 
-            components: [row1, row2, row3, row4] 
-        });
+        const sentMessage = await message.reply({ embeds: [setupEmbed] });
+        
+        // Mesaj filtreleme - sadece bu kullanıcıdan ve bu kanaldan
+        const filter = (m) => m.author.id === message.author.id && m.channel.id === message.channel.id;
+        
+        try {
+            const collected = await message.channel.awaitMessages({ 
+                filter, 
+                max: 1, 
+                time: 60000, 
+                errors: ['time'] 
+            });
+            
+            const responseMessage = collected.first();
+            const content = responseMessage.content.trim().toLowerCase();
+            
+            // Komut parse etme
+            const parts = content.split(' ');
+            if (parts.length < 2) {
+                return responseMessage.reply('❌ Hatalı format! Örnek: `başkan @Başkan` veya `futbolcu 123456789`');
+            }
+            
+            const roleType = parts[0];
+            const roleInput = parts.slice(1).join(' ');
+            
+            // Rol türü mapping
+            const roleMapping = {
+                'başkan': 'president',
+                'baskan': 'president',
+                'futbolcu': 'player',
+                'oyuncu': 'player',
+                'serbest': 'freeAgent',
+                'yetkili': 'transferAuthority',
+                'admin': 'transferAuthority',
+                'ping_transfer': 'transferPingRole',
+                'ping_serbest': 'freeAgentPingRole',
+                'ping_duyuru': 'announcementPingRole'
+            };
+            
+            const mappedRoleType = roleMapping[roleType];
+            if (!mappedRoleType) {
+                return responseMessage.reply('❌ Geçersiz rol türü! Kullanılabilir türler: başkan, futbolcu, serbest, yetkili, ping_transfer, ping_serbest, ping_duyuru');
+            }
+            
+            // Rol bulma
+            let role = null;
+            
+            // Rol mention kontrolü (<@&123>)
+            const roleMatch = roleInput.match(/<@&(\d+)>/);
+            if (roleMatch) {
+                role = message.guild.roles.cache.get(roleMatch[1]);
+            } else if (/^\d+$/.test(roleInput)) {
+                // Sadece sayı ise ID olarak kabul et
+                role = message.guild.roles.cache.get(roleInput);
+            } else {
+                // İsim ile arama (@ işareti varsa kaldır)
+                const roleName = roleInput.replace('@', '');
+                role = message.guild.roles.cache.find(r => r.name.toLowerCase() === roleName.toLowerCase());
+            }
+            
+            if (!role) {
+                return responseMessage.reply('❌ Rol bulunamadı! Rol etiketini (@rol), ID\'sini veya tam ismini kontrol edin.');
+            }
+            
+            // Rol ayarını kaydet
+            permissions.setRole(message.guild.id, mappedRoleType, role.id);
+            
+            const roleNames = {
+                'president': 'Başkan Rolü',
+                'player': 'Futbolcu Rolü',
+                'freeAgent': 'Serbest Futbolcu Rolü',
+                'transferAuthority': 'Transfer Yetkilisi',
+                'transferPingRole': 'Transfer Duyuru Ping',
+                'freeAgentPingRole': 'Serbest Duyuru Ping',
+                'announcementPingRole': 'Duyuru Duyuru Ping'
+            };
+            
+            const successEmbed = new EmbedBuilder()
+                .setColor(config.colors.success)
+                .setTitle(`${config.emojis.check} Rol Ayarlandı`)
+                .setDescription(`**${roleNames[mappedRoleType]}** başarıyla ${role} olarak ayarlandı!`)
+                .addFields({
+                    name: '📊 Rol Bilgileri',
+                    value: `**Rol:** ${role.name}\n**Üye Sayısı:** ${role.members.size}\n**Rol ID:** ${role.id}`,
+                    inline: false
+                })
+                .setTimestamp();
+                
+            await responseMessage.reply({ embeds: [successEmbed] });
+            
+        } catch (error) {
+            const timeoutEmbed = new EmbedBuilder()
+                .setColor(config.colors.error)
+                .setTitle(`${config.emojis.cross} Zaman Aşımı`)
+                .setDescription('Rol ayarlama işlemi zaman aşımına uğradı (60 saniye). Lütfen `.rol ayarla` komutunu tekrar çalıştırın.')
+                .setTimestamp();
+                
+            await message.channel.send({ embeds: [timeoutEmbed] });
+        }
     },
 
     async resetRoles(message) {

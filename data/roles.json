@@ -6,6 +6,7 @@
     "transferAuthority": "1352647377496051810",
     "transferChannel": "1352647378200563772",
     "announcementChannel": "1352647377940512858",
-    "freeAgentChannel": "1352647378200563772"
+    "freeAgentChannel": "1352647378200563772",
+    "transferPingRole": "1352647377496051808"
   }
 }
