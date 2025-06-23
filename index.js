@@ -153,6 +153,7 @@ async function handleModalSubmit(client, interaction) {
         const embeds = require('./utils/embeds');
         const channels = require('./utils/channels');
         const config = require('./config');
+        const { MessageActionRow, MessageButton } = require('discord.js');
         
         console.log('Modal submission received:', customId);
 
