@@ -12,7 +12,7 @@ class EmbedCreator {
                 { name: '🏆 Yeni Kulüp', value: offerData?.newTeam || 'Belirtilmedi', inline: true },
                 { name: '⚽ Oyuncu Adı', value: offerData?.playerName || player.displayName, inline: true },
                 { name: `${config.emojis.money} Önerilen Maaş`, value: offerData?.salary || '6.000.000₺/yıl', inline: true },
-                { name: '📅 Sözleşme Ek Madde', value: offerData?.contractDuration || '2 yıl + bonuslar', inline: true },
+                { name: '📅 Sözleşme+Ekmadde', value: offerData?.contractDuration || '2 yıl + bonuslar', inline: true },
                 { name: '🎯 İmza Bonusu', value: offerData?.bonus || '3.000.000₺', inline: true }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
@@ -33,7 +33,7 @@ class EmbedCreator {
                 { name: '⚽ Futbolcu', value: `${player}`, inline: true },
                 { name: `${config.emojis.money} Transfer Bedeli`, value: contractData?.transferFee || '2.500.000₺', inline: true },
                 { name: '💰 Yıllık Maaş', value: contractData?.salary || '24.000.000₺/yıl', inline: true },
-                { name: '📅 Sözleşme/Ekmadde', value: contractData?.contractDuration || '3 yıl', inline: true }
+                { name: '📅 Sözleşme+Ekmadde', value: contractData?.contractDuration || '3 yıl', inline: true }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
@@ -52,7 +52,7 @@ class EmbedCreator {
                 { name: '🔄 İstenen Oyuncu', value: tradeData?.wantedPlayer || 'Belirtilmemiş', inline: true },
                 { name: `${config.emojis.money} Ek Miktar`, value: tradeData?.additionalAmount || '0₺', inline: true },
                 { name: '💰 Yıllık Maaş', value: tradeData?.salary || '18.000.000₺/yıl', inline: true },
-                { name: '📅 Sözleşme Süresi', value: tradeData?.contractDuration || '2 yıl', inline: true }
+                { name: '📅 Sözleşme+Ekmadde', value: tradeData?.contractDuration || '2 yıl', inline: true }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });

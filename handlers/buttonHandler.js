@@ -1398,7 +1398,7 @@ class ButtonHandler {
 
         const contractInput = new TextInputComponent()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme Ek Madde')
+            .setLabel('Sözleşme+Ekmadde')
             .setStyle('SHORT')
             .setPlaceholder('Örn: 2 yıl + bonuslar')
             .setRequired(true);
@@ -1496,7 +1496,7 @@ class ButtonHandler {
 
         const contractInput = new TextInputComponent()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme Süresi')
+            .setLabel('Sözleşme+Ekmadde')
             .setStyle('SHORT')
             .setPlaceholder('Örn: 2 yıl')
             .setRequired(true);
@@ -1595,7 +1595,7 @@ class ButtonHandler {
 
             const contractDurationInput = new TextInputComponent()
                 .setCustomId('contract_duration')
-                .setLabel('Sözleşme/Ekmadde')
+                .setLabel('Sözleşme+Ekmadde')
                 .setStyle('SHORT')
                 .setPlaceholder('Örn: 3 yıl + bonuslar')
                 .setRequired(true);
