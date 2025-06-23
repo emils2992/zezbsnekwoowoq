@@ -49,13 +49,7 @@ module.exports = {
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.check} Transfer Duyuru Kanalı Ayarlandı`)
                 .setDescription(`${targetChannel} artık transfer duyuru kanalı olarak ayarlandı!\n\nArtık transfer kabul edildiğinde otomatik olarak bu kanala duyuru gönderilecek.`)
-                .addField(
-                    {
-                        name: '📋 Nasıl Çalışır?',
-                        value: '• Futbolcu teklifi kabul ettiğinde\n• Sözleşme imzalandığında\n• Takas tamamlandığında\n\nOtomatik olarak form bilgileriyle duyuru gönderilir.',
-                        inline: false
-                    }
-                )
+                .addField('📋 Nasıl Çalışır?', '• Futbolcu teklifi kabul ettiğinde\n• Sözleşme imzalandığında\n• Takas tamamlandığında\n\nOtomatik olarak form bilgileriyle duyuru gönderilir.', false)
                 .setTimestamp()
                 .setFooter('Transfer Sistemi' );
 

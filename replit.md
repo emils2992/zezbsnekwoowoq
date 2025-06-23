@@ -174,6 +174,9 @@ The bot is configured for Replit deployment with:
     - Fixed button styles to use string format: 'SUCCESS', 'DANGER', 'SECONDARY'
     - Completely rebuilt embeds utility with v13-compatible MessageEmbed class
     - All transfer commands now fully compatible with Discord.js v13.17.1
+    - Fixed embed field syntax errors: converted object format to parameter format
+    - Resolved MessageEmbed field name validation issues in all command files
+    - Updated 12 command files with proper addField() method calls
     - Bot successfully running without errors on downgraded version
 
 ## User Preferences
