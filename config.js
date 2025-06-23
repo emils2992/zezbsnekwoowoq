@@ -5,9 +5,10 @@ module.exports = {
         primary: '#5865F2',    // Discord blurple
         success: '#57F287',    // Yeşil
         error: '#ED4245',      // Kırmızı
+        warning: '#FEE75C',    // Sarı
         background: '#2F3136', // Koyu gri
         text: '#FFFFFF',       // Beyaz
-        accent: '#FEE75C'      // Sarı
+        accent: '#EB459E'      // Pembe
     },
     emojis: {
         football: '⚽',
