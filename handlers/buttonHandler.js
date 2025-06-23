@@ -259,7 +259,12 @@ class ButtonHandler {
                         .setCustomId(`contract_player_reject_${playerId}_${presidentId}`)
                         .setLabel('Reddet')
                         .setStyle('DANGER')
-                        .setEmoji('❌')
+                        .setEmoji('❌'),
+                    new MessageButton()
+                        .setCustomId(`contract_player_edit_${playerId}_${presidentId}`)
+                        .setLabel('Düzenle')
+                        .setStyle('SECONDARY')
+                        .setEmoji('✏️')
                 );
 
             await playerChannel.send({
