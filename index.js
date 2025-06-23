@@ -376,6 +376,7 @@ async function handleModalSubmit(client, interaction) {
 
             const contractData = {
                 transferFee: interaction.fields.getTextInputValue('transfer_fee') || '',
+                oldClub: interaction.fields.getTextInputValue('old_club') || '',
                 newClub: interaction.fields.getTextInputValue('new_club') || '',
                 salary: interaction.fields.getTextInputValue('salary') || '',
                 contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''

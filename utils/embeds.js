@@ -28,12 +28,12 @@ class EmbedCreator {
             .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan sözleşme teklifi:`)
             .addFields(
                 { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
-                { name: '🏆 Yeni Kulüp', value: contractData?.newClub || 'Belirtilmemiş', inline: true },
                 { name: '🏠 Eski Kulüp', value: contractData?.oldClub || 'Belirtilmemiş', inline: true },
+                { name: '🏆 Yeni Kulüp', value: contractData?.newClub || 'Belirtilmemiş', inline: true },
                 { name: '⚽ Futbolcu', value: `${player}`, inline: true },
                 { name: `${config.emojis.money} Transfer Bedeli`, value: contractData?.transferFee || '2.500.000₺', inline: true },
                 { name: '💰 Yıllık Maaş', value: contractData?.salary || '24.000.000₺/yıl', inline: true },
-                { name: '📅 Sözleşme Süresi', value: contractData?.contractDuration || '3 yıl', inline: true }
+                { name: '📅 Sözleşme/Ekmadde', value: contractData?.contractDuration || '3 yıl', inline: true }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });

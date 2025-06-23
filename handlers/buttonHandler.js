@@ -1402,6 +1402,13 @@ class ButtonHandler {
                 .setPlaceholder('Örn: 5M€')
                 .setRequired(true);
 
+            const oldClubInput = new TextInputComponent()
+                .setCustomId('old_club')
+                .setLabel('Eski Kulüp')
+                .setStyle('SHORT')
+                .setPlaceholder('Eski kulüp adını girin')
+                .setRequired(true);
+
             const newClubInput = new TextInputComponent()
                 .setCustomId('new_club')
                 .setLabel('Yeni Kulüp')
@@ -1418,13 +1425,14 @@ class ButtonHandler {
 
             const contractDurationInput = new TextInputComponent()
                 .setCustomId('contract_duration')
-                .setLabel('Sözleşme Süresi')
+                .setLabel('Sözleşme/Ekmadde')
                 .setStyle('SHORT')
-                .setPlaceholder('Örn: 3 yıl')
+                .setPlaceholder('Örn: 3 yıl + bonuslar')
                 .setRequired(true);
 
             contractModal.addComponents(
                 new MessageActionRow().addComponents(transferFeeInput),
+                new MessageActionRow().addComponents(oldClubInput),
                 new MessageActionRow().addComponents(newClubInput),
                 new MessageActionRow().addComponents(salaryInput),
                 new MessageActionRow().addComponents(contractDurationInput)
