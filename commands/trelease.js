@@ -34,27 +34,27 @@ module.exports = {
                 .setColor(config.colors.error)
                 .setTitle(`${config.emojis.release} Tek Taraflı Fesih`)
                 .setDescription(`**${message.author.username}** tarafından **${player.user.username}** için tek taraflı fesih talebi:`)
-                .addFields(
+                .addField(
                     { name: '👑 Başkan', value: `${message.author}`, inline: true },
                     { name: '⚽ Oyuncu', value: `${player}`, inline: true },
                     { name: '📋 Fesih Türü', value: 'Tek Taraflı', inline: true },
                     { name: '⚠️ Uyarı', value: 'Bu işlem geri alınamaz! Oyuncu otomatik olarak serbest futbolcu statüsüne geçer.', inline: false }
                 )
                 .setTimestamp()
-                .setFooter({ text: 'Transfer Sistemi' });
+                .setFooter('Transfer Sistemi' );
 
             // Butonları oluştur
-            const row = new ActionRowBuilder()
+            const row = new MessageActionRow()
                 .addComponents(
-                    new ButtonBuilder()
+                    new MessageButton()
                         .setCustomId(`release_confirm_${player.id}_${message.author.id}_unilateral`)
                         .setLabel('Onayla')
-                        .setStyle(ButtonStyle.Danger)
+                        .setStyle('DANGER')
                         .setEmoji(config.emojis.check),
-                    new ButtonBuilder()
+                    new MessageButton()
                         .setCustomId(`release_cancel_${player.id}_${message.author.id}`)
                         .setLabel('İptal Et')
-                        .setStyle(ButtonStyle.Secondary)
+                        .setStyle('SECONDARY')
                         .setEmoji(config.emojis.cross)
                 );
 

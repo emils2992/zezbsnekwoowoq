@@ -12,7 +12,7 @@ module.exports = {
                 .setColor(config.colors.primary)
                 .setTitle(`${config.emojis.help || '❓'} Transfer Sistemi Komutları`)
                 .setDescription('🏈 **Futbol Transfer Sistemi** - Tüm transfer işlemlerinizi kolayca yönetin!')
-                .addFields(
+                .addField(
                     {
                         name: `${config.emojis.offer || '💰'} .offer @başkan @futbolcu`,
                         value: 'Bir futbolcu için transfer teklifi gönder',
@@ -70,29 +70,26 @@ module.exports = {
                     }
                 )
                 .setThumbnail(message.guild.iconURL({ dynamic: true }))
-                .setFooter({ 
-                    text: 'Transfer Sistemi v2.0 | Otomatik duyuru sistemi aktif',
-                    iconURL: client.user.displayAvatarURL({ dynamic: true })
-                })
+                .setFooter('Transfer Sistemi v2.0 | Otomatik duyuru sistemi aktif')
                 .setTimestamp();
 
             // Bilgi butonları ekle
-            const infoRow = new ActionRowBuilder()
+            const infoRow = new MessageActionRow()
                 .addComponents(
-                    new ButtonBuilder()
+                    new MessageButton()
                         .setCustomId('transfer_info_help')
                         .setLabel('Nasıl Kullanılır?')
-                        .setStyle(ButtonStyle.Primary)
+                        .setStyle('PRIMARY')
                         .setEmoji('📖'),
-                    new ButtonBuilder()
+                    new MessageButton()
                         .setCustomId('transfer_roles_help')
                         .setLabel('Rol Sistemi')
-                        .setStyle(ButtonStyle.Secondary)
+                        .setStyle('SECONDARY')
                         .setEmoji('👥'),
-                    new ButtonBuilder()
+                    new MessageButton()
                         .setCustomId('transfer_features_help')
                         .setLabel('Özellikler')
-                        .setStyle(ButtonStyle.Success)
+                        .setStyle('SUCCESS')
                         .setEmoji('⚡')
                 );
 

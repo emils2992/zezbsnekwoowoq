@@ -55,11 +55,11 @@ module.exports = {
             await message.reply({
                 content: `${config.emojis.transfer} **Takas Teklifi Formu**\n\n${playerUser.username} için takas formunu doldurmak üzere aşağıdaki butona tıklayın.`,
                 components: [
-                    new ActionRowBuilder().addComponents(
-                        new ButtonBuilder()
+                    new MessageActionRow().addComponents(
+                        new MessageButton()
                             .setCustomId(`show_trade_modal_${targetPresidentUser.id}_${message.author.id}_${playerUser.id}`)
                             .setLabel('Takas Formu Aç')
-                            .setStyle(ButtonStyle.Primary)
+                            .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)
                     )
                 ]

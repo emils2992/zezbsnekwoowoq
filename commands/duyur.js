@@ -18,11 +18,11 @@ module.exports = {
             await message.reply({
                 content: `${config.emojis.football} **Serbest Futbolcu Duyuru Formu**\n\nKendi duyurunuzu oluşturmak için aşağıdaki butona tıklayın.`,
                 components: [
-                    new ActionRowBuilder().addComponents(
-                        new ButtonBuilder()
+                    new MessageActionRow().addComponents(
+                        new MessageButton()
                             .setCustomId(`show_announcement_modal_${message.author.id}`)
                             .setLabel('Duyuru Formu Aç')
-                            .setStyle(ButtonStyle.Primary)
+                            .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)
                     )
                 ]

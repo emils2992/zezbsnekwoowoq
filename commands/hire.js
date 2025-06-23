@@ -49,7 +49,7 @@ module.exports = {
                 .setColor(config.colors.warning)
                 .setTitle(`${config.emojis.contract} Kiralık Sözleşme Teklifi`)
                 .setDescription(`**${message.author.username}** tarafından **${targetPresident.username}**'e kiralık sözleşme teklifi yapılıyor.`)
-                .addFields(
+                .addField(
                     { name: '👑 Teklif Veren Başkan', value: `${message.author}`, inline: true },
                     { name: '👑 Hedef Başkan', value: `${targetPresident}`, inline: true },
                     { name: '⚽ Oyuncu', value: `${playerUser}`, inline: true },
@@ -57,17 +57,17 @@ module.exports = {
                     { name: '💡 Bilgi', value: 'Kiralık şartlarını belirlemek için formu doldurun.', inline: false }
                 )
                 .setTimestamp()
-                .setFooter({ text: 'Transfer Sistemi' });
+                .setFooter('Transfer Sistemi' );
 
             await message.reply({
                 content: `${config.emojis.contract} **Kiralık Sözleşme Teklifi**`,
                 embeds: [hireEmbed],
                 components: [
-                    new ActionRowBuilder().addComponents(
-                        new ButtonBuilder()
+                    new MessageActionRow().addComponents(
+                        new MessageButton()
                             .setCustomId(`show_hire_modal_${targetPresident.id}_${message.author.id}_${playerUser.id}`)
                             .setLabel('Kiralık Formu Aç')
-                            .setStyle(ButtonStyle.Primary)
+                            .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)
                     )
                 ]

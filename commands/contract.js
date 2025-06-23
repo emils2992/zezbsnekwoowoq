@@ -1,4 +1,4 @@
-const { MessageEmbed, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 const embeds = require('../utils/embeds');
@@ -55,11 +55,11 @@ module.exports = {
             await message.reply({
                 content: `${config.emojis.contract} **Sözleşme Teklifi Formu**\n\n${playerUser.username} için sözleşme formunu doldurmak üzere aşağıdaki butona tıklayın.`,
                 components: [
-                    new ActionRowBuilder().addComponents(
-                        new ButtonBuilder()
+                    new MessageActionRow().addComponents(
+                        new MessageButton()
                             .setCustomId(`show_contract_modal_${targetPresidentUser.id}_${message.author.id}_${playerUser.id}`)
                             .setLabel('Sözleşme Formu Aç')
-                            .setStyle(ButtonStyle.Primary)
+                            .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)
                     )
                 ]

@@ -36,11 +36,11 @@ module.exports = {
             await message.reply({
                 content: `${config.emojis.football} **Transfer Teklifi Formu**\n\n${targetUser.username} için teklif formunu doldurmak üzere aşağıdaki butona tıklayın.`,
                 components: [
-                    new ActionRowBuilder().addComponents(
-                        new ButtonBuilder()
+                    new MessageActionRow().addComponents(
+                        new MessageButton()
                             .setCustomId(`show_offer_modal_${targetUser.id}_${message.author.id}`)
                             .setLabel('Teklif Formu Aç')
-                            .setStyle(ButtonStyle.Primary)
+                            .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)
                     )
                 ]

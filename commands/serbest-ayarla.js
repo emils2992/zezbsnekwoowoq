@@ -30,7 +30,7 @@ module.exports = {
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.check} Serbest Futbolcu Kanalı Ayarlandı`)
                 .setDescription(`${targetChannel} artık serbest futbolcu duyuru kanalı olarak ayarlandı!`)
-                .addFields(
+                .addField(
                     {
                         name: '📋 Kullanım',
                         value: 'Artık bu kanala serbest kalan futbolcuların duyuruları otomatik olarak gönderilecek.',
@@ -38,7 +38,7 @@ module.exports = {
                     }
                 )
                 .setTimestamp()
-                .setFooter({ text: 'Transfer Sistemi' });
+                .setFooter('Transfer Sistemi' );
 
             await message.reply({ embeds: [setupEmbed] });
 
@@ -48,7 +48,7 @@ module.exports = {
                 .setTitle(`${config.emojis.football} Serbest Futbolcu Kanalı Aktif`)
                 .setDescription('Bu kanal artık serbest futbolcu duyuruları için aktif!')
                 .setTimestamp()
-                .setFooter({ text: 'Transfer Sistemi' });
+                .setFooter('Transfer Sistemi' );
 
             await targetChannel.send({ embeds: [testEmbed] });
 

@@ -57,7 +57,7 @@ module.exports = {
                 }
             )
             .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .setFooter('Transfer Sistemi' );
 
         await message.reply({ embeds: [helpEmbed] });
     },
@@ -70,7 +70,7 @@ module.exports = {
             .setTitle(`${config.emojis.football} Mevcut Rol Ayarları`)
             .setDescription(`**${message.guild.name}** sunucusu için rol ayarları:`)
             .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .setFooter('Transfer Sistemi' );
 
         // Rolleri listele
         const roleTypes = [
@@ -109,7 +109,7 @@ module.exports = {
                     inline: false
                 }
             )
-            .setFooter({ text: 'Bu mesajı yanıtlayarak rol ayarlarını yapın. Örnek: başkan @Başkan' })
+            .setFooter('Bu mesajı yanıtlayarak rol ayarlarını yapın. Örnek: başkan @Başkan' )
             .setTimestamp();
 
         const sentMessage = await message.reply({ embeds: [setupEmbed] });

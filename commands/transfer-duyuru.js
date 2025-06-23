@@ -49,7 +49,7 @@ module.exports = {
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.check} Transfer Duyuru Kanalı Ayarlandı`)
                 .setDescription(`${targetChannel} artık transfer duyuru kanalı olarak ayarlandı!\n\nArtık transfer kabul edildiğinde otomatik olarak bu kanala duyuru gönderilecek.`)
-                .addFields(
+                .addField(
                     {
                         name: '📋 Nasıl Çalışır?',
                         value: '• Futbolcu teklifi kabul ettiğinde\n• Sözleşme imzalandığında\n• Takas tamamlandığında\n\nOtomatik olarak form bilgileriyle duyuru gönderilir.',
@@ -57,7 +57,7 @@ module.exports = {
                     }
                 )
                 .setTimestamp()
-                .setFooter({ text: 'Transfer Sistemi' });
+                .setFooter('Transfer Sistemi' );
 
             await message.reply({ embeds: [successEmbed] });
 
@@ -67,7 +67,7 @@ module.exports = {
                 .setTitle(`${config.emojis.football} Transfer Duyuru Kanalı Aktif`)
                 .setDescription('Bu kanal artık otomatik transfer duyuruları için ayarlandı!')
                 .setTimestamp()
-                .setFooter({ text: 'Transfer Sistemi' });
+                .setFooter('Transfer Sistemi' );
 
             await targetChannel.send({ embeds: [testEmbed] });
 

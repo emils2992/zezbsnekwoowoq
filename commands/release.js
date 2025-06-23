@@ -1,4 +1,4 @@
-const { MessageEmbed, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
 const embeds = require('../utils/embeds');
@@ -42,25 +42,25 @@ module.exports = {
                 .setColor(config.colors.primary)
                 .setTitle(`${config.emojis.release} Karşılıklı Fesih Teklifi`)
                 .setDescription(`**${message.author.username}** tarafından **${targetUser.username}**'e karşılıklı fesih teklifi yapılıyor.`)
-                .addFields(
+                .addField(
                     { name: '👑 Başkan', value: `${message.author}`, inline: true },
                     { name: '⚽ Oyuncu', value: `${targetUser}`, inline: true },
                     { name: '📋 Fesih Türü', value: 'Karşılıklı Anlaşma', inline: true },
                     { name: '💡 Bilgi', value: 'Fesih detaylarını belirlemek için formu doldurun.', inline: false }
                 )
                 .setTimestamp()
-                .setFooter({ text: 'Transfer Sistemi' });
+                .setFooter('Transfer Sistemi' );
 
             // Karşılıklı fesih modal formu
             await message.reply({
                 content: `${config.emojis.handshake} **Karşılıklı Fesih Teklifi**`,
                 embeds: [releaseEmbed],
                 components: [
-                    new ActionRowBuilder().addComponents(
-                        new ButtonBuilder()
+                    new MessageActionRow().addComponents(
+                        new MessageButton()
                             .setCustomId(`show_release_modal_${targetUser.id}_${message.author.id}_mutual`)
                             .setLabel('Fesih Formu Aç')
-                            .setStyle(ButtonStyle.Primary)
+                            .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)
                     )
                 ]
