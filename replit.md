@@ -243,6 +243,13 @@ The bot is configured for Replit deployment with:
     - Edit buttons now show "Düzenlenecek" placeholder text and "Formu Düzenle" button
     - Users can edit forms without leaving the current negotiation channel
     - Improved user experience by keeping all negotiations in one place
+- June 23, 2025. Fixed critical modal form updates and interaction timeout issues:
+    - Updated release form modal handler to detect negotiation channels and update existing embeds instead of creating new channels
+    - Fixed "Unknown interaction" errors by converting all interaction.reply calls to deferReply/editReply pattern
+    - Enhanced channel deletion functionality to work properly after accept/reject button interactions
+    - Form editing now updates the original embed in the same channel with new data from modal submissions
+    - All transfer commands now properly handle form updates without creating duplicate channels
+    - Fixed interaction timeout issues across all button handlers (offer, contract, trade, release, hire)
 
 ## User Preferences
 

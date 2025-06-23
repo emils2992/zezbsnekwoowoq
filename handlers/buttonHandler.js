@@ -102,9 +102,10 @@ class ButtonHandler {
                 embed: interaction.message.embeds[0]
             });
 
-            await interaction.reply({
-                content: `✅ Transfer kabul edildi!`,
-                ephemeral: false
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `✅ Transfer kabul edildi!`
             });
 
             // Disable all buttons immediately
@@ -142,9 +143,10 @@ class ButtonHandler {
                 });
             }
 
-            await interaction.reply({
-                content: `❌ Transfer reddedildi!`,
-                ephemeral: false
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `❌ Transfer reddedildi!`
             });
 
             // Disable all buttons immediately
@@ -208,9 +210,10 @@ class ButtonHandler {
                 embed: interaction.message.embeds[0]
             });
 
-            await interaction.reply({
-                content: `✅ Sözleşme kabul edildi!`,
-                ephemeral: false
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `✅ Sözleşme kabul edildi!`
             });
 
             // Disable all buttons immediately
@@ -248,9 +251,10 @@ class ButtonHandler {
                 });
             }
 
-            await interaction.reply({
-                content: `❌ Sözleşme reddedildi!`,
-                ephemeral: false
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `❌ Sözleşme reddedildi!`
             });
 
             // Disable all buttons immediately
@@ -314,9 +318,10 @@ class ButtonHandler {
                 embed: interaction.message.embeds[0]
             });
 
-            await interaction.reply({
-                content: `✅ Takas kabul edildi!`,
-                ephemeral: false
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `✅ Takas kabul edildi!`
             });
 
             // Disable all buttons immediately
@@ -354,9 +359,10 @@ class ButtonHandler {
                 });
             }
 
-            await interaction.reply({
-                content: `❌ Takas reddedildi!`,
-                ephemeral: false
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `❌ Takas reddedildi!`
             });
 
             // Disable all buttons immediately
@@ -475,9 +481,10 @@ class ButtonHandler {
                 });
             }
 
-            await interaction.reply({
-                content: `❌ Tek taraflı fesih talebi iptal edildi.`,
-                ephemeral: false
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `❌ Tek taraflı fesih talebi iptal edildi.`
             });
 
             // Disable all buttons
@@ -525,9 +532,10 @@ class ButtonHandler {
             
             await this.sendReleaseTransferAnnouncement(guild, player.user, releaseData, releaseType);
 
-            await interaction.reply({
-                content: `✅ Fesih kabul edildi! **${player.displayName}** artık serbest oyuncu.`,
-                ephemeral: false
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `✅ Fesih kabul edildi! **${player.displayName}** artık serbest oyuncu.`
             });
 
             // Disable all buttons immediately
@@ -566,9 +574,10 @@ class ButtonHandler {
                 });
             }
 
-            await interaction.reply({
-                content: `❌ Fesih reddedildi!`,
-                ephemeral: false
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `❌ Fesih reddedildi!`
             });
 
             // Disable all buttons immediately
@@ -634,9 +643,10 @@ class ButtonHandler {
                 embed: interaction.message.embeds[0]
             });
 
-            await interaction.reply({
-                content: `✅ Kiralık transfer kabul edildi!`,
-                ephemeral: false
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `✅ Kiralık transfer kabul edildi!`
             });
 
             // Disable all buttons immediately
@@ -675,9 +685,10 @@ class ButtonHandler {
                 });
             }
 
-            await interaction.reply({
-                content: `❌ Kiralık transfer reddedildi!`,
-                ephemeral: false
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `❌ Kiralık transfer reddedildi!`
             });
 
             // Disable all buttons immediately
