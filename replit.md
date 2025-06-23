@@ -403,6 +403,8 @@ The bot is configured for Replit deployment with:
     - Maintained complete three-stage workflow: presidents negotiate → target accepts → players approve with salary editing → announcements
     - Added comprehensive error handling and logging to all interaction responses to debug thinking state issues
     - Wrapped all editReply calls in try-catch blocks with detailed success/failure logging for troubleshooting
+    - Modified error handling to be non-blocking - interaction response errors no longer stop trade completion process
+    - Trade system now continues execution even if Discord interaction responses fail, preventing stuck "thinking" states
 
 ## User Preferences
 
