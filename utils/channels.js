@@ -37,7 +37,6 @@ class ChannelManager {
                 category = await guild.channels.create({
                     name: '🤝 Müzakereler',
                     type: ChannelType.GuildCategory,
-                    position: 0, // En üst kategori
                     permissionOverwrites: [
                         {
                             id: guild.roles.everyone,
@@ -45,6 +44,12 @@ class ChannelManager {
                         }
                     ]
                 });
+                
+                // Kategoriyi en üste taşı
+                await category.setPosition(0);
+            } else {
+                // Mevcut kategoriyi de en üste taşı
+                await category.setPosition(0);
             }
 
             // İzinleri ayarla

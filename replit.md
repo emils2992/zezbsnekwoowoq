@@ -147,6 +147,8 @@ The bot is configured for Replit deployment with:
   - Fixed .release command to work with users who have either serbest futbolcu or futbolcu roles
   - Made all modal form fields required across all commands (offer, contract, trade, release) for essential information
   - Enhanced announcements to only display populated fields, hiding empty ones for cleaner presentation
+  - Added .eyardım command with comprehensive help menu explaining all bot features and usage
+  - Enhanced negotiations category positioning to always stay at the top of the server
 
 ## User Preferences
 

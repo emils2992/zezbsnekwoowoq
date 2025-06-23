@@ -13,6 +13,7 @@ module.exports = {
             // Yetki kontrolü - hem başkanlar hem serbest futbolcular kullanabilir
             if (!permissions.isPresident(message.member) && !permissions.isFreeAgent(message.member)) {
                 return message.reply('❌ Bu komutu sadece takım başkanları ve serbest futbolcular kullanabilir!');
+     
             }
 
             // Futbolcu belirtildi mi kontrol et
