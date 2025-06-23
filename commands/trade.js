@@ -22,8 +22,16 @@ module.exports = {
                 return message.reply('❌ Lütfen bir başkan ve bir futbolcu etiketleyin!\nKullanım: `.trade @başkan @futbolcu [ek_miktar]`');
             }
 
-            const targetPresidentUser = mentions.first();
-            const playerUser = mentions.last();
+            // Mentions'ı array'e çevir ve doğru sırayla al
+            const mentionsArray = Array.from(mentions.values());
+            const targetPresidentUser = mentionsArray[0];
+            const playerUser = mentionsArray[1];
+
+            // Debug için log ekle
+            console.log('Trade command - Mentions debug:');
+            console.log('Total mentions:', mentions.size);
+            console.log('First user:', targetPresidentUser.username, targetPresidentUser.id);
+            console.log('Second user:', playerUser.username, playerUser.id);
 
             if (targetPresidentUser.id === playerUser.id) {
                 return message.reply('❌ Başkan ve futbolcu farklı kişiler olmalı!');

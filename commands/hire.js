@@ -16,20 +16,29 @@ module.exports = {
                 return message.reply('❌ Bu komutu sadece takım başkanları kullanabilir!');
             }
 
-            // Hedef başkan kontrolü
-            const targetPresident = message.mentions.users.first();
-            if (!targetPresident) {
-                return message.reply('❌ Lütfen bir hedef başkan etiketleyin!\nKullanım: `.hire @hedefbaşkan @futbolcu`');
+            // Argüman kontrolü
+            const mentions = message.mentions.users;
+            if (mentions.size < 2) {
+                return message.reply('❌ Lütfen bir başkan ve bir oyuncu etiketleyin!\nKullanım: `.hire @başkan @oyuncu`');
             }
 
-            // Futbolcu kontrolü
-            const playerUser = message.mentions.users.at(1);
-            if (!playerUser) {
-                return message.reply('❌ Lütfen bir futbolcu etiketleyin!\nKullanım: `.hire @hedefbaşkan @futbolcu`');
+            // Mentions'ı array'e çevir ve doğru sırayla al
+            const mentionsArray = Array.from(mentions.values());
+            const targetPresident = mentionsArray[0];
+            const playerUser = mentionsArray[1];
+
+            // Debug için log ekle
+            console.log('Hire command - Mentions debug:');
+            console.log('Total mentions:', mentions.size);
+            console.log('First user:', targetPresident.username, targetPresident.id);
+            console.log('Second user:', playerUser.username, playerUser.id);
+
+            if (targetPresident.id === playerUser.id) {
+                return message.reply('❌ Başkan ve oyuncu farklı kişiler olmalı!');
             }
 
             // Kendi kendini etiketleme kontrolü
-            if (targetPresident === message.author.id || playerUser.id === message.author.id) {
+            if (targetPresident.id === message.author.id || playerUser.id === message.author.id) {
                 return message.reply('❌ Kendinizi etiketleyemezsiniz!');
             }
 
@@ -42,12 +51,12 @@ module.exports = {
 
             // Hedef başkan kontrolü
             if (!permissions.isPresident(targetMember)) {
-                return message.reply('❌ Etiketlenen kişi bir başkan değil!');
+                return message.reply('❌ İlk etiketlenen kişi takım başkanı değil!');
             }
 
             // Futbolcu kontrolü
             if (!permissions.isPlayer(player)) {
-                return message.reply('❌ Etiketlenen kişi bir futbolcu değil!');
+                return message.reply('❌ İkinci etiketlenen kişi futbolcu değil!');
             }
 
             // Modal formu butonunu göster

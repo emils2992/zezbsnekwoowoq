@@ -27,6 +27,12 @@ module.exports = {
             const targetPresidentUser = mentionsArray[0];
             const playerUser = mentionsArray[1];
 
+            // Debug için log ekle
+            console.log('Contract command - Mentions debug:');
+            console.log('Total mentions:', mentions.size);
+            console.log('First user:', targetPresidentUser.username, targetPresidentUser.id);
+            console.log('Second user:', playerUser.username, playerUser.id);
+
             if (targetPresidentUser.id === playerUser.id) {
                 return message.reply('❌ Başkan ve oyuncu farklı kişiler olmalı!');
             }
