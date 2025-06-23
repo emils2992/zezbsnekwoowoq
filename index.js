@@ -76,7 +76,7 @@ async function handleSelectMenu(client, interaction) {
         const selectedRoleId = interaction.values[0];
         
         const permissions = require('./utils/permissions');
-        const { MessageEmbed, MessageActionRow, MessageButton, ButtonStyle } = require('discord.js');
+        const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
         
         try {
             // Seçilen rolü al
@@ -97,11 +97,7 @@ async function handleSelectMenu(client, interaction) {
                 .setColor(config.colors.success)
                 .setTitle('✅ Rol Başarıyla Ayarlandı')
                 .setDescription(`**${getRoleName(roleType)}** olarak ${selectedRole} rolü ayarlandı!`)
-                .addField({
-                    name: '📊 Rol Bilgileri',
-                    value: `**Rol Adı:** ${selectedRole.name}\n**Üye Sayısı:** ${selectedRole.members.size}\n**Renk:** ${selectedRole.hexColor}`,
-                    inline: false
-                })
+                .addField('📊 Rol Bilgileri', `**Rol Adı:** ${selectedRole.name}\n**Üye Sayısı:** ${selectedRole.members.size}\n**Renk:** ${selectedRole.hexColor}`, false)
                 .setTimestamp();
 
             // Geri dön butonu
@@ -579,18 +575,16 @@ async function handleModalSubmit(client, interaction) {
             .setTitle(`${config.emojis.football} Serbest Futbolcu Duyurusu`)
             .setDescription(`**${announcementData.playerName}** ${announcementData.newClub} takımına transfer oldu!`)
             .setThumbnail(player.displayAvatarURL({ dynamic: true }))
-            .addField(
-                { name: '⚽ Oyuncu', value: `${player} (${announcementData.playerName})`, inline: true },
-                { name: '🏆 Yeni Kulüp', value: announcementData.newClub, inline: true },
-                { name: '💰 Maaş', value: announcementData.salary, inline: true }
-            );
+            .addField('⚽ Oyuncu', `${player} (${announcementData.playerName})`, true)
+            .addField('🏆 Yeni Kulüp', announcementData.newClub, true)
+            .addField('💰 Maaş', announcementData.salary, true);
 
         // Sadece dolu alanları ekle
         if (announcementData.contractYears && announcementData.contractYears.trim()) {
-            announcementEmbed.addField({ name: '📅 Sözleşme Yılı', value: announcementData.contractYears, inline: true });
+            announcementEmbed.addField('📅 Sözleşme Yılı', announcementData.contractYears, true);
         }
         if (announcementData.signingBonus && announcementData.signingBonus.trim()) {
-            announcementEmbed.addField({ name: '💎 Bonus', value: announcementData.signingBonus, inline: true });
+            announcementEmbed.addField('💎 Bonus', announcementData.signingBonus, true);
         }
 
         announcementEmbed

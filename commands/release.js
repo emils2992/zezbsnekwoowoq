@@ -42,7 +42,10 @@ module.exports = {
                 .setColor(config.colors.primary)
                 .setTitle(`${config.emojis.release} Karşılıklı Fesih Teklifi`)
                 .setDescription(`**${message.author.username}** tarafından **${targetUser.username}**'e karşılıklı fesih teklifi yapılıyor.`)
-                .addFields({ name: '👑 Başkan', value: `${message.author}`, inline: true }, { name: '⚽ Oyuncu', value: `${targetUser}`, inline: true }, { name: '📋 Fesih Türü', value: 'Karşılıklı Anlaşma', inline: true }, { name: '💡 Bilgi', value: 'Fesih detaylarını belirlemek için formu doldurun.', inline: false }).setTimestamp()
+                .addField('👑 Başkan', `${message.author}`, true)
+                .addField('⚽ Oyuncu', `${targetUser}`, true)
+                .addField('📋 Fesih Türü', 'Karşılıklı Anlaşma', true)
+                .addField('💡 Bilgi', 'Fesih detaylarını belirlemek için formu doldurun.', false).setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
 
             // Karşılıklı fesih modal formu

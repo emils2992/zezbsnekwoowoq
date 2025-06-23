@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageButton, Modal, TextInputComponent } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const config = require('../config');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
