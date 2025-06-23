@@ -56,7 +56,7 @@ client.on('interactionCreate', async interaction => {
             await buttonHandler.handleButton(client, interaction);
         } else if (interaction.isSelectMenu()) {
             await handleSelectMenu(client, interaction);
-        } else if (interaction.isModalSubmit()) {
+        } else if (interaction.isModalSubmit && interaction.isModalSubmit()) {
             await handleModalSubmit(client, interaction);
         }
     } catch (error) {

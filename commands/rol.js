@@ -171,7 +171,7 @@ module.exports = {
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.check} Rol Ayarlandı`)
                 .setDescription(`**${roleNames[mappedRoleType]}** başarıyla ${role} olarak ayarlandı!`)
-                .addFields({ name: '📊 Rol Bilgileri', value: '**Rol:** ${role.name}\n**Üye Sayısı:** ${role.members.size}\n**Rol ID:** ${role.id}', inline: false }).setTimestamp();
+                .addField('📊 Rol Bilgileri', `**Rol:** ${role.name}\n**Üye Sayısı:** ${role.members.size}\n**Rol ID:** ${role.id}`, false).setTimestamp();
                 
             await responseMessage.reply({ embeds: [successEmbed] });
             

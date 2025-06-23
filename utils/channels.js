@@ -197,7 +197,7 @@ class ChannelManager {
             );
 
             embed.setThumbnail(player.displayAvatarURL({ dynamic: true }));
-            embed.addFields({ name: '📊 Oyuncu Bilgileri', value: 'Detaylar için oyuncuyla iletişime geçin', inline: false });
+            embed.addField('📊 Oyuncu Bilgileri', 'Detaylar için oyuncuyla iletişime geçin', false);
 
             const message = await freeAgentChannel.send({
                 content: `${config.emojis.football} **Yeni Serbest Futbolcu Duyurusu**`,

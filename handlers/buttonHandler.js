@@ -200,7 +200,7 @@ class ButtonHandler {
         const helpEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle('📋 Transfer Sistemi Bilgileri')
-            .addFields({ name: '📢 Duyuru Sistemi', value: 'Otomatik transfer duyuruları', inline: false }).setTimestamp()
+            .addField('📢 Duyuru Sistemi', 'Otomatik transfer duyuruları', false).setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
 
         await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
@@ -210,7 +210,9 @@ class ButtonHandler {
         const helpEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle('👥 Rol Yönetimi')
-            .addFields({ name: '🎯 Rol Kurulumu', value: '.rol komutu ile roller ayarlanır', inline: false }, { name: '🔑 Yetki Sistemi', value: 'Başkanlar transfer yapabilir', inline: false }, { name: '⚽ Oyuncu Durumu', value: 'Futbolcu/Serbest rolleri otomatik', inline: false }).setTimestamp()
+            .addField('🎯 Rol Kurulumu', '.rol komutu ile roller ayarlanır', false)
+            .addField('🔑 Yetki Sistemi', 'Başkanlar transfer yapabilir', false)
+            .addField('⚽ Oyuncu Durumu', 'Futbolcu/Serbest rolleri otomatik', false).setTimestamp()
             .setFooter({ text: 'Rol Yönetimi' });
 
         await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
@@ -220,7 +222,9 @@ class ButtonHandler {
         const helpEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle('⚡ Sistem Özellikleri')
-            .addFields({ name: '🤖 Otomatik Duyurular', value: 'Transfer tamamlandığında otomatik bildirim', inline: false }, { name: '💬 Müzakere Kanalları', value: 'Özel görüşme kanalları oluşturulur', inline: false }, { name: '📊 Form Sistemi', value: 'Detaylı transfer bilgileri', inline: false }).setTimestamp()
+            .addField('🤖 Otomatik Duyurular', 'Transfer tamamlandığında otomatik bildirim', false)
+            .addField('💬 Müzakere Kanalları', 'Özel görüşme kanalları oluşturulur', false)
+            .addField('📊 Form Sistemi', 'Detaylı transfer bilgileri', false).setTimestamp()
             .setFooter({ text: 'Sistem Özellikleri' });
 
         await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
@@ -261,7 +265,10 @@ class ButtonHandler {
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('✅ Transfer Gerçekleşti!')
-                .addFields({ name: '⚽ Oyuncu', value: player.displayName, inline: true }, { name: '🏟️ Yeni Kulüp', value: team, inline: true }, { name: '💰 Maaş', value: salary, inline: true }, { name: '📅 Süre', value: duration, inline: true }).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
+                .addField('⚽ Oyuncu', player.displayName, true)
+                .addField('🏟️ Yeni Kulüp', team, true)
+                .addField('💰 Maaş', salary, true)
+                .addField('📅 Süre', duration, true).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Duyuruları' });
         }
@@ -300,12 +307,15 @@ class ButtonHandler {
         const releaseEmbed = new MessageEmbed()
             .setColor(config.colors.warning)
             .setTitle('🆓 Serbest Oyuncu')
-            .addFields({ name: '⚽ Oyuncu', value: player.displayName, inline: true }, { name: '🏟️ Eski Kulüp', value: oldClub, inline: true }, { name: '📋 Fesih Türü', value: releaseType === 'mutual' ? 'Karşılıklı Fesih' : 'Tek Taraflı Fesih', inline: true }, { name: '💭 Sebep', value: reason, inline: false }).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
+            .addField('⚽ Oyuncu', player.displayName, true)
+            .addField('🏟️ Eski Kulüp', oldClub, true)
+            .addField('📋 Fesih Türü', releaseType === 'mutual' ? 'Karşılıklı Fesih' : 'Tek Taraflı Fesih', true)
+            .addField('💭 Sebep', reason, false).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Serbest Oyuncu Duyuruları' });
         
         if (compensation) {
-            releaseEmbed.addFields({ name: '💰 Tazminat', value: compensation, inline: true });
+            releaseEmbed.addField('💰 Tazminat', compensation, true);
         }
 
         const roleData = permissions.getRoleData(guild.id);
@@ -368,81 +378,199 @@ class ButtonHandler {
 
     async handleShowOfferForm(client, interaction, params) {
         const [playerId, presidentId] = params;
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+
+        // Create negotiation channel for the offer
+        const channel = await channels.createNegotiationChannel(guild, president.user, player.user, 'offer');
+        if (!channel) {
+            return interaction.reply({
+                content: '❌ Müzakere kanalı oluşturulamadı!',
+                ephemeral: true
+            });
+        }
+
+        // Create offer embed with form buttons
+        const offerEmbed = embeds.createOfferForm(president.user, player.user);
         
-        const modal = new Modal()
-            .setCustomId(`offer_form_${playerId}_${presidentId}`)
-            .setTitle('Transfer Teklifi Formu');
+        const buttons = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId(`offer_accept_${playerId}_${presidentId}`)
+                    .setLabel('Kabul Et')
+                    .setStyle('SUCCESS')
+                    .setEmoji('✅'),
+                new MessageButton()
+                    .setCustomId(`offer_reject_${playerId}_${presidentId}`)
+                    .setLabel('Reddet')
+                    .setStyle('DANGER')
+                    .setEmoji('❌'),
+                new MessageButton()
+                    .setCustomId(`offer_edit_${playerId}_${presidentId}`)
+                    .setLabel('Düzenle')
+                    .setStyle('SECONDARY')
+                    .setEmoji('✏️')
+            );
 
-        const teamNameInput = new TextInputComponent()
-            .setCustomId('team_name')
-            .setLabel('Takım Adı')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: Galatasaray')
-            .setRequired(true);
+        await channel.send({
+            embeds: [offerEmbed],
+            components: [buttons]
+        });
 
-        const playerNameInput = new TextInputComponent()
-            .setCustomId('player_name')
-            .setLabel('Oyuncu Adı')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: Lionel Messi')
-            .setRequired(true);
-
-        const salaryInput = new TextInputComponent()
-            .setCustomId('salary')
-            .setLabel('Yıllık Maaş')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 6.000.000₺/yıl')
-            .setRequired(true);
-
-        const contractYearsInput = new TextInputComponent()
-            .setCustomId('contract_years')
-            .setLabel('Sözleşme Süresi')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 2 yıl')
-            .setRequired(true);
-
-        const bonusInput = new TextInputComponent()
-            .setCustomId('bonus')
-            .setLabel('Bonuslar')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 250.000₺')
-            .setRequired(false);
-
-        const row1 = new MessageActionRow().addComponents(teamNameInput);
-        const row2 = new MessageActionRow().addComponents(playerNameInput);
-        const row3 = new MessageActionRow().addComponents(salaryInput);
-        const row4 = new MessageActionRow().addComponents(contractYearsInput);
-        const row5 = new MessageActionRow().addComponents(bonusInput);
-
-        modal.addComponents(row1, row2, row3, row4, row5);
-
-        await interaction.showModal(modal);
+        await interaction.reply({
+            content: `✅ Teklif müzakeresi ${channel} kanalında başlatıldı!`,
+            ephemeral: true
+        });
     }
 
     async handleShowContractForm(client, interaction, params) {
+        const [playerId, presidentId] = params;
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+
+        // Create negotiation channel for the contract
+        const channel = await channels.createNegotiationChannel(guild, president.user, player.user, 'contract');
+        if (!channel) {
+            return interaction.reply({
+                content: '❌ Müzakere kanalı oluşturulamadı!',
+                ephemeral: true
+            });
+        }
+
+        // Create contract embed with form buttons
+        const contractEmbed = embeds.createContractForm(president.user, player.user, player.user);
+        
+        const buttons = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId(`contract_accept_${playerId}_${presidentId}`)
+                    .setLabel('Kabul Et')
+                    .setStyle('SUCCESS')
+                    .setEmoji('✅'),
+                new MessageButton()
+                    .setCustomId(`contract_reject_${playerId}_${presidentId}`)
+                    .setLabel('Reddet')
+                    .setStyle('DANGER')
+                    .setEmoji('❌'),
+                new MessageButton()
+                    .setCustomId(`contract_edit_${playerId}_${presidentId}`)
+                    .setLabel('Düzenle')
+                    .setStyle('SECONDARY')
+                    .setEmoji('✏️')
+            );
+
+        await channel.send({
+            embeds: [contractEmbed],
+            components: [buttons]
+        });
+
         await interaction.reply({
-            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
+            content: `✅ Sözleşme müzakeresi ${channel} kanalında başlatıldı!`,
             ephemeral: true
         });
     }
 
     async handleShowTradeForm(client, interaction, params) {
+        const [playerId, presidentId] = params;
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+
+        // Create negotiation channel for the trade
+        const channel = await channels.createNegotiationChannel(guild, president.user, player.user, 'trade');
+        if (!channel) {
+            return interaction.reply({
+                content: '❌ Müzakere kanalı oluşturulamadı!',
+                ephemeral: true
+            });
+        }
+
+        // Create trade embed with form buttons
+        const tradeEmbed = embeds.createTradeForm(president.user, player.user, player.user);
+        
+        const buttons = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId(`trade_accept_${playerId}_${presidentId}`)
+                    .setLabel('Kabul Et')
+                    .setStyle('SUCCESS')
+                    .setEmoji('✅'),
+                new MessageButton()
+                    .setCustomId(`trade_reject_${playerId}_${presidentId}`)
+                    .setLabel('Reddet')
+                    .setStyle('DANGER')
+                    .setEmoji('❌'),
+                new MessageButton()
+                    .setCustomId(`trade_edit_${playerId}_${presidentId}`)
+                    .setLabel('Düzenle')
+                    .setStyle('SECONDARY')
+                    .setEmoji('✏️')
+            );
+
+        await channel.send({
+            embeds: [tradeEmbed],
+            components: [buttons]
+        });
+
         await interaction.reply({
-            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
+            content: `✅ Takas müzakeresi ${channel} kanalında başlatıldı!`,
             ephemeral: true
         });
     }
 
     async handleShowHireForm(client, interaction, params) {
+        const [playerId, presidentId] = params;
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+
+        // Create negotiation channel for the hire
+        const channel = await channels.createNegotiationChannel(guild, president.user, player.user, 'hire');
+        if (!channel) {
+            return interaction.reply({
+                content: '❌ Müzakere kanalı oluşturulamadı!',
+                ephemeral: true
+            });
+        }
+
+        // Create hire embed with form buttons
+        const hireEmbed = embeds.createHireForm(president.user, player.user, player.user);
+        
+        const buttons = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId(`hire_accept_${playerId}_${presidentId}`)
+                    .setLabel('Kabul Et')
+                    .setStyle('SUCCESS')
+                    .setEmoji('✅'),
+                new MessageButton()
+                    .setCustomId(`hire_reject_${playerId}_${presidentId}`)
+                    .setLabel('Reddet')
+                    .setStyle('DANGER')
+                    .setEmoji('❌'),
+                new MessageButton()
+                    .setCustomId(`hire_edit_${playerId}_${presidentId}`)
+                    .setLabel('Düzenle')
+                    .setStyle('SECONDARY')
+                    .setEmoji('✏️')
+            );
+
+        await channel.send({
+            embeds: [hireEmbed],
+            components: [buttons]
+        });
+
         await interaction.reply({
-            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
+            content: `✅ Kiralık müzakeresi ${channel} kanalında başlatıldı!`,
             ephemeral: true
         });
     }
 
     async handleShowAnnouncementForm(client, interaction, params) {
         await interaction.reply({
-            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
+            content: `${config.emojis.football} **Duyuru Formu**\n\nLütfen duyuru bilgilerinizi şu formatta yazın:\n\`\`\`\nOyuncu: [Oyuncu Adı]\nYeni Kulüp: [Kulüp Adı]\nMaaş: [Maaş Bilgisi]\nSözleşme: [Süre]\nBonus: [Bonus Bilgisi]\n\`\`\`\n\nÖrnek:\n\`\`\`\nOyuncu: Lionel Messi\nYeni Kulüp: Galatasaray\nMaaş: 6.000.000₺/yıl\nSözleşme: 2 yıl\nBonus: 250.000₺\n\`\`\``,
             ephemeral: true
         });
     }
