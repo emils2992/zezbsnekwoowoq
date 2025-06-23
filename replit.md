@@ -269,6 +269,16 @@ The bot is configured for Replit deployment with:
     - Updated offer announcement format to include old club and new club information
     - Each transfer command now has its own specific announcement format (offer, contract, trade, hire, release)
     - Modal field updates properly reflected in both embeds and announcements
+- June 23, 2025. Implemented pre-filled edit modals and fixed ping role separation:
+    - Created pre-filled edit modal functions that extract existing data from embed fields
+    - Edit buttons now show modals with current values for modification instead of empty forms
+    - Added showEditOfferModal, showEditContractModal, showEditTradeModal, showEditHireModal, and showEditReleaseModal functions
+    - Fixed ping role system to use separate roles for different announcement types:
+      * transferPingRole - Used only for transfer announcements (offer, contract, trade, hire)
+      * freeAgentPingRole - Used only for free agent/release announcements
+      * announcementPingRole - Used only for manual .duyur command announcements
+    - Removed fallback to old role names to prevent cross-contamination between announcement types
+    - Updated role setup descriptions to clarify each ping role's specific purpose
 
 ## User Preferences
 

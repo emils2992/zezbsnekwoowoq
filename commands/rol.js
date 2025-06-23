@@ -86,8 +86,8 @@ module.exports = {
         const setupEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.settings} Rol Ayarlama Sistemi`)
-            .setDescription('Bu mesajı **yanıtlayarak** rolleri ayarlayın:\n\n**Format:** `rol_türü @rol_adı` veya `rol_türü rol_id`\n\n**Örnekler:**\n`başkan @Başkan`\n`futbolcu @Oyuncu`\n`serbest @Serbest`\n`yetkili @Transfer Admin`\n`ping_transfer @Transfer Ping`\n`ping_serbest @Serbest Ping`\n`ping_duyuru @Duyuru Ping`')
-            .addField('📋 Kullanılabilir Rol Türleri', '**başkan** - Transfer yapabilir\n**futbolcu** - Transfer edilebilir\n**serbest** - Serbest oyuncular\n**yetkili** - Transfer yetkilisi\n**ping_transfer** - Transfer ping\n**ping_serbest** - Serbest ping\n**ping_duyuru** - Duyuru ping', false).setFooter({ text: 'Bu mesajı yanıtlayarak rol ayarlarını yapın. Örnek: başkan @Başkan' })
+            .setDescription('Bu mesajı **yanıtlayarak** rolleri ayarlayın:\n\n**Format:** `rol_türü @rol_adı` veya `rol_türü rol_id`\n\n**Örnekler:**\n`başkan @Başkan`\n`futbolcu @Oyuncu`\n`serbest @Serbest`\n`yetkili @Transfer Admin`\n`ping_transfer @Transfer Ping` (Transfer duyuruları için)\n`ping_serbest @Serbest Ping` (Serbest oyuncu duyuruları için)\n`ping_duyuru @Duyuru Ping` (.duyur komutu için)')
+            .addField('📋 Kullanılabilir Rol Türleri', '**başkan** - Transfer yapabilir\n**futbolcu** - Transfer edilebilir\n**serbest** - Serbest oyuncular\n**yetkili** - Transfer yetkilisi\n**ping_transfer** - Transfer duyuru pingi\n**ping_serbest** - Serbest oyuncu pingi\n**ping_duyuru** - Manuel duyuru pingi', false).setFooter({ text: 'Bu mesajı yanıtlayarak rol ayarlarını yapın. Örnek: başkan @Başkan' })
             .setTimestamp();
 
         const sentMessage = await message.reply({ embeds: [setupEmbed] });

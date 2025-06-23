@@ -1087,11 +1087,14 @@ class ButtonHandler {
         // Use appropriate ping role based on transfer type
         let pingRoleId = null;
         if (type === 'offer' || type === 'contract' || type === 'trade' || type === 'hire') {
-            pingRoleId = roleData.transferPingRole || roleData.transferPing;
+            // Use transferPingRole for general transfers
+            pingRoleId = roleData.transferPingRole;
         } else if (type === 'release') {
-            pingRoleId = roleData.freeAgentPingRole || roleData.freeAgentPing;
+            // Use freeAgentPingRole for releases
+            pingRoleId = roleData.freeAgentPingRole;
         } else {
-            pingRoleId = roleData.transferPingRole || roleData.transferPing;
+            // Default to transferPingRole
+            pingRoleId = roleData.transferPingRole;
         }
         
         if (pingRoleId) {
@@ -1153,11 +1156,11 @@ class ButtonHandler {
         const roleData = permissions.getRoleData(guild.id);
         let mention = '';
         
-        if (roleData.freeAgentPingRole || roleData.freeAgentPing) {
-            const pingRoleId = roleData.freeAgentPingRole || roleData.freeAgentPing;
-            const pingRole = guild.roles.cache.get(pingRoleId);
+        // Only use freeAgentPingRole for free agent announcements
+        if (roleData.freeAgentPingRole) {
+            const pingRole = guild.roles.cache.get(roleData.freeAgentPingRole);
             if (pingRole) {
-                mention = `<@&${pingRoleId}>`;
+                mention = `<@&${roleData.freeAgentPingRole}>`;
             }
         }
 

@@ -585,6 +585,7 @@ async function handleModalSubmit(client, interaction) {
             const roleData = permissions.getRoleData(interaction.guild.id);
             let mention = '';
             
+            // Only use announcementPingRole for manual announcements (.duyur command)
             if (roleData.announcementPingRole) {
                 const pingRole = interaction.guild.roles.cache.get(roleData.announcementPingRole);
                 if (pingRole) {
