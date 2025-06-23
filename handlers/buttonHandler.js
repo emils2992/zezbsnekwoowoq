@@ -5,11 +5,34 @@ const channels = require('../utils/channels');
 const permissions = require('../utils/permissions');
 
 class ButtonHandler {
+    constructor() {
+        this.processedInteractions = new Set();
+    }
+
     async handleButton(client, interaction) {
         try {
+            // Prevent multiple clicks on the same button
+            const interactionKey = `${interaction.message.id}_${interaction.customId}_${interaction.user.id}`;
+            if (this.processedInteractions.has(interactionKey)) {
+                return interaction.reply({
+                    content: '❌ Bu butona zaten tıkladınız!',
+                    ephemeral: true
+                });
+            }
+
             const customId = interaction.customId;
             const [action, ...params] = customId.split('_');
             console.log(`Button interaction: ${customId} | Action: ${action} | Params: ${params.join(', ')}`);
+
+            // Add to processed interactions for accept/reject buttons
+            if (params[0] === 'accept' || params[0] === 'reject') {
+                this.processedInteractions.add(interactionKey);
+                
+                // Remove from set after 5 minutes to prevent memory leaks
+                setTimeout(() => {
+                    this.processedInteractions.delete(interactionKey);
+                }, 5 * 60 * 1000);
+            }
 
             switch (action) {
                 case 'offer':
@@ -84,6 +107,21 @@ class ButtonHandler {
                 ephemeral: false
             });
 
+            // Disable all buttons immediately
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
             setTimeout(async () => {
                 try {
                     if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
@@ -94,7 +132,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 3000);
+            }, 2000);
 
         } else if (buttonType === 'reject') {
             if (interaction.user.id !== playerId) {
@@ -109,6 +147,21 @@ class ButtonHandler {
                 ephemeral: false
             });
 
+            // Disable all buttons immediately
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
             setTimeout(async () => {
                 try {
                     if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
@@ -119,7 +172,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 3000);
+            }, 2000);
 
         } else if (buttonType === 'edit') {
             if (interaction.user.id !== presidentId) {
@@ -129,6 +182,7 @@ class ButtonHandler {
                 });
             }
 
+            // Show modal form for editing in the same channel
             await this.handleShowOfferForm(client, interaction, [playerId, presidentId]);
         }
     }
@@ -159,6 +213,21 @@ class ButtonHandler {
                 ephemeral: false
             });
 
+            // Disable all buttons immediately
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
             setTimeout(async () => {
                 try {
                     if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
@@ -169,7 +238,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 3000);
+            }, 2000);
 
         } else if (buttonType === 'reject') {
             if (interaction.user.id !== playerId) {
@@ -184,6 +253,21 @@ class ButtonHandler {
                 ephemeral: false
             });
 
+            // Disable all buttons immediately
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
             setTimeout(async () => {
                 try {
                     if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
@@ -194,7 +278,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 3000);
+            }, 2000);
 
         } else if (buttonType === 'edit') {
             if (interaction.user.id !== presidentId) {
@@ -234,10 +318,27 @@ class ButtonHandler {
                 ephemeral: false
             });
 
+            // Disable all buttons immediately
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
             setTimeout(async () => {
                 try {
-                    if (interaction.channel.name.includes('muzakere')) {
-                        await channels.deleteNegotiationChannel(interaction.channel, 'Takas kabul edildi');
+                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                        console.log(`Kanal siliniyor: ${interaction.channel.name}`);
+                        await interaction.channel.delete();
+                        console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
@@ -257,10 +358,27 @@ class ButtonHandler {
                 ephemeral: false
             });
 
+            // Disable all buttons immediately
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
             setTimeout(async () => {
                 try {
-                    if (interaction.channel.name.includes('muzakere')) {
-                        await channels.deleteNegotiationChannel(interaction.channel, 'Takas reddedildi');
+                    if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
+                        console.log(`Kanal siliniyor: ${interaction.channel.name}`);
+                        await interaction.channel.delete();
+                        console.log('Kanal başarıyla silindi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
@@ -312,7 +430,21 @@ class ButtonHandler {
                 ephemeral: false
             });
 
-            // Kanalı hemen sil
+            // Disable all buttons immediately
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
             setTimeout(async () => {
                 try {
                     if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
@@ -323,7 +455,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 3000);
+            }, 2000);
 
         } else if (buttonType === 'reject') {
             // Sadece hedef kişi (oyuncu) reddet edebilir
@@ -339,7 +471,21 @@ class ButtonHandler {
                 ephemeral: false
             });
 
-            // Kanalı hemen sil
+            // Disable all buttons immediately
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
             setTimeout(async () => {
                 try {
                     if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
@@ -350,7 +496,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 3000);
+            }, 2000);
 
         } else if (buttonType === 'edit') {
             // Sadece komutu kullanan kişi (başkan) düzenleyebilir
@@ -392,7 +538,21 @@ class ButtonHandler {
                 ephemeral: false
             });
 
-            // Kanalı sil
+            // Disable all buttons immediately
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
             setTimeout(async () => {
                 try {
                     if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
@@ -403,7 +563,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 3000);
+            }, 2000);
 
         } else if (buttonType === 'reject') {
             // Sadece hedef başkan reddet edebilir
@@ -419,7 +579,21 @@ class ButtonHandler {
                 ephemeral: false
             });
 
-            // Kanalı sil
+            // Disable all buttons immediately
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
             setTimeout(async () => {
                 try {
                     if (interaction.channel && interaction.channel.name && interaction.channel.name.includes('muzakere')) {
@@ -430,7 +604,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 3000);
+            }, 2000);
 
         } else if (buttonType === 'edit') {
             // Sadece komutu kullanan kişi (başkan) düzenleyebilir

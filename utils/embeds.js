@@ -7,13 +7,15 @@ class EmbedCreator {
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.football} Transfer Teklifi`)
             .setDescription(`**${president.username}** tarafından **${player.username}** için yapılan teklif:`)
-            .addField(`${config.emojis.handshake} Başkan`, `${president}`, true)
-            .addField('🏆 Yeni Kulüp', offerData?.newTeam || 'Belirtilmedi', true)
-            .addField('⚽ Futbolcu', `${player}`, true)
-            .addField('⚽ Oyuncu İsmi', offerData?.playerName || 'Belirtilmedi', true)
-            .addField(`${config.emojis.money} Önerilen Maaş`, offerData?.salary || '6.000.000₺/yıl', true)
-            .addField('📅 Sözleşme Süresi', offerData?.contractDuration || '2 yıl', true)
-            .addField('🎯 Bonuslar', offerData?.bonus || '250.000₺', true).setThumbnail(player.displayAvatarURL({ dynamic: true }))
+            .addFields(
+                { name: `${config.emojis.handshake} Başkan`, value: `${president}`, inline: true },
+                { name: '🏆 Yeni Kulüp', value: offerData?.newTeam || 'Belirtilmedi', inline: true },
+                { name: '⚽ Futbolcu', value: `${player}`, inline: true },
+                { name: '⚽ Oyuncu İsmi', value: offerData?.playerName || 'Belirtilmedi', inline: true },
+                { name: `${config.emojis.money} Önerilen Maaş`, value: offerData?.salary || '6.000.000₺/yıl', inline: true },
+                { name: '📅 Sözleşme Süresi', value: offerData?.contractDuration || '2 yıl', inline: true },
+                { name: '🎯 Bonuslar', value: offerData?.bonus || '250.000₺', inline: true }
+            ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
 
@@ -25,13 +27,15 @@ class EmbedCreator {
             .setColor(config.colors.accent)
             .setTitle(`${config.emojis.contract} Sözleşme Teklifi`)
             .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan sözleşme teklifi:`)
-            .addField(`${config.emojis.handshake} Teklif Yapan`, `${fromPresident}`, true)
-            .addField('🏆 Yeni Kulüp', contractData?.newClub || 'Belirtilmemiş', true)
-            .addField('🏠 Eski Kulüp', contractData?.oldClub || 'Belirtilmemiş', true)
-            .addField('⚽ Futbolcu', `${player}`, true)
-            .addField(`${config.emojis.money} Transfer Bedeli`, contractData?.transferFee || '2.500.000₺', true)
-            .addField('💰 Yıllık Maaş', contractData?.salary || '24.000.000₺/yıl', true)
-            .addField('📅 Sözleşme Süresi', contractData?.contractDuration || '3 yıl', true).setThumbnail(player.displayAvatarURL({ dynamic: true }))
+            .addFields(
+                { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
+                { name: '🏆 Yeni Kulüp', value: contractData?.newClub || 'Belirtilmemiş', inline: true },
+                { name: '🏠 Eski Kulüp', value: contractData?.oldClub || 'Belirtilmemiş', inline: true },
+                { name: '⚽ Futbolcu', value: `${player}`, inline: true },
+                { name: `${config.emojis.money} Transfer Bedeli`, value: contractData?.transferFee || '2.500.000₺', inline: true },
+                { name: '💰 Yıllık Maaş', value: contractData?.salary || '24.000.000₺/yıl', inline: true },
+                { name: '📅 Sözleşme Süresi', value: contractData?.contractDuration || '3 yıl', inline: true }
+            ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
 
@@ -43,12 +47,14 @@ class EmbedCreator {
             .setColor(config.colors.warning)
             .setTitle(`${config.emojis.trade} Takas Teklifi`)
             .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan takas teklifi:`)
-            .addField(`${config.emojis.handshake} Teklif Yapan`, `${fromPresident}`, true)
-            .addField('⚽ Futbolcu', `${player}`, true)
-            .addField('🔄 İstenen Oyuncu', tradeData?.wantedPlayer || 'Belirtilmemiş', true)
-            .addField(`${config.emojis.money} Ek Miktar`, tradeData?.additionalAmount || '0₺', true)
-            .addField('💰 Yıllık Maaş', tradeData?.salary || '18.000.000₺/yıl', true)
-            .addField('📅 Sözleşme Süresi', tradeData?.contractDuration || '2 yıl', true).setThumbnail(player.displayAvatarURL({ dynamic: true }))
+            .addFields(
+                { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
+                { name: '⚽ Futbolcu', value: `${player}`, inline: true },
+                { name: '🔄 İstenen Oyuncu', value: tradeData?.wantedPlayer || 'Belirtilmemiş', inline: true },
+                { name: `${config.emojis.money} Ek Miktar`, value: tradeData?.additionalAmount || '0₺', inline: true },
+                { name: '💰 Yıllık Maaş', value: tradeData?.salary || '18.000.000₺/yıl', inline: true },
+                { name: '📅 Sözleşme Süresi', value: tradeData?.contractDuration || '2 yıl', inline: true }
+            ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
 
@@ -60,14 +66,16 @@ class EmbedCreator {
             .setColor(config.colors.info)
             .setTitle(`${config.emojis.hire} Kiralık Teklifi`)
             .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan kiralık teklifi:`)
-            .addField(`${config.emojis.handshake} Teklif Yapan`, `${fromPresident}`, true)
-            .addField('⚽ Futbolcu', `${player}`, true)
-            .addField(`${config.emojis.money} Kiralık Bedeli`, hireData?.loanFee || '500.000₺', true)
-            .addField('💰 Yıllık Maaş', hireData?.salary || '4.000.000₺/yıl', true)
-            .addField('📅 Kiralık Süresi', hireData?.loanDuration || '1 yıl', true);
+            .addFields(
+                { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
+                { name: '⚽ Futbolcu', value: `${player}`, inline: true },
+                { name: `${config.emojis.money} Kiralık Bedeli`, value: hireData?.loanFee || '500.000₺', inline: true },
+                { name: '💰 Yıllık Maaş', value: hireData?.salary || '4.000.000₺/yıl', inline: true },
+                { name: '📅 Kiralık Süresi', value: hireData?.loanDuration || '1 yıl', inline: true }
+            );
         
         if (hireData?.optionToBuy) {
-            embed.addField('🔄 Satın Alma Opsiyonu', hireData.optionToBuy, true);
+            embed.addFields({ name: '🔄 Satın Alma Opsiyonu', value: hireData.optionToBuy, inline: true });
         }
 
         return embed
@@ -84,16 +92,21 @@ class EmbedCreator {
             .setColor(color)
             .setTitle(`${config.emojis.release} ${title}`)
             .setDescription(`**${president.username}** tarafından **${player.username}** için yapılan fesih teklifi:`)
-            .addField(`${config.emojis.handshake} Başkan`, `${president}`, true)
-            .addField('⚽ Futbolcu', `${player}`, true)
-            .addField('📋 Fesih Türü', title, true);
+        
+        const fields = [
+            { name: `${config.emojis.handshake} Başkan`, value: `${president}`, inline: true },
+            { name: '⚽ Futbolcu', value: `${player}`, inline: true },
+            { name: '📋 Fesih Türü', value: title, inline: true }
+        ];
 
         if (releaseData) {
-            if (releaseData.oldClub) embed.addField('🏆 Eski Kulüp', releaseData.oldClub, true);
-            if (releaseData.reason) embed.addField('📝 Fesih Nedeni', releaseData.reason, false);
-            if (releaseData.compensation) embed.addField(`${config.emojis.money} Tazminat`, releaseData.compensation, true);
-            if (releaseData.newTeam) embed.addField('🎯 Yeni Takım', releaseData.newTeam, true);
+            if (releaseData.oldClub) fields.push({ name: '🏆 Eski Kulüp', value: releaseData.oldClub, inline: true });
+            if (releaseData.reason) fields.push({ name: '📝 Fesih Nedeni', value: releaseData.reason, inline: false });
+            if (releaseData.compensation) fields.push({ name: `${config.emojis.money} Tazminat`, value: releaseData.compensation, inline: true });
+            if (releaseData.newTeam) fields.push({ name: '🎯 Yeni Takım', value: releaseData.newTeam, inline: true });
         }
+        
+        embed.addFields(fields);
 
         return embed
             .setThumbnail(player.displayAvatarURL({ dynamic: true }))
@@ -106,7 +119,7 @@ class EmbedCreator {
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.handshake} Müzakere Başladı`)
             .setDescription(`Müzakere kanalı oluşturuldu: ${channel}`)
-            .addField('👥 Katılımcılar', participants.map(p => p.toString()).join('\n'), false)
+            .addFields({ name: '👥 Katılımcılar', value: participants.map(p => p.toString()).join('\n'), inline: false })
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
     }
