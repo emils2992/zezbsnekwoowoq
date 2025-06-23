@@ -834,6 +834,12 @@ class ButtonHandler {
                         content: `✅ **${givenPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! Her iki oyuncu da kabul etti!`
                     });
                 }
+                
+                // Check if both are now accepted after authority action
+                if (global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
+                    console.log('🔥 AUTHORITY COMPLETED BOTH ACCEPTANCES! Triggering completion...');
+                    // Allow the dual acceptance check below to run
+                }
             } else if (userId === wantedId) {
                 global[acceptanceKey].wantedPlayer = true;
                 console.log(`✅ Wanted player ${wantedPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
@@ -858,10 +864,12 @@ class ButtonHandler {
             }
 
             // Check if both players have accepted immediately after marking acceptance
-            console.log(`Checking dual acceptance for channel ${channelName}:`, global[acceptanceKey]);
+            console.log(`🔍 CHECKING DUAL ACCEPTANCE for channel ${channelName}:`, global[acceptanceKey]);
+            console.log(`🔍 Has wanted player: ${global[acceptanceKey].wantedPlayer}`);
+            console.log(`🔍 Has given player: ${global[acceptanceKey].givenPlayer}`);
             
             if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
-                console.log('🎉 BOTH PLAYERS ACCEPTED! Starting completion process...');
+                console.log('🎉🎉 BOTH PLAYERS ACCEPTED! Starting completion process...');
                 
                 try {
                     // Extract trade data from embed for complete announcement
@@ -880,44 +888,59 @@ class ButtonHandler {
                     console.log('📊 Trade data extracted:', tradeData);
 
                     console.log('📢 Sending transfer announcement...');
-                    await this.sendTransferAnnouncement(guild, {
-                        type: 'trade',
-                        wantedPlayer: wantedPlayer,
-                        givenPlayer: givenPlayer,
-                        targetPresident: targetPresident,
-                        president: president,
-                        embed: interaction.message.embeds[0],
-                        tradeData: tradeData
-                    });
-                    console.log('✅ Transfer announcement sent successfully!');
+                    try {
+                        await this.sendTransferAnnouncement(guild, {
+                            type: 'trade',
+                            wantedPlayer: wantedPlayer,
+                            givenPlayer: givenPlayer,
+                            targetPresident: targetPresident,
+                            president: president,
+                            embed: interaction.message.embeds[0],
+                            tradeData: tradeData
+                        });
+                        console.log('✅ Transfer announcement sent successfully!');
+                    } catch (announcementError) {
+                        console.error('❌ Error sending announcement:', announcementError);
+                        // Continue with channel deletion even if announcement fails
+                    }
 
-                    // Send completion message to channel
+                    // Send completion message to channel - use channel.send instead of interaction reply
                     console.log('📨 Sending completion message...');
-                    await interaction.channel.send({
-                        content: `🎉 **HER İKİ OYUNCU DA KABUL ETTİ!** Takas tamamlandı ve otomatik duyuru gönderildi!\n\n${targetPresident.user} ${president.user}\n\n⏰ Kanal 3 saniye sonra otomatik olarak silinecek...`
-                    });
-                    console.log('✅ Completion message sent!');
+                    try {
+                        await interaction.channel.send({
+                            content: `🎉 **HER İKİ OYUNCU DA KABUL ETTİ!** Takas tamamlandı ve otomatik duyuru gönderildi!\n\n${targetPresident.user} ${president.user}\n\n⏰ Kanal 3 saniye sonra otomatik olarak silinecek...`
+                        });
+                        console.log('✅ Completion message sent!');
+                    } catch (msgError) {
+                        console.error('❌ Error sending completion message:', msgError);
+                        // Continue with the process even if message fails
+                    }
 
                     // Disable all buttons
                     console.log('🔒 Disabling all buttons...');
-                    const disabledButtons = interaction.message.components[0].components.map(button => 
-                        new MessageButton()
-                            .setCustomId(button.customId)
-                            .setLabel(button.label)
-                            .setStyle(button.style)
-                            .setDisabled(true)
-                            .setEmoji(button.emoji || null)
-                    );
+                    try {
+                        const disabledButtons = interaction.message.components[0].components.map(button => 
+                            new MessageButton()
+                                .setCustomId(button.customId)
+                                .setLabel(button.label)
+                                .setStyle(button.style)
+                                .setDisabled(true)
+                                .setEmoji(button.emoji || null)
+                        );
 
-                    await interaction.message.edit({
-                        embeds: interaction.message.embeds,
-                        components: [new MessageActionRow().addComponents(disabledButtons)]
-                    });
-                    console.log('✅ Buttons disabled!');
+                        await interaction.message.edit({
+                            embeds: interaction.message.embeds,
+                            components: [new MessageActionRow().addComponents(disabledButtons)]
+                        });
+                        console.log('✅ Buttons disabled!');
+                    } catch (buttonError) {
+                        console.error('❌ Error disabling buttons:', buttonError);
+                        // Continue with the process even if button disabling fails
+                    }
 
-                    // Clean up acceptances
+                    // Clean up acceptances FIRST to prevent re-execution
                     delete global[acceptanceKey];
-                    console.log('🧹 Acceptance tracking cleaned up');
+                    console.log('🧹 Acceptance tracking cleaned up FIRST');
 
                     // Delete channel after delay with countdown
                     console.log('⏰ Starting channel deletion countdown...');
@@ -954,10 +977,36 @@ class ButtonHandler {
                     
                 } catch (error) {
                     console.error('❌ ERROR in trade completion process:', error);
-                    await interaction.channel.send({
-                        content: `❌ Takas tamamlanırken bir hata oluştu: ${error.message}`
-                    });
+                    try {
+                        await interaction.channel.send({
+                            content: `❌ Takas tamamlanırken bir hata oluştu ama kanal silinecek: ${error.message}`
+                        });
+                    } catch (fallbackError) {
+                        console.error('❌ Even fallback message failed:', fallbackError);
+                    }
+                    
+                    // Force channel deletion even on error
+                    console.log('🔥 FORCING CHANNEL DELETION DUE TO ERROR...');
+                    setTimeout(async () => {
+                        try {
+                            const channelToDelete = interaction.channel;
+                            if (channelToDelete && channelToDelete.deletable) {
+                                console.log(`🗑️ FORCING DELETION: ${channelToDelete.name}`);
+                                await channelToDelete.delete("Hata nedeniyle zorla silindi");
+                                console.log('✅ CHANNEL FORCE DELETED');
+                            }
+                        } catch (deleteError) {
+                            console.error('❌ FORCE DELETE FAILED:', deleteError);
+                        }
+                    }, 2000);
+                    
+                    // Clean up acceptances
+                    delete global[acceptanceKey];
+                    console.log('🧹 Acceptance tracking cleaned up after error');
                 }
+            } else {
+                console.log('❌ NOT BOTH ACCEPTED YET - Waiting for more acceptances...');
+                console.log(`Current state: wanted=${global[acceptanceKey].wantedPlayer}, given=${global[acceptanceKey].givenPlayer}`);
             }
 
         } else if (buttonType === 'reject') {
