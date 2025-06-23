@@ -353,6 +353,11 @@ class ButtonHandler {
                     await this.handleShowAnnouncementForm(client, interaction, additionalParams.slice(1));
                 }
                 break;
+            case 'release':
+                if (additionalParams[0] === 'modal') {
+                    await this.handleShowReleaseForm(client, interaction, additionalParams.slice(1));
+                }
+                break;
             default:
                 await interaction.reply({
                     content: `❌ Bilinmeyen form türü: ${type}`,
@@ -390,6 +395,13 @@ class ButtonHandler {
     }
 
     async handleShowAnnouncementForm(client, interaction, params) {
+        await interaction.reply({
+            content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
+            ephemeral: true
+        });
+    }
+
+    async handleShowReleaseForm(client, interaction, params) {
         await interaction.reply({
             content: 'Discord.js v13 modal desteği yok. Lütfen komutları kullanın.',
             ephemeral: true
