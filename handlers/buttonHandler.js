@@ -194,8 +194,8 @@ class ButtonHandler {
                 });
             }
 
-            // Update the message with editable form in the same channel
-            await this.showEditableOfferForm(client, interaction, playerId, presidentId);
+            // Directly show the modal form
+            await this.handleShowOfferForm(client, interaction, [playerId, presidentId]);
         }
     }
 
