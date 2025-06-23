@@ -95,12 +95,14 @@ class ButtonHandler {
                 });
             }
 
+            console.log('OFFER ACCEPTED - Sending transfer announcement');
             await this.sendTransferAnnouncement(guild, {
                 type: 'offer',
                 player: player,
                 president: president,
                 embed: interaction.message.embeds[0]
             });
+            console.log('TRANSFER ANNOUNCEMENT SENT');
 
             await interaction.deferReply();
             
@@ -810,8 +812,13 @@ class ButtonHandler {
     }
 
     async sendTransferAnnouncement(guild, transferData) {
+        console.log('Transfer announcement attempt for type:', transferData.type);
         const announcementChannel = await channels.findAnnouncementChannel(guild);
-        if (!announcementChannel) return;
+        console.log('Found announcement channel:', announcementChannel ? announcementChannel.name : 'NOT FOUND');
+        if (!announcementChannel) {
+            console.log('No announcement channel found - skipping announcement');
+            return;
+        }
 
         const { type, player, president, embed } = transferData;
         const embedFields = embed.fields || [];
@@ -892,10 +899,12 @@ class ButtonHandler {
             }
         }
 
+        console.log('Sending announcement to channel:', announcementChannel.name);
         await announcementChannel.send({
             content: mention,
             embeds: [announcementEmbed]
         });
+        console.log('Announcement sent successfully!');
     }
 
     async sendReleaseTransferAnnouncement(guild, player, releaseData, releaseType) {

@@ -170,13 +170,16 @@ class ChannelManager {
         try {
             const allData = JSON.parse(fs.readFileSync(rolesPath, 'utf8'));
             const guildData = allData[guild.id];
+            console.log('Guild data for announcement channel:', guildData);
             
             if (guildData && guildData.announcementChannel) {
+                console.log('Looking for channel ID:', guildData.announcementChannel);
                 const channel = guild.channels.cache.get(guildData.announcementChannel);
+                console.log('Found channel:', channel ? channel.name : 'NOT FOUND');
                 if (channel) return channel;
             }
         } catch (error) {
-            console.log('Ayarlanmış duyuru kanalı bulunamadı');
+            console.log('Ayarlanmış duyuru kanalı bulunamadı:', error);
         }
         
         return null;
