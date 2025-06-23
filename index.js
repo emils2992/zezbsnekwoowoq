@@ -1,4 +1,4 @@
-const { Client, Intents, Collection } = require('discord.js');
+const { Client, Intents, Collection, MessageEmbed } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
@@ -731,21 +731,23 @@ async function handleModalSubmit(client, interaction) {
         }
 
         // Trade player salary form modali (başkanlar anlaştığında oyuncu maaşları düzenleme)
-        else if (customId.startsWith('trade_salary_')) {
-            const [, , targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = customId.split('_');
+        else if (customId.startsWith('trade_edit_')) {
+            await interaction.deferReply({ ephemeral: true });
             
-            // Find full user IDs from shortened ones
-            const guild = interaction.guild;
-            const allMembers = await guild.members.fetch();
+            const channelId = customId.split('_')[2];
+            const params = global[`trade_params_${channelId}`];
             
-            const targetPresident = allMembers.find(m => m.id.endsWith(targetPresidentId));
-            const wantedPlayer = allMembers.find(m => m.id.endsWith(wantedPlayerId));
-            const givenPlayer = allMembers.find(m => m.id.endsWith(givenPlayerId));
-            const president = allMembers.find(m => m.id.endsWith(presidentId));
-
-            if (!targetPresident || !wantedPlayer || !givenPlayer || !president) {
-                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+            if (!params) {
+                return interaction.editReply({ content: 'Form verileri bulunamadı!' });
             }
+            
+            const { targetPresidentId, wantedPlayerId, givenPlayerId, presidentId } = params;
+            const guild = interaction.guild;
+            
+            const targetPresident = await guild.members.fetch(targetPresidentId);
+            const wantedPlayer = await guild.members.fetch(wantedPlayerId);
+            const givenPlayer = await guild.members.fetch(givenPlayerId);
+            const president = await guild.members.fetch(presidentId);
 
             const tradePlayerData = {
                 wantedPlayerSalary: interaction.fields.getTextInputValue('wanted_player_salary') || '',
@@ -806,6 +808,11 @@ async function handleModalSubmit(client, interaction) {
                         embeds: [updatedEmbed],
                         components: [buttons]
                     });
+                    
+                    // Clean up stored parameters
+                    const channelId = interaction.channel.id;
+                    delete global[`trade_params_${channelId}`];
+                    
                     await interaction.editReply({ content: `✅ Oyuncu maaşları güncellendi! Her iki oyuncunun da onayı bekleniyor.\n\n${targetPresident.user} ${president.user}` });
                 } else {
                     await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });

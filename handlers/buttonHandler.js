@@ -2226,8 +2226,12 @@ class ButtonHandler {
     async handleShowTradePlayerSalaryForm(client, interaction, params) {
         const [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
         
+        // Store params in global for modal submission handler
+        const channelId = interaction.channel.id;
+        global[`trade_params_${channelId}`] = { targetPresidentId, wantedPlayerId, givenPlayerId, presidentId };
+        
         const modal = new Modal()
-            .setCustomId(`trade_salary_${targetPresidentId.slice(-8)}_${wantedPlayerId.slice(-8)}_${givenPlayerId.slice(-8)}_${presidentId.slice(-8)}`)
+            .setCustomId(`trade_edit_${channelId}`)
             .setTitle('Oyuncu Maaşları Düzenleme');
 
         const wantedPlayerSalaryInput = new TextInputComponent()
