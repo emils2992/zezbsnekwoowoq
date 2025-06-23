@@ -104,6 +104,16 @@ class ButtonHandler {
             });
             console.log('TRANSFER ANNOUNCEMENT SENT');
 
+            // Role management - remove free agent role and add player role
+            const permissions = require('../utils/permissions');
+            try {
+                // Remove free agent role
+                await permissions.signPlayer(player);
+                console.log(`Removed free agent role and added player role for ${player.displayName}`);
+            } catch (error) {
+                console.error('Role management error:', error);
+            }
+
             await interaction.deferReply();
             
             await interaction.editReply({

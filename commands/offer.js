@@ -37,6 +37,11 @@ module.exports = {
                 return message.reply('❌ Bu kişi serbest futbolcu değil! Sadece serbest futbolculara teklif gönderilebilir.');
             }
 
+            // Futbolcu rolü kontrolü - futbolcu rolü varsa teklif gönderilemez
+            if (permissions.isPlayer(targetMember)) {
+                return message.reply('❌ Bu kişi zaten bir takımda! Futbolculara teklif gönderilemez, sözleşme teklifi kullanın.');
+            }
+
             // Modal formu butonunu göster
             await message.reply({
                 content: `${config.emojis.football} **Transfer Teklifi Formu**\n\n${targetUser.username} için teklif formunu doldurmak üzere aşağıdaki butona tıklayın.`,
