@@ -714,82 +714,101 @@ class ButtonHandler {
             // Initialize acceptances if not exists
             if (!global[acceptanceKey]) {
                 global[acceptanceKey] = { wantedPlayer: false, givenPlayer: false };
+                console.log(`Initialized acceptance tracking for ${channelName}:`, global[acceptanceKey]);
+            }
+            
+            // Prevent duplicate acceptances
+            if ((interaction.user.id === wantedPlayerId && global[acceptanceKey].wantedPlayer) ||
+                (interaction.user.id === givenPlayerId && global[acceptanceKey].givenPlayer)) {
+                return interaction.editReply({
+                    content: `⚠️ Sen zaten takası kabul ettin! Diğer oyuncunun kararı bekleniyor...`
+                });
             }
 
             // Mark this player as accepted
             if (interaction.user.id === wantedPlayerId) {
                 global[acceptanceKey].wantedPlayer = true;
+                console.log(`Wanted player ${wantedPlayer.displayName} accepted. Current status:`, global[acceptanceKey]);
                 await interaction.editReply({
-                    content: `✅ **${wantedPlayer.displayName}** takası kabul etti! Diğer oyuncunun kararı bekleniyor...`
+                    content: `✅ **${wantedPlayer.displayName}** takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                 });
             } else if (interaction.user.id === givenPlayerId) {
                 global[acceptanceKey].givenPlayer = true;
+                console.log(`Given player ${givenPlayer.displayName} accepted. Current status:`, global[acceptanceKey]);
                 await interaction.editReply({
-                    content: `✅ **${givenPlayer.displayName}** takası kabul etti! Diğer oyuncunun kararı bekleniyor...`
+                    content: `✅ **${givenPlayer.displayName}** takası kabul etti! ${global[acceptanceKey].wantedPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                 });
             }
 
-            // Check if both players have accepted
-            if (global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
-                // Extract trade data from embed for complete announcement
-                const embed = interaction.message.embeds[0];
-                const fields = embed.fields;
-                
-                const tradeData = {
-                    wantedPlayerSalary: fields.find(f => f.name.includes('İstenen Oyuncunun Maaşı'))?.value || 'Belirtilmemiş',
-                    givenPlayerSalary: fields.find(f => f.name.includes('Verilecek Oyuncunun Maaşı'))?.value || 'Belirtilmemiş',
-                    wantedPlayerContract: fields.find(f => f.name.includes('İstenen Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
-                    givenPlayerContract: fields.find(f => f.name.includes('Verilecek Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
-                    additionalAmount: fields.find(f => f.name.includes('Ek Miktar'))?.value || 'Yok',
-                    bonus: fields.find(f => f.name.includes('Bonus'))?.value || 'Yok'
-                };
+            // Check if both players have accepted after this acceptance
+            console.log(`Checking dual acceptance for channel ${channelName}:`, global[acceptanceKey]);
+            
+            // Use setTimeout to check acceptance after this interaction completes
+            setTimeout(async () => {
+                if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
+                    console.log('Both players accepted! Sending announcement...');
+                    
+                    // Extract trade data from embed for complete announcement
+                    const embed = interaction.message.embeds[0];
+                    const fields = embed.fields;
+                    
+                    const tradeData = {
+                        wantedPlayerSalary: fields.find(f => f.name.includes('İstenen Oyuncunun Maaşı'))?.value || 'Belirtilmemiş',
+                        givenPlayerSalary: fields.find(f => f.name.includes('Verilecek Oyuncunun Maaşı'))?.value || 'Belirtilmemiş',
+                        wantedPlayerContract: fields.find(f => f.name.includes('İstenen Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
+                        givenPlayerContract: fields.find(f => f.name.includes('Verilecek Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
+                        additionalAmount: fields.find(f => f.name.includes('Ek Miktar'))?.value || 'Yok',
+                        bonus: fields.find(f => f.name.includes('Bonus'))?.value || 'Yok'
+                    };
 
-                await this.sendTransferAnnouncement(guild, {
-                    type: 'trade',
-                    wantedPlayer: wantedPlayer,
-                    givenPlayer: givenPlayer,
-                    targetPresident: targetPresident,
-                    president: president,
-                    embed: interaction.message.embeds[0],
-                    tradeData: tradeData
-                });
+                    await this.sendTransferAnnouncement(guild, {
+                        type: 'trade',
+                        wantedPlayer: wantedPlayer,
+                        givenPlayer: givenPlayer,
+                        targetPresident: targetPresident,
+                        president: president,
+                        embed: interaction.message.embeds[0],
+                        tradeData: tradeData
+                    });
 
-                await interaction.followUp({
-                    content: `🎉 **HER İKİ OYUNCU DA KABUL ETTİ!** Takas tamamlandı ve otomatik duyuru gönderildi!\n\n${targetPresident.user} ${president.user}`
-                });
+                    // Send completion message to channel
+                    await interaction.channel.send({
+                        content: `🎉 **HER İKİ OYUNCU DA KABUL ETTİ!** Takas tamamlandı ve otomatik duyuru gönderildi!\n\n${targetPresident.user} ${president.user}`
+                    });
 
-                // Disable all buttons
-                const disabledButtons = interaction.message.components[0].components.map(button => 
-                    new MessageButton()
-                        .setCustomId(button.customId)
-                        .setLabel(button.label)
-                        .setStyle(button.style)
-                        .setDisabled(true)
-                        .setEmoji(button.emoji || null)
-                );
+                    // Disable all buttons
+                    const disabledButtons = interaction.message.components[0].components.map(button => 
+                        new MessageButton()
+                            .setCustomId(button.customId)
+                            .setLabel(button.label)
+                            .setStyle(button.style)
+                            .setDisabled(true)
+                            .setEmoji(button.emoji || null)
+                    );
 
-                await interaction.message.edit({
-                    embeds: interaction.message.embeds,
-                    components: [new MessageActionRow().addComponents(disabledButtons)]
-                });
+                    await interaction.message.edit({
+                        embeds: interaction.message.embeds,
+                        components: [new MessageActionRow().addComponents(disabledButtons)]
+                    });
 
-                // Clean up acceptances
-                delete global[acceptanceKey];
+                    // Clean up acceptances
+                    delete global[acceptanceKey];
 
-                // Delete channel after delay
-                setTimeout(async () => {
-                    try {
-                        const channelToDelete = interaction.channel;
-                        if (channelToDelete && channelToDelete.deletable) {
-                            console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                            await channelToDelete.delete("Takas tamamlandı - Kanal otomatik silindi");
-                            console.log('KANAL BAŞARIYLA SİLİNDİ');
+                    // Delete channel after delay
+                    setTimeout(async () => {
+                        try {
+                            const channelToDelete = interaction.channel;
+                            if (channelToDelete && channelToDelete.deletable) {
+                                console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
+                                await channelToDelete.delete("Takas tamamlandı - Kanal otomatik silindi");
+                                console.log('KANAL BAŞARIYLA SİLİNDİ');
+                            }
+                        } catch (error) {
+                            console.error('KANAL SİLME HATASI:', error);
                         }
-                    } catch (error) {
-                        console.error('KANAL SİLME HATASI:', error);
-                    }
-                }, 1500);
-            }
+                    }, 3000);
+                }
+            }, 500);
 
         } else if (buttonType === 'reject') {
             // Check if user is one of the players
