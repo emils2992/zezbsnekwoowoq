@@ -4,6 +4,7 @@ const config = require('../config');
 class ChannelManager {
     async createNegotiationChannel(guild, user1, user2, type, player = null) {
         try {
+            console.log(`[CHANNEL] Creating ${type} channel for ${user1.username} and ${user2.username}`);
             // Kanal adını oluştur
             let channelName;
             switch (type) {
@@ -89,6 +90,9 @@ class ChannelManager {
                 });
             }
 
+            console.log(`[CHANNEL] Creating channel with name: ${channelName}`);
+            console.log(`[CHANNEL] Category:`, category ? category.name : 'No category');
+            
             // Kanalı oluştur
             const channel = await guild.channels.create(channelName, {
                 type: 'GUILD_TEXT',
@@ -96,6 +100,8 @@ class ChannelManager {
                 permissionOverwrites: permissionOverwrites,
                 topic: `${type} müzakeresi - ${user1.username} & ${user2.username}${player ? ` (Oyuncu: ${player.username})` : ''}`
             });
+            
+            console.log(`[CHANNEL] Successfully created channel: ${channel.name}`);
 
             // Kullanıcıları etiketleyerek hoş geldin mesajı gönder
             const typeNames = {
@@ -124,7 +130,9 @@ class ChannelManager {
             return channel;
 
         } catch (error) {
-            console.error('Müzakere kanalı oluşturma hatası:', error);
+            console.error('[CHANNEL] Creation error:', error);
+            console.error('[CHANNEL] Error details:', error.message);
+            console.error('[CHANNEL] Stack trace:', error.stack);
             return null;
         }
     }

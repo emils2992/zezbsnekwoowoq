@@ -485,15 +485,27 @@ async function handleModalSubmit(client, interaction) {
 
         // Trade form modali
         else if (customId.startsWith('trade_form_')) {
+            console.log('Trade form submission started:', customId);
             const [, , targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = customId.split('_');
-            const targetPresident = interaction.guild.members.cache.get(targetPresidentId);
-            const wantedPlayer = interaction.guild.members.cache.get(wantedPlayerId);
-            const givenPlayer = interaction.guild.members.cache.get(givenPlayerId);
-            const president = interaction.guild.members.cache.get(presidentId);
+            console.log('Parsed IDs:', { targetPresidentId, wantedPlayerId, givenPlayerId, presidentId });
+            
+            try {
+                const targetPresident = await interaction.guild.members.fetch(targetPresidentId);
+                const wantedPlayer = await interaction.guild.members.fetch(wantedPlayerId);
+                const givenPlayer = await interaction.guild.members.fetch(givenPlayerId);
+                const president = await interaction.guild.members.fetch(presidentId);
 
-            if (!targetPresident || !wantedPlayer || !givenPlayer || !president) {
-                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
-            }
+                console.log('Found users:', {
+                    targetPresident: targetPresident?.user.username,
+                    wantedPlayer: wantedPlayer?.user.username,
+                    givenPlayer: givenPlayer?.user.username,
+                    president: president?.user.username
+                });
+
+                if (!targetPresident || !wantedPlayer || !givenPlayer || !president) {
+                    console.log('Missing users error');
+                    return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+                }
 
             const tradeData = {
                 additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '',
@@ -509,8 +521,7 @@ async function handleModalSubmit(client, interaction) {
                 // Update existing embed in the same channel
                 const tradeEmbed = embeds.createTradeForm(president.user, targetPresident.user, wantedPlayer.user, tradeData);
                 tradeEmbed.addFields(
-                    { name: '🔄 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true },
-                    { name: '💰 Verilecek Oyuncunun Maaşı', value: tradeData.givenPlayerSalary, inline: true }
+                    { name: '🔄 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true }
                 );
                 
                 const buttons = new MessageActionRow()
@@ -551,7 +562,9 @@ async function handleModalSubmit(client, interaction) {
                 }
             } else {
                 // İlk başkan ile hedef başkan arasında müzakere kanalı oluştur
+                console.log('Creating trade channel for:', president.user.username, 'and', targetPresident.user.username);
                 const channel = await channels.createNegotiationChannel(interaction.guild, president.user, targetPresident.user, 'trade');
+                console.log('Channel creation result:', channel ? channel.name : 'FAILED');
                 if (!channel) {
                     return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
                 }
@@ -559,8 +572,7 @@ async function handleModalSubmit(client, interaction) {
                 // Takas embed'i oluştur
                 const tradeEmbed = embeds.createTradeForm(president.user, targetPresident.user, wantedPlayer.user, tradeData);
                 tradeEmbed.addFields(
-                    { name: '🔄 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true },
-                    { name: '💰 Verilecek Oyuncunun Maaşı', value: tradeData.givenPlayerSalary, inline: true }
+                    { name: '🔄 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true }
                 );
                 
                 const buttons = new MessageActionRow()
@@ -588,6 +600,10 @@ async function handleModalSubmit(client, interaction) {
                 });
 
                 await interaction.editReply({ content: `✅ Takas müzakeresi ${channel} kanalında başlatıldı!` });
+            }
+            } catch (error) {
+                console.error('Trade form submission error:', error);
+                return interaction.editReply({ content: 'Kullanıcılar getirilirken hata oluştu!' });
             }
         }
 
