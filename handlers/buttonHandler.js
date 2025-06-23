@@ -844,7 +844,7 @@ class ButtonHandler {
             const newTeamField = embedFields.find(f => f.name.includes('Yeni Kulüp'));
             const playerNameField = embedFields.find(f => f.name.includes('Oyuncu Adı'));
             const salaryField = embedFields.find(f => f.name.includes('Maaş'));
-            const durationField = embedFields.find(f => f.name.includes('Sözleşme Süresi'));
+            const durationField = embedFields.find(f => f.name.includes('Sözleşme Ek Madde'));
             const bonusField = embedFields.find(f => f.name.includes('İmza Bonusu'));
             
             const newTeam = newTeamField ? newTeamField.value : 'Bilinmiyor';
@@ -861,7 +861,7 @@ class ButtonHandler {
                     { name: '⚽ Oyuncu', value: playerName, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: newTeam, inline: true },
                     { name: '💰 Maaş', value: salary, inline: true },
-                    { name: '📅 Sözleşme Süresi', value: duration, inline: true },
+                    { name: '📅 Sözleşme Ek Madde', value: duration, inline: true },
                     { name: '🎯 İmza Bonusu', value: bonus, inline: true }
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
@@ -1186,9 +1186,9 @@ class ButtonHandler {
 
         const contractInput = new TextInputComponent()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme Süresi')
+            .setLabel('Sözleşme Ek Madde')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 2 yıl')
+            .setPlaceholder('Örn: 2 yıl + bonuslar')
             .setRequired(true);
 
         const bonusInput = new TextInputComponent()
