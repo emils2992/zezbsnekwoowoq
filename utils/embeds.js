@@ -126,12 +126,7 @@ class EmbedCreator {
             },
             {
                 name: `⚽ Takas Edilecek Oyuncu`,
-                value: `${player}`,
-                inline: true
-            },
-            {
-                name: `🏆 Eski Kulüp`,
-                value: tradeData?.oldClub || 'Belirtilmedi',
+                value: `${player} ${tradeData?.playerName ? `(${tradeData.playerName})` : ''}`,
                 inline: true
             }
         );

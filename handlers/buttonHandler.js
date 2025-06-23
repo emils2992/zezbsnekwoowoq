@@ -510,8 +510,11 @@ class ButtonHandler {
                         tradeData.contractDuration = field.value;
                     } else if (field.name.includes('İstenen Oyuncu')) {
                         tradeData.targetPlayer = field.value;
-                    } else if (field.name.includes('Eski Kulüp')) {
-                        tradeData.oldClub = field.value;
+                    } else if (field.name.includes('Oyuncu') && field.value.includes('(') && field.value.includes(')')) {
+                        const nameMatch = field.value.match(/\(([^)]+)\)/);
+                        if (nameMatch) {
+                            tradeData.playerName = nameMatch[1];
+                        }
                     }
                 }
             }
@@ -528,7 +531,7 @@ class ButtonHandler {
 
                 const acceptEmbed = embeds.createSuccess(
                     'Takas Kabul Edildi!',
-                    `**${player.user.username}** <> **${tradeData.targetPlayer}**\n\nBaşkanlar takasladi! Takas işlemi tamamlandı! 🔄${tradeData.additionalAmount !== '0' ? `\n\n**Ek Miktar:** ${tradeData.additionalAmount}` : ''}`
+                    `**${tradeData.playerName}** <> **${tradeData.targetPlayer}**\n\nBaşkanlar takasladi! Takas işlemi tamamlandı! 🔄${tradeData.additionalAmount !== '0' ? `\n\n**Ek Miktar:** ${tradeData.additionalAmount}` : ''}`
                 );
 
                 await interaction.update({ 
@@ -544,7 +547,7 @@ class ButtonHandler {
                     amount: tradeData.additionalAmount !== '0' ? tradeData.additionalAmount : null,
                     salary: tradeData.salary,
                     duration: tradeData.contractDuration,
-                    oldClub: tradeData.oldClub,
+                    playerName: tradeData.playerName,
                     targetPlayer: tradeData.targetPlayer
                 });
 
@@ -1141,11 +1144,11 @@ class ButtonHandler {
             .setTitle('Takas Teklifi Formu');
 
         // Form alanları
-        const oldClubInput = new TextInputBuilder()
-            .setCustomId('old_club')
-            .setLabel('Eski Kulüp')
+        const playerNameInput = new TextInputBuilder()
+            .setCustomId('player_name')
+            .setLabel('Oyuncu İsmi')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: PSG')
+            .setPlaceholder('Örn: Neymar Jr')
             .setRequired(true);
 
         const additionalAmountInput = new TextInputBuilder()
@@ -1177,7 +1180,7 @@ class ButtonHandler {
             .setRequired(true);
 
         // Action Row'lar oluştur
-        const row1 = new ActionRowBuilder().addComponents(oldClubInput);
+        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
         const row2 = new ActionRowBuilder().addComponents(additionalAmountInput);
         const row3 = new ActionRowBuilder().addComponents(salaryInput);
         const row4 = new ActionRowBuilder().addComponents(contractDurationInput);

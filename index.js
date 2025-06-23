@@ -364,7 +364,7 @@ async function handleModalSubmit(client, interaction) {
 
         // Form verilerini al
         const tradeData = {
-            oldClub: interaction.fields.getTextInputValue('old_club') || '',
+            playerName: interaction.fields.getTextInputValue('player_name') || '',
             additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '0',
             salary: interaction.fields.getTextInputValue('salary') || '10.000.000₺/yıl',
             contractDuration: interaction.fields.getTextInputValue('contract_duration') || '4 yıl',
