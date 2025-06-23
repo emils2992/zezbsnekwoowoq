@@ -25,8 +25,8 @@ class EmbedCreator {
                 inline: true
             },
             {
-                name: `🏆 Eski Kulüp`,
-                value: offerData?.oldClub || 'Belirtilmedi',
+                name: `⚽ Oyuncu İsmi`,
+                value: offerData?.playerName || 'Belirtilmedi',
                 inline: true
             },
             {
