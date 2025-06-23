@@ -65,6 +65,13 @@ class ButtonHandler {
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef oyuncu teklifi kabul edebilir!',
+                    ephemeral: true
+                });
+            }
+
             await this.sendTransferAnnouncement(guild, {
                 type: 'offer',
                 player: player,
@@ -73,14 +80,52 @@ class ButtonHandler {
             });
 
             await interaction.reply({
-                content: `✅ **${player.displayName}** teklifi kabul etti!`,
+                content: `✅ Transfer kabul edildi!`,
                 ephemeral: false
             });
+
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel.name.includes('muzakere')) {
+                        await channels.deleteNegotiationChannel(interaction.channel, 'Teklif kabul edildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silinirken hata:', error);
+                }
+            }, 2000);
+
         } else if (buttonType === 'reject') {
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef oyuncu teklifi reddedebilir!',
+                    ephemeral: true
+                });
+            }
+
             await interaction.reply({
-                content: `❌ **${player.displayName}** teklifi reddetti.`,
+                content: `❌ Transfer reddedildi!`,
                 ephemeral: false
             });
+
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel.name.includes('muzakere')) {
+                        await channels.deleteNegotiationChannel(interaction.channel, 'Teklif reddedildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silinirken hata:', error);
+                }
+            }, 2000);
+
+        } else if (buttonType === 'edit') {
+            if (interaction.user.id !== presidentId) {
+                return interaction.reply({
+                    content: '❌ Sadece teklifi yapan başkan düzenleyebilir!',
+                    ephemeral: true
+                });
+            }
+
+            await this.handleShowOfferForm(client, interaction, [playerId, presidentId]);
         }
     }
 
@@ -91,6 +136,13 @@ class ButtonHandler {
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef başkan sözleşme teklifini kabul edebilir!',
+                    ephemeral: true
+                });
+            }
+
             await this.sendTransferAnnouncement(guild, {
                 type: 'contract',
                 player: player,
@@ -102,11 +154,49 @@ class ButtonHandler {
                 content: `✅ Sözleşme kabul edildi!`,
                 ephemeral: false
             });
+
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel.name.includes('muzakere')) {
+                        await channels.deleteNegotiationChannel(interaction.channel, 'Sözleşme kabul edildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silinirken hata:', error);
+                }
+            }, 2000);
+
         } else if (buttonType === 'reject') {
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef başkan sözleşme teklifini reddedebilir!',
+                    ephemeral: true
+                });
+            }
+
             await interaction.reply({
-                content: `❌ Sözleşme reddedildi.`,
+                content: `❌ Sözleşme reddedildi!`,
                 ephemeral: false
             });
+
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel.name.includes('muzakere')) {
+                        await channels.deleteNegotiationChannel(interaction.channel, 'Sözleşme reddedildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silinirken hata:', error);
+                }
+            }, 2000);
+
+        } else if (buttonType === 'edit') {
+            if (interaction.user.id !== presidentId) {
+                return interaction.reply({
+                    content: '❌ Sadece teklifi yapan başkan düzenleyebilir!',
+                    ephemeral: true
+                });
+            }
+
+            await this.handleShowContractForm(client, interaction, [playerId, presidentId]);
         }
     }
 
@@ -117,6 +207,13 @@ class ButtonHandler {
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef başkan takas teklifini kabul edebilir!',
+                    ephemeral: true
+                });
+            }
+
             await this.sendTransferAnnouncement(guild, {
                 type: 'trade',
                 player: player,
@@ -128,11 +225,49 @@ class ButtonHandler {
                 content: `✅ Takas kabul edildi!`,
                 ephemeral: false
             });
+
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel.name.includes('muzakere')) {
+                        await channels.deleteNegotiationChannel(interaction.channel, 'Takas kabul edildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silinirken hata:', error);
+                }
+            }, 2000);
+
         } else if (buttonType === 'reject') {
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef başkan takas teklifini reddedebilir!',
+                    ephemeral: true
+                });
+            }
+
             await interaction.reply({
-                content: `❌ Takas reddedildi.`,
+                content: `❌ Takas reddedildi!`,
                 ephemeral: false
             });
+
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel.name.includes('muzakere')) {
+                        await channels.deleteNegotiationChannel(interaction.channel, 'Takas reddedildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silinirken hata:', error);
+                }
+            }, 2000);
+
+        } else if (buttonType === 'edit') {
+            if (interaction.user.id !== presidentId) {
+                return interaction.reply({
+                    content: '❌ Sadece teklifi yapan başkan düzenleyebilir!',
+                    ephemeral: true
+                });
+            }
+
+            await this.handleShowTradeForm(client, interaction, [playerId, presidentId]);
         }
     }
 
@@ -140,8 +275,17 @@ class ButtonHandler {
         const [buttonType, playerId, presidentId, releaseType] = params;
         const guild = interaction.guild;
         const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
+            // Sadece hedef kişi (oyuncu) kabul edebilir
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef oyuncu fesih teklifini kabul edebilir!',
+                    ephemeral: true
+                });
+            }
+
             await permissions.makePlayerFree(player);
             
             // Extract release data from embed fields
@@ -160,21 +304,32 @@ class ButtonHandler {
                 ephemeral: false
             });
 
+            // Kanalı hemen sil
             setTimeout(async () => {
                 try {
                     if (interaction.channel.name.includes('muzakere')) {
-                        await channels.deleteNegotiationChannel(interaction.channel, 'Fesih tamamlandı');
+                        await channels.deleteNegotiationChannel(interaction.channel, 'Fesih kabul edildi');
                     }
                 } catch (error) {
                     console.error('Kanal silinirken hata:', error);
                 }
-            }, 3000);
+            }, 2000);
+
         } else if (buttonType === 'reject') {
+            // Sadece hedef kişi (oyuncu) reddet edebilir
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef oyuncu fesih teklifini reddedebilir!',
+                    ephemeral: true
+                });
+            }
+
             await interaction.reply({
                 content: `❌ Fesih reddedildi!`,
                 ephemeral: false
             });
 
+            // Kanalı hemen sil
             setTimeout(async () => {
                 try {
                     if (interaction.channel.name.includes('muzakere')) {
@@ -183,9 +338,17 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('Kanal silme hatası:', error);
                 }
-            }, 3000);
+            }, 2000);
 
         } else if (buttonType === 'edit') {
+            // Sadece komutu kullanan kişi (başkan) düzenleyebilir
+            if (interaction.user.id !== presidentId) {
+                return interaction.reply({
+                    content: '❌ Sadece teklifi yapan başkan düzenleyebilir!',
+                    ephemeral: true
+                });
+            }
+
             await this.handleShowReleaseForm(null, interaction, [playerId, presidentId, releaseType]);
         }
     }
@@ -197,6 +360,14 @@ class ButtonHandler {
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
+            // Kiralık tekliflerinde hedef başkan kabul edebilir (oyuncunun başkanı)
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef başkan kiralık teklifini kabul edebilir!',
+                    ephemeral: true
+                });
+            }
+
             await this.sendTransferAnnouncement(guild, {
                 type: 'hire',
                 player: player,
@@ -205,14 +376,56 @@ class ButtonHandler {
             });
 
             await interaction.reply({
-                content: `✅ Transfer kabul edildi!`,
+                content: `✅ Kiralık transfer kabul edildi!`,
                 ephemeral: false
             });
+
+            // Kanalı sil
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel.name.includes('muzakere')) {
+                        await channels.deleteNegotiationChannel(interaction.channel, 'Kiralık kabul edildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silinirken hata:', error);
+                }
+            }, 2000);
+
         } else if (buttonType === 'reject') {
+            // Sadece hedef başkan reddet edebilir
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef başkan kiralık teklifini reddedebilir!',
+                    ephemeral: true
+                });
+            }
+
             await interaction.reply({
-                content: `❌ Transfer reddedildi.`,
+                content: `❌ Kiralık transfer reddedildi!`,
                 ephemeral: false
             });
+
+            // Kanalı sil
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel.name.includes('muzakere')) {
+                        await channels.deleteNegotiationChannel(interaction.channel, 'Kiralık reddedildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silinirken hata:', error);
+                }
+            }, 2000);
+
+        } else if (buttonType === 'edit') {
+            // Sadece komutu kullanan kişi (başkan) düzenleyebilir
+            if (interaction.user.id !== presidentId) {
+                return interaction.reply({
+                    content: '❌ Sadece teklifi yapan başkan düzenleyebilir!',
+                    ephemeral: true
+                });
+            }
+
+            await this.handleShowHireForm(client, interaction, [playerId, presidentId]);
         }
     }
 

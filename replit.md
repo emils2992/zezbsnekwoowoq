@@ -164,13 +164,14 @@ The bot is configured for Replit deployment with:
     - Enhanced error handling with clear format examples and guidance
     - System now stable and user-friendly without confusing navigation loops
     - Role assignment works via simple text commands with 60-second timeout
-- June 23, 2025. Successfully implemented complete modal → channel workflow system:
+- June 23, 2025. Successfully implemented complete modal → channel workflow system with proper authorization:
   - Modal forms now work as the first step in all transfer commands
   - Commands show modal form buttons first, channels created only after form submission
   - Complete workflow: command → modal button → modal form → form submission → channel creation → negotiation
   - All transfer commands (offer, contract, trade, hire, release) fully operational with modal forms
   - Modal forms collect detailed transfer information before creating negotiation channels
-  - Negotiation channels display form data with functional accept/reject/edit buttons
+  - Implemented proper button authorization: accept/reject buttons only work for target users, edit buttons only for command initiators
+  - Channels automatically delete after accept/reject decisions (2-second delay)
   - Enhanced user experience with structured form input followed by dedicated negotiation spaces
   - Fixed all modal import issues and embed data handling for Discord.js v13 compatibility
 - June 23, 2025. Completed comprehensive Discord.js v13 migration and channel-based negotiation system:
