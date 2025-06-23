@@ -110,12 +110,12 @@ async function handleSelectMenu(client, interaction) {
                     new MessageButton()
                         .setCustomId('role_setup_back_main')
                         .setLabel('Ana Menüye Dön')
-                        .setStyle(Primary)
+                        .setStyle('PRIMARY')
                         .setEmoji('🏠'),
                     new MessageButton()
                         .setCustomId('role_back')
                         .setLabel('Mevcut Rolleri Göster')
-                        .setStyle(Secondary)
+                        .setStyle('SECONDARY')
                         .setEmoji('📋')
                 );
 
@@ -262,17 +262,17 @@ async function handleModalSubmit(client, interaction) {
                 new MessageButton()
                     .setCustomId(`contract_accept_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Kabul Et')
-                    .setStyle(Success)
+                    .setStyle('SUCCESS')
                     .setEmoji(config.emojis.check),
                 new MessageButton()
                     .setCustomId(`contract_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Reddet')
-                    .setStyle(Danger)
+                    .setStyle('DANGER')
                     .setEmoji(config.emojis.cross),
                 new MessageButton()
                     .setCustomId(`edit_contract_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Düzenle')
-                    .setStyle(Secondary)
+                    .setStyle('SECONDARY')
                     .setEmoji(config.emojis.edit)
             );
 
@@ -335,17 +335,17 @@ async function handleModalSubmit(client, interaction) {
                 new MessageButton()
                     .setCustomId(`trade_accept_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Kabul Et')
-                    .setStyle(Success)
+                    .setStyle('SUCCESS')
                     .setEmoji(config.emojis.check),
                 new MessageButton()
                     .setCustomId(`trade_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Reddet')
-                    .setStyle(Danger)
+                    .setStyle('DANGER')
                     .setEmoji(config.emojis.cross),
                 new MessageButton()
                     .setCustomId(`edit_trade_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Düzenle')
-                    .setStyle(Secondary)
+                    .setStyle('SECONDARY')
                     .setEmoji(config.emojis.edit)
             );
 
@@ -408,17 +408,17 @@ async function handleModalSubmit(client, interaction) {
                 new MessageButton()
                     .setCustomId(`hire_accept_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Kabul Et')
-                    .setStyle(Success)
+                    .setStyle('SUCCESS')
                     .setEmoji(config.emojis.check),
                 new MessageButton()
                     .setCustomId(`hire_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Reddet')
-                    .setStyle(Danger)
+                    .setStyle('DANGER')
                     .setEmoji(config.emojis.cross),
                 new MessageButton()
                     .setCustomId(`edit_hire_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Düzenle')
-                    .setStyle(Secondary)
+                    .setStyle('SECONDARY')
                     .setEmoji(config.emojis.edit)
             );
 
@@ -480,12 +480,12 @@ async function handleModalSubmit(client, interaction) {
                 new MessageButton()
                     .setCustomId(`release_accept_${playerId}_${presidentId}`)
                     .setLabel('Kabul Et')
-                    .setStyle(Success)
+                    .setStyle('SUCCESS')
                     .setEmoji(config.emojis.check),
                 new MessageButton()
                     .setCustomId(`release_reject_${playerId}_${presidentId}`)
                     .setLabel('Reddet')
-                    .setStyle(Danger)
+                    .setStyle('DANGER')
                     .setEmoji(config.emojis.cross)
             );
 
