@@ -127,6 +127,18 @@ The bot is configured for Replit deployment with:
   - Enhanced channel permissions to include transfer authorities alongside participants for proper oversight
   - Corrected transfer announcements to use exact modal input rather than default values
   - Implemented automatic channel cleanup after release decisions (3-5 second delay)
+- June 23, 2025. Major system improvements and new features:
+  - Fixed serbest-ayarla command to properly save channel configuration in JSON for automated release announcements
+  - Enhanced release modal data display - forms now correctly show user input in embeds instead of default values
+  - Changed trade "Sende Yap" button to "Düzenle" button that reopens modal forms for editing
+  - Updated trade announcement format to display "**Player1** <> **Player2**" with "Başkanlar takasladi" message
+  - Kept bonus fields in offer forms while removing them from trade forms (replaced with "İstenen Oyuncu")
+  - Set negotiations category to position at top of server (position: 0)
+  - Added .duyur command for free agents to create their own announcement posts via modal forms
+  - Added .duyur-ayarla command to configure dedicated announcement channels for free agent posts
+  - Enhanced channel finding system to use saved configurations from JSON instead of hardcoded names
+  - Updated release embed creation to properly display modal form data with proper field names
+  - Fixed all modal data extraction and consistency issues across transfer, trade, contract, and release systems
 
 ## User Preferences
 

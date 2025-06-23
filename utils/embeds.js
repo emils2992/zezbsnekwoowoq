@@ -153,48 +153,44 @@ class EmbedCreator {
             .setFooter({ text: 'Transfer Sistemi' });
     }
 
-    createReleaseForm(president, player, releaseType) {
+    createReleaseForm(president, player, releaseType, releaseData = null) {
         const embed = new EmbedBuilder()
-            .setTitle(`${config.emojis.release} Sözleşme Feshi`)
-            .setDescription(`**${president.username}** tarafından **${player.username}** için fesih talebi:`)
-            .addFields(
-                {
-                    name: `👑 Başkan`,
-                    value: `${president}`,
-                    inline: true
-                },
-                {
-                    name: `⚽ Futbolcu`,
-                    value: `${player}`,
-                    inline: true
-                },
-                {
-                    name: '📋 Fesih Türü',
-                    value: releaseType === 'karşılıklı' ? 'Karşılıklı Fesih' : 'Tek Taraflı Fesih',
-                    inline: true
-                }
-            )
+            .setColor(config.colors.warning)
+            .setTitle(`${config.emojis.release} ${releaseType === 'mutual' ? 'Karşılıklı' : 'Tek Taraflı'} Fesih`)
             .setThumbnail(player.displayAvatarURL({ dynamic: true }))
-            .setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+            .addFields(
+                { name: '👑 Başkan', value: `${president}`, inline: true },
+                { name: '⚽ Oyuncu', value: releaseData && releaseData.playerName ? `${player} (${releaseData.playerName})` : `${player}`, inline: true },
+                { name: '📋 Fesih Türü', value: releaseType === 'mutual' ? 'Karşılıklı Anlaşma' : 'Tek Taraflı', inline: true }
+            );
 
-        if (releaseType === 'karşılıklı') {
-            embed.setColor(config.colors.accent);
-            embed.addFields({
-                name: '📄 Fesih Şartları',
-                value: '• Karşılıklı anlaşma ile fesih\n• Tazminat ödemesi yok\n• Serbest futbolcu statüsü',
-                inline: false
-            });
+        if (releaseData) {
+            if (releaseData.playerName) {
+                embed.addFields({ name: '📝 Oyuncu İsmi', value: releaseData.playerName, inline: true });
+            }
+            if (releaseData.compensation) {
+                embed.addFields({ name: '💰 Ek Tazminat', value: releaseData.compensation, inline: true });
+            }
+            if (releaseData.reason) {
+                embed.addFields({ name: '📋 Fesih Sebebi', value: releaseData.reason, inline: false });
+            }
+            if (releaseData.newTeam) {
+                embed.addFields({ name: '🏆 Yeni Takım', value: releaseData.newTeam, inline: true });
+            }
+            if (releaseData.bonus) {
+                embed.addFields({ name: '💎 Ek Ödemeler', value: releaseData.bonus, inline: true });
+            }
         } else {
-            embed.setColor(config.colors.error);
-            embed.addFields({
-                name: '⚠️ Fesih Şartları',
-                value: '• Tek taraflı fesih\n• Tazminat ödemesi gerekebilir\n• Serbest futbolcu statüsü',
-                inline: false
-            });
+            embed.addFields(
+                { name: '💰 Ek Tazminat', value: 'Belirtilmedi', inline: true },
+                { name: '📋 Fesih Sebebi', value: 'Sözleşme feshi', inline: true },
+                { name: '🏆 Yeni Takım', value: 'Belirtilmedi', inline: true }
+            );
         }
 
-        return embed;
+        return embed
+            .setTimestamp()
+            .setFooter({ text: 'Transfer Sistemi' });
     }
 
     createNegotiationStarted(channel, participants) {

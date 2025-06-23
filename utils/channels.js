@@ -27,7 +27,7 @@ class ChannelManager {
                 .replace(/-+/g, '-')
                 .slice(0, 100);
 
-            // Müzakereler kategorisini bul veya oluştur
+            // Müzakereler kategorisini bul veya oluştur - en üstte konumlandır
             let category = guild.channels.cache.find(c => 
                 c.type === ChannelType.GuildCategory && 
                 c.name.toLowerCase().includes('müzakere')
@@ -37,6 +37,7 @@ class ChannelManager {
                 category = await guild.channels.create({
                     name: '🤝 Müzakereler',
                     type: ChannelType.GuildCategory,
+                    position: 0, // En üst kategori
                     permissionOverwrites: [
                         {
                             id: guild.roles.everyone,
@@ -123,7 +124,24 @@ class ChannelManager {
     }
 
     async findFreeAgentChannel(guild) {
-        // Serbest futbolcu duyuru kanalını bul
+        // Serbest futbolcu duyuru kanalını ayarlanmış kanaldan bul
+        const fs = require('fs');
+        const path = require('path');
+        const rolesPath = path.join(__dirname, '../data/roles.json');
+        
+        try {
+            const allData = JSON.parse(fs.readFileSync(rolesPath, 'utf8'));
+            const guildData = allData[guild.id];
+            
+            if (guildData && guildData.freeAgentChannel) {
+                const channel = guild.channels.cache.get(guildData.freeAgentChannel);
+                if (channel) return channel;
+            }
+        } catch (error) {
+            console.log('Ayarlanmış serbest futbolcu kanalı bulunamadı, varsayılan isimlerle aranıyor...');
+        }
+        
+        // Fallback - varsayılan kanal isimlerini ara
         const channelNames = ['serbest-futbolcular', 'serbest-oyuncular', 'free-agents'];
         
         for (const name of channelNames) {
@@ -134,6 +152,27 @@ class ChannelManager {
             if (channel) return channel;
         }
 
+        return null;
+    }
+
+    async findAnnouncementChannel(guild) {
+        // Duyuru kanalını ayarlanmış kanaldan bul
+        const fs = require('fs');
+        const path = require('path');
+        const rolesPath = path.join(__dirname, '../data/roles.json');
+        
+        try {
+            const allData = JSON.parse(fs.readFileSync(rolesPath, 'utf8'));
+            const guildData = allData[guild.id];
+            
+            if (guildData && guildData.announcementChannel) {
+                const channel = guild.channels.cache.get(guildData.announcementChannel);
+                if (channel) return channel;
+            }
+        } catch (error) {
+            console.log('Ayarlanmış duyuru kanalı bulunamadı');
+        }
+        
         return null;
     }
 

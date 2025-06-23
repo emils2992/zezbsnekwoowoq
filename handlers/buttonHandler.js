@@ -530,7 +530,7 @@ class ButtonHandler {
 
                 const acceptEmbed = embeds.createSuccess(
                     'Takas Kabul Edildi!',
-                    `Başkanlar takasladi!\n\n**${tradeData.playerName}** ➜ ${fromPresident.displayName}\n${tradeData.additionalAmount !== '0' ? `**Ek Miktar:** ${tradeData.additionalAmount}\n` : ''}**İstenen Oyuncu:** ${tradeData.targetPlayer}\n\nTakas işlemi tamamlandı! 🔄`
+                    `**${tradeData.playerName}** <> **${tradeData.targetPlayer}**\n\nBaşkanlar takasladi! Takas işlemi tamamlandı! 🔄${tradeData.additionalAmount !== '0' ? `\n\n**Ek Miktar:** ${tradeData.additionalAmount}` : ''}`
                 );
 
                 await interaction.update({ 
@@ -589,20 +589,17 @@ class ButtonHandler {
 
                 break;
 
-            case 'counter':
-                // "Sende Yap" butonu - hedef başkan kendi oyuncusunu teklif edecek
-                if (interaction.user.id !== targetPresidentId) {
+            case 'edit':
+                // "Düzenle" butonu - teklif veren başkan modalı açacak
+                if (interaction.user.id !== fromPresidentId) {
                     return interaction.reply({ 
-                        content: '❌ Sadece hedef başkan karşı teklif yapabilir!', 
+                        content: '❌ Teklifi sadece teklif veren başkan düzenleyebilir!', 
                         ephemeral: true 
                     });
                 }
 
-                await interaction.reply({ 
-                    content: `${config.emojis.transfer} ${targetPresident.displayName}, şimdi sizin hangi oyuncunuzu takas için teklif edeceğinizi belirtin!\n\nYeni takas komutu: \`.trade @${fromPresident.user.username} @oyuncunuz [ek_miktar]\``, 
-                    ephemeral: false 
-                });
-
+                // Takas düzenleme modal'ını aç
+                await this.handleShowTradeModal(client, interaction, [targetPresidentId, fromPresidentId, playerId]);
                 break;
         }
     }
@@ -634,12 +631,16 @@ class ButtonHandler {
             const embed = interaction.message.embeds[0];
             if (embed.fields) {
                 for (const field of embed.fields) {
-                    if (field.name.includes('Tazminat')) {
+                    if (field.name.includes('Ek Tazminat') || field.name.includes('Tazminat')) {
                         releaseData.compensation = field.value;
-                    } else if (field.name.includes('Sebep')) {
+                    } else if (field.name.includes('Fesih Sebebi') || field.name.includes('Sebep')) {
                         releaseData.reason = field.value;
                     } else if (field.name.includes('Yeni Takım')) {
                         releaseData.newTeam = field.value;
+                    } else if (field.name.includes('Ek Ödemeler')) {
+                        releaseData.bonus = field.value;
+                    } else if (field.name.includes('Oyuncu İsmi')) {
+                        releaseData.playerName = field.value;
                     } else if (field.name.includes('Oyuncu') && field.value.includes('(') && field.value.includes(')')) {
                         const nameMatch = field.value.match(/\(([^)]+)\)/);
                         if (nameMatch) {
@@ -1233,6 +1234,70 @@ class ButtonHandler {
         await interaction.showModal(modal);
     }
 
+    async handleShowAnnouncementModal(client, interaction, params) {
+        const [playerId] = params;
+        
+        // Modal formu oluştur
+        const modal = new ModalBuilder()
+            .setCustomId(`announcement_form_${playerId}`)
+            .setTitle('Serbest Futbolcu Duyuru Formu');
+
+        // Form alanları
+        const playerNameInput = new TextInputBuilder()
+            .setCustomId('player_name')
+            .setLabel('İsim')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: Cristiano Ronaldo')
+            .setRequired(true);
+
+        const requirementsInput = new TextInputBuilder()
+            .setCustomId('requirements')
+            .setLabel('Ne İsterim')
+            .setStyle(TextInputStyle.Paragraph)
+            .setPlaceholder('Örn: Samimi takım ortamı, düzenli oynama şansı')
+            .setRequired(false);
+
+        const additionalInput = new TextInputBuilder()
+            .setCustomId('additional')
+            .setLabel('Ek Şart')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: Şampiyonlar Ligi oynayan takım')
+            .setRequired(false);
+
+        const salaryInput = new TextInputBuilder()
+            .setCustomId('salary')
+            .setLabel('Maaş')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 2.000.000₺/yıl')
+            .setRequired(false);
+
+        const contractYearsInput = new TextInputBuilder()
+            .setCustomId('contract_years')
+            .setLabel('Sözleşme Yılı')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 3 yıl')
+            .setRequired(false);
+
+        const signingBonusInput = new TextInputBuilder()
+            .setCustomId('signing_bonus')
+            .setLabel('İmza Primi')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 1.000.000₺')
+            .setRequired(false);
+
+        // Action Row'lar oluştur (en fazla 5 tane olabilir)
+        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
+        const row2 = new ActionRowBuilder().addComponents(requirementsInput);
+        const row3 = new ActionRowBuilder().addComponents(additionalInput);
+        const row4 = new ActionRowBuilder().addComponents(salaryInput);
+        const row5 = new ActionRowBuilder().addComponents(contractYearsInput);
+
+        modal.addComponents(row1, row2, row3, row4, row5);
+
+        // Modal'ı göster
+        await interaction.showModal(modal);
+    }
+
     async createEnhancedFreeAgentAnnouncement(guild, player, releaseData, defaultReason) {
         try {
             const channels = require('../utils/channels');
@@ -1260,12 +1325,16 @@ class ButtonHandler {
                 );
 
             // Ek bilgileri ekle
-            if (releaseData.compensation !== 'Belirtilmedi') {
+            if (releaseData.compensation && releaseData.compensation !== 'Belirtilmedi' && releaseData.compensation.trim() !== '') {
                 embed.addFields({ name: '💰 Tazminat', value: releaseData.compensation, inline: true });
             }
             
-            if (releaseData.newTeam !== 'Belirtilmedi') {
+            if (releaseData.newTeam && releaseData.newTeam !== 'Belirtilmedi' && releaseData.newTeam.trim() !== '') {
                 embed.addFields({ name: '🏆 Potansiyel Yeni Takım', value: releaseData.newTeam, inline: true });
+            }
+
+            if (releaseData.bonus && releaseData.bonus !== 'Belirtilmedi' && releaseData.bonus.trim() !== '') {
+                embed.addFields({ name: '💎 Ek Ödemeler', value: releaseData.bonus, inline: true });
             }
 
             embed.setTimestamp()

@@ -1,13 +1,11 @@
 const { EmbedBuilder } = require('discord.js');
 const config = require('../config');
 const permissions = require('../utils/permissions');
-const channels = require('../utils/channels');
-const api = require('../utils/api');
 
 module.exports = {
-    name: 'serbest-ayarla',
-    description: 'Serbest futbolcu kanalını ayarla',
-    usage: '.serbest-ayarla #kanal',
+    name: 'duyur-ayarla',
+    description: 'Serbest futbolcu duyuru kanalını ayarla',
+    usage: '.duyur-ayarla #kanal',
     
     async execute(client, message, args) {
         try {
@@ -19,21 +17,21 @@ module.exports = {
             // Kanal kontrolü
             const targetChannel = message.mentions.channels.first();
             if (!targetChannel) {
-                return message.reply('❌ Lütfen bir kanal etiketleyin!\nKullanım: `.serbest-ayarla #kanal`');
+                return message.reply('❌ Lütfen bir kanal etiketleyin!\nKullanım: `.duyur-ayarla #kanal`');
             }
 
             // Kanalı JSON dosyasına kaydet
-            permissions.setRole(message.guild.id, 'freeAgentChannel', targetChannel.id);
+            permissions.setRole(message.guild.id, 'announcementChannel', targetChannel.id);
 
-            // Kanalı ayarla (bu örnekte sadece bilgi mesajı gönderiyoruz)
+            // Kanalı ayarla
             const setupEmbed = new EmbedBuilder()
                 .setColor(config.colors.success)
-                .setTitle(`${config.emojis.check} Serbest Futbolcu Kanalı Ayarlandı`)
+                .setTitle(`${config.emojis.check} Duyuru Kanalı Ayarlandı`)
                 .setDescription(`${targetChannel} artık serbest futbolcu duyuru kanalı olarak ayarlandı!`)
                 .addFields(
                     {
                         name: '📋 Kullanım',
-                        value: 'Artık bu kanala serbest kalan futbolcuların duyuruları otomatik olarak gönderilecek.',
+                        value: 'Artık serbest futbolcular `.duyur` komutu ile bu kanala duyuru gönderebilir.',
                         inline: false
                     }
                 )
@@ -45,7 +43,7 @@ module.exports = {
             // Test duyurusu gönder
             const testEmbed = new EmbedBuilder()
                 .setColor(config.colors.primary)
-                .setTitle(`${config.emojis.football} Serbest Futbolcu Kanalı Aktif`)
+                .setTitle(`${config.emojis.football} Duyuru Kanalı Aktif`)
                 .setDescription('Bu kanal artık serbest futbolcu duyuruları için aktif!')
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
@@ -53,7 +51,7 @@ module.exports = {
             await targetChannel.send({ embeds: [testEmbed] });
 
         } catch (error) {
-            console.error('Serbest-ayarla komutu hatası:', error);
+            console.error('Duyur-ayarla komutu hatası:', error);
             message.reply('❌ Kanal ayarlanırken bir hata oluştu!');
         }
     }

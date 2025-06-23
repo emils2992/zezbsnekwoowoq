@@ -385,10 +385,10 @@ async function handleModalSubmit(client, interaction) {
                     .setStyle(ButtonStyle.Danger)
                     .setEmoji(config.emojis.cross),
                 new ButtonBuilder()
-                    .setCustomId(`trade_counter_${targetPresidentId}_${fromPresidentId}_${playerId}`)
-                    .setLabel('Sende Yap')
+                    .setCustomId(`trade_edit_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+                    .setLabel('Düzenle')
                     .setStyle(ButtonStyle.Secondary)
-                    .setEmoji(config.emojis.handshake)
+                    .setEmoji(config.emojis.edit)
             );
 
         // Müzakere kanalı oluştur
@@ -495,6 +495,73 @@ async function handleModalSubmit(client, interaction) {
             .setColor(config.colors.success)
             .setTitle(`${config.emojis.check} Karşılıklı Fesih Teklifi Gönderildi`)
             .setDescription(`${player.user} için karşılıklı fesih teklifiniz gönderildi!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
+            .setTimestamp();
+
+        await interaction.editReply({ embeds: [successEmbed] });
+    }
+
+    // Announcement form modali
+    else if (customId.startsWith('announcement_form_')) {
+        const [, , playerId] = customId.split('_');
+        const player = interaction.guild.members.cache.get(playerId);
+
+        if (!player) {
+            return interaction.editReply({ content: '❌ Kullanıcı bulunamadı!' });
+        }
+
+        // Form verilerini al
+        const announcementData = {
+            playerName: interaction.fields.getTextInputValue('player_name') || player.displayName,
+            requirements: interaction.fields.getTextInputValue('requirements') || 'Belirtilmedi',
+            additional: interaction.fields.getTextInputValue('additional') || 'Belirtilmedi',
+            salary: interaction.fields.getTextInputValue('salary') || 'Müzakereye açık',
+            contractYears: interaction.fields.getTextInputValue('contract_years') || 'Müzakereye açık',
+            signingBonus: interaction.fields.getTextInputValue('signing_bonus') || 'Müzakereye açık'
+        };
+
+        // Duyuru kanalını bul
+        const channels = require('./utils/channels');
+        const announcementChannel = await channels.findAnnouncementChannel(interaction.guild);
+        
+        if (!announcementChannel) {
+            return interaction.editReply({ 
+                content: '❌ Duyuru kanalı ayarlanmamış! Lütfen önce `.duyur-ayarla #kanal` komutunu kullanın.' 
+            });
+        }
+
+        // Duyuru embed'i oluştur
+        const announcementEmbed = new EmbedBuilder()
+            .setColor(config.colors.primary)
+            .setTitle(`${config.emojis.football} Serbest Futbolcu Duyurusu`)
+            .setDescription(`**${announcementData.playerName}** transfer için arayışta!`)
+            .setThumbnail(player.displayAvatarURL({ dynamic: true }))
+            .addFields(
+                { name: '⚽ Oyuncu', value: `${player} (${announcementData.playerName})`, inline: true },
+                { name: '💰 Maaş', value: announcementData.salary, inline: true },
+                { name: '📅 Sözleşme Yılı', value: announcementData.contractYears, inline: true },
+                { name: '💎 İmza Primi', value: announcementData.signingBonus, inline: true },
+                { name: '🎯 Ne İsterim', value: announcementData.requirements, inline: false }
+            );
+
+        if (announcementData.additional !== 'Belirtilmedi') {
+            announcementEmbed.addFields({ name: '➕ Ek Şart', value: announcementData.additional, inline: false });
+        }
+
+        announcementEmbed
+            .setTimestamp()
+            .setFooter({ text: 'Transfer Sistemi', iconURL: interaction.guild.iconURL() });
+
+        // Duyuruyu gönder
+        await announcementChannel.send({
+            content: `${config.emojis.football} **YENİ SERBEST FUTBOLCU DUYURUSU** ${config.emojis.football}`,
+            embeds: [announcementEmbed]
+        });
+
+        // Başarı mesajı
+        const successEmbed = new EmbedBuilder()
+            .setColor(config.colors.success)
+            .setTitle(`${config.emojis.check} Duyuru Gönderildi`)
+            .setDescription(`Duyurunuz başarıyla ${announcementChannel} kanalına gönderildi!`)
             .setTimestamp();
 
         await interaction.editReply({ embeds: [successEmbed] });
