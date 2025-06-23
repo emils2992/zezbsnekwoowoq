@@ -43,6 +43,8 @@ class ButtonHandler {
                         await this.handleShowTradeModal(client, interaction, params.slice(2));
                     } else if (params[0] === 'release' && params[1] === 'modal') {
                         await this.handleShowReleaseModal(client, interaction, params.slice(2));
+                    } else if (params[0] === 'announcement' && params[1] === 'modal') {
+                        await this.handleShowAnnouncementModal(client, interaction, params.slice(2));
                     }
                     break;
                 default:
