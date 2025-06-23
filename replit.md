@@ -257,6 +257,12 @@ The bot is configured for Replit deployment with:
     - Fixed channel deletion to work consistently across all transfer types
     - Added comprehensive logging for debugging channel deletion issues
     - All accept/reject buttons now properly delete channels after interactions
+- June 23, 2025. Enhanced edit functionality and added self-mention prevention:
+    - Fixed edit button to open modal directly without "Formu Düzenle" intermediate step
+    - Modal form submissions now properly update existing embeds in same channel without creating new channels
+    - Added self-mention prevention across all transfer commands (offer, contract, trade, hire, release)
+    - Users can no longer mention themselves when using transfer commands
+    - Improved user experience with direct modal editing and proper embed updates
 
 ## User Preferences
 

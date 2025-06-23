@@ -29,6 +29,11 @@ module.exports = {
                 return message.reply('❌ Başkan ve futbolcu farklı kişiler olmalı!');
             }
 
+            // Kendi kendini etiketleme kontrolü  
+            if (targetPresidentUser.id === message.author.id || playerUser.id === message.author.id) {
+                return message.reply('❌ Kendinizi etiketleyemezsiniz!');
+            }
+
             const targetPresident = message.guild.members.cache.get(targetPresidentUser.id);
             const player = message.guild.members.cache.get(playerUser.id);
 

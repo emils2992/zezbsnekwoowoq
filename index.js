@@ -277,7 +277,7 @@ async function handleModalSubmit(client, interaction) {
                     await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
                 }
             } else {
-                // Create new negotiation channel
+                // Create new negotiation channel only if not in a negotiation channel
                 const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'release');
                 if (!channel) {
                     return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });

@@ -28,6 +28,11 @@ module.exports = {
                 return message.reply('❌ Lütfen bir futbolcu etiketleyin!\nKullanım: `.hire @hedefbaşkan @futbolcu`');
             }
 
+            // Kendi kendini etiketleme kontrolü
+            if (targetPresident === message.author.id || playerUser.id === message.author.id) {
+                return message.reply('❌ Kendinizi etiketleyemezsiniz!');
+            }
+
             const targetMember = message.guild.members.cache.get(targetPresident.id);
             const player = message.guild.members.cache.get(playerUser.id);
 

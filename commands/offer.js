@@ -22,6 +22,11 @@ module.exports = {
                 return message.reply('❌ Lütfen bir futbolcu etiketleyin!\nKullanım: `.offer @futbolcu`');
             }
 
+            // Kendi kendini etiketleme kontrolü
+            if (targetUser.id === message.author.id) {
+                return message.reply('❌ Kendinize teklif yapamazsınız!');
+            }
+
             const targetMember = message.guild.members.cache.get(targetUser.id);
             if (!targetMember) {
                 return message.reply('❌ Etiketlenen kullanıcı sunucuda bulunamadı!');

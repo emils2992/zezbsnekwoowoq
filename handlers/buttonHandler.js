@@ -648,8 +648,8 @@ class ButtonHandler {
                 });
             }
 
-            // Update the message with editable form in the same channel
-            await this.showEditableReleaseForm(client, interaction, playerId, presidentId, releaseType);
+            // Open modal directly for editing without showing "Formu Düzenle" button
+            await this.handleShowReleaseForm(client, interaction, [playerId, presidentId, releaseType]);
         }
     }
 
