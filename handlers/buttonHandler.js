@@ -511,18 +511,18 @@ class ButtonHandler {
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
+            // Defer immediately to prevent timeout
+            await interaction.deferReply();
+            
             // Check if user is authorized (target president only)
             const member = interaction.member;
             const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
             
             if (!isAuthorized) {
-                return interaction.reply({
-                    content: '❌ Sadece hedef başkan veya transfer yetkilileri takas teklifini kabul edebilir!',
-                    ephemeral: true
+                return interaction.editReply({
+                    content: '❌ Sadece hedef başkan veya transfer yetkilileri takas teklifini kabul edebilir!'
                 });
             }
-
-            await interaction.deferReply();
             
             // Stage 2: Create channel between the two players for their approval
             const playersChannel = await channels.createNegotiationChannel(guild, wantedPlayer.user, givenPlayer.user, 'trade');
@@ -619,6 +619,53 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'reject') {
+            // Defer immediately to prevent timeout
+            await interaction.deferReply();
+            
+            // Check if user is authorized (target president only)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
+                return interaction.editReply({
+                    content: '❌ Sadece hedef başkan veya transfer yetkilileri takas teklifini reddedebilir!'
+                });
+            }
+            
+            await interaction.editReply({
+                content: `❌ Takas teklifi reddedildi!`
+            });
+
+            // Disable all buttons immediately
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            // Force channel deletion
+            setTimeout(async () => {
+                try {
+                    const channelToDelete = interaction.channel;
+                    if (channelToDelete && channelToDelete.deletable) {
+                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
+                        await channelToDelete.delete("Takas reddedildi - Kanal otomatik silindi");
+                        console.log('KANAL BAŞARIYLA SİLİNDİ');
+                    }
+                } catch (error) {
+                    console.error('KANAL SİLME HATASI:', error);
+                }
+            }, 1500);
+
+        } else if (buttonType === 'reject') {
             // Check if user is authorized (target president or transfer authority)
             const member = interaction.member;
             const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
@@ -679,8 +726,18 @@ class ButtonHandler {
                 });
             }
 
-            // Extract existing data from embed and show pre-filled modal
-            await this.showEditTradeModal(client, interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId);
+            // Show modal directly (modals handle their own response)
+            try {
+                await this.showEditTradeModal(client, interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId);
+            } catch (error) {
+                console.error('Modal show error:', error);
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({
+                        content: '❌ Form açılırken bir hata oluştu!',
+                        ephemeral: true
+                    });
+                }
+            }
         }
     }
 
@@ -709,10 +766,8 @@ class ButtonHandler {
                 });
             }
 
-            // Check if interaction is already acknowledged
-            if (!interaction.deferred && !interaction.replied) {
-                await interaction.deferReply();
-            }
+            // Defer immediately to prevent timeout
+            await interaction.deferReply();
 
             // Debug user fetching
             console.log(`Fetching users for trade acceptance:`);
@@ -906,20 +961,21 @@ class ButtonHandler {
             }
 
         } else if (buttonType === 'reject') {
+            // Defer immediately to prevent timeout
+            await interaction.deferReply();
+            
             // Check if user is one of the players
             const member = interaction.member;
             const isAuthorizedPlayer = interaction.user.id === wantedPlayerId || interaction.user.id === givenPlayerId;
             const isTransferAuthority = permissions.isTransferAuthority(member);
             
             if (!isAuthorizedPlayer && !isTransferAuthority) {
-                return interaction.reply({
-                    content: '❌ Sadece takas edilen oyuncular veya transfer yetkilileri reddedebilir!',
-                    ephemeral: true
+                return interaction.editReply({
+                    content: '❌ Sadece takas edilen oyuncular veya transfer yetkilileri reddedebilir!'
                 });
             }
 
             const playerName = interaction.user.id === wantedPlayerId ? wantedPlayer.displayName : givenPlayer.displayName;
-            await interaction.deferReply();
             await interaction.editReply({
                 content: `❌ **${playerName}** takası reddetti! Müzakere iptal edildi.`
             });
@@ -969,8 +1025,18 @@ class ButtonHandler {
                 });
             }
 
-            // Show salary editing modal for both players - target president can also edit
-            await this.handleShowTradePlayerSalaryForm(client, interaction, [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId]);
+            // Show salary editing modal for both players - modals handle their own response
+            try {
+                await this.handleShowTradePlayerSalaryForm(client, interaction, [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId]);
+            } catch (error) {
+                console.error('Modal show error:', error);
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({
+                        content: '❌ Form açılırken bir hata oluştu!',
+                        ephemeral: true
+                    });
+                }
+            }
         }
     }
 
