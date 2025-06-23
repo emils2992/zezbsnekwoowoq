@@ -831,7 +831,7 @@ class ButtonHandler {
 
                     // Send completion message to channel
                     await interaction.channel.send({
-                        content: `🎉 **HER İKİ OYUNCU DA KABUL ETTİ!** Takas tamamlandı ve otomatik duyuru gönderildi!\n\n${targetPresident.user} ${president.user}`
+                        content: `🎉 **HER İKİ OYUNCU DA KABUL ETTİ!** Takas tamamlandı ve otomatik duyuru gönderildi!\n\n${targetPresident.user} ${president.user}\n\n⏰ Kanal 3 saniye sonra otomatik olarak silinecek...`
                     });
 
                     // Disable all buttons
@@ -852,14 +852,30 @@ class ButtonHandler {
                     // Clean up acceptances
                     delete global[acceptanceKey];
 
-                    // Delete channel after delay
+                    // Delete channel after delay with countdown
+                    setTimeout(async () => {
+                        try {
+                            await interaction.channel.send('⏰ **2 saniye sonra kanal silinecek...**');
+                        } catch (error) {
+                            console.log('Countdown message error:', error);
+                        }
+                    }, 1000);
+                    
+                    setTimeout(async () => {
+                        try {
+                            await interaction.channel.send('⏰ **1 saniye sonra kanal silinecek...**');
+                        } catch (error) {
+                            console.log('Countdown message error:', error);
+                        }
+                    }, 2000);
+                    
                     setTimeout(async () => {
                         try {
                             const channelToDelete = interaction.channel;
                             if (channelToDelete && channelToDelete.deletable) {
-                                console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                                await channelToDelete.delete("Takas tamamlandı - Kanal otomatik silindi");
-                                console.log('KANAL BAŞARIYLA SİLİNDİ');
+                                console.log(`🗑️ TAKAs TAMAMLANDI - KANAL SİLİNİYOR: ${channelToDelete.name}`);
+                                await channelToDelete.delete("✅ Takas başarıyla tamamlandı - Kanal otomatik silindi");
+                                console.log('✅ TAKAS KANALI BAŞARIYLA SİLİNDİ');
                             }
                         } catch (error) {
                             console.error('KANAL SİLME HATASI:', error);
@@ -1484,6 +1500,7 @@ class ButtonHandler {
         let mention = '';
         
         // Use appropriate ping role based on transfer type
+        const type = transferData.type;
         let pingRoleId = null;
         if (type === 'offer' || type === 'contract' || type === 'trade' || type === 'hire') {
             // Use transferPingRole for general transfers
