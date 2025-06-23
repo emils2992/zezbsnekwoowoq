@@ -678,11 +678,18 @@ class ButtonHandler {
                     components: [] 
                 });
 
-                // Serbest-duyuru kanalına basit mesaj gönder
-                await this.sendSimpleFreeAgentAnnouncement(
+                // Transfer duyurusu ve serbest futbolcu duyurusu gönder
+                await this.sendReleaseTransferAnnouncement(
                     interaction.guild, 
                     player.user, 
-                    releaseData.playerName || player.user.username
+                    releaseData,
+                    'mutual' // Karşılıklı fesih
+                );
+                
+                await this.sendDetailedFreeAgentAnnouncement(
+                    interaction.guild, 
+                    player.user, 
+                    releaseData
                 );
 
                 // Kanalı 5 saniye sonra sil
@@ -739,7 +746,7 @@ class ButtonHandler {
                     components: [] 
                 });
 
-                // Serbest-duyuru kanalına mesaj gönder
+                // Tek taraflı fesih için sadece basit serbest futbolcu duyurusu
                 await this.sendSimpleFreeAgentAnnouncement(
                     interaction.guild, 
                     player.user, 
@@ -1383,27 +1390,210 @@ class ButtonHandler {
         }
     }
 
-    async sendSimpleFreeAgentAnnouncement(guild, player, playerName) {
+    async sendReleaseTransferAnnouncement(guild, player, releaseData, releaseType) {
         try {
-            // Serbest-duyuru kanalını bul
-            const announcementChannel = guild.channels.cache.find(c => 
-                c.type === 0 && // GuildText
-                (c.name.includes('serbest-duyuru') || c.name.includes('serbest-oyuncu'))
-            );
+            // Transfer duyuru kanalını bul
+            const fs = require('fs');
+            const path = require('path');
+            const config = require('../config');
+            const rolesPath = path.join(__dirname, '../data/roles.json');
             
-            if (!announcementChannel) {
-                console.log('Serbest-duyuru kanalı bulunamadı');
-                return null;
+            let allData = {};
+            try {
+                allData = JSON.parse(fs.readFileSync(rolesPath, 'utf8'));
+            } catch (error) {
+                console.log('Transfer duyuru kanalı ayarlanmamış');
+                return;
+            }
+            
+            const guildData = allData[guild.id];
+            if (!guildData || !guildData.transferChannel) {
+                console.log('Transfer duyuru kanalı ayarlanmamış');
+                return;
+            }
+            
+            const transferChannel = guild.channels.cache.get(guildData.transferChannel);
+            if (!transferChannel) {
+                console.log('Transfer duyuru kanalı bulunamadı');
+                return;
             }
 
-            const config = require('../config');
+            // Release form verilerini kullanarak transfer duyurusu oluştur
+            const embed = new EmbedBuilder()
+                .setColor(config.colors.warning)
+                .setTitle(`${config.emojis.release} FESIH TRANSFER TAMAMLANDI`)
+                .setDescription(`**${releaseData.playerName || player.username}** için fesih işlemi tamamlandı!`)
+                .setThumbnail(player.displayAvatarURL({ dynamic: true }))
+                .addFields(
+                    { name: '⚽ Oyuncu', value: releaseData.playerName || player.username, inline: true },
+                    { name: '📋 Fesih Türü', value: releaseType === 'mutual' ? 'Karşılıklı Anlaşma' : 'Tek Taraflı', inline: true },
+                    { name: '💡 Durum', value: 'Serbest Futbolcu', inline: true }
+                );
+
+            // Sadece dolu alanları ekle
+            if (releaseData.reason && releaseData.reason !== 'Sözleşme feshi' && releaseData.reason.trim()) {
+                embed.addFields({ name: '📄 Sebep', value: releaseData.reason, inline: false });
+            }
+
+            if (releaseData.compensation && releaseData.compensation !== 'Belirtilmedi' && releaseData.compensation.trim()) {
+                embed.addFields({ name: '💰 Tazminat', value: releaseData.compensation, inline: true });
+            }
+
+            if (releaseData.newTeam && releaseData.newTeam !== 'Belirtilmedi' && releaseData.newTeam.trim()) {
+                embed.addFields({ name: '🏆 Potansiyel Yeni Takım', value: releaseData.newTeam, inline: true });
+            }
+
+            if (releaseData.bonus && releaseData.bonus !== 'Belirtilmedi' && releaseData.bonus.trim()) {
+                embed.addFields({ name: '💎 Ek Ödemeler', value: releaseData.bonus, inline: true });
+            }
+
+            embed.setTimestamp()
+                .setFooter({ text: 'Transfer Sistemi' });
+
+            // Ping rolü
+            let pingContent = `${config.emojis.release} **FESIH TRANSFER DUYURUSU**`;
             
+            if (guildData.transferPingRole) {
+                const pingRole = guild.roles.cache.get(guildData.transferPingRole);
+                if (pingRole) {
+                    pingContent = `${config.emojis.release} **FESIH TRANSFER DUYURUSU**\n${pingRole}`;
+                }
+            }
+
+            await transferChannel.send({
+                content: pingContent,
+                embeds: [embed]
+            });
+
+            console.log(`Fesih transfer duyurusu gönderildi: ${player.username}`);
+
+        } catch (error) {
+            console.error('Fesih transfer duyurusu hatası:', error);
+        }
+    }
+
+    async sendDetailedFreeAgentAnnouncement(guild, player, releaseData) {
+        try {
+            // Serbest-ayarla ile ayarlanan kanalı bul
+            const fs = require('fs');
+            const path = require('path');
+            const config = require('../config');
+            const rolesPath = path.join(__dirname, '../data/roles.json');
+            
+            let allData = {};
+            try {
+                allData = JSON.parse(fs.readFileSync(rolesPath, 'utf8'));
+            } catch (error) {
+                console.log('Serbest futbolcu kanalı ayarlanmamış');
+                return;
+            }
+            
+            const guildData = allData[guild.id];
+            if (!guildData || !guildData.freeAgentChannel) {
+                console.log('Serbest futbolcu kanalı ayarlanmamış');
+                return;
+            }
+            
+            const freeAgentChannel = guild.channels.cache.get(guildData.freeAgentChannel);
+            if (!freeAgentChannel) {
+                console.log('Serbest futbolcu kanalı bulunamadı');
+                return;
+            }
+
+            // Detaylı serbest futbolcu duyurusu
+            const embed = new EmbedBuilder()
+                .setColor(config.colors.success)
+                .setTitle('🆓 YENİ SERBEST FUTBOLCU')
+                .setDescription(`**${releaseData.playerName || player.username}** artık serbest futbolcu!\n\nTransfer teklifleri için \`.offer\` komutunu kullanabilirsiniz.`)
+                .setThumbnail(player.displayAvatarURL({ dynamic: true }))
+                .addFields(
+                    { name: '⚽ Oyuncu', value: `${player} (${releaseData.playerName || player.username})`, inline: true },
+                    { name: '📋 Fesih Sebebi', value: releaseData.reason || 'Karşılıklı anlaşma', inline: true }
+                );
+
+            // Sadece dolu alanları ekle
+            if (releaseData.compensation && releaseData.compensation !== 'Belirtilmedi' && releaseData.compensation.trim()) {
+                embed.addFields({ name: '💰 Alınan Tazminat', value: releaseData.compensation, inline: true });
+            }
+
+            if (releaseData.newTeam && releaseData.newTeam !== 'Belirtilmedi' && releaseData.newTeam.trim()) {
+                embed.addFields({ name: '🏆 Potansiyel Yeni Takım', value: releaseData.newTeam, inline: true });
+            }
+
+            if (releaseData.bonus && releaseData.bonus !== 'Belirtilmedi' && releaseData.bonus.trim()) {
+                embed.addFields({ name: '💎 Ek Ödemeler', value: releaseData.bonus, inline: true });
+            }
+
+            embed.setTimestamp()
+                .setFooter({ text: 'Serbest Futbolcu Sistemi' });
+
+            // Ping rolü
+            let pingContent = `${config.emojis.football} **YENİ SERBEST FUTBOLCU DUYURUSU**`;
+            
+            if (guildData.freeAgentPingRole) {
+                const pingRole = guild.roles.cache.get(guildData.freeAgentPingRole);
+                if (pingRole) {
+                    pingContent = `${config.emojis.football} **YENİ SERBEST FUTBOLCU DUYURUSU**\n${pingRole}`;
+                }
+            }
+
+            await freeAgentChannel.send({
+                content: pingContent,
+                embeds: [embed]
+            });
+
+            console.log(`Detaylı serbest futbolcu duyurusu gönderildi: ${player.username}`);
+
+        } catch (error) {
+            console.error('Detaylı serbest futbolcu duyurusu hatası:', error);
+        }
+    }
+
+    async sendSimpleFreeAgentAnnouncement(guild, player, playerName) {
+        try {
+            // Serbest-ayarla ile ayarlanan kanalı bul
+            const fs = require('fs');
+            const path = require('path');
+            const config = require('../config');
+            const rolesPath = path.join(__dirname, '../data/roles.json');
+            
+            let allData = {};
+            try {
+                allData = JSON.parse(fs.readFileSync(rolesPath, 'utf8'));
+            } catch (error) {
+                // Fallback: Kanal isminden bul
+                const announcementChannel = guild.channels.cache.find(c => 
+                    c.type === 0 && // GuildText
+                    (c.name.includes('serbest-duyuru') || c.name.includes('serbest-oyuncu'))
+                );
+                
+                if (announcementChannel) {
+                    await announcementChannel.send({
+                        content: `${config.emojis.football} **${playerName}** serbest kaldı!`
+                    });
+                    console.log(`Basit serbest futbolcu duyurusu gönderildi: ${playerName}`);
+                }
+                return;
+            }
+            
+            const guildData = allData[guild.id];
+            if (!guildData || !guildData.freeAgentChannel) {
+                console.log('Serbest futbolcu kanalı ayarlanmamış');
+                return;
+            }
+            
+            const freeAgentChannel = guild.channels.cache.get(guildData.freeAgentChannel);
+            if (!freeAgentChannel) {
+                console.log('Serbest futbolcu kanalı bulunamadı');
+                return;
+            }
+
             // Basit serbest futbolcu mesajı
-            await announcementChannel.send({
+            await freeAgentChannel.send({
                 content: `${config.emojis.football} **${playerName}** serbest kaldı!`
             });
 
-            console.log(`Serbest futbolcu duyurusu gönderildi: ${playerName}`);
+            console.log(`Basit serbest futbolcu duyurusu gönderildi: ${playerName}`);
 
         } catch (error) {
             console.error('Basit serbest futbolcu duyurusu hatası:', error);
