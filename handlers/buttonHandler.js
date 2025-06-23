@@ -1529,7 +1529,7 @@ class ButtonHandler {
         const desireInput = new TextInputComponent()
             .setCustomId('desire')
             .setLabel('Ne İsterim')
-            .setStyle('LONG')
+            .setStyle('PARAGRAPH')
             .setPlaceholder('Örn: Yeni takım arıyorum, sözleşme yenilemek istiyorum, vs.')
             .setRequired(true);
 
