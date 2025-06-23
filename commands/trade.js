@@ -57,7 +57,7 @@ module.exports = {
                 components: [
                     new MessageActionRow().addComponents(
                         new MessageButton()
-                            .setCustomId(`show_trade_modal_${targetPresidentUser.id}_${message.author.id}_${playerUser.id}`)
+                            .setCustomId(`show_trade_modal_${playerUser.id}_${message.author.id}`)
                             .setLabel('Takas Formu Aç')
                             .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)

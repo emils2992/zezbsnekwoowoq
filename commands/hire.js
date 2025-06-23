@@ -65,7 +65,7 @@ module.exports = {
                 components: [
                     new MessageActionRow().addComponents(
                         new MessageButton()
-                            .setCustomId(`show_hire_modal_${targetPresident.id}_${message.author.id}_${playerUser.id}`)
+                            .setCustomId(`show_hire_modal_${playerUser.id}_${message.author.id}`)
                             .setLabel('Kiralık Formu Aç')
                             .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)
