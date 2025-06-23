@@ -730,22 +730,205 @@ async function handleModalSubmit(client, interaction) {
             await interaction.editReply({ content: `✅ Duyurunuz ${announcementChannel} kanalında yayınlandı!` });
         }
 
-        // Trade player salary form modali (başkanlar anlaştığında oyuncu maaşları düzenleme)
+        // Trade player salary edit modal handler
         else if (customId.startsWith('trade_edit_')) {
+            console.log('Trade edit modal submission received:', customId);
+            
             if (!interaction.replied && !interaction.deferred) {
                 await interaction.deferReply({ ephemeral: true });
             }
             
-            const channelId = customId.split('_')[2];
-            const params = global[`trade_params_${channelId}`];
-            
-            if (!params) {
-                const reply = interaction.replied || interaction.deferred ? 
-                    interaction.editReply({ content: 'Form verileri bulunamadı!' }) :
-                    interaction.reply({ content: 'Form verileri bulunamadı!', ephemeral: true });
-                return reply;
+            try {
+                // Extract trade salary data from modal
+                const tradePlayerData = {
+                    wantedPlayerSalary: interaction.fields.getTextInputValue('wanted_player_salary') || 'Belirtilmemiş',
+                    givenPlayerSalary: interaction.fields.getTextInputValue('given_player_salary') || 'Belirtilmemiş', 
+                    wantedPlayerContract: interaction.fields.getTextInputValue('wanted_player_contract') || 'Belirtilmemiş',
+                    givenPlayerContract: interaction.fields.getTextInputValue('given_player_contract') || 'Belirtilmemiş'
+                };
+                
+                console.log('Trade salary data extracted:', tradePlayerData);
+                
+                // Update the embed in the current channel
+                const messages = await interaction.channel.messages.fetch({ limit: 10 });
+                const originalMessage = messages.find(msg => 
+                    msg.embeds.length > 0 && 
+                    msg.components.length > 0 &&
+                    msg.components[0].components.some(btn => btn.customId && btn.customId.includes('trade_player_'))
+                );
+
+                if (originalMessage) {
+                    const embed = originalMessage.embeds[0];
+                    const { MessageEmbed } = require('discord.js');
+                    const updatedEmbed = new MessageEmbed(embed);
+                    
+                    // Clear existing salary/contract fields and add updated ones
+                    updatedEmbed.fields = updatedEmbed.fields.filter(f => 
+                        !f.name.includes('Maaş') && !f.name.includes('Sözleşme')
+                    );
+                    
+                    // Add updated fields
+                    updatedEmbed.addFields(
+                        { name: '💰 İstenen Oyuncunun Maaşı', value: tradePlayerData.wantedPlayerSalary, inline: true },
+                        { name: '💸 Verilecek Oyuncunun Maaşı', value: tradePlayerData.givenPlayerSalary, inline: true },
+                        { name: '📅 İstenen Oyuncunun Sözleşme/Ek Madde', value: tradePlayerData.wantedPlayerContract, inline: false },
+                        { name: '📋 Verilecek Oyuncunun Sözleşme/Ek Madde', value: tradePlayerData.givenPlayerContract, inline: false }
+                    );
+
+                    await originalMessage.edit({
+                        embeds: [updatedEmbed],
+                        components: originalMessage.components
+                    });
+                    
+                    await interaction.editReply({ content: 'Maaş bilgileri güncellendi!' });
+                    console.log('Trade edit completed successfully');
+                    return;
+                } else {
+                    await interaction.editReply({ content: 'Güncellenecek mesaj bulunamadı!' });
+                    console.log('Original message not found for trade edit');
+                    return;
+                }
+            } catch (error) {
+                console.error('Trade edit error:', error);
+                await interaction.editReply({ content: 'Güncelleme sırasında hata oluştu!' });
+                return;
             }
-            
+        }
+        
+        // Trade form submission handler  
+        else if (customId.startsWith('trade_form_')) {
+            console.log('Trade form submission started:', customId);
+            await interaction.deferReply({ ephemeral: true });
+
+            const params = customId.split('_');
+            const targetPresidentId = params[2];
+            const wantedPlayerId = params[3];  
+            const givenPlayerId = params[4];
+            const presidentId = params[5];
+
+            console.log('Parsed IDs:', { targetPresidentId, wantedPlayerId, givenPlayerId, presidentId });
+
+            try {
+                const guild = interaction.guild;
+                const targetPresident = await guild.members.fetch(targetPresidentId);
+                const wantedPlayer = await guild.members.fetch(wantedPlayerId);
+                const givenPlayer = await guild.members.fetch(givenPlayerId);
+                const president = await guild.members.fetch(presidentId);
+
+                console.log('Found users:', {
+                    targetPresident: targetPresident.displayName,
+                    wantedPlayer: wantedPlayer.displayName,
+                    givenPlayer: givenPlayer.displayName,
+                    president: president.displayName
+                });
+
+                if (!targetPresident || !wantedPlayer || !givenPlayer || !president) {
+                    console.log('Missing users error');
+                    return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+                }
+
+            const tradeData = {
+                additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '',
+                bonus: interaction.fields.getTextInputValue('bonus') || '',
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
+            };
+
+            // Check if we're in a negotiation channel (editing existing form)
+            const isNegotiationChannel = interaction.channel && interaction.channel.name && 
+                (interaction.channel.name.includes("takas") || interaction.channel.name.includes("trade") || interaction.channel.name.includes("muzakere"));
+
+            if (isNegotiationChannel) {
+                // Update existing embed in the same channel
+                const tradeEmbed = embeds.createTradeForm(president.user, targetPresident.user, wantedPlayer.user, tradeData);
+                tradeEmbed.addFields(
+                    { name: '🔄 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true }
+                );
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`trade_accept_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`trade_reject_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`trade_edit_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                // Find and update the original message
+                const messages = await interaction.channel.messages.fetch({ limit: 10 });
+                const originalMessage = messages.find(msg => 
+                    msg.embeds.length > 0 && 
+                    msg.components.length > 0 &&
+                    msg.components[0].components.some(btn => btn.customId && btn.customId.includes('trade_'))
+                );
+
+                if (originalMessage) {
+                    await originalMessage.edit({
+                        embeds: [tradeEmbed],
+                        components: [buttons]
+                    });
+                    await interaction.editReply({ content: `✅ Takas formu güncellendi!` });
+                } else {
+                    await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
+                }
+            } else {
+                // İlk başkan ile hedef başkan arasında müzakere kanalı oluştur
+                console.log('Creating trade channel for:', president.user.username, 'and', targetPresident.user.username);
+                const channel = await channels.createNegotiationChannel(interaction.guild, president.user, targetPresident.user, 'trade');
+                console.log('Channel creation result:', channel ? channel.name : 'FAILED');
+                if (!channel) {
+                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                }
+
+                // Takas embed'i oluştur
+                const tradeEmbed = embeds.createTradeForm(president.user, targetPresident.user, wantedPlayer.user, tradeData);
+                tradeEmbed.addFields(
+                    { name: '🔄 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true }
+                );
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`trade_accept_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`trade_reject_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`trade_edit_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                await channel.send({
+                    embeds: [tradeEmbed],
+                    components: [buttons]
+                });
+
+                await interaction.editReply({ content: `✅ Takas müzakeresi ${channel} kanalında başlatıldı!\n\n${targetPresident.user} ${president.user} - Lütfen ${channel} kanalına gidin ve müzakereyi tamamlayın.` });
+            }
+            } catch (error) {
+                console.error('Trade form submission error:', error);
+                return interaction.editReply({ content: 'Kullanıcılar getirilirken hata oluştu!' });
+            }
+        }
+        
+        // Continue with existing salary form handler
+        else if (customId.startsWith('trade_salary_')) {
             const { targetPresidentId, wantedPlayerId, givenPlayerId, presidentId } = params;
             const guild = interaction.guild;
             
