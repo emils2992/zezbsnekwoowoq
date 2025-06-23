@@ -142,6 +142,8 @@ The bot is configured for Replit deployment with:
   - Made all duyuru form fields mandatory (player name, new club, salary, contract years, bonus)
   - Replaced random generated player faces with actual Discord user avatars in all transfer and free agent announcements
   - Updated announcement structure to display comprehensive transfer information with required details
+  - Fixed .offer command role checking to only require free agent role (not both player and free agent roles)
+  - Updated .release command permissions to allow both team presidents and free agents to use it
 
 ## User Preferences
 
