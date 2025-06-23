@@ -586,7 +586,7 @@ class ButtonHandler {
             });
 
             await interaction.editReply({
-                content: `✅ Takas başkanlar tarafından kabul edildi! Oyuncuların onayı için ${playersChannel} kanalı oluşturuldu.\n\n${wantedPlayer.user} ${givenPlayer.user} - Lütfen ${playersChannel} kanalına gidin ve takası onaylayın.`
+                content: `✅ Takas başkanlar tarafından kabul edildi! Oyuncuların onayı için ${playersChannel} kanalı oluşturuldu.\n\n${wantedPlayer.user} ${givenPlayer.user} ${targetPresident.user} ${president.user} - Lütfen ${playersChannel} kanalına gidin ve takası onaylayın.`
             });
 
             // Disable current buttons
@@ -804,9 +804,8 @@ class ButtonHandler {
                 });
             }
 
-            await interaction.deferReply();
-            
             const playerName = interaction.user.id === wantedPlayerId ? wantedPlayer.displayName : givenPlayer.displayName;
+            await interaction.deferReply();
             await interaction.editReply({
                 content: `❌ **${playerName}** takası reddetti! Müzakere iptal edildi.`
             });
