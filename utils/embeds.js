@@ -45,7 +45,7 @@ class EmbedCreator {
             .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan takas teklifi:`)
             .addField(`${config.emojis.handshake} Teklif Yapan`, `${fromPresident}`, true)
             .addField('⚽ Futbolcu', `${player}`, true)
-            .addField('🔄 İstenen Oyuncu', tradeData?.requestedPlayer || 'Belirtilmemiş', true)
+            .addField('🔄 İstenen Oyuncu', tradeData?.wantedPlayer || 'Belirtilmemiş', true)
             .addField(`${config.emojis.money} Ek Miktar`, tradeData?.additionalAmount || '0₺', true)
             .addField('💰 Yıllık Maaş', tradeData?.salary || '18.000.000₺/yıl', true)
             .addField('📅 Sözleşme Süresi', tradeData?.contractDuration || '2 yıl', true).setThumbnail(player.displayAvatarURL({ dynamic: true }))
@@ -62,14 +62,18 @@ class EmbedCreator {
             .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan kiralık teklifi:`)
             .addField(`${config.emojis.handshake} Teklif Yapan`, `${fromPresident}`, true)
             .addField('⚽ Futbolcu', `${player}`, true)
-            .addField(`${config.emojis.money} Kiralık Bedeli`, hireData?.hireFee || '500.000₺', true)
-            .addField('💰 Maaş Katkısı', hireData?.salaryContribution || '%50', true)
-            .addField('📅 Kiralık Süresi', hireData?.hireDuration || '6 ay', true)
-            .addField('🔄 Satın Alma Opsiyonu', hireData?.buyOption || 'Yok', true).setThumbnail(player.displayAvatarURL({ dynamic: true }))
+            .addField(`${config.emojis.money} Kiralık Bedeli`, hireData?.loanFee || '500.000₺', true)
+            .addField('💰 Yıllık Maaş', hireData?.salary || '4.000.000₺/yıl', true)
+            .addField('📅 Kiralık Süresi', hireData?.loanDuration || '1 yıl', true);
+        
+        if (hireData?.optionToBuy) {
+            embed.addField('🔄 Satın Alma Opsiyonu', hireData.optionToBuy, true);
+        }
+
+        return embed
+            .setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
-
-        return embed;
     }
 
     createReleaseForm(president, player, releaseType, releaseData = null) {
@@ -84,10 +88,11 @@ class EmbedCreator {
             .addField('⚽ Futbolcu', `${player}`, true)
             .addField('📋 Fesih Türü', title, true);
 
-        if (releaseType === 'mutual' && releaseData) {
-            embed.addField(`${config.emojis.money} Tazminat`, releaseData.compensation || '0₺', true)
-                .addField('📝 Fesih Nedeni', releaseData.reason || 'Belirtilmemiş', true)
-                .addField('📅 Fesih Tarihi', releaseData.releaseDate || 'Hemen', true);
+        if (releaseData) {
+            if (releaseData.oldClub) embed.addField('🏆 Eski Kulüp', releaseData.oldClub, true);
+            if (releaseData.reason) embed.addField('📝 Fesih Nedeni', releaseData.reason, false);
+            if (releaseData.compensation) embed.addField(`${config.emojis.money} Tazminat`, releaseData.compensation, true);
+            if (releaseData.newTeam) embed.addField('🎯 Yeni Takım', releaseData.newTeam, true);
         }
 
         return embed

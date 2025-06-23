@@ -189,17 +189,17 @@ async function handleModalSubmit(client, interaction) {
                         .setCustomId(`offer_accept_${playerId}_${presidentId}`)
                         .setLabel('Kabul Et')
                         .setStyle('SUCCESS')
-                        .setEmoji(config.emojis.check),
+                        .setEmoji('✅'),
                     new MessageButton()
                         .setCustomId(`offer_reject_${playerId}_${presidentId}`)
                         .setLabel('Reddet')
                         .setStyle('DANGER')
-                        .setEmoji(config.emojis.cross),
+                        .setEmoji('❌'),
                     new MessageButton()
                         .setCustomId(`offer_edit_${playerId}_${presidentId}`)
                         .setLabel('Düzenle')
                         .setStyle('SECONDARY')
-                        .setEmoji(config.emojis.edit)
+                        .setEmoji('✏️')
                 );
 
             await channel.send({
@@ -207,7 +207,223 @@ async function handleModalSubmit(client, interaction) {
                 components: [buttons]
             });
 
-            await interaction.editReply({ content: `Teklif müzakeresi ${channel} kanalında başlatıldı!` });
+            await interaction.editReply({ content: `✅ Teklif müzakeresi ${channel} kanalında başlatıldı!` });
+        }
+
+        // Release form modali
+        else if (customId.startsWith('release_form_')) {
+            const parts = customId.split('_');
+            const playerId = parts[2];
+            const presidentId = parts[3];
+            const releaseType = parts[4];
+            
+            const player = interaction.guild.members.cache.get(playerId);
+            const president = interaction.guild.members.cache.get(presidentId);
+
+            if (!player || !president) {
+                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+            }
+
+            const releaseData = {
+                oldClub: interaction.fields.getTextInputValue('old_club') || '',
+                reason: interaction.fields.getTextInputValue('reason') || '',
+                compensation: interaction.fields.getTextInputValue('compensation') || '',
+                newTeam: interaction.fields.getTextInputValue('new_team') || ''
+            };
+
+            // Müzakere kanalı oluştur
+            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'release');
+            if (!channel) {
+                return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+            }
+
+            // Fesih embed'i oluştur
+            const releaseEmbed = embeds.createReleaseForm(president.user, player.user, releaseType, releaseData);
+            
+            const buttons = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(`release_accept_${playerId}_${presidentId}_${releaseType}`)
+                        .setLabel('Kabul Et')
+                        .setStyle('SUCCESS')
+                        .setEmoji('✅'),
+                    new MessageButton()
+                        .setCustomId(`release_reject_${playerId}_${presidentId}_${releaseType}`)
+                        .setLabel('Reddet')
+                        .setStyle('DANGER')
+                        .setEmoji('❌'),
+                    new MessageButton()
+                        .setCustomId(`release_edit_${playerId}_${presidentId}_${releaseType}`)
+                        .setLabel('Düzenle')
+                        .setStyle('SECONDARY')
+                        .setEmoji('✏️')
+                );
+
+            await channel.send({
+                embeds: [releaseEmbed],
+                components: [buttons]
+            });
+
+            await interaction.editReply({ content: `✅ Fesih müzakeresi ${channel} kanalında başlatıldı!` });
+        }
+
+        // Contract form modali
+        else if (customId.startsWith('contract_form_')) {
+            const [, , playerId, presidentId] = customId.split('_');
+            const player = interaction.guild.members.cache.get(playerId);
+            const president = interaction.guild.members.cache.get(presidentId);
+
+            if (!player || !president) {
+                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+            }
+
+            const contractData = {
+                transferFee: interaction.fields.getTextInputValue('transfer_fee') || '',
+                newClub: interaction.fields.getTextInputValue('new_club') || '',
+                salary: interaction.fields.getTextInputValue('salary') || '',
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
+            };
+
+            // Müzakere kanalı oluştur
+            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'contract');
+            if (!channel) {
+                return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+            }
+
+            // Sözleşme embed'i oluştur
+            const contractEmbed = embeds.createContractForm(president.user, player.user, player.user, contractData);
+            
+            const buttons = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(`contract_accept_${playerId}_${presidentId}`)
+                        .setLabel('Kabul Et')
+                        .setStyle('SUCCESS')
+                        .setEmoji('✅'),
+                    new MessageButton()
+                        .setCustomId(`contract_reject_${playerId}_${presidentId}`)
+                        .setLabel('Reddet')
+                        .setStyle('DANGER')
+                        .setEmoji('❌'),
+                    new MessageButton()
+                        .setCustomId(`contract_edit_${playerId}_${presidentId}`)
+                        .setLabel('Düzenle')
+                        .setStyle('SECONDARY')
+                        .setEmoji('✏️')
+                );
+
+            await channel.send({
+                embeds: [contractEmbed],
+                components: [buttons]
+            });
+
+            await interaction.editReply({ content: `✅ Sözleşme müzakeresi ${channel} kanalında başlatıldı!` });
+        }
+
+        // Trade form modali
+        else if (customId.startsWith('trade_form_')) {
+            const [, , playerId, presidentId] = customId.split('_');
+            const player = interaction.guild.members.cache.get(playerId);
+            const president = interaction.guild.members.cache.get(presidentId);
+
+            if (!player || !president) {
+                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+            }
+
+            const tradeData = {
+                additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '',
+                wantedPlayer: interaction.fields.getTextInputValue('wanted_player') || '',
+                salary: interaction.fields.getTextInputValue('salary') || '',
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
+            };
+
+            // Müzakere kanalı oluştur
+            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'trade');
+            if (!channel) {
+                return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+            }
+
+            // Takas embed'i oluştur
+            const tradeEmbed = embeds.createTradeForm(president.user, player.user, player.user, tradeData);
+            
+            const buttons = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(`trade_accept_${playerId}_${presidentId}`)
+                        .setLabel('Kabul Et')
+                        .setStyle('SUCCESS')
+                        .setEmoji('✅'),
+                    new MessageButton()
+                        .setCustomId(`trade_reject_${playerId}_${presidentId}`)
+                        .setLabel('Reddet')
+                        .setStyle('DANGER')
+                        .setEmoji('❌'),
+                    new MessageButton()
+                        .setCustomId(`trade_edit_${playerId}_${presidentId}`)
+                        .setLabel('Düzenle')
+                        .setStyle('SECONDARY')
+                        .setEmoji('✏️')
+                );
+
+            await channel.send({
+                embeds: [tradeEmbed],
+                components: [buttons]
+            });
+
+            await interaction.editReply({ content: `✅ Takas müzakeresi ${channel} kanalında başlatıldı!` });
+        }
+
+        // Hire form modali
+        else if (customId.startsWith('hire_form_')) {
+            const [, , playerId, presidentId] = customId.split('_');
+            const player = interaction.guild.members.cache.get(playerId);
+            const president = interaction.guild.members.cache.get(presidentId);
+
+            if (!player || !president) {
+                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+            }
+
+            const hireData = {
+                loanFee: interaction.fields.getTextInputValue('loan_fee') || '',
+                salary: interaction.fields.getTextInputValue('salary') || '',
+                loanDuration: interaction.fields.getTextInputValue('loan_duration') || '',
+                optionToBuy: interaction.fields.getTextInputValue('option_to_buy') || ''
+            };
+
+            // Müzakere kanalı oluştur
+            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'hire');
+            if (!channel) {
+                return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+            }
+
+            // Kiralık embed'i oluştur
+            const hireEmbed = embeds.createHireForm(president.user, player.user, player.user, hireData);
+            
+            const buttons = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(`hire_accept_${playerId}_${presidentId}`)
+                        .setLabel('Kabul Et')
+                        .setStyle('SUCCESS')
+                        .setEmoji('✅'),
+                    new MessageButton()
+                        .setCustomId(`hire_reject_${playerId}_${presidentId}`)
+                        .setLabel('Reddet')
+                        .setStyle('DANGER')
+                        .setEmoji('❌'),
+                    new MessageButton()
+                        .setCustomId(`hire_edit_${playerId}_${presidentId}`)
+                        .setLabel('Düzenle')
+                        .setStyle('SECONDARY')
+                        .setEmoji('✏️')
+                );
+
+            await channel.send({
+                embeds: [hireEmbed],
+                components: [buttons]
+            });
+
+            await interaction.editReply({ content: `✅ Kiralık müzakeresi ${channel} kanalında başlatıldı!` });
         }
     } catch (error) {
         console.error('Modal submission error:', error);
