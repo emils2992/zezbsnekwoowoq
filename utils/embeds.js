@@ -70,23 +70,23 @@ class EmbedCreator {
                 inline: true
             },
             {
+                name: `🏟️ Yeni Kulüp`,
+                value: contractData?.newClub || 'Belirtilmemiş',
+                inline: true
+            },
+            {
                 name: `${config.emojis.money} Transfer Bedeli`,
                 value: contractData?.transferFee || '2.500.000₺',
                 inline: true
             },
             {
-                name: `💰 Maaş Teklifi`,
-                value: contractData?.salary || '750.000₺/ay',
+                name: `💰 Yıllık Maaş`,
+                value: contractData?.salary || '24.000.000₺/yıl',
                 inline: true
             },
             {
                 name: '📅 Sözleşme Süresi',
                 value: contractData?.contractDuration || '3 yıl',
-                inline: true
-            },
-            {
-                name: '🎯 Bonuslar',
-                value: contractData?.bonus || '500.000₺',
                 inline: true
             }
         );

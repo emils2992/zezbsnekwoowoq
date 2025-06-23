@@ -153,6 +153,8 @@ The bot is configured for Replit deployment with:
   - Implemented role mention system in all announcements - transfer, free agent, and player duyuru posts
   - Updated role management interface with dedicated ping role buttons for each announcement type
   - Enhanced announcement system to automatically mention configured ping roles when transfers are completed
+  - Fixed .contract command modal structure with "Yeni Kulüp" field replacing bonus field and updated to use yearly salary format
+  - Corrected .trelease command color configuration error preventing unilateral termination from working properly
 
 ## User Preferences
 

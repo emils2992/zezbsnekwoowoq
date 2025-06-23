@@ -1092,6 +1092,13 @@ class ButtonHandler {
             .setTitle('Sözleşme Teklifi Formu');
 
         // Form alanları
+        const newClubInput = new TextInputBuilder()
+            .setCustomId('new_club')
+            .setLabel('Yeni Kulüp')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: Galatasaray')
+            .setRequired(true);
+
         const playerNameInput = new TextInputBuilder()
             .setCustomId('player_name')
             .setLabel('Oyuncu İsmi')
@@ -1108,9 +1115,9 @@ class ButtonHandler {
 
         const salaryInput = new TextInputBuilder()
             .setCustomId('salary')
-            .setLabel('Maaş')
+            .setLabel('Yıllık Maaş')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 2.000.000₺/ay')
+            .setPlaceholder('Örn: 24.000.000₺/yıl')
             .setRequired(true);
 
         const contractDurationInput = new TextInputBuilder()
@@ -1120,19 +1127,12 @@ class ButtonHandler {
             .setPlaceholder('Örn: 4 yıl')
             .setRequired(true);
 
-        const bonusInput = new TextInputBuilder()
-            .setCustomId('bonus')
-            .setLabel('Bonuslar')
-            .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 1.000.000₺')
-            .setRequired(true);
-
         // Action Row'lar oluştur
-        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
-        const row2 = new ActionRowBuilder().addComponents(transferFeeInput);
-        const row3 = new ActionRowBuilder().addComponents(salaryInput);
-        const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
-        const row5 = new ActionRowBuilder().addComponents(bonusInput);
+        const row1 = new ActionRowBuilder().addComponents(newClubInput);
+        const row2 = new ActionRowBuilder().addComponents(playerNameInput);
+        const row3 = new ActionRowBuilder().addComponents(transferFeeInput);
+        const row4 = new ActionRowBuilder().addComponents(salaryInput);
+        const row5 = new ActionRowBuilder().addComponents(contractDurationInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);
 

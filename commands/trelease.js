@@ -31,7 +31,7 @@ module.exports = {
 
             // Tek taraflı fesih embed'i oluştur
             const releaseEmbed = new EmbedBuilder()
-                .setColor(config.colors.danger)
+                .setColor(config.colors.error)
                 .setTitle(`${config.emojis.release} Tek Taraflı Fesih`)
                 .setDescription(`**${message.author.username}** tarafından **${player.user.username}** için tek taraflı fesih talebi:`)
                 .addFields(

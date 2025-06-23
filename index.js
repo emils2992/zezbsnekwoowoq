@@ -296,11 +296,11 @@ async function handleModalSubmit(client, interaction) {
 
         // Form verilerini al
         const contractData = {
+            newClub: interaction.fields.getTextInputValue('new_club') || 'Belirtilmemiş',
             playerName: interaction.fields.getTextInputValue('player_name') || '',
             transferFee: interaction.fields.getTextInputValue('transfer_fee') || '2.500.000₺',
-            salary: interaction.fields.getTextInputValue('salary') || '750.000₺/ay',
-            contractDuration: interaction.fields.getTextInputValue('contract_duration') || '3 yıl',
-            bonus: interaction.fields.getTextInputValue('bonus') || '500.000₺'
+            salary: interaction.fields.getTextInputValue('salary') || '24.000.000₺/yıl',
+            contractDuration: interaction.fields.getTextInputValue('contract_duration') || '3 yıl'
         };
 
         // Sözleşme embed'i oluştur
