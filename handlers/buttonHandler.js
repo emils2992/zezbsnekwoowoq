@@ -1520,10 +1520,56 @@ class ButtonHandler {
     }
 
     async handleShowAnnouncementForm(client, interaction, params) {
-        await interaction.reply({
-            content: `${config.emojis.football} **Duyuru Formu**\n\nLütfen duyuru bilgilerinizi şu formatta yazın:\n\`\`\`\nOyuncu: [Oyuncu Adı]\nYeni Kulüp: [Kulüp Adı]\nMaaş: [Maaş Bilgisi]\nSözleşme: [Süre]\nBonus: [Bonus Bilgisi]\n\`\`\`\n\nÖrnek:\n\`\`\`\nOyuncu: Lionel Messi\nYeni Kulüp: Galatasaray\nMaaş: 6.000.000₺/yıl\nSözleşme: 2 yıl\nBonus: 250.000₺\n\`\`\``,
-            ephemeral: true
-        });
+        const [userId] = params;
+        
+        const modal = new Modal()
+            .setCustomId(`announcement_form_${userId}`)
+            .setTitle('Manuel Duyuru Formu');
+
+        const desireInput = new TextInputComponent()
+            .setCustomId('desire')
+            .setLabel('Ne İsterim')
+            .setStyle('LONG')
+            .setPlaceholder('Örn: Yeni takım arıyorum, sözleşme yenilemek istiyorum, vs.')
+            .setRequired(true);
+
+        const roleInput = new TextInputComponent()
+            .setCustomId('team_role')
+            .setLabel('Takımdaki Rolüm')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Orta saha, Kaleci, Forvet, vs.')
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Maaş Beklentim')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 5.000.000₺/yıl')
+            .setRequired(true);
+
+        const contractInput = new TextInputComponent()
+            .setCustomId('contract')
+            .setLabel('Sözleşme Tercihi')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 2 yıl, uzun vadeli, vs.')
+            .setRequired(true);
+
+        const bonusInput = new TextInputComponent()
+            .setCustomId('bonus')
+            .setLabel('Bonus Beklentileri')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: İmza bonusu, performans bonusu, vs.')
+            .setRequired(false);
+
+        const row1 = new MessageActionRow().addComponents(desireInput);
+        const row2 = new MessageActionRow().addComponents(roleInput);
+        const row3 = new MessageActionRow().addComponents(salaryInput);
+        const row4 = new MessageActionRow().addComponents(contractInput);
+        const row5 = new MessageActionRow().addComponents(bonusInput);
+
+        modal.addComponents(row1, row2, row3, row4, row5);
+
+        await interaction.showModal(modal);
     }
 
     async handleShowReleaseForm(client, interaction, params) {

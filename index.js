@@ -522,6 +522,74 @@ async function handleModalSubmit(client, interaction) {
 
             await interaction.editReply({ content: `✅ Kiralık müzakeresi ${channel} kanalında başlatıldı!` });
         }
+
+        // Announcement form modali
+        else if (customId.startsWith('announcement_form_')) {
+            const [, , userId] = customId.split('_');
+            const user = interaction.guild.members.cache.get(userId);
+
+            if (!user) {
+                return interaction.editReply({ content: 'Kullanıcı bulunamadı!' });
+            }
+
+            const announcementData = {
+                desire: interaction.fields.getTextInputValue('desire') || '',
+                teamRole: interaction.fields.getTextInputValue('team_role') || '',
+                salary: interaction.fields.getTextInputValue('salary') || '',
+                contract: interaction.fields.getTextInputValue('contract') || '',
+                bonus: interaction.fields.getTextInputValue('bonus') || ''
+            };
+
+            // Duyuru kanalını bul
+            const channels = require('./utils/channels');
+            const announcementChannel = await channels.findAnnouncementChannel(interaction.guild);
+            
+            if (!announcementChannel) {
+                return interaction.editReply({ content: '❌ Duyuru kanalı ayarlanmamış! `.duyur-ayarla #kanal` komutuyla ayarlayın.' });
+            }
+
+            // Duyuru embed'i oluştur
+            const announcementEmbed = new MessageEmbed()
+                .setColor(config.colors.primary)
+                .setTitle('📢 Futbolcu Duyurusu')
+                .setDescription(`**${user.displayName}** duyuru yaptı:`)
+                .addFields(
+                    { name: '⚽ Futbolcu', value: `${user}`, inline: true },
+                    { name: '🎯 Ne İsterim', value: announcementData.desire, inline: false },
+                    { name: '🏟️ Takımdaki Rolüm', value: announcementData.teamRole, inline: true },
+                    { name: '💰 Maaş Beklentim', value: announcementData.salary, inline: true },
+                    { name: '📅 Sözleşme Tercihi', value: announcementData.contract, inline: true }
+                );
+
+            if (announcementData.bonus && announcementData.bonus.trim() !== '') {
+                announcementEmbed.addFields({ name: '🎯 Bonus Beklentileri', value: announcementData.bonus, inline: true });
+            }
+
+            announcementEmbed
+                .setThumbnail(user.user.displayAvatarURL({ dynamic: true }))
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Sistemi' });
+
+            // Ping rolü kontrolü
+            const permissions = require('./utils/permissions');
+            const roleData = permissions.getRoleData(interaction.guild.id);
+            let mention = '';
+            
+            if (roleData.transferPing) {
+                const pingRole = interaction.guild.roles.cache.get(roleData.transferPing);
+                if (pingRole) {
+                    mention = `<@&${roleData.transferPing}>`;
+                }
+            }
+
+            const content = mention && mention.trim() !== '' ? mention : '📢 **Futbolcu Duyurusu**';
+            await announcementChannel.send({
+                content: content,
+                embeds: [announcementEmbed]
+            });
+
+            await interaction.editReply({ content: `✅ Duyurunuz ${announcementChannel} kanalında yayınlandı!` });
+        }
     } catch (error) {
         console.error('Modal submission error:', error);
         if (interaction.deferred) {

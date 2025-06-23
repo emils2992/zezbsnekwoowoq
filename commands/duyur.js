@@ -4,20 +4,24 @@ const permissions = require('../utils/permissions');
 
 module.exports = {
     name: 'duyur',
-    description: 'Serbest futbolcu duyurusu yap',
+    description: 'Manuel transfer duyurusu yap',
     usage: '.duyur',
     
     async execute(client, message, args) {
         try {
-            // Serbest futbolcu rolü kontrolü
-            if (!permissions.isFreeAgent(message.member)) {
-                return message.reply('❌ Bu komutu sadece serbest futbolcular kullanabilir!');
-            }
-
-            // Doğrudan duyuru formu talimatları göster
+            // Herkes kullanabilir - sadece kendi duyurusunu yapabilir
+            // Modal formu butonunu göster
             await message.reply({
-                content: `${config.emojis.football} **Serbest Futbolcu Duyuru Formu**\n\nLütfen duyuru bilgilerinizi şu formatta yazın:\n\`\`\`\nOyuncu: [Oyuncu Adı]\nYeni Kulüp: [Kulüp Adı]\nMaaş: [Maaş Bilgisi]\nSözleşme: [Süre]\nBonus: [Bonus Bilgisi]\n\`\`\`\n\nÖrnek:\n\`\`\`\nOyuncu: Lionel Messi\nYeni Kulüp: Galatasaray\nMaaş: 6.000.000₺/yıl\nSözleşme: 2 yıl\nBonus: 250.000₺\n\`\`\`\n\nBu mesajı yanıtlayarak duyurunuzu gönderin.`,
-                ephemeral: false
+                content: `${config.emojis.announcement || '📢'} **Manuel Transfer Duyurusu**\n\nDuyuru formunu doldurmak için aşağıdaki butona tıklayın.`,
+                components: [
+                    new MessageActionRow().addComponents(
+                        new MessageButton()
+                            .setCustomId(`show_announcement_modal_${message.author.id}`)
+                            .setLabel('Duyuru Formu Aç')
+                            .setStyle('PRIMARY')
+                            .setEmoji('📢')
+                    )
+                ]
             });
 
         } catch (error) {
