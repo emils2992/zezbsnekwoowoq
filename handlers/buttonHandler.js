@@ -927,8 +927,7 @@ class ButtonHandler {
         
         if (channelToUse) {
             console.log('Sending announcement to channel:', channelToUse.name);
-            const userMentions = `${player} ${president}`;
-            const content = mention && mention.trim() !== '' ? `${userMentions}\n\n${mention}` : `${userMentions}\n\n🏈 **Transfer Duyurusu**`;
+            const content = mention && mention.trim() !== '' ? mention : '🏈 **Transfer Duyurusu**';
             await channelToUse.send({
                 content: content,
                 embeds: [announcementEmbed]
