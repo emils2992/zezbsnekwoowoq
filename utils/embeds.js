@@ -41,19 +41,19 @@ class EmbedCreator {
         return embed;
     }
 
-    createTradeForm(fromPresident, toPresident, player, tradeData = null) {
+    createTradeForm(fromPresident, toPresident, wantedPlayer, tradeData = null) {
         const embed = new MessageEmbed()
             .setColor(config.colors.warning)
             .setTitle(`${config.emojis.trade} Takas Teklifi`)
             .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan takas teklifi:`)
             .addFields(
                 { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
-                { name: '⚽ Futbolcu', value: `${player}`, inline: true },
-                { name: '🔄 İstenen Oyuncu', value: tradeData?.wantedPlayer || 'Belirtilmemiş', inline: true },
+                { name: '🎯 Hedef Başkan', value: `${toPresident}`, inline: true },
+                { name: '📈 İstenen Oyuncu', value: `${wantedPlayer}`, inline: true },
                 { name: `${config.emojis.money} Ek Miktar`, value: tradeData?.additionalAmount || '0₺', inline: true },
-                { name: '💰 Yıllık Maaş', value: tradeData?.salary || '18.000.000₺/yıl', inline: true },
-                { name: '📅 Sözleşme+Ekmadde', value: tradeData?.contractDuration || '2 yıl', inline: true }
-            ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
+                { name: '💰 İstenen Oyuncunun Maaşı', value: tradeData?.wantedPlayerSalary || '15.000.000₺/yıl', inline: true },
+                { name: '📅 Sözleşme+Ek Madde', value: tradeData?.contractDuration || '2 yıl + bonuslar', inline: true }
+            ).setThumbnail(wantedPlayer.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
 

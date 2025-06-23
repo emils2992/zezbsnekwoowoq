@@ -485,55 +485,111 @@ async function handleModalSubmit(client, interaction) {
 
         // Trade form modali
         else if (customId.startsWith('trade_form_')) {
-            const [, , playerId, presidentId] = customId.split('_');
-            const player = interaction.guild.members.cache.get(playerId);
+            const [, , targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = customId.split('_');
+            const targetPresident = interaction.guild.members.cache.get(targetPresidentId);
+            const wantedPlayer = interaction.guild.members.cache.get(wantedPlayerId);
+            const givenPlayer = interaction.guild.members.cache.get(givenPlayerId);
             const president = interaction.guild.members.cache.get(presidentId);
 
-            if (!player || !president) {
+            if (!targetPresident || !wantedPlayer || !givenPlayer || !president) {
                 return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
             }
 
             const tradeData = {
                 additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '',
-                wantedPlayer: interaction.fields.getTextInputValue('wanted_player') || '',
-                salary: interaction.fields.getTextInputValue('salary') || '',
+                wantedPlayerSalary: interaction.fields.getTextInputValue('wanted_player_salary') || '',
+                givenPlayerSalary: interaction.fields.getTextInputValue('given_player_salary') || '',
                 contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
             };
 
-            // Müzakere kanalı oluştur
-            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'trade');
-            if (!channel) {
-                return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
-            }
+            // Check if we're in a negotiation channel (editing existing form)
+            const isNegotiationChannel = interaction.channel && interaction.channel.name && 
+                (interaction.channel.name.includes("takas") || interaction.channel.name.includes("trade") || interaction.channel.name.includes("muzakere"));
 
-            // Takas embed'i oluştur
-            const tradeEmbed = embeds.createTradeForm(president.user, player.user, player.user, tradeData);
-            
-            const buttons = new MessageActionRow()
-                .addComponents(
-                    new MessageButton()
-                        .setCustomId(`trade_accept_${playerId}_${presidentId}`)
-                        .setLabel('Kabul Et')
-                        .setStyle('SUCCESS')
-                        .setEmoji('✅'),
-                    new MessageButton()
-                        .setCustomId(`trade_reject_${playerId}_${presidentId}`)
-                        .setLabel('Reddet')
-                        .setStyle('DANGER')
-                        .setEmoji('❌'),
-                    new MessageButton()
-                        .setCustomId(`trade_edit_${playerId}_${presidentId}`)
-                        .setLabel('Düzenle')
-                        .setStyle('SECONDARY')
-                        .setEmoji('✏️')
+            if (isNegotiationChannel) {
+                // Update existing embed in the same channel
+                const tradeEmbed = embeds.createTradeForm(president.user, targetPresident.user, wantedPlayer.user, tradeData);
+                tradeEmbed.addFields(
+                    { name: '🔄 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true },
+                    { name: '💰 Verilecek Oyuncunun Maaşı', value: tradeData.givenPlayerSalary, inline: true }
+                );
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`trade_accept_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`trade_reject_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`trade_edit_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                // Find and update the original message
+                const messages = await interaction.channel.messages.fetch({ limit: 10 });
+                const originalMessage = messages.find(msg => 
+                    msg.embeds.length > 0 && 
+                    msg.components.length > 0 &&
+                    msg.components[0].components.some(btn => btn.customId && btn.customId.includes('trade_'))
                 );
 
-            await channel.send({
-                embeds: [tradeEmbed],
-                components: [buttons]
-            });
+                if (originalMessage) {
+                    await originalMessage.edit({
+                        embeds: [tradeEmbed],
+                        components: [buttons]
+                    });
+                    await interaction.editReply({ content: `✅ Takas formu güncellendi!` });
+                } else {
+                    await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
+                }
+            } else {
+                // İlk başkan ile hedef başkan arasında müzakere kanalı oluştur
+                const channel = await channels.createNegotiationChannel(interaction.guild, president.user, targetPresident.user, 'trade');
+                if (!channel) {
+                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                }
 
-            await interaction.editReply({ content: `✅ Takas müzakeresi ${channel} kanalında başlatıldı!` });
+                // Takas embed'i oluştur
+                const tradeEmbed = embeds.createTradeForm(president.user, targetPresident.user, wantedPlayer.user, tradeData);
+                tradeEmbed.addFields(
+                    { name: '🔄 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true },
+                    { name: '💰 Verilecek Oyuncunun Maaşı', value: tradeData.givenPlayerSalary, inline: true }
+                );
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`trade_accept_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`trade_reject_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`trade_edit_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                await channel.send({
+                    embeds: [tradeEmbed],
+                    components: [buttons]
+                });
+
+                await interaction.editReply({ content: `✅ Takas müzakeresi ${channel} kanalında başlatıldı!` });
+            }
         }
 
         // Hire form modali

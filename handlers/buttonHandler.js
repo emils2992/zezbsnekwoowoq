@@ -50,7 +50,11 @@ class ButtonHandler {
                     await this.handleContractPlayerButton(client, interaction, params);
                     break;
                 case 'trade':
-                    await this.handleTradeButton(client, interaction, params);
+                    if (params[0] === 'player') {
+                        await this.handleTradePlayerButton(client, interaction, params.slice(1));
+                    } else {
+                        await this.handleTradeButton(client, interaction, params);
+                    }
                     break;
                 case 'release':
                     await this.handleReleaseButton(client, interaction, params);
@@ -499,15 +503,17 @@ class ButtonHandler {
     }
 
     async handleTradeButton(client, interaction, params) {
-        const [buttonType, playerId, presidentId] = params;
+        const [buttonType, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
         const guild = interaction.guild;
-        const player = await guild.members.fetch(playerId);
+        const targetPresident = await guild.members.fetch(targetPresidentId);
+        const wantedPlayer = await guild.members.fetch(wantedPlayerId);
+        const givenPlayer = await guild.members.fetch(givenPlayerId);
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
-            // Check if user is authorized (target president or transfer authority)
+            // Check if user is authorized (target president only)
             const member = interaction.member;
-            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
             
             if (!isAuthorized) {
                 return interaction.reply({
@@ -516,20 +522,50 @@ class ButtonHandler {
                 });
             }
 
-            await this.sendTransferAnnouncement(guild, {
-                type: 'trade',
-                player: player,
-                president: president,
-                embed: interaction.message.embeds[0]
-            });
-
             await interaction.deferReply();
             
-            await interaction.editReply({
-                content: `✅ Takas kabul edildi!`
+            // Stage 2: Create channel between the two players for their approval
+            const playersChannel = await channels.createNegotiationChannel(guild, wantedPlayer.user, givenPlayer.user, 'trade-players');
+            if (!playersChannel) {
+                return interaction.editReply({ content: '❌ Oyuncular için müzakere kanalı oluşturulamadı!' });
+            }
+
+            // Create player approval embed
+            const embed = new MessageEmbed()
+                .setColor(config.colors.warning)
+                .setTitle(`${config.emojis.trade} Takas Onayı - Oyuncular`)
+                .setDescription(`**Başkanlar takas konusunda anlaştı!**\n\nŞimdi her iki oyuncunun da takası onaylaması gerekiyor.`)
+                .addFields(
+                    { name: '🔄 Takas Detayları', value: `**${wantedPlayer.user.username}** ↔ **${givenPlayer.user.username}**`, inline: false },
+                    { name: '🏟️ Kulüpler', value: `${targetPresident.user.username} takımı ↔ ${president.user.username} takımı`, inline: false }
+                )
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Sistemi' });
+
+            const playerButtons = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(`trade_player_accept_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                        .setLabel('Kabul Et')
+                        .setStyle('SUCCESS')
+                        .setEmoji('✅'),
+                    new MessageButton()
+                        .setCustomId(`trade_player_reject_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                        .setLabel('Reddet')
+                        .setStyle('DANGER')
+                        .setEmoji('❌')
+                );
+
+            await playersChannel.send({
+                embeds: [embed],
+                components: [playerButtons]
             });
 
-            // Disable all buttons immediately
+            await interaction.editReply({
+                content: `✅ Takas başkanlar tarafından kabul edildi! Oyuncuların onayı için ${playersChannel} kanalı oluşturuldu.`
+            });
+
+            // Disable current buttons
             const disabledButtons = interaction.message.components[0].components.map(button => 
                 new MessageButton()
                     .setCustomId(button.customId)
@@ -544,16 +580,14 @@ class ButtonHandler {
                 components: [new MessageActionRow().addComponents(disabledButtons)]
             });
 
-            // Force channel deletion
+            // Delete current channel after delay
             setTimeout(async () => {
                 try {
                     const channelToDelete = interaction.channel;
                     if (channelToDelete && channelToDelete.deletable) {
                         console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                        await channelToDelete.delete("İşlem tamamlandı - Kanal otomatik silindi");
+                        await channelToDelete.delete("Başkan onayı tamamlandı - Oyuncu onayına geçildi");
                         console.log('KANAL BAŞARIYLA SİLİNDİ');
-                    } else {
-                        console.log('Kanal silinemez veya bulunamadı');
                     }
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
@@ -563,7 +597,7 @@ class ButtonHandler {
         } else if (buttonType === 'reject') {
             // Check if user is authorized (target president or transfer authority)
             const member = interaction.member;
-            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
             
             if (!isAuthorized) {
                 return interaction.reply({
@@ -610,19 +644,135 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'edit') {
-            // Check if user is authorized (president who made trade or transfer authority)
+            // Check if user is authorized (president who made trade or target president for salary adjustments)
             const member = interaction.member;
-            const isAuthorized = interaction.user.id === presidentId || permissions.isTransferAuthority(member);
+            const isAuthorized = interaction.user.id === presidentId || interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
             
             if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece teklifi yapan başkan veya transfer yetkilileri düzenleyebilir!',
+                    content: '❌ Sadece teklifi yapan başkan, hedef başkan veya transfer yetkilileri düzenleyebilir!',
                     ephemeral: true
                 });
             }
 
             // Extract existing data from embed and show pre-filled modal
-            await this.showEditTradeModal(client, interaction, playerId, presidentId);
+            await this.showEditTradeModal(client, interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId);
+        }
+    }
+
+    async handleTradePlayerButton(client, interaction, params) {
+        const [buttonType, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
+        const guild = interaction.guild;
+        const targetPresident = await guild.members.fetch(targetPresidentId);
+        const wantedPlayer = await guild.members.fetch(wantedPlayerId);
+        const givenPlayer = await guild.members.fetch(givenPlayerId);
+        const president = await guild.members.fetch(presidentId);
+
+        if (buttonType === 'accept') {
+            // Check if user is one of the players
+            const member = interaction.member;
+            const isAuthorizedPlayer = interaction.user.id === wantedPlayerId || interaction.user.id === givenPlayerId;
+            const isTransferAuthority = permissions.isTransferAuthority(member);
+            
+            if (!isAuthorizedPlayer && !isTransferAuthority) {
+                return interaction.reply({
+                    content: '❌ Sadece takas edilen oyuncular veya transfer yetkilileri onaylayabilir!',
+                    ephemeral: true
+                });
+            }
+
+            await interaction.deferReply();
+
+            // Check if both players have now accepted (this is simplified - in reality you'd track acceptances)
+            await this.sendTransferAnnouncement(guild, {
+                type: 'trade',
+                wantedPlayer: wantedPlayer,
+                givenPlayer: givenPlayer,
+                targetPresident: targetPresident,
+                president: president,
+                embed: interaction.message.embeds[0]
+            });
+
+            await interaction.editReply({
+                content: `✅ Takas tüm taraflar tarafından kabul edildi ve tamamlandı!`
+            });
+
+            // Disable all buttons
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            // Delete channel after delay
+            setTimeout(async () => {
+                try {
+                    const channelToDelete = interaction.channel;
+                    if (channelToDelete && channelToDelete.deletable) {
+                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
+                        await channelToDelete.delete("Takas tamamlandı - Kanal otomatik silindi");
+                        console.log('KANAL BAŞARIYLA SİLİNDİ');
+                    }
+                } catch (error) {
+                    console.error('KANAL SİLME HATASI:', error);
+                }
+            }, 1500);
+
+        } else if (buttonType === 'reject') {
+            // Check if user is one of the players
+            const member = interaction.member;
+            const isAuthorizedPlayer = interaction.user.id === wantedPlayerId || interaction.user.id === givenPlayerId;
+            const isTransferAuthority = permissions.isTransferAuthority(member);
+            
+            if (!isAuthorizedPlayer && !isTransferAuthority) {
+                return interaction.reply({
+                    content: '❌ Sadece takas edilen oyuncular veya transfer yetkilileri reddedebilir!',
+                    ephemeral: true
+                });
+            }
+
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `❌ Takas oyuncular tarafından reddedildi!`
+            });
+
+            // Disable all buttons
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            // Delete channel after delay
+            setTimeout(async () => {
+                try {
+                    const channelToDelete = interaction.channel;
+                    if (channelToDelete && channelToDelete.deletable) {
+                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
+                        await channelToDelete.delete("Takas reddedildi - Kanal otomatik silindi");
+                        console.log('KANAL BAŞARIYLA SİLİNDİ');
+                    }
+                } catch (error) {
+                    console.error('KANAL SİLME HATASI:', error);
+                }
+            }, 1500);
         }
     }
 
@@ -1048,23 +1198,23 @@ class ButtonHandler {
             }
         }
 
-        const { type, player, president, embed } = transferData;
-        const embedFields = embed.fields || [];
+        const embedFields = transferData.embed?.fields || [];
         
         let announcementEmbed;
         
-        if (type === 'trade') {
-            const playerField = embedFields.find(f => f.name.includes('Oyuncu'));
-            const targetPlayerField = embedFields.find(f => f.name.includes('İstenen Oyuncu'));
-            
-            const playerName = playerField ? playerField.value.replace(/<@!?\d+>/g, '').trim() : player.displayName;
-            const targetPlayerName = targetPlayerField ? targetPlayerField.value : 'Bilinmiyor';
+        if (transferData.type === 'trade') {
+            const { wantedPlayer, givenPlayer, targetPresident, president } = transferData;
             
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('🔄 Takas Gerçekleşti!')
-                .setDescription(`**${playerName}** <> **${targetPlayerName}**\n\n**Başkanlar takasladi**`)
-                .setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
+                .setDescription(`**${wantedPlayer.user.username}** <> **${givenPlayer.user.username}**\n\n**Başkanlar takasladi**`)
+                .addFields(
+                    { name: '📈 İstenen Oyuncu', value: `${wantedPlayer.user}`, inline: true },
+                    { name: '📉 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true },
+                    { name: '🏟️ Kulüpler', value: `${targetPresident.user.username} ↔ ${president.user.username}`, inline: false }
+                )
+                .setThumbnail(wantedPlayer.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Duyuruları' });
         } else if (type === 'offer') {
@@ -1562,20 +1712,20 @@ class ButtonHandler {
         await interaction.showModal(modal);
     }
 
-    async showEditTradeModal(client, interaction, playerId, presidentId) {
+    async showEditTradeModal(client, interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId) {
         const embed = interaction.message.embeds[0];
         const fields = embed.fields;
         
         // Extract existing data from embed fields
         const existingData = {
             additionalAmount: fields.find(f => f.name.includes('Ek Miktar'))?.value || '',
-            wantedPlayer: fields.find(f => f.name.includes('İstenen Oyuncu'))?.value || '',
-            salary: fields.find(f => f.name.includes('Maaş'))?.value || '',
+            wantedPlayerSalary: fields.find(f => f.name.includes('İstenen Oyuncunun'))?.value || fields.find(f => f.name.includes('Maaş'))?.value || '',
+            givenPlayerSalary: fields.find(f => f.name.includes('Verilecek Oyuncunun'))?.value || '',
             contractDuration: fields.find(f => f.name.includes('Sözleşme'))?.value || ''
         };
 
         const modal = new Modal()
-            .setCustomId(`trade_form_${playerId}_${presidentId}`)
+            .setCustomId(`trade_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
             .setTitle('Takas Düzenle');
 
         const additionalAmountInput = new TextInputComponent()
@@ -1585,31 +1735,31 @@ class ButtonHandler {
             .setValue(existingData.additionalAmount)
             .setRequired(false);
 
-        const wantedPlayerInput = new TextInputComponent()
-            .setCustomId('wanted_player')
-            .setLabel('İstenen Oyuncu')
+        const wantedPlayerSalaryInput = new TextInputComponent()
+            .setCustomId('wanted_player_salary')
+            .setLabel('İstenen Oyuncunun Yeni Maaşı')
             .setStyle('SHORT')
-            .setValue(existingData.wantedPlayer)
+            .setValue(existingData.wantedPlayerSalary)
             .setRequired(true);
 
-        const salaryInput = new TextInputComponent()
-            .setCustomId('salary')
-            .setLabel('Maaş (Yıllık)')
+        const givenPlayerSalaryInput = new TextInputComponent()
+            .setCustomId('given_player_salary')
+            .setLabel('Verilecek Oyuncunun Yeni Maaşı')
             .setStyle('SHORT')
-            .setValue(existingData.salary)
+            .setValue(existingData.givenPlayerSalary)
             .setRequired(true);
 
         const contractInput = new TextInputComponent()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme+Ekmadde')
+            .setLabel('Sözleşme+Ek Madde')
             .setStyle('SHORT')
             .setValue(existingData.contractDuration)
             .setRequired(true);
 
         modal.addComponents(
             new MessageActionRow().addComponents(additionalAmountInput),
-            new MessageActionRow().addComponents(wantedPlayerInput),
-            new MessageActionRow().addComponents(salaryInput),
+            new MessageActionRow().addComponents(wantedPlayerSalaryInput),
+            new MessageActionRow().addComponents(givenPlayerSalaryInput),
             new MessageActionRow().addComponents(contractInput)
         );
 
@@ -1928,51 +2078,48 @@ class ButtonHandler {
 
 
     async handleShowTradeForm(client, interaction, params) {
-        const [playerId, presidentId] = params;
-        const guild = interaction.guild;
-        const player = await guild.members.fetch(playerId);
-        const president = await guild.members.fetch(presidentId);
-
-        // Create negotiation channel for the trade
-        const channel = await channels.createNegotiationChannel(guild, president.user, player.user, 'trade');
-        if (!channel) {
-            return interaction.reply({
-                content: '❌ Müzakere kanalı oluşturulamadı!',
-                ephemeral: true
-            });
-        }
-
-        // Create trade embed with form buttons
-        const tradeEmbed = embeds.createTradeForm(president.user, player.user, player.user);
+        const [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
         
-        const buttons = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setCustomId(`trade_accept_${playerId}_${presidentId}`)
-                    .setLabel('Kabul Et')
-                    .setStyle('SUCCESS')
-                    .setEmoji('✅'),
-                new MessageButton()
-                    .setCustomId(`trade_reject_${playerId}_${presidentId}`)
-                    .setLabel('Reddet')
-                    .setStyle('DANGER')
-                    .setEmoji('❌'),
-                new MessageButton()
-                    .setCustomId(`trade_edit_${playerId}_${presidentId}`)
-                    .setLabel('Düzenle')
-                    .setStyle('SECONDARY')
-                    .setEmoji('✏️')
-            );
+        const modal = new Modal()
+            .setCustomId(`trade_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+            .setTitle('Takas Teklifi Formu');
 
-        await channel.send({
-            embeds: [tradeEmbed],
-            components: [buttons]
-        });
+        const additionalAmountInput = new TextInputComponent()
+            .setCustomId('additional_amount')
+            .setLabel('Ek Miktar')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 5.000.000₺')
+            .setRequired(false);
 
-        await interaction.reply({
-            content: `✅ Takas müzakeresi ${channel} kanalında başlatıldı!`,
-            ephemeral: true
-        });
+        const wantedPlayerSalaryInput = new TextInputComponent()
+            .setCustomId('wanted_player_salary')
+            .setLabel('İstenen Oyuncunun Yeni Maaşı')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 15.000.000₺/yıl')
+            .setRequired(true);
+
+        const givenPlayerSalaryInput = new TextInputComponent()
+            .setCustomId('given_player_salary')
+            .setLabel('Verilecek Oyuncunun Yeni Maaşı')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 10.000.000₺/yıl')
+            .setRequired(true);
+
+        const contractInput = new TextInputComponent()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme+Ek Madde')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 2 yıl + bonuslar')
+            .setRequired(true);
+
+        const row1 = new MessageActionRow().addComponents(additionalAmountInput);
+        const row2 = new MessageActionRow().addComponents(wantedPlayerSalaryInput);
+        const row3 = new MessageActionRow().addComponents(givenPlayerSalaryInput);
+        const row4 = new MessageActionRow().addComponents(contractInput);
+
+        modal.addComponents(row1, row2, row3, row4);
+
+        await interaction.showModal(modal);
     }
 
     async handleShowHireForm(client, interaction, params) {

@@ -7,7 +7,7 @@ const channels = require('../utils/channels');
 module.exports = {
     name: 'trade',
     description: 'Başkanlar arası futbolcu takası',
-    usage: '.trade @başkan @futbolcu [ek_miktar]',
+    usage: '.trade @başkan @istenenFutbolcu @verilecekFutbolcu',
     
     async execute(client, message, args) {
         try {
@@ -18,64 +18,77 @@ module.exports = {
 
             // Argüman kontrolü
             const mentions = message.mentions.users;
-            if (mentions.size < 2) {
-                return message.reply('❌ Lütfen bir başkan ve bir futbolcu etiketleyin!\nKullanım: `.trade @başkan @futbolcu [ek_miktar]`');
+            if (mentions.size < 3) {
+                return message.reply('❌ Lütfen bir başkan, istenen futbolcu ve verilecek futbolcuyu etiketleyin!\nKullanım: `.trade @başkan @istenenFutbolcu @verilecekFutbolcu`');
             }
 
             // Mentions'ı array'e çevir ve doğru sırayla al
             const mentionsArray = Array.from(mentions.values());
             const targetPresidentUser = mentionsArray[0];
-            const playerUser = mentionsArray[1];
+            const wantedPlayerUser = mentionsArray[1];
+            const givenPlayerUser = mentionsArray[2];
 
             // Debug için log ekle
             console.log('Trade command - Mentions debug:');
             console.log('Total mentions:', mentions.size);
-            console.log('First user:', targetPresidentUser.username, targetPresidentUser.id);
-            console.log('Second user:', playerUser.username, playerUser.id);
-
-            if (targetPresidentUser.id === playerUser.id) {
-                return message.reply('❌ Başkan ve futbolcu farklı kişiler olmalı!');
-            }
+            console.log('Target president:', targetPresidentUser.username, targetPresidentUser.id);
+            console.log('Wanted player:', wantedPlayerUser.username, wantedPlayerUser.id);
+            console.log('Given player:', givenPlayerUser.username, givenPlayerUser.id);
 
             // Kendi kendini etiketleme kontrolü  
-            if (targetPresidentUser.id === message.author.id || playerUser.id === message.author.id) {
+            if (targetPresidentUser.id === message.author.id || wantedPlayerUser.id === message.author.id || givenPlayerUser.id === message.author.id) {
                 return message.reply('❌ Kendinizi etiketleyemezsiniz!');
             }
 
-            const targetPresident = message.guild.members.cache.get(targetPresidentUser.id);
-            const player = message.guild.members.cache.get(playerUser.id);
+            // Aynı kişileri kontrol et
+            if (targetPresidentUser.id === wantedPlayerUser.id || targetPresidentUser.id === givenPlayerUser.id || wantedPlayerUser.id === givenPlayerUser.id) {
+                return message.reply('❌ Tüm etiketlenen kişiler farklı olmalı!');
+            }
 
-            if (!targetPresident || !player) {
+            const targetPresident = message.guild.members.cache.get(targetPresidentUser.id);
+            const wantedPlayer = message.guild.members.cache.get(wantedPlayerUser.id);
+            const givenPlayer = message.guild.members.cache.get(givenPlayerUser.id);
+
+            if (!targetPresident || !wantedPlayer || !givenPlayer) {
                 return message.reply('❌ Etiketlenen kullanıcılar sunucuda bulunamadı!');
             }
 
-            // Başkan rolü kontrolü
+            // Yetki kontrolü
             if (!permissions.isPresident(targetPresident)) {
-                return message.reply('❌ İlk etiketlenen kişi takım başkanı değil!');
+                return message.reply('❌ İlk etiketlenen kullanıcı takım başkanı olmalı!');
             }
 
-            // Futbolcu rolü kontrolü
-            if (!permissions.isPlayer(player)) {
-                return message.reply('❌ İkinci etiketlenen kişi futbolcu değil!');
+            if (!permissions.isPlayer(wantedPlayer) && !permissions.isFreeAgent(wantedPlayer)) {
+                return message.reply('❌ İstenen futbolcu, futbolcu rolüne sahip olmalı!');
             }
 
-            // Serbest futbolcu kontrolü
-            if (permissions.isFreeAgent(player)) {
-                return message.reply('❌ Serbest futbolcular takas edilemez! Serbest oyuncular için `.offer` komutunu kullanın.');
+            if (!permissions.isPlayer(givenPlayer) && !permissions.isFreeAgent(givenPlayer)) {
+                return message.reply('❌ Verilecek futbolcu, futbolcu rolüne sahip olmalı!');
             }
 
-            // Modal formu butonunu göster
+            // Modal göster
+            const customId = `show_trade_modal_${targetPresidentUser.id}_${wantedPlayerUser.id}_${givenPlayerUser.id}_${message.author.id}`;
+            
+            const embed = new MessageEmbed()
+                .setColor(config.colors.warning)
+                .setTitle(`${config.emojis.trade} Takas Teklifi`)
+                .setDescription(`**${message.author.username}** → **${targetPresidentUser.username}**\n\n🔄 **Takas Detayları:**\n📈 **İstenen:** ${wantedPlayerUser}\n📉 **Verilecek:** ${givenPlayerUser}\n\nTakas detaylarını girmek için butona basın:`)
+                .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Sistemi' });
+
+            const button = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(customId)
+                        .setLabel('📝 Form Doldur')
+                        .setStyle('PRIMARY')
+                        .setEmoji('📝')
+                );
+
             await message.reply({
-                content: `${config.emojis.transfer} **Takas Teklifi Formu**\n\n${playerUser.username} için takas formunu doldurmak üzere aşağıdaki butona tıklayın.`,
-                components: [
-                    new MessageActionRow().addComponents(
-                        new MessageButton()
-                            .setCustomId(`show_trade_modal_${playerUser.id}_${message.author.id}`)
-                            .setLabel('Takas Formu Aç')
-                            .setStyle('PRIMARY')
-                            .setEmoji(config.emojis.edit)
-                    )
-                ]
+                embeds: [embed],
+                components: [button]
             });
 
         } catch (error) {

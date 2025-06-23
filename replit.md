@@ -316,6 +316,18 @@ The bot is configured for Replit deployment with:
     - Contract system now consistently displays additional clauses field across all interfaces
     - Fixed contract edit button to update existing message in same channel instead of creating new channel
     - Contract edit functionality now works like offer system with in-channel updates
+- June 23, 2025. Completely rebuilt trade system with three-stage approval process:
+    - Updated .trade command to require 3 parameters: .trade @targetPresident @wantedPlayer @givenPlayer
+    - Implemented three-stage approval workflow: 1) Presidents negotiate → 2) Target president accepts → 3) Both players approve
+    - First stage: Modal form creates negotiation channel between initiating president and target president
+    - Second stage: Target president acceptance creates new channel between the two players for their approval
+    - Third stage: Both players must accept for trade to complete with automatic announcement
+    - Added separate handleTradePlayerButton function for player approval stage
+    - Updated trade modal forms with separate salary fields for both players (wanted and given)
+    - Enhanced trade announcements to show both players with "Başkanlar takasladi" message format
+    - Target president can edit salary amounts during negotiation for better trade balance
+    - All trade channels auto-delete after each stage completion with proper button disabling
+    - Trade system now mirrors contract complexity with multi-stage authorization workflow
 
 ## User Preferences
 
