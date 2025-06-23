@@ -953,17 +953,28 @@ class ButtonHandler {
             }
 
             // Transfer duyuru embed'i oluştur - oyuncunun avatarını kullan
+            const playerDisplayName = transferData.playerName || transferData.player.username;
             const announcementEmbed = new EmbedBuilder()
                 .setColor(color)
                 .setTitle(`${config.emojis.football} ${title}`)
-                .setDescription(`**${transferData.player.username}** ${transferData.team} takımı ile anlaştı!`)
-                .setThumbnail(transferData.player.displayAvatarURL({ dynamic: true }))
-                .addFields(
+                .setDescription(`**${playerDisplayName}** ${transferData.team} takımı ile anlaştı!`)
+                .setThumbnail(transferData.player.displayAvatarURL({ dynamic: true }));
+
+            // Trade için farklı format, diğerleri için eski kulüp
+            if (transferData.type === 'takas') {
+                announcementEmbed.addFields(
+                    { name: '⚽ Oyuncu', value: transferData.playerName ? `${transferData.player} (${transferData.playerName})` : `${transferData.player}`, inline: true },
+                    { name: '🏟️ Yeni Takım', value: transferData.team, inline: true },
+                    { name: '📋 Transfer Türü', value: 'Takas', inline: true }
+                );
+            } else {
+                announcementEmbed.addFields(
                     { name: '⚽ Oyuncu', value: `${transferData.player}`, inline: true },
                     { name: '🏆 Eski Kulüp', value: transferData.oldClub || 'Belirtilmedi', inline: true },
                     { name: '🏟️ Yeni Takım', value: transferData.team, inline: true },
                     { name: '📋 Transfer Türü', value: transferData.type === 'serbest_transfer' ? 'Serbest Transfer' : transferData.type.charAt(0).toUpperCase() + transferData.type.slice(1), inline: true }
                 );
+            }
 
             // Transfer detayları ekle - sadece dolu alanları göster
             if (transferData.amount && transferData.amount.trim() && transferData.amount !== '0') {
