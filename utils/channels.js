@@ -11,7 +11,10 @@ class ChannelManager {
                     channelName = `teklif-${user1.username}-${user2.username}`;
                     break;
                 case 'contract':
-                    channelName = `sözleşme-${user1.username}-${user2.username}`;
+                    channelName = `sozlesme-${user1.username}-${user2.username}`;
+                    break;
+                case 'hire':
+                    channelName = `kiralik-${user1.username}-${user2.username}`;
                     break;
                 case 'trade':
                     channelName = `takas-${user1.username}-${user2.username}`;
@@ -35,7 +38,7 @@ class ChannelManager {
 
             if (!category) {
                 category = await guild.channels.create({
-                    name: '🤝 Müzakereler',
+                    name: 'müzakere-sözleşme',
                     type: ChannelType.GuildCategory,
                     permissionOverwrites: [
                         {

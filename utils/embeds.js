@@ -163,6 +163,61 @@ class EmbedCreator {
             .setFooter({ text: 'Transfer Sistemi' });
     }
 
+    createHireForm(fromPresident, toPresident, player, hireData = null) {
+        const embed = new EmbedBuilder()
+            .setColor(config.colors.warning)
+            .setTitle(`${config.emojis.contract} Kiralık Sözleşme Teklifi`)
+            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}**'e yapılan kiralık sözleşme teklifi:`);
+
+        embed.addFields(
+            {
+                name: `👑 Teklif Veren Başkan`,
+                value: `${fromPresident}`,
+                inline: true
+            },
+            {
+                name: `👑 Hedef Başkan`,
+                value: `${toPresident}`,
+                inline: true
+            },
+            {
+                name: `⚽ Oyuncu`,
+                value: `${player}`,
+                inline: true
+            },
+            {
+                name: `🏆 Eski Kulüp`,
+                value: hireData?.oldClub || 'Belirtilmedi',
+                inline: true
+            },
+            {
+                name: `🏟️ Yeni Kulüp`,
+                value: hireData?.newClub || 'Belirtilmemiş',
+                inline: true
+            },
+            {
+                name: `${config.emojis.money} Kiralık Bedeli`,
+                value: hireData?.loanFee || '5.000.000₺',
+                inline: true
+            },
+            {
+                name: `💰 Kiralık Maaş`,
+                value: hireData?.salary || '800.000₺/ay',
+                inline: true
+            },
+            {
+                name: '📅 Kiralık Süresi & Ek Madde',
+                value: hireData?.loanDuration || '1 sezon',
+                inline: true
+            }
+        );
+
+        return embed
+            .setThumbnail(player.displayAvatarURL({ dynamic: true }))
+            .setTimestamp()
+            .setFooter({ text: 'Transfer Sistemi' });
+    }
+
     createReleaseForm(president, player, releaseType, releaseData = null) {
         const embed = new EmbedBuilder()
             .setColor(config.colors.warning)

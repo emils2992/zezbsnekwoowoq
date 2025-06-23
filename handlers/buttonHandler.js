@@ -1,9 +1,9 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const config = require('../config');
-const permissions = require('../utils/permissions');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
 const api = require('../utils/api');
+const permissions = require('../utils/permissions');
 const fs = require('fs');
 const path = require('path');
 
@@ -29,6 +29,9 @@ class ButtonHandler {
                 case 'role':
                     await this.handleRoleButton(client, interaction, params);
                     break;
+                case 'hire':
+                    await this.handleHireButton(client, interaction, params);
+                    break;
                 case 'contract':
                     if (params[0] === 'player') {
                         await this.handleContractPlayerButton(client, interaction, params.slice(1));
@@ -47,6 +50,8 @@ class ButtonHandler {
                         await this.handleShowReleaseModal(client, interaction, params.slice(2));
                     } else if (params[0] === 'announcement' && params[1] === 'modal') {
                         await this.handleShowAnnouncementModal(client, interaction, params.slice(2));
+                    } else if (params[0] === 'hire' && params[1] === 'modal') {
+                        await this.handleShowHireModal(client, interaction, params.slice(2));
                     }
                     break;
                 default:
@@ -779,6 +784,122 @@ class ButtonHandler {
         }
     }
 
+    async handleHireButton(client, interaction, params) {
+        // hire_accept_targetPresidentID_fromPresidentID_playerID
+        const [buttonType, targetPresidentId, fromPresidentId, playerId] = params;
+        
+        const targetPresident = interaction.guild.members.cache.get(targetPresidentId);
+        const fromPresident = interaction.guild.members.cache.get(fromPresidentId);
+        const player = interaction.guild.members.cache.get(playerId);
+
+        if (!targetPresident || !fromPresident || !player) {
+            return interaction.reply({ 
+                content: '❌ Kullanıcılar bulunamadı!', 
+                ephemeral: true 
+            });
+        }
+
+        // Embed'den modal verilerini çıkar
+        let hireData = {
+            loanFee: '5.000.000₺',
+            salary: '800.000₺/ay',
+            loanDuration: '1 sezon',
+            oldClub: 'Belirtilmedi'
+        };
+
+        // Embed'deki verileri kullan
+        if (interaction.message && interaction.message.embeds.length > 0) {
+            const embed = interaction.message.embeds[0];
+            if (embed.fields) {
+                for (const field of embed.fields) {
+                    if (field.name.includes('Kiralık Bedeli')) {
+                        hireData.loanFee = field.value;
+                    } else if (field.name.includes('Maaş')) {
+                        hireData.salary = field.value;
+                    } else if (field.name.includes('Kiralık Süresi')) {
+                        hireData.loanDuration = field.value;
+                    } else if (field.name.includes('Eski Kulüp')) {
+                        hireData.oldClub = field.value;
+                    }
+                }
+            }
+        }
+
+        switch (buttonType) {
+            case 'accept':
+                // Sadece hedef başkan kabul edebilir
+                if (interaction.user.id !== targetPresidentId) {
+                    return interaction.reply({ 
+                        content: '❌ Bu kiralık teklifini sadece hedef başkan kabul edebilir!', 
+                        ephemeral: true 
+                    });
+                }
+
+                const acceptEmbed = embeds.createSuccess(
+                    'Kiralık Sözleşme Tamamlandı!',
+                    `${player} ${fromPresident.displayName} takımına kiralık olarak transfer oldu!\n\n🎉 Kiralık transfer başarıyla tamamlandı!`
+                );
+
+                await interaction.update({ 
+                    embeds: [acceptEmbed], 
+                    components: [] 
+                });
+
+                // Otomatik transfer duyurusu gönder
+                await this.sendTransferAnnouncement(interaction.guild, {
+                    player: player.user,
+                    team: fromPresident.displayName,
+                    type: 'kiralik',
+                    amount: hireData.loanFee,
+                    salary: hireData.salary,
+                    duration: hireData.loanDuration,
+                    oldClub: hireData.oldClub
+                });
+
+                // Transfer geçmişine kaydet
+                await api.logTransfer({
+                    type: 'loan_completed',
+                    player: player.user.username,
+                    from: targetPresident.displayName,
+                    to: fromPresident.displayName,
+                    amount: 0
+                });
+
+                // Kanalı 5 saniye sonra sil
+                setTimeout(async () => {
+                    await channels.deleteNegotiationChannel(interaction.channel, 'Kiralık sözleşme tamamlandı');
+                }, 5000);
+
+                break;
+
+            case 'reject':
+                // Sadece hedef başkan reddedebilir
+                if (interaction.user.id !== targetPresidentId) {
+                    return interaction.reply({ 
+                        content: '❌ Bu kiralık teklifini sadece hedef başkan reddedebilir!', 
+                        ephemeral: true 
+                    });
+                }
+
+                const rejectEmbed = embeds.createError(
+                    'Kiralık Sözleşme Reddedildi',
+                    `${player} için kiralık teklifi reddedildi.`
+                );
+
+                await interaction.update({ 
+                    embeds: [rejectEmbed], 
+                    components: [] 
+                });
+
+                // Kanalı 5 saniye sonra sil
+                setTimeout(async () => {
+                    await channels.deleteNegotiationChannel(interaction.channel, 'Kiralık teklifi reddedildi');
+                }, 5000);
+
+                break;
+        }
+    }
+
     async handleRoleButton(client, interaction, params) {
         // Rol ayarlama menüsü için
         await interaction.reply({ 
@@ -948,6 +1069,10 @@ class ButtonHandler {
                     color = config.colors.accent;
                     title = 'TAKAS TRANSFER TAMAMLANDI';
                     break;
+                case 'kiralik':
+                    color = config.colors.warning;
+                    title = 'KİRALIK TRANSFER TAMAMLANDI';
+                    break;
                 default:
                     title = 'TRANSFER TAMAMLANDI';
             }
@@ -972,7 +1097,7 @@ class ButtonHandler {
                     { name: '⚽ Oyuncu', value: `${transferData.player}`, inline: true },
                     { name: '🏆 Eski Kulüp', value: transferData.oldClub || 'Belirtilmedi', inline: true },
                     { name: '🏟️ Yeni Takım', value: transferData.team, inline: true },
-                    { name: '📋 Transfer Türü', value: transferData.type === 'serbest_transfer' ? 'Serbest Transfer' : transferData.type.charAt(0).toUpperCase() + transferData.type.slice(1), inline: true }
+                    { name: '📋 Transfer Türü', value: transferData.type === 'serbest_transfer' ? 'Serbest Transfer' : transferData.type === 'kiralik' ? 'Kiralık Transfer' : transferData.type.charAt(0).toUpperCase() + transferData.type.slice(1), inline: true }
                 );
             }
 
@@ -1253,6 +1378,63 @@ class ButtonHandler {
         const row3 = new ActionRowBuilder().addComponents(reasonInput);
         const row4 = new ActionRowBuilder().addComponents(newTeamInput);
         const row5 = new ActionRowBuilder().addComponents(bonusInput);
+
+        modal.addComponents(row1, row2, row3, row4, row5);
+
+        // Modal'ı göster
+        await interaction.showModal(modal);
+    }
+
+    async handleShowHireModal(client, interaction, params) {
+        const [targetPresidentId, fromPresidentId, playerId] = params;
+        
+        // Modal formu oluştur
+        const modal = new ModalBuilder()
+            .setCustomId(`hire_form_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+            .setTitle('Kiralık Sözleşme Formu');
+
+        // Form alanları
+        const newClubInput = new TextInputBuilder()
+            .setCustomId('new_club')
+            .setLabel('Yeni Kulüp')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: Barcelona')
+            .setRequired(true);
+
+        const oldClubInput = new TextInputBuilder()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: Real Madrid')
+            .setRequired(true);
+
+        const loanFeeInput = new TextInputBuilder()
+            .setCustomId('loan_fee')
+            .setLabel('Kiralık Bedeli')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 5.000.000₺')
+            .setRequired(true);
+
+        const salaryInput = new TextInputBuilder()
+            .setCustomId('salary')
+            .setLabel('Kiralık Maaş')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 800.000₺/ay')
+            .setRequired(true);
+
+        const loanDurationInput = new TextInputBuilder()
+            .setCustomId('loan_duration')
+            .setLabel('Kiralık Süresi & Ek Madde')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 1 sezon, Geri çağırma hakkı')
+            .setRequired(true);
+
+        // Action Row'lar oluştur
+        const row1 = new ActionRowBuilder().addComponents(newClubInput);
+        const row2 = new ActionRowBuilder().addComponents(oldClubInput);
+        const row3 = new ActionRowBuilder().addComponents(loanFeeInput);
+        const row4 = new ActionRowBuilder().addComponents(salaryInput);
+        const row5 = new ActionRowBuilder().addComponents(loanDurationInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);
 

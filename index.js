@@ -424,6 +424,74 @@ async function handleModalSubmit(client, interaction) {
         await interaction.editReply({ embeds: [successEmbed] });
     }
 
+    // Hire form modali (Kiralık sözleşme)
+    else if (customId.startsWith('hire_form_')) {
+        const [, , targetPresidentId, fromPresidentId, playerId] = customId.split('_');
+        const targetPresident = interaction.guild.members.cache.get(targetPresidentId);
+        const fromPresident = interaction.guild.members.cache.get(fromPresidentId);
+        const player = interaction.guild.members.cache.get(playerId);
+
+        if (!targetPresident || !fromPresident || !player) {
+            return interaction.editReply({ content: '❌ Kullanıcılar bulunamadı!' });
+        }
+
+        // Form verilerini al
+        const hireData = {
+            newClub: interaction.fields.getTextInputValue('new_club') || 'Belirtilmemiş',
+            oldClub: interaction.fields.getTextInputValue('old_club') || '',
+            loanFee: interaction.fields.getTextInputValue('loan_fee') || '5.000.000₺',
+            salary: interaction.fields.getTextInputValue('salary') || '800.000₺/ay',
+            loanDuration: interaction.fields.getTextInputValue('loan_duration') || '1 sezon'
+        };
+
+        // Kiralık sözleşme embed'i oluştur
+        const hireEmbed = embeds.createHireForm(fromPresident.user, targetPresident.user, player.user, hireData);
+        
+        // Butonları oluştur
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`hire_accept_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+                    .setLabel('Kabul Et')
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji(config.emojis.check),
+                new ButtonBuilder()
+                    .setCustomId(`hire_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+                    .setLabel('Reddet')
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji(config.emojis.cross)
+            );
+
+        // Müzakere kanalı oluştur
+        const negotiationChannel = await channels.createNegotiationChannel(
+            interaction.guild, 
+            fromPresident.user, 
+            targetPresident.user,
+            'hire',
+            player.user
+        );
+
+        if (!negotiationChannel) {
+            return interaction.editReply({ content: '❌ Müzakere kanalı oluşturulamadı!' });
+        }
+
+        // Kiralık sözleşme teklifini kanala gönder
+        await negotiationChannel.send({
+            content: `${config.emojis.contract} **Yeni Kiralık Sözleşme Teklifi**\n${targetPresident.user}, ${fromPresident.user} sizden bir kiralık sözleşme teklifi var!\n\n**Oyuncu:** ${player.user}`,
+            embeds: [hireEmbed],
+            components: [row]
+        });
+
+        // Başarı mesajı
+        const successEmbed = new EmbedBuilder()
+            .setColor(config.colors.success)
+            .setTitle(`${config.emojis.check} Kiralık Sözleşme Teklifi Gönderildi`)
+            .setDescription(`${player.user} için kiralık sözleşme teklifiniz hazırlandı!\n\n**Müzakere Kanalı:** ${negotiationChannel}`)
+            .setTimestamp();
+
+        await interaction.editReply({ embeds: [successEmbed] });
+    }
+
     // Release form modali (Karşılıklı fesih)
     else if (customId.startsWith('release_form_')) {
         const [, , playerId, presidentId, releaseType] = customId.split('_');
