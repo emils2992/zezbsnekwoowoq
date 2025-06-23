@@ -1318,7 +1318,7 @@ class ButtonHandler {
 
         // Action Row'lar oluştur
         const row1 = new ActionRowBuilder().addComponents(newTeamInput);
-        const row2 = new ActionRowBuilder().addComponents(oldClubInput);
+        const row2 = new ActionRowBuilder().addComponents(playerNameInput);
         const row3 = new ActionRowBuilder().addComponents(salaryInput);
         const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
         const row5 = new ActionRowBuilder().addComponents(bonusInput);
