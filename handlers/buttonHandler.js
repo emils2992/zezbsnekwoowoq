@@ -201,11 +201,11 @@ class ButtonHandler {
                     .setPlaceholder('Örn: 3 yıl')
                     .setRequired(false);
 
-                const bonusInput = new TextInputBuilder()
-                    .setCustomId('bonus')
-                    .setLabel('Bonuslar')
+                const targetPlayerInput = new TextInputBuilder()
+                    .setCustomId('target_player')
+                    .setLabel('İstenen Oyuncu')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('Örn: 3.000.000₺')
+                    .setPlaceholder('Örn: Lionel Messi')
                     .setRequired(false);
 
                 // Action Row'lar oluştur
@@ -213,7 +213,7 @@ class ButtonHandler {
                 const row2 = new ActionRowBuilder().addComponents(playerNameInput);
                 const row3 = new ActionRowBuilder().addComponents(salaryInput);
                 const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
-                const row5 = new ActionRowBuilder().addComponents(bonusInput);
+                const row5 = new ActionRowBuilder().addComponents(targetPlayerInput);
 
                 modal.addComponents(row1, row2, row3, row4, row5);
 
@@ -447,8 +447,8 @@ class ButtonHandler {
     }
 
     async handleTradeButton(client, interaction, params) {
-        // trade_accept_targetPresidentID_fromPresidentID_playerID_amount
-        const [buttonType, targetPresidentId, fromPresidentId, playerId, amount] = params;
+        // trade_accept_targetPresidentID_fromPresidentID_playerID
+        const [buttonType, targetPresidentId, fromPresidentId, playerId] = params;
         
         const targetPresident = interaction.guild.members.cache.get(targetPresidentId);
         const fromPresident = interaction.guild.members.cache.get(fromPresidentId);
@@ -459,6 +459,38 @@ class ButtonHandler {
                 content: '❌ Kullanıcılar bulunamadı!', 
                 ephemeral: true 
             });
+        }
+
+        // Embed'den modal verilerini çıkar
+        let tradeData = {
+            playerName: player.displayName,
+            additionalAmount: '0',
+            salary: '10.000.000₺/yıl',
+            contractDuration: '4 yıl',
+            targetPlayer: 'Belirtilmedi'
+        };
+
+        // Embed'deki verileri kullan
+        if (interaction.message && interaction.message.embeds.length > 0) {
+            const embed = interaction.message.embeds[0];
+            if (embed.fields) {
+                for (const field of embed.fields) {
+                    if (field.name.includes('Ek Miktar')) {
+                        tradeData.additionalAmount = field.value;
+                    } else if (field.name.includes('Maaş')) {
+                        tradeData.salary = field.value;
+                    } else if (field.name.includes('Sözleşme Süresi')) {
+                        tradeData.contractDuration = field.value;
+                    } else if (field.name.includes('İstenen Oyuncu')) {
+                        tradeData.targetPlayer = field.value;
+                    } else if (field.name.includes('Oyuncu') && field.value.includes('(') && field.value.includes(')')) {
+                        const nameMatch = field.value.match(/\(([^)]+)\)/);
+                        if (nameMatch) {
+                            tradeData.playerName = nameMatch[1];
+                        }
+                    }
+                }
+            }
         }
 
         switch (buttonType) {
@@ -472,7 +504,7 @@ class ButtonHandler {
 
                 const acceptEmbed = embeds.createSuccess(
                     'Takas Kabul Edildi!',
-                    `${player} için takas teklifi kabul edildi!\n\n**Takas:** ${player} ➜ ${fromPresident.displayName} kulübü\n${amount && parseInt(amount) > 0 ? `**Ek Miktar:** ${parseInt(amount).toLocaleString('tr-TR')}₺\n` : ''}Takas işlemi tamamlandı! 🔄`
+                    `Başkanlar takasladi!\n\n**${tradeData.playerName}** ➜ ${fromPresident.displayName}\n${tradeData.additionalAmount !== '0' ? `**Ek Miktar:** ${tradeData.additionalAmount}\n` : ''}**İstenen Oyuncu:** ${tradeData.targetPlayer}\n\nTakas işlemi tamamlandı! 🔄`
                 );
 
                 await interaction.update({ 
@@ -485,18 +517,20 @@ class ButtonHandler {
                     player: player.user,
                     team: fromPresident.displayName,
                     type: 'takas',
-                    amount: amount && parseInt(amount) > 0 ? `${parseInt(amount).toLocaleString('tr-TR')}₺` : null,
-                    salary: '850.000₺/ay',
-                    duration: '4 yıl'
+                    amount: tradeData.additionalAmount !== '0' ? tradeData.additionalAmount : null,
+                    salary: tradeData.salary,
+                    duration: tradeData.contractDuration,
+                    playerName: tradeData.playerName,
+                    targetPlayer: tradeData.targetPlayer
                 });
 
-                // Transfer geçmişine kaydet
+                // Transfer geçmişine kaydet  
                 await api.logTransfer({
                     type: 'trade_accepted',
                     player: player.user.username,
                     from: targetPresident.displayName,
                     to: fromPresident.displayName,
-                    amount: parseInt(amount) || 0
+                    amount: 0
                 });
 
                 setTimeout(async () => {
@@ -841,6 +875,9 @@ class ButtonHandler {
             if (transferData.bonus) {
                 announcementEmbed.addFields({ name: '🎯 Bonuslar', value: transferData.bonus, inline: true });
             }
+            if (transferData.targetPlayer && transferData.targetPlayer !== 'Belirtilmedi') {
+                announcementEmbed.addFields({ name: '⚽ İstenen Oyuncu', value: transferData.targetPlayer, inline: true });
+            }
             if (transferData.signingBonus) {
                 announcementEmbed.addFields({ name: '💎 İmza Parası', value: transferData.signingBonus, inline: true });
             }
@@ -1013,11 +1050,11 @@ class ButtonHandler {
             .setPlaceholder('Örn: 4 yıl')
             .setRequired(false);
 
-        const bonusInput = new TextInputBuilder()
-            .setCustomId('bonus')
-            .setLabel('Bonuslar')
+        const targetPlayerInput = new TextInputBuilder()
+            .setCustomId('target_player')
+            .setLabel('İstenen Oyuncu')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 750.000₺')
+            .setPlaceholder('Örn: Lionel Messi')
             .setRequired(false);
 
         // Action Row'lar oluştur
@@ -1025,7 +1062,7 @@ class ButtonHandler {
         const row2 = new ActionRowBuilder().addComponents(additionalAmountInput);
         const row3 = new ActionRowBuilder().addComponents(salaryInput);
         const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
-        const row5 = new ActionRowBuilder().addComponents(bonusInput);
+        const row5 = new ActionRowBuilder().addComponents(targetPlayerInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);
 

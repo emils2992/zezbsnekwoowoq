@@ -141,8 +141,8 @@ class EmbedCreator {
                 inline: true
             },
             {
-                name: '🎯 Bonuslar',
-                value: tradeData?.bonus || '400.000₺',
+                name: '⚽ İstenen Oyuncu',
+                value: tradeData?.targetPlayer || 'Belirtilmedi',
                 inline: true
             }
         );

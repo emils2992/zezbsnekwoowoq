@@ -365,7 +365,7 @@ async function handleModalSubmit(client, interaction) {
             additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '0',
             salary: interaction.fields.getTextInputValue('salary') || '10.000.000₺/yıl',
             contractDuration: interaction.fields.getTextInputValue('contract_duration') || '4 yıl',
-            bonus: interaction.fields.getTextInputValue('bonus') || '5.000.000₺'
+            targetPlayer: interaction.fields.getTextInputValue('target_player') || 'Belirtilmedi'
         };
 
         // Takas embed'i oluştur

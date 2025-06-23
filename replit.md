@@ -114,6 +114,11 @@ The bot is configured for Replit deployment with:
   - Fixed transfer announcements to use exact modal form data instead of default values
   - Enhanced button handler to extract and use modal data from embed fields for accurate transfer announcements
   - Changed salary format from monthly to yearly across all forms and announcements
+- June 22, 2025. Enhanced modal system with user-requested improvements:
+  - Updated "Tekrar Düzenle" button to open modal forms directly without creating new negotiation channels
+  - Replaced "Bonuslar" field with "İstenen Oyuncu" in trade and offer forms for better trade negotiations
+  - Modified trade transfer announcements to display "Başkanlar takasladi" message instead of generic club transfer text
+  - Ensured complete modal data consistency across all transfer types (offer, contract, trade, release)
 
 ## User Preferences
 
