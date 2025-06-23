@@ -366,7 +366,17 @@ async function handleModalSubmit(client, interaction) {
 
         // Contract form modali
         else if (customId.startsWith('contract_form_')) {
-            const [, , targetPresidentId, playerId, presidentId] = customId.split('_');
+            const parts = customId.split('_');
+            console.log('Contract form parts:', parts);
+            const targetPresidentId = parts[2];
+            const playerId = parts[3];
+            const presidentId = parts[4];
+            
+            if (!targetPresidentId || !playerId || !presidentId) {
+                console.error('Missing contract parameters:', { targetPresidentId, playerId, presidentId });
+                return interaction.editReply({ content: 'Parametre hatası! Lütfen komutu tekrar deneyin.' });
+            }
+            
             console.log(`Contract form - Target President ID: ${targetPresidentId}, Player ID: ${playerId}, President ID: ${presidentId}`);
             
             let player, president, targetPresident;

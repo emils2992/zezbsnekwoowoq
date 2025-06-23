@@ -1210,6 +1210,7 @@ class ButtonHandler {
 
     async handleShowButton(client, interaction, params) {
         const [type, ...additionalParams] = params;
+        console.log('HandleShowButton debug:', { type, additionalParams });
         
         switch (type) {
             case 'offer':
@@ -1219,6 +1220,7 @@ class ButtonHandler {
                 break;
             case 'contract':
                 if (additionalParams[0] === 'modal') {
+                    console.log('Contract modal params before passing:', additionalParams.slice(1));
                     await this.handleShowContractForm(client, interaction, additionalParams.slice(1));
                 }
                 break;
@@ -1747,7 +1749,9 @@ class ButtonHandler {
     }
 
     async handleShowContractForm(client, interaction, params) {
+        console.log('HandleShowContractForm received params:', params);
         const [targetPresidentId, playerId, presidentId] = params;
+        console.log('Parsed contract params:', { targetPresidentId, playerId, presidentId });
         
         const modal = new Modal()
             .setCustomId(`contract_form_${targetPresidentId}_${playerId}_${presidentId}`)
@@ -1881,69 +1885,7 @@ class ButtonHandler {
         await interaction.showModal(modal);
     }
 
-    async handleShowContractForm(client, interaction, params) {
-        const [playerId, presidentId] = params;
-        
-        try {
-            // Contract modal oluştur
-            const contractModal = new Modal()
-                .setCustomId(`contract_form_${playerId}_${presidentId}`)
-                .setTitle('Sözleşme Formu');
 
-            const transferFeeInput = new TextInputComponent()
-                .setCustomId('transfer_fee')
-                .setLabel('Transfer Ücreti')
-                .setStyle('SHORT')
-                .setPlaceholder('Örn: 5M€')
-                .setRequired(true);
-
-            const oldClubInput = new TextInputComponent()
-                .setCustomId('old_club')
-                .setLabel('Eski Kulüp')
-                .setStyle('SHORT')
-                .setPlaceholder('Eski kulüp adını girin')
-                .setRequired(true);
-
-            const newClubInput = new TextInputComponent()
-                .setCustomId('new_club')
-                .setLabel('Yeni Kulüp')
-                .setStyle('SHORT')
-                .setPlaceholder('Kulüp adını girin')
-                .setRequired(true);
-
-            const salaryInput = new TextInputComponent()
-                .setCustomId('salary')
-                .setLabel('Yıllık Maaş')
-                .setStyle('SHORT')
-                .setPlaceholder('Örn: 2M€')
-                .setRequired(true);
-
-            const contractDurationInput = new TextInputComponent()
-                .setCustomId('contract_duration')
-                .setLabel('Sözleşme+Ekmadde')
-                .setStyle('SHORT')
-                .setPlaceholder('Örn: 3 yıl + bonuslar')
-                .setRequired(true);
-
-            contractModal.addComponents(
-                new MessageActionRow().addComponents(transferFeeInput),
-                new MessageActionRow().addComponents(oldClubInput),
-                new MessageActionRow().addComponents(newClubInput),
-                new MessageActionRow().addComponents(salaryInput),
-                new MessageActionRow().addComponents(contractDurationInput)
-            );
-
-            await interaction.showModal(contractModal);
-        } catch (error) {
-            console.error('Contract modal error:', error);
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({
-                    content: '❌ Modal açılırken hata oluştu!',
-                    ephemeral: true
-                });
-            }
-        }
-    }
 
     async handleShowTradeForm(client, interaction, params) {
         const [playerId, presidentId] = params;
