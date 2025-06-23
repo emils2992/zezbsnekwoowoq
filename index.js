@@ -510,13 +510,13 @@ async function handleModalSubmit(client, interaction) {
         }
 
         // Form verilerini al
+        const signingBonusAndYears = interaction.fields.getTextInputValue('signing_bonus') || 'Müzakereye açık';
         const announcementData = {
             playerName: interaction.fields.getTextInputValue('player_name') || player.displayName,
             requirements: interaction.fields.getTextInputValue('requirements') || 'Belirtilmedi',
             additional: interaction.fields.getTextInputValue('additional') || 'Belirtilmedi',
             salary: interaction.fields.getTextInputValue('salary') || 'Müzakereye açık',
-            contractYears: interaction.fields.getTextInputValue('contract_years') || 'Müzakereye açık',
-            signingBonus: interaction.fields.getTextInputValue('signing_bonus') || 'Müzakereye açık'
+            signingBonusAndYears: signingBonusAndYears
         };
 
         // Duyuru kanalını bul
@@ -538,8 +538,7 @@ async function handleModalSubmit(client, interaction) {
             .addFields(
                 { name: '⚽ Oyuncu', value: `${player} (${announcementData.playerName})`, inline: true },
                 { name: '💰 Maaş', value: announcementData.salary, inline: true },
-                { name: '📅 Sözleşme Yılı', value: announcementData.contractYears, inline: true },
-                { name: '💎 İmza Primi', value: announcementData.signingBonus, inline: true },
+                { name: '💎 İmza Primi & Süre', value: announcementData.signingBonusAndYears, inline: true },
                 { name: '🎯 Ne İsterim', value: announcementData.requirements, inline: false }
             );
 

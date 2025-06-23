@@ -1273,18 +1273,11 @@ class ButtonHandler {
             .setPlaceholder('Örn: 2.000.000₺/yıl')
             .setRequired(false);
 
-        const contractYearsInput = new TextInputBuilder()
-            .setCustomId('contract_years')
-            .setLabel('Sözleşme Yılı')
-            .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 3 yıl')
-            .setRequired(false);
-
         const signingBonusInput = new TextInputBuilder()
             .setCustomId('signing_bonus')
-            .setLabel('İmza Primi')
+            .setLabel('İmza Primi & Sözleşme Yılı')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 1.000.000₺')
+            .setPlaceholder('Örn: 1.000.000₺ - 3 yıl')
             .setRequired(false);
 
         // Action Row'lar oluştur (en fazla 5 tane olabilir)
@@ -1292,7 +1285,7 @@ class ButtonHandler {
         const row2 = new ActionRowBuilder().addComponents(requirementsInput);
         const row3 = new ActionRowBuilder().addComponents(additionalInput);
         const row4 = new ActionRowBuilder().addComponents(salaryInput);
-        const row5 = new ActionRowBuilder().addComponents(contractYearsInput);
+        const row5 = new ActionRowBuilder().addComponents(signingBonusInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);
 
