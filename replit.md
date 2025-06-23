@@ -285,6 +285,13 @@ The bot is configured for Replit deployment with:
     - Added edit buttons to contract and trade negotiation channels in index.js
     - Edit buttons now show pre-filled modals with existing data for easy modification
     - All transfer commands now have consistent edit functionality in negotiation channels
+- June 23, 2025. Fixed contract player button functionality and channel creation:
+    - Fixed contract player channel creation to use correct participants (president, player) 
+    - Added edit button functionality to contract player approval stage
+    - Fixed button routing for contract_player_ buttons to handleContractPlayerButton
+    - Removed ephemeral replies that were preventing proper button functionality
+    - Added debug logging for contract player button interactions
+    - Contract system now works properly in both approval stages with all buttons functional
 
 ## User Preferences
 

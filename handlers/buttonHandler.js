@@ -249,7 +249,7 @@ class ButtonHandler {
             await interaction.deferReply();
             
             // İkinci aşama: Oyuncu ile müzakere kanalı oluştur
-            const playerChannel = await channels.createNegotiationChannel(guild, player.user, player.user, 'contract-player');
+            const playerChannel = await channels.createNegotiationChannel(guild, president.user, player.user, 'contract-player');
             if (!playerChannel) {
                 return interaction.editReply({ content: 'Oyuncu müzakere kanalı oluşturulamadı!' });
             }
@@ -368,6 +368,9 @@ class ButtonHandler {
     async handleContractPlayerButton(client, interaction, params) {
         const [buttonType, playerId, presidentId] = params;
         const guild = interaction.guild;
+        
+        console.log('Contract player button debug:', { buttonType, playerId, presidentId });
+        
         const player = await guild.members.fetch(playerId);
         const president = await guild.members.fetch(presidentId);
 
