@@ -342,6 +342,16 @@ The bot is configured for Replit deployment with:
     - Updated trade acceptance tracking to require both players before channel deletion and announcement
     - Presidents can now edit player salaries after initial agreement for fine-tuning negotiations
     - Trade system now provides complete salary management workflow as requested by user
+- June 23, 2025. Final trade system enhancements for comprehensive workflow:
+    - Both presidents (initiating and target) can now use "Düzenle" button to modify player salaries
+    - Enhanced transfer announcements to display comprehensive compensation details including:
+      * Player salaries for both traded players
+      * Additional compensation amounts (ek tazminat)
+      * Bonus amounts from negotiations
+      * Contract terms and additional clauses for both players
+    - Transfer announcements only sent when both players accept (dual acceptance requirement)
+    - All salary and contract modifications remain in same channel without creating new channels
+    - Complete trade workflow: Presidents negotiate → Target accepts → Players approve with salary editing → Both accept → Comprehensive announcement
 
 ## User Preferences
 

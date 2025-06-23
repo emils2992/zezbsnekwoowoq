@@ -845,7 +845,7 @@ class ButtonHandler {
                 }
             }, 1500);
         } else if (buttonType === 'edit') {
-            // Only presidents can edit the salary details for players
+            // Both presidents can edit the salary details for players
             const member = interaction.member;
             const isAuthorized = interaction.user.id === presidentId || interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
             
@@ -856,7 +856,7 @@ class ButtonHandler {
                 });
             }
 
-            // Show salary editing modal for both players
+            // Show salary editing modal for both players - target president can also edit
             await this.handleShowTradePlayerSalaryForm(client, interaction, [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId]);
         }
     }
@@ -1288,7 +1288,7 @@ class ButtonHandler {
         let announcementEmbed;
         
         if (transferData.type === 'trade') {
-            const { wantedPlayer, givenPlayer, targetPresident, president } = transferData;
+            const { wantedPlayer, givenPlayer, targetPresident, president, tradeData } = transferData;
             
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
@@ -1298,7 +1298,31 @@ class ButtonHandler {
                     { name: '📈 İstenen Oyuncu', value: `${wantedPlayer.user}`, inline: true },
                     { name: '📉 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true },
                     { name: '🏟️ Kulüpler', value: `${targetPresident.user.username} ↔ ${president.user.username}`, inline: false }
-                )
+                );
+
+            // Add salary and contract details if available from tradeData
+            if (tradeData) {
+                if (tradeData.wantedPlayerSalary && tradeData.wantedPlayerSalary !== 'Belirtilmemiş') {
+                    announcementEmbed.addFields({ name: '💰 İstenen Oyuncunun Maaşı', value: tradeData.wantedPlayerSalary, inline: true });
+                }
+                if (tradeData.givenPlayerSalary && tradeData.givenPlayerSalary !== 'Belirtilmemiş') {
+                    announcementEmbed.addFields({ name: '💸 Verilecek Oyuncunun Maaşı', value: tradeData.givenPlayerSalary, inline: true });
+                }
+                if (tradeData.additionalAmount && tradeData.additionalAmount !== 'Yok') {
+                    announcementEmbed.addFields({ name: '💵 Ek Tazminat', value: tradeData.additionalAmount, inline: true });
+                }
+                if (tradeData.bonus && tradeData.bonus !== 'Yok') {
+                    announcementEmbed.addFields({ name: '🎁 Bonus', value: tradeData.bonus, inline: true });
+                }
+                if (tradeData.wantedPlayerContract && tradeData.wantedPlayerContract !== 'Belirtilmemiş') {
+                    announcementEmbed.addFields({ name: '📅 İstenen Oyuncunun Sözleşmesi', value: tradeData.wantedPlayerContract, inline: false });
+                }
+                if (tradeData.givenPlayerContract && tradeData.givenPlayerContract !== 'Belirtilmemiş') {
+                    announcementEmbed.addFields({ name: '📋 Verilecek Oyuncunun Sözleşmesi', value: tradeData.givenPlayerContract, inline: false });
+                }
+            }
+
+            announcementEmbed
                 .setThumbnail(wantedPlayer.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Duyuruları' });
