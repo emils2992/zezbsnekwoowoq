@@ -144,9 +144,16 @@ class ButtonHandler {
         if (buttonType === 'accept') {
             await permissions.makePlayerFree(player);
             
-            await this.sendReleaseTransferAnnouncement(guild, player, {
-                embed: interaction.message.embeds[0]
-            }, releaseType);
+            // Extract release data from embed fields
+            const embed = interaction.message.embeds[0];
+            const releaseData = {
+                oldClub: embed.fields.find(f => f.name.includes('Eski Kulüp'))?.value || 'Belirtilmemiş',
+                reason: embed.fields.find(f => f.name.includes('Fesih Nedeni'))?.value || 'Belirtilmemiş',
+                compensation: embed.fields.find(f => f.name.includes('Tazminat'))?.value || '',
+                newTeam: embed.fields.find(f => f.name.includes('Yeni Takım'))?.value || ''
+            };
+            
+            await this.sendReleaseTransferAnnouncement(guild, player.user, releaseData, releaseType);
 
             await interaction.reply({
                 content: `✅ Fesih kabul edildi! **${player.displayName}** artık serbest oyuncu.`,
@@ -164,9 +171,22 @@ class ButtonHandler {
             }, 3000);
         } else if (buttonType === 'reject') {
             await interaction.reply({
-                content: `❌ Fesih reddedildi.`,
+                content: `❌ Fesih reddedildi!`,
                 ephemeral: false
             });
+
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel.name.includes('muzakere')) {
+                        await channels.deleteNegotiationChannel(interaction.channel, 'Fesih reddedildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silme hatası:', error);
+                }
+            }, 3000);
+
+        } else if (buttonType === 'edit') {
+            await this.handleShowReleaseForm(null, interaction, [playerId, presidentId, releaseType]);
         }
     }
 
@@ -291,31 +311,28 @@ class ButtonHandler {
 
     async sendReleaseTransferAnnouncement(guild, player, releaseData, releaseType) {
         const freeAgentChannel = await channels.findFreeAgentChannel(guild);
-        if (!freeAgentChannel) return;
+        if (!freeAgentChannel) {
+            console.log('Serbest duyuru kanalı bulunamadı');
+            return;
+        }
 
-        const embed = releaseData.embed;
-        const embedFields = embed.fields || [];
-        
-        const oldClubField = embedFields.find(f => f.name.includes('Eski Kulüp'));
-        const reasonField = embedFields.find(f => f.name.includes('Sebep'));
-        const compensationField = embedFields.find(f => f.name.includes('Tazminat'));
-        
-        const oldClub = oldClubField ? oldClubField.value : 'Bilinmiyor';
-        const reason = reasonField ? reasonField.value : 'Karşılıklı anlaşma';
-        const compensation = compensationField ? compensationField.value : null;
-        
         const releaseEmbed = new MessageEmbed()
             .setColor(config.colors.warning)
-            .setTitle('🆓 Serbest Oyuncu')
-            .addField('⚽ Oyuncu', player.displayName, true)
-            .addField('🏟️ Eski Kulüp', oldClub, true)
-            .addField('📋 Fesih Türü', releaseType === 'mutual' ? 'Karşılıklı Fesih' : 'Tek Taraflı Fesih', true)
-            .addField('💭 Sebep', reason, false).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
+            .setTitle(`${config.emojis.release} Oyuncu Serbest Kaldı`)
+            .setDescription(`**${player.username}** serbest futbolcu oldu!`)
+            .addField('🏆 Eski Kulüp', releaseData.oldClub || 'Belirtilmemiş', true)
+            .addField('📋 Sebep', releaseData.reason || 'Belirtilmemiş', false)
+            .addField('📅 Tarih', new Date().toLocaleDateString('tr-TR'), true)
+            .setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
-            .setFooter({ text: 'Serbest Oyuncu Duyuruları' });
-        
-        if (compensation) {
-            releaseEmbed.addField('💰 Tazminat', compensation, true);
+            .setFooter({ text: 'Transfer Sistemi' });
+
+        if (releaseData.compensation && releaseData.compensation.trim() !== '' && releaseData.compensation !== 'Belirtilmemiş') {
+            releaseEmbed.addField('💰 Tazminat', releaseData.compensation, true);
+        }
+
+        if (releaseData.newTeam && releaseData.newTeam.trim() !== '' && releaseData.newTeam !== 'Belirtilmemiş') {
+            releaseEmbed.addField('🎯 Yeni Takım', releaseData.newTeam, true);
         }
 
         const roleData = permissions.getRoleData(guild.id);
@@ -328,10 +345,16 @@ class ButtonHandler {
             }
         }
 
-        await freeAgentChannel.send({
-            content: mention,
-            embeds: [releaseEmbed]
-        });
+        if (mention && mention.trim() !== '') {
+            await freeAgentChannel.send({
+                content: mention,
+                embeds: [releaseEmbed]
+            });
+        } else {
+            await freeAgentChannel.send({
+                embeds: [releaseEmbed]
+            });
+        }
     }
 
     async handleShowButton(client, interaction, params) {
