@@ -537,10 +537,16 @@ async function handleModalSubmit(client, interaction) {
             .addFields(
                 { name: '⚽ Oyuncu', value: `${player} (${announcementData.playerName})`, inline: true },
                 { name: '🏆 Yeni Kulüp', value: announcementData.newClub, inline: true },
-                { name: '💰 Maaş', value: announcementData.salary, inline: true },
-                { name: '📅 Sözleşme Yılı', value: announcementData.contractYears, inline: true },
-                { name: '💎 Bonus', value: announcementData.signingBonus, inline: true }
+                { name: '💰 Maaş', value: announcementData.salary, inline: true }
             );
+
+        // Sadece dolu alanları ekle
+        if (announcementData.contractYears && announcementData.contractYears.trim()) {
+            announcementEmbed.addFields({ name: '📅 Sözleşme Yılı', value: announcementData.contractYears, inline: true });
+        }
+        if (announcementData.signingBonus && announcementData.signingBonus.trim()) {
+            announcementEmbed.addFields({ name: '💎 Bonus', value: announcementData.signingBonus, inline: true });
+        }
 
         announcementEmbed
             .setTimestamp()

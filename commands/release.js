@@ -26,9 +26,9 @@ module.exports = {
                 return message.reply('❌ Etiketlenen kullanıcı sunucuda bulunamadı!');
             }
 
-            // Futbolcu rolü kontrolü
-            if (!permissions.isPlayer(targetMember)) {
-                return message.reply('❌ Etiketlenen kişi futbolcu değil!');
+            // Serbest futbolcu kontrolü - serbest futbolcu rolü yeterli
+            if (!permissions.isFreeAgent(targetMember) && !permissions.isPlayer(targetMember)) {
+                return message.reply('❌ Etiketlenen kişi futbolcu veya serbest futbolcu değil!');
             }
 
             // Serbest futbolcu kontrolü

@@ -144,6 +144,9 @@ The bot is configured for Replit deployment with:
   - Updated announcement structure to display comprehensive transfer information with required details
   - Fixed .offer command role checking to only require free agent role (not both player and free agent roles)
   - Updated .release command permissions to allow both team presidents and free agents to use it
+  - Fixed .release command to work with users who have either serbest futbolcu or futbolcu roles
+  - Made all modal form fields required across all commands (offer, contract, trade, release) for essential information
+  - Enhanced announcements to only display populated fields, hiding empty ones for cleaner presentation
 
 ## User Preferences
 
