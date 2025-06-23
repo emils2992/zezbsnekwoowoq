@@ -685,9 +685,9 @@ class ButtonHandler {
     }
 
     async handleTradePlayerButton(client, interaction, params) {
-        console.log('Trade player button clicked:', { buttonType: buttonType, params: params, userId: interaction.user.id });
-        
         const [buttonType, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
+        
+        console.log('Trade player button clicked:', { buttonType: buttonType, params: params, userId: interaction.user.id });
         const guild = interaction.guild;
         const targetPresident = await guild.members.fetch(targetPresidentId);
         const wantedPlayer = await guild.members.fetch(wantedPlayerId);
