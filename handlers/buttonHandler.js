@@ -63,6 +63,17 @@ class ButtonHandler {
                         await this.handleShowHireModal(client, interaction, params.slice(2));
                     }
                     break;
+                case 'edit':
+                    if (params[0] === 'offer') {
+                        await this.handleShowOfferModal(client, interaction, params.slice(1));
+                    } else if (params[0] === 'contract') {
+                        await this.handleShowContractModal(client, interaction, params.slice(1));
+                    } else if (params[0] === 'trade') {
+                        await this.handleShowTradeModal(client, interaction, params.slice(1));
+                    } else if (params[0] === 'hire') {
+                        await this.handleShowHireModal(client, interaction, params.slice(1));
+                    }
+                    break;
                 default:
                     await interaction.reply({ 
                         content: '❌ Bilinmeyen buton etkileşimi!', 

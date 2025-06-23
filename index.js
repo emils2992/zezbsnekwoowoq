@@ -248,8 +248,8 @@ async function handleModalSubmit(client, interaction) {
                         .setStyle(ButtonStyle.Danger)
                         .setEmoji(config.emojis.cross),
                     new ButtonBuilder()
-                        .setCustomId(`offer_edit_${playerId}_${presidentId}`)
-                        .setLabel('Tekrar Düzenle')
+                        .setCustomId(`edit_offer_${playerId}_${presidentId}`)
+                        .setLabel('Düzenle')
                         .setStyle(ButtonStyle.Secondary)
                         .setEmoji(config.emojis.edit)
                 );
@@ -318,7 +318,12 @@ async function handleModalSubmit(client, interaction) {
                     .setCustomId(`contract_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Reddet')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji(config.emojis.cross)
+                    .setEmoji(config.emojis.cross),
+                new ButtonBuilder()
+                    .setCustomId(`edit_contract_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+                    .setLabel('Düzenle')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji(config.emojis.edit)
             );
 
         // Müzakere kanalı oluştur
@@ -388,7 +393,7 @@ async function handleModalSubmit(client, interaction) {
                     .setStyle(ButtonStyle.Danger)
                     .setEmoji(config.emojis.cross),
                 new ButtonBuilder()
-                    .setCustomId(`trade_edit_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+                    .setCustomId(`edit_trade_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Düzenle')
                     .setStyle(ButtonStyle.Secondary)
                     .setEmoji(config.emojis.edit)
@@ -459,7 +464,12 @@ async function handleModalSubmit(client, interaction) {
                     .setCustomId(`hire_reject_${targetPresidentId}_${fromPresidentId}_${playerId}`)
                     .setLabel('Reddet')
                     .setStyle(ButtonStyle.Danger)
-                    .setEmoji(config.emojis.cross)
+                    .setEmoji(config.emojis.cross),
+                new ButtonBuilder()
+                    .setCustomId(`edit_hire_${targetPresidentId}_${fromPresidentId}_${playerId}`)
+                    .setLabel('Düzenle')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji(config.emojis.edit)
             );
 
         // Müzakere kanalı oluştur
