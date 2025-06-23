@@ -732,13 +732,18 @@ async function handleModalSubmit(client, interaction) {
 
         // Trade player salary form modali (başkanlar anlaştığında oyuncu maaşları düzenleme)
         else if (customId.startsWith('trade_edit_')) {
-            await interaction.deferReply({ ephemeral: true });
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.deferReply({ ephemeral: true });
+            }
             
             const channelId = customId.split('_')[2];
             const params = global[`trade_params_${channelId}`];
             
             if (!params) {
-                return interaction.editReply({ content: 'Form verileri bulunamadı!' });
+                const reply = interaction.replied || interaction.deferred ? 
+                    interaction.editReply({ content: 'Form verileri bulunamadı!' }) :
+                    interaction.reply({ content: 'Form verileri bulunamadı!', ephemeral: true });
+                return reply;
             }
             
             const { targetPresidentId, wantedPlayerId, givenPlayerId, presidentId } = params;
@@ -813,12 +818,21 @@ async function handleModalSubmit(client, interaction) {
                     const channelId = interaction.channel.id;
                     delete global[`trade_params_${channelId}`];
                     
-                    await interaction.editReply({ content: `✅ Oyuncu maaşları güncellendi! Her iki oyuncunun da onayı bekleniyor.\n\n${targetPresident.user} ${president.user}` });
+                    const reply = interaction.replied || interaction.deferred ? 
+                        interaction.editReply({ content: `✅ Oyuncu maaşları güncellendi! Her iki oyuncunun da onayı bekleniyor.\n\n${targetPresident.user} ${president.user}` }) :
+                        interaction.reply({ content: `✅ Oyuncu maaşları güncellendi! Her iki oyuncunun da onayı bekleniyor.\n\n${targetPresident.user} ${president.user}`, ephemeral: true });
+                    await reply;
                 } else {
-                    await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
+                    const reply = interaction.replied || interaction.deferred ? 
+                        interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` }) :
+                        interaction.reply({ content: `❌ Güncellenecek mesaj bulunamadı!`, ephemeral: true });
+                    await reply;
                 }
             } else {
-                await interaction.editReply({ content: `❌ Bu işlem sadece müzakere kanallarında yapılabilir!` });
+                const reply = interaction.replied || interaction.deferred ? 
+                    interaction.editReply({ content: `❌ Bu işlem sadece müzakere kanallarında yapılabilir!` }) :
+                    interaction.reply({ content: `❌ Bu işlem sadece müzakere kanallarında yapılabilir!`, ephemeral: true });
+                await reply;
             }
         }
     } catch (error) {
