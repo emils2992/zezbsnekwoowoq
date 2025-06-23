@@ -177,6 +177,8 @@ The bot is configured for Replit deployment with:
     - Fixed embed field syntax errors: converted object format to parameter format
     - Resolved MessageEmbed field name validation issues in all command files
     - Updated 12 command files with proper addField() method calls
+    - Completely rebuilt buttonHandler.js with Discord.js v13 compatible syntax
+    - Removed all modal-related code (not supported in v13) and fixed button interactions
     - Bot successfully running without errors on downgraded version
 
 ## User Preferences

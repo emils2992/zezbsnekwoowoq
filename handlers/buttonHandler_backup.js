@@ -1,8 +1,11 @@
-const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
 const config = require('../config');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
+const api = require('../utils/api');
 const permissions = require('../utils/permissions');
+const fs = require('fs');
+const path = require('path');
 
 class ButtonHandler {
     async handleButton(client, interaction) {
@@ -23,6 +26,9 @@ class ButtonHandler {
                 case 'release':
                     await this.handleReleaseButton(client, interaction, params);
                     break;
+                case 'role':
+                    await this.handleRoleButton(client, interaction, params);
+                    break;
                 case 'hire':
                     await this.handleHireButton(client, interaction, params);
                     break;
@@ -33,6 +39,13 @@ class ButtonHandler {
                         await this.handleTransferRolesHelp(client, interaction);
                     } else if (params[0] === 'features' && params[1] === 'help') {
                         await this.handleTransferFeaturesHelp(client, interaction);
+                    }
+                    break;
+                case 'contract':
+                    if (params[0] === 'player') {
+                        await this.handleContractPlayerButton(client, interaction, params.slice(1));
+                    } else {
+                        await this.handleContractButton(client, interaction, params);
                     }
                     break;
                 default:
@@ -57,10 +70,12 @@ class ButtonHandler {
     async handleOfferButton(client, interaction, params) {
         const [buttonType, playerId, presidentId] = params;
         const guild = interaction.guild;
+        const user = interaction.user;
         const player = await guild.members.fetch(playerId);
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
+            // Kabul edildi - transfer duyurusu yap
             await this.sendTransferAnnouncement(guild, {
                 type: 'offer',
                 player: player,
@@ -136,10 +151,13 @@ class ButtonHandler {
         const [buttonType, playerId, presidentId, releaseType] = params;
         const guild = interaction.guild;
         const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
+            // Serbest oyuncu rolü ver
             await permissions.makePlayerFree(player);
             
+            // Serbest oyuncu duyurusu yap
             await this.sendReleaseTransferAnnouncement(guild, player, {
                 embed: interaction.message.embeds[0]
             }, releaseType);
@@ -149,6 +167,7 @@ class ButtonHandler {
                 ephemeral: false
             });
 
+            // Kanal temizleme
             setTimeout(async () => {
                 try {
                     if (interaction.channel.name.includes('muzakere')) {
@@ -232,6 +251,27 @@ class ButtonHandler {
         await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
     }
 
+    async handleRoleButton(client, interaction, params) {
+        const [roleType, roleId] = params;
+        const guild = interaction.guild;
+        
+        // Rol ayarlama işlemi
+        permissions.setRole(guild.id, roleType, roleId);
+        
+        await interaction.reply({
+            content: `✅ ${roleType} rolü başarıyla ayarlandı!`,
+            ephemeral: true
+        });
+    }
+
+    async handleContractPlayerButton(client, interaction, params) {
+        // Sözleşme oyuncu butonu işlemi
+        await interaction.reply({
+            content: 'Sözleşme işlemi başlatıldı.',
+            ephemeral: true
+        });
+    }
+
     async sendTransferAnnouncement(guild, transferData) {
         const announcementChannel = await channels.findAnnouncementChannel(guild);
         if (!announcementChannel) return;
@@ -242,6 +282,7 @@ class ButtonHandler {
         let announcementEmbed;
         
         if (type === 'trade') {
+            // Takas için özel format
             const playerField = embedFields.find(f => f.name.includes('Oyuncu'));
             const targetPlayerField = embedFields.find(f => f.name.includes('İstenen Oyuncu'));
             
@@ -256,6 +297,7 @@ class ButtonHandler {
                 .setTimestamp()
                 .setFooter('Transfer Duyuruları');
         } else {
+            // Diğer transfer türleri için normal format
             const salaryField = embedFields.find(f => f.name.includes('Maaş'));
             const durationField = embedFields.find(f => f.name.includes('Süre'));
             const teamField = embedFields.find(f => f.name.includes('Kulüp') || f.name.includes('Takım'));
@@ -276,6 +318,7 @@ class ButtonHandler {
                 .setFooter('Transfer Duyuruları');
         }
 
+        // Ping rollerini kontrol et ve ekle
         const roleData = permissions.getRoleData(guild.id);
         let mention = '';
         
@@ -299,6 +342,7 @@ class ButtonHandler {
         const embed = releaseData.embed;
         const embedFields = embed.fields || [];
         
+        // Embed alanlarından bilgileri çıkar
         const oldClubField = embedFields.find(f => f.name.includes('Eski Kulüp'));
         const reasonField = embedFields.find(f => f.name.includes('Sebep'));
         const compensationField = embedFields.find(f => f.name.includes('Tazminat'));
@@ -322,6 +366,7 @@ class ButtonHandler {
             releaseEmbed.addField('💰 Tazminat', compensation, true);
         }
 
+        // Ping rollerini kontrol et
         const roleData = permissions.getRoleData(guild.id);
         let mention = '';
         
