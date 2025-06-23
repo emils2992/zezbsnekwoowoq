@@ -833,12 +833,13 @@ class ButtonHandler {
                     await interaction[replyMethod]({
                         content: `✅ **${givenPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! Her iki oyuncu da kabul etti!`
                     });
-                }
-                
-                // Check if both are now accepted after authority action
-                if (global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
-                    console.log('🔥 AUTHORITY COMPLETED BOTH ACCEPTANCES! Triggering completion...');
-                    // Allow the dual acceptance check below to run
+                    
+                    // IMMEDIATE CHECK: If both are now true, force completion
+                    console.log('🔥 IMMEDIATE DUAL CHECK after authority completion:', global[acceptanceKey]);
+                    if (global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
+                        console.log('🚀 TRIGGERING IMMEDIATE COMPLETION!');
+                        // Continue to the dual acceptance check below
+                    }
                 }
             } else if (userId === wantedId) {
                 global[acceptanceKey].wantedPlayer = true;
@@ -863,13 +864,15 @@ class ButtonHandler {
                 return;
             }
 
-            // Check if both players have accepted immediately after marking acceptance
+            // CRITICAL: Check if both players have accepted immediately after marking acceptance
             console.log(`🔍 CHECKING DUAL ACCEPTANCE for channel ${channelName}:`, global[acceptanceKey]);
             console.log(`🔍 Has wanted player: ${global[acceptanceKey].wantedPlayer}`);
             console.log(`🔍 Has given player: ${global[acceptanceKey].givenPlayer}`);
+            console.log(`🔍 Condition check: both exist? ${global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer}`);
             
-            if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
-                console.log('🎉🎉 BOTH PLAYERS ACCEPTED! Starting completion process...');
+            if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer === true && global[acceptanceKey].givenPlayer === true) {
+                console.log('🎉🎉🎉 BOTH PLAYERS ACCEPTED! Starting completion process...');
+                console.log('🚀 EXECUTION POINT REACHED - FORCING COMPLETION NOW!');
                 
                 try {
                     // Extract trade data from embed for complete announcement
@@ -1007,6 +1010,38 @@ class ButtonHandler {
             } else {
                 console.log('❌ NOT BOTH ACCEPTED YET - Waiting for more acceptances...');
                 console.log(`Current state: wanted=${global[acceptanceKey].wantedPlayer}, given=${global[acceptanceKey].givenPlayer}`);
+                
+                // FORCE CHECK: If both are actually true but condition failed
+                if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
+                    console.log('🔥 FORCING COMPLETION - Both are true but condition check failed!');
+                    console.log('Values:', global[acceptanceKey]);
+                    
+                    // Force execution by setting a timeout
+                    setTimeout(async () => {
+                        console.log('⚡ TIMEOUT FORCING TRADE COMPLETION...');
+                        try {
+                            await interaction.channel.send({
+                                content: `🎉 **TAKAS TAMAMLANDI!** Her iki oyuncu da kabul etti! Kanal 2 saniye sonra silinecek.`
+                            });
+                            
+                            setTimeout(async () => {
+                                try {
+                                    const channelToDelete = interaction.channel;
+                                    if (channelToDelete && channelToDelete.deletable) {
+                                        await channelToDelete.delete("Takas tamamlandı - Zorla silindi");
+                                        console.log('✅ FORCE COMPLETED TRADE');
+                                    }
+                                } catch (error) {
+                                    console.error('Force completion error:', error);
+                                }
+                            }, 2000);
+                            
+                            delete global[acceptanceKey];
+                        } catch (error) {
+                            console.error('Force completion error:', error);
+                        }
+                    }, 1000);
+                }
             }
 
         } else if (buttonType === 'reject') {
