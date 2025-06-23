@@ -237,6 +237,12 @@ The bot is configured for Replit deployment with:
     - Added comprehensive channel deletion logging for debugging
     - Release command channels now delete properly after accept/reject button interactions
     - Improved error handling for button interactions to prevent duplicate responses
+- June 23, 2025. Enhanced edit button functionality to update in-channel instead of creating new channels:
+    - Modified edit buttons to update message content directly in the same channel
+    - Replaced modal-opening edit functionality with in-channel embed updates
+    - Edit buttons now show "Düzenlenecek" placeholder text and "Formu Düzenle" button
+    - Users can edit forms without leaving the current negotiation channel
+    - Improved user experience by keeping all negotiations in one place
 
 ## User Preferences
 

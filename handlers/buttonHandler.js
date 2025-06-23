@@ -182,8 +182,8 @@ class ButtonHandler {
                 });
             }
 
-            // Show modal form for editing in the same channel
-            await this.handleShowOfferForm(client, interaction, [playerId, presidentId]);
+            // Update the message with editable form in the same channel
+            await this.showEditableOfferForm(client, interaction, playerId, presidentId);
         }
     }
 
@@ -288,7 +288,8 @@ class ButtonHandler {
                 });
             }
 
-            await this.handleShowContractForm(client, interaction, [playerId, presidentId]);
+            // Update the message with editable form in the same channel
+            await this.showEditableContractForm(client, interaction, playerId, presidentId);
         }
     }
 
@@ -393,7 +394,8 @@ class ButtonHandler {
                 });
             }
 
-            await this.handleShowTradeForm(client, interaction, [playerId, presidentId]);
+            // Update the message with editable form in the same channel
+            await this.showEditableTradeForm(client, interaction, playerId, presidentId);
         }
     }
 
@@ -605,7 +607,8 @@ class ButtonHandler {
                 });
             }
 
-            await this.handleShowReleaseForm(null, interaction, [playerId, presidentId, releaseType]);
+            // Update the message with editable form in the same channel
+            await this.showEditableReleaseForm(client, interaction, playerId, presidentId, releaseType);
         }
     }
 
@@ -909,6 +912,157 @@ class ButtonHandler {
                     ephemeral: true
                 });
         }
+    }
+
+    // New methods for in-channel editing without modals
+    async showEditableOfferForm(client, interaction, playerId, presidentId) {
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+
+        const editableEmbed = embeds.createOfferForm(president.user, player.user, {
+            newTeam: 'Düzenlenecek',
+            playerName: 'Düzenlenecek', 
+            salary: 'Düzenlenecek',
+            contractDuration: 'Düzenlenecek',
+            bonus: 'Düzenlenecek'
+        });
+
+        const buttons = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId(`show_offer_modal_${playerId}_${presidentId}`)
+                    .setLabel('Formu Düzenle')
+                    .setStyle('PRIMARY')
+                    .setEmoji('✏️'),
+                new MessageButton()
+                    .setCustomId(`offer_accept_${playerId}_${presidentId}`)
+                    .setLabel('Kabul Et')
+                    .setStyle('SUCCESS')
+                    .setEmoji('✅'),
+                new MessageButton()
+                    .setCustomId(`offer_reject_${playerId}_${presidentId}`)
+                    .setLabel('Reddet')
+                    .setStyle('DANGER')
+                    .setEmoji('❌')
+            );
+
+        await interaction.update({
+            embeds: [editableEmbed],
+            components: [buttons]
+        });
+    }
+
+    async showEditableContractForm(client, interaction, playerId, presidentId) {
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+
+        const editableEmbed = embeds.createContractForm(president.user, player.user, player.user, {
+            newClub: 'Düzenlenecek',
+            oldClub: 'Düzenlenecek',
+            transferFee: 'Düzenlenecek',
+            salary: 'Düzenlenecek',
+            contractDuration: 'Düzenlenecek'
+        });
+
+        const buttons = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId(`show_contract_modal_${playerId}_${presidentId}`)
+                    .setLabel('Formu Düzenle')
+                    .setStyle('PRIMARY')
+                    .setEmoji('✏️'),
+                new MessageButton()
+                    .setCustomId(`contract_accept_${playerId}_${presidentId}`)
+                    .setLabel('Kabul Et')
+                    .setStyle('SUCCESS')
+                    .setEmoji('✅'),
+                new MessageButton()
+                    .setCustomId(`contract_reject_${playerId}_${presidentId}`)
+                    .setLabel('Reddet')
+                    .setStyle('DANGER')
+                    .setEmoji('❌')
+            );
+
+        await interaction.update({
+            embeds: [editableEmbed],
+            components: [buttons]
+        });
+    }
+
+    async showEditableTradeForm(client, interaction, playerId, presidentId) {
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+
+        const editableEmbed = embeds.createTradeForm(president.user, player.user, player.user, {
+            wantedPlayer: 'Düzenlenecek',
+            additionalAmount: 'Düzenlenecek',
+            salary: 'Düzenlenecek',
+            contractDuration: 'Düzenlenecek'
+        });
+
+        const buttons = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId(`show_trade_modal_${playerId}_${presidentId}`)
+                    .setLabel('Formu Düzenle')
+                    .setStyle('PRIMARY')
+                    .setEmoji('✏️'),
+                new MessageButton()
+                    .setCustomId(`trade_accept_${playerId}_${presidentId}`)
+                    .setLabel('Kabul Et')
+                    .setStyle('SUCCESS')
+                    .setEmoji('✅'),
+                new MessageButton()
+                    .setCustomId(`trade_reject_${playerId}_${presidentId}`)
+                    .setLabel('Reddet')
+                    .setStyle('DANGER')
+                    .setEmoji('❌')
+            );
+
+        await interaction.update({
+            embeds: [editableEmbed],
+            components: [buttons]
+        });
+    }
+
+    async showEditableReleaseForm(client, interaction, playerId, presidentId, releaseType) {
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+
+        const editableEmbed = embeds.createReleaseForm(president.user, player.user, releaseType, {
+            oldClub: 'Düzenlenecek',
+            reason: 'Düzenlenecek',
+            compensation: 'Düzenlenecek',
+            newTeam: 'Düzenlenecek'
+        });
+
+        const buttons = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId(`show_release_modal_${playerId}_${presidentId}_${releaseType}`)
+                    .setLabel('Formu Düzenle')
+                    .setStyle('PRIMARY')
+                    .setEmoji('✏️'),
+                new MessageButton()
+                    .setCustomId(`release_accept_${playerId}_${presidentId}_${releaseType}`)
+                    .setLabel('Kabul Et')
+                    .setStyle('SUCCESS')
+                    .setEmoji('✅'),
+                new MessageButton()
+                    .setCustomId(`release_reject_${playerId}_${presidentId}_${releaseType}`)
+                    .setLabel('Reddet')
+                    .setStyle('DANGER')
+                    .setEmoji('❌')
+            );
+
+        await interaction.update({
+            embeds: [editableEmbed],
+            components: [buttons]
+        });
     }
 
     async handleShowOfferForm(client, interaction, params) {
