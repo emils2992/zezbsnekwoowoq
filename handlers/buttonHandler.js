@@ -680,6 +680,11 @@ class ButtonHandler {
                     releaseData.playerName || player.user.username
                 );
 
+                // Kanalı 5 saniye sonra sil
+                setTimeout(async () => {
+                    await channels.deleteNegotiationChannel(interaction.channel, 'Karşılıklı fesih tamamlandı');
+                }, 5000);
+
                 break;
 
             case 'reject':
@@ -699,6 +704,11 @@ class ButtonHandler {
                     embeds: [rejectEmbed], 
                     components: [] 
                 });
+
+                // Kanalı 5 saniye sonra sil
+                setTimeout(async () => {
+                    await channels.deleteNegotiationChannel(interaction.channel, 'Karşılıklı fesih reddedildi');
+                }, 5000);
 
                 break;
 
@@ -731,6 +741,13 @@ class ButtonHandler {
                     releaseData.playerName || player.user.username
                 );
 
+                // Mesaj 3 saniye sonra sil (tek taraflı için daha hızlı)
+                setTimeout(async () => {
+                    if (interaction.channel && interaction.channel.delete) {
+                        await interaction.channel.delete('Tek taraflı fesih tamamlandı');
+                    }
+                }, 3000);
+
                 break;
 
             case 'cancel':
@@ -751,6 +768,13 @@ class ButtonHandler {
                     embeds: [cancelEmbed], 
                     components: [] 
                 });
+
+                // Kanalı 3 saniye sonra sil
+                setTimeout(async () => {
+                    if (interaction.channel && interaction.channel.delete) {
+                        await interaction.channel.delete('Fesih işlemi iptal edildi');
+                    }
+                }, 3000);
 
                 break;
         }
