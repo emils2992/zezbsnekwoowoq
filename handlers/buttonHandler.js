@@ -196,12 +196,8 @@ class ButtonHandler {
         const helpEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle('📋 Transfer Sistemi Bilgileri')
-            .addField('⚽ Oyuncu Rolleri', 'Futbolcu, Serbest Futbolcu rolleri', true)
-            .addField('👑 Yönetim Rolleri', 'Başkan, Transfer Yetkilileri', true)
-            .addField('🔄 Transfer Türleri', 'Teklif, Sözleşme, Takas, Fesih', true)
-            .addField('📢 Duyuru Sistemi', 'Otomatik transfer duyuruları', false)
-            .setTimestamp()
-            .setFooter('Transfer Sistemi');
+            .addFields({ name: '📢 Duyuru Sistemi', value: 'Otomatik transfer duyuruları', inline: false }).setTimestamp()
+            .setFooter({ text: 'Transfer Sistemi' });
 
         await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
     }
@@ -210,11 +206,8 @@ class ButtonHandler {
         const helpEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle('👥 Rol Yönetimi')
-            .addField('🎯 Rol Kurulumu', '.rol komutu ile roller ayarlanır', false)
-            .addField('🔑 Yetki Sistemi', 'Başkanlar transfer yapabilir', false)
-            .addField('⚽ Oyuncu Durumu', 'Futbolcu/Serbest rolleri otomatik', false)
-            .setTimestamp()
-            .setFooter('Rol Yönetimi');
+            .addFields({ name: '🎯 Rol Kurulumu', value: '.rol komutu ile roller ayarlanır', inline: false }, { name: '🔑 Yetki Sistemi', value: 'Başkanlar transfer yapabilir', inline: false }, { name: '⚽ Oyuncu Durumu', value: 'Futbolcu/Serbest rolleri otomatik', inline: false }).setTimestamp()
+            .setFooter({ text: 'Rol Yönetimi' });
 
         await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
     }
@@ -223,11 +216,8 @@ class ButtonHandler {
         const helpEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle('⚡ Sistem Özellikleri')
-            .addField('🤖 Otomatik Duyurular', 'Transfer tamamlandığında otomatik bildirim', false)
-            .addField('💬 Müzakere Kanalları', 'Özel görüşme kanalları oluşturulur', false)
-            .addField('📊 Form Sistemi', 'Detaylı transfer bilgileri', false)
-            .setTimestamp()
-            .setFooter('Sistem Özellikleri');
+            .addFields({ name: '🤖 Otomatik Duyurular', value: 'Transfer tamamlandığında otomatik bildirim', inline: false }, { name: '💬 Müzakere Kanalları', value: 'Özel görüşme kanalları oluşturulur', inline: false }, { name: '📊 Form Sistemi', value: 'Detaylı transfer bilgileri', inline: false }).setTimestamp()
+            .setFooter({ text: 'Sistem Özellikleri' });
 
         await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
     }
@@ -254,7 +244,7 @@ class ButtonHandler {
                 .setDescription(`**${playerName}** <> **${targetPlayerName}**\n\n**Başkanlar takasladi**`)
                 .setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
-                .setFooter('Transfer Duyuruları');
+                .setFooter({ text: 'Transfer Duyuruları' });
         } else {
             const salaryField = embedFields.find(f => f.name.includes('Maaş'));
             const durationField = embedFields.find(f => f.name.includes('Süre'));
@@ -267,13 +257,9 @@ class ButtonHandler {
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('✅ Transfer Gerçekleşti!')
-                .addField('⚽ Oyuncu', player.displayName, true)
-                .addField('🏟️ Yeni Kulüp', team, true)
-                .addField('💰 Maaş', salary, true)
-                .addField('📅 Süre', duration, true)
-                .setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
+                .addFields({ name: '⚽ Oyuncu', value: player.displayName, inline: true }, { name: '🏟️ Yeni Kulüp', value: team, inline: true }, { name: '💰 Maaş', value: salary, inline: true }, { name: '📅 Süre', value: duration, inline: true }).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
-                .setFooter('Transfer Duyuruları');
+                .setFooter({ text: 'Transfer Duyuruları' });
         }
 
         const roleData = permissions.getRoleData(guild.id);
@@ -310,16 +296,12 @@ class ButtonHandler {
         const releaseEmbed = new MessageEmbed()
             .setColor(config.colors.warning)
             .setTitle('🆓 Serbest Oyuncu')
-            .addField('⚽ Oyuncu', player.displayName, true)
-            .addField('🏟️ Eski Kulüp', oldClub, true)
-            .addField('📋 Fesih Türü', releaseType === 'mutual' ? 'Karşılıklı Fesih' : 'Tek Taraflı Fesih', true)
-            .addField('💭 Sebep', reason, false)
-            .setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
+            .addFields({ name: '⚽ Oyuncu', value: player.displayName, inline: true }, { name: '🏟️ Eski Kulüp', value: oldClub, inline: true }, { name: '📋 Fesih Türü', value: releaseType === 'mutual' ? 'Karşılıklı Fesih' : 'Tek Taraflı Fesih', inline: true }, { name: '💭 Sebep', value: reason, inline: false }).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
-            .setFooter('Serbest Oyuncu Duyuruları');
+            .setFooter({ text: 'Serbest Oyuncu Duyuruları' });
         
         if (compensation) {
-            releaseEmbed.addField('💰 Tazminat', compensation, true);
+            releaseEmbed.addFields({ name: '💰 Tazminat', value: compensation, inline: true });
         }
 
         const roleData = permissions.getRoleData(guild.id);

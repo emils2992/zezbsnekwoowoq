@@ -57,7 +57,7 @@ module.exports = {
                     { name: '💡 Bilgi', value: 'Kiralık şartlarını belirlemek için formu doldurun.', inline: false }
                 )
                 .setTimestamp()
-                .setFooter('Transfer Sistemi' );
+                .setFooter({ text: 'Transfer Sistemi' });
 
             await message.reply({
                 content: `${config.emojis.contract} **Kiralık Sözleşme Teklifi**`,

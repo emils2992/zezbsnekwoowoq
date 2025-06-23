@@ -179,7 +179,9 @@ The bot is configured for Replit deployment with:
     - Updated 12 command files with proper addField() method calls
     - Completely rebuilt buttonHandler.js with Discord.js v13 compatible syntax
     - Removed all modal-related code (not supported in v13) and fixed button interactions
-    - Bot successfully running without errors on downgraded version
+    - Fixed handler class instantiation issues and proper module exports
+    - Eliminated all deprecation warnings: converted setFooter to object format and addField to addFields
+    - Bot successfully running without errors or warnings on Discord.js v13.17.1
 
 ## User Preferences
 

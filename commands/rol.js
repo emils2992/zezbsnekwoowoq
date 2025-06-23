@@ -44,9 +44,8 @@ module.exports = {
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.warning} Rol Yönetimi Yardım`)
             .setDescription('Transfer sistemi için rol ayarlarını yönetin')
-            .addField('📋 Komutlar', '`.rol liste` - Mevcut rol ayarlarını görüntüle\n`.rol ayarla` - Rolleri ayarla\n`.rol sıfırla` - Rol ayarlarını sıfırla', false).addField('🎭 Rol Türleri', '**Takım Başkanı:** Transfer yetkisi olan kişiler\n**Futbolcu:** Transfer edilebilir oyuncular\n**Serbest Futbolcu:** Sözleşmesiz oyuncular\n**Transfer Yetkilisi:** Duyuru yapabilir', false)
-            .setTimestamp()
-            .setFooter('Transfer Sistemi' );
+            .addFields({ name: '📋 Komutlar', value: '`.rol liste` - Mevcut rol ayarlarını görüntüle\n`.rol ayarla` - Rolleri ayarla\n`.rol sıfırla` - Rol ayarlarını sıfırla', inline: false }, { name: '🎭 Rol Türleri', value: '**Takım Başkanı:** Transfer yetkisi olan kişiler\n**Futbolcu:** Transfer edilebilir oyuncular\n**Serbest Futbolcu:** Sözleşmesiz oyuncular\n**Transfer Yetkilisi:** Duyuru yapabilir', inline: false }).setTimestamp()
+            .setFooter({ text: 'Transfer Sistemi' });
 
         await message.reply({ embeds: [helpEmbed] });
     },
@@ -59,7 +58,7 @@ module.exports = {
             .setTitle(`${config.emojis.football} Mevcut Rol Ayarları`)
             .setDescription(`**${message.guild.name}** sunucusu için rol ayarları:`)
             .setTimestamp()
-            .setFooter('Transfer Sistemi' );
+            .setFooter({ text: 'Transfer Sistemi' });
 
         // Rolleri listele
         const roleTypes = [
@@ -76,7 +75,7 @@ module.exports = {
             const roleId = roleData[roleType.key];
             const role = roleId ? message.guild.roles.cache.get(roleId) : null;
             
-            listEmbed.addField('${roleType.emoji} ${roleType.name}', role ? `${role}` : '❌ Ayarlanmamış', true);
+            listEmbed.addFields({ name: '${roleType.emoji} ${roleType.name}', value: role ? `${role}` : '❌ Ayarlanmamış', inline: true });
         }
 
         await message.reply({ embeds: [listEmbed] });
@@ -87,8 +86,7 @@ module.exports = {
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.settings} Rol Ayarlama Sistemi`)
             .setDescription('Bu mesajı **yanıtlayarak** rolleri ayarlayın:\n\n**Format:** `rol_türü @rol_adı` veya `rol_türü rol_id`\n\n**Örnekler:**\n`başkan @Başkan`\n`futbolcu @Oyuncu`\n`serbest @Serbest`\n`yetkili @Transfer Admin`\n`ping_transfer @Transfer Ping`\n`ping_serbest @Serbest Ping`\n`ping_duyuru @Duyuru Ping`')
-            .addField('📋 Kullanılabilir Rol Türleri', '**başkan** - Transfer yapabilir\n**futbolcu** - Transfer edilebilir\n**serbest** - Serbest oyuncular\n**yetkili** - Transfer yetkilisi\n**ping_transfer** - Transfer ping\n**ping_serbest** - Serbest ping\n**ping_duyuru** - Duyuru ping', false)
-            .setFooter('Bu mesajı yanıtlayarak rol ayarlarını yapın. Örnek: başkan @Başkan' )
+            .addFields({ name: '📋 Kullanılabilir Rol Türleri', value: '**başkan** - Transfer yapabilir\n**futbolcu** - Transfer edilebilir\n**serbest** - Serbest oyuncular\n**yetkili** - Transfer yetkilisi\n**ping_transfer** - Transfer ping\n**ping_serbest** - Serbest ping\n**ping_duyuru** - Duyuru ping', inline: false }).setFooter({ text: 'Bu mesajı yanıtlayarak rol ayarlarını yapın. Örnek: başkan @Başkan' })
             .setTimestamp();
 
         const sentMessage = await message.reply({ embeds: [setupEmbed] });
@@ -172,8 +170,7 @@ module.exports = {
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.check} Rol Ayarlandı`)
                 .setDescription(`**${roleNames[mappedRoleType]}** başarıyla ${role} olarak ayarlandı!`)
-                .addField('📊 Rol Bilgileri', '**Rol:** ${role.name}\n**Üye Sayısı:** ${role.members.size}\n**Rol ID:** ${role.id}', false)
-                .setTimestamp();
+                .addFields({ name: '📊 Rol Bilgileri', value: '**Rol:** ${role.name}\n**Üye Sayısı:** ${role.members.size}\n**Rol ID:** ${role.id}', inline: false }).setTimestamp();
                 
             await responseMessage.reply({ embeds: [successEmbed] });
             

@@ -70,7 +70,7 @@ module.exports = {
                     }
                 )
                 .setThumbnail(message.guild.iconURL({ dynamic: true }))
-                .setFooter('Transfer Sistemi v2.0 | Otomatik duyuru sistemi aktif')
+                .setFooter({ text: 'Transfer Sistemi v2.0 | Otomatik duyuru sistemi aktif' })
                 .setTimestamp();
 
             // Bilgi butonları ekle

@@ -41,7 +41,7 @@ module.exports = {
                     { name: '⚠️ Uyarı', value: 'Bu işlem geri alınamaz! Oyuncu otomatik olarak serbest futbolcu statüsüne geçer.', inline: false }
                 )
                 .setTimestamp()
-                .setFooter('Transfer Sistemi' );
+                .setFooter({ text: 'Transfer Sistemi' });
 
             // Butonları oluştur
             const row = new MessageActionRow()
