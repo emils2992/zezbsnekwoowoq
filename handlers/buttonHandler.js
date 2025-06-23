@@ -88,9 +88,13 @@ class ButtonHandler {
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
-            if (interaction.user.id !== playerId) {
+            // Check if user is authorized (target player or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece hedef oyuncu teklifi kabul edebilir!',
+                    content: '❌ Sadece hedef oyuncu veya transfer yetkilileri teklifi kabul edebilir!',
                     ephemeral: true
                 });
             }
@@ -152,9 +156,13 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'reject') {
-            if (interaction.user.id !== playerId) {
+            // Check if user is authorized (target player or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece hedef oyuncu teklifi reddedebilir!',
+                    content: '❌ Sadece hedef oyuncu veya transfer yetkilileri teklifi reddedebilir!',
                     ephemeral: true
                 });
             }
@@ -216,9 +224,13 @@ class ButtonHandler {
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
-            if (interaction.user.id !== playerId) {
+            // Check if user is authorized (target president or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece hedef başkan sözleşme teklifini kabul edebilir!',
+                    content: '❌ Sadece hedef başkan veya transfer yetkilileri sözleşme teklifini kabul edebilir!',
                     ephemeral: true
                 });
             }
@@ -268,9 +280,13 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'reject') {
-            if (interaction.user.id !== playerId) {
+            // Check if user is authorized (target president or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece hedef başkan sözleşme teklifini reddedebilir!',
+                    content: '❌ Sadece hedef başkan veya transfer yetkilileri sözleşme teklifini reddedebilir!',
                     ephemeral: true
                 });
             }
@@ -313,9 +329,13 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'edit') {
-            if (interaction.user.id !== presidentId) {
+            // Check if user is authorized (president who made contract or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === presidentId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece teklifi yapan başkan düzenleyebilir!',
+                    content: '❌ Sadece sözleşme yapan başkan veya transfer yetkilileri düzenleyebilir!',
                     ephemeral: true
                 });
             }
@@ -332,9 +352,13 @@ class ButtonHandler {
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
-            if (interaction.user.id !== playerId) {
+            // Check if user is authorized (target president or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece hedef başkan takas teklifini kabul edebilir!',
+                    content: '❌ Sadece hedef başkan veya transfer yetkilileri takas teklifini kabul edebilir!',
                     ephemeral: true
                 });
             }
@@ -384,9 +408,13 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'reject') {
-            if (interaction.user.id !== playerId) {
+            // Check if user is authorized (target president or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece hedef başkan takas teklifini reddedebilir!',
+                    content: '❌ Sadece hedef başkan veya transfer yetkilileri takas teklifini reddedebilir!',
                     ephemeral: true
                 });
             }
@@ -429,9 +457,13 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'edit') {
-            if (interaction.user.id !== presidentId) {
+            // Check if user is authorized (president who made trade or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === presidentId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece teklifi yapan başkan düzenleyebilir!',
+                    content: '❌ Sadece teklifi yapan başkan veya transfer yetkilileri düzenleyebilir!',
                     ephemeral: true
                 });
             }
@@ -451,10 +483,13 @@ class ButtonHandler {
                 return;
             }
 
-            // Only the president who initiated can confirm
-            if (interaction.user.id !== presidentId) {
+            // Check if user is authorized (president who initiated or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === presidentId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece fesih talebini yapan başkan onaylayabilir!',
+                    content: '❌ Sadece fesih talebini yapan başkan veya transfer yetkilileri onaylayabilir!',
                     ephemeral: true
                 });
             }
@@ -509,10 +544,13 @@ class ButtonHandler {
                 return;
             }
 
-            // Only the president who initiated can cancel
-            if (interaction.user.id !== presidentId) {
+            // Check if user is authorized (president who initiated or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === presidentId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece fesih talebini yapan başkan iptal edebilir!',
+                    content: '❌ Sadece fesih talebini yapan başkan veya transfer yetkilileri iptal edebilir!',
                     ephemeral: true
                 });
             }
@@ -547,10 +585,13 @@ class ButtonHandler {
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
-            // Sadece hedef kişi (oyuncu) kabul edebilir
-            if (interaction.user.id !== playerId) {
+            // Check if user is authorized (target player or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece hedef oyuncu fesih teklifini kabul edebilir!',
+                    content: '❌ Sadece hedef oyuncu veya transfer yetkilileri fesih teklifini kabul edebilir!',
                     ephemeral: true
                 });
             }
@@ -606,10 +647,13 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'reject') {
-            // Sadece hedef kişi (oyuncu) reddet edebilir
-            if (interaction.user.id !== playerId) {
+            // Check if user is authorized (target player or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece hedef oyuncu fesih teklifini reddedebilir!',
+                    content: '❌ Sadece hedef oyuncu veya transfer yetkilileri fesih teklifini reddedebilir!',
                     ephemeral: true
                 });
             }
@@ -652,10 +696,13 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'edit') {
-            // Sadece komutu kullanan kişi (başkan) düzenleyebilir
-            if (interaction.user.id !== presidentId) {
+            // Check if user is authorized (president who made release or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === presidentId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece teklifi yapan başkan düzenleyebilir!',
+                    content: '❌ Sadece teklifi yapan başkan veya transfer yetkilileri düzenleyebilir!',
                     ephemeral: true
                 });
             }
@@ -672,10 +719,13 @@ class ButtonHandler {
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
-            // Kiralık tekliflerinde hedef başkan kabul edebilir (oyuncunun başkanı)
-            if (interaction.user.id !== playerId) {
+            // Check if user is authorized (target president or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece hedef başkan kiralık teklifini kabul edebilir!',
+                    content: '❌ Sadece hedef başkan veya transfer yetkilileri kiralık teklifini kabul edebilir!',
                     ephemeral: true
                 });
             }
@@ -725,10 +775,13 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'reject') {
-            // Sadece hedef başkan reddet edebilir
-            if (interaction.user.id !== playerId) {
+            // Check if user is authorized (target president or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
                 return interaction.reply({
-                    content: '❌ Sadece hedef başkan kiralık teklifini reddedebilir!',
+                    content: '❌ Sadece hedef başkan veya transfer yetkilileri kiralık teklifini reddedebilir!',
                     ephemeral: true
                 });
             }
