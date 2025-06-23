@@ -578,54 +578,50 @@ class ButtonHandler {
     async handleShowReleaseForm(client, interaction, params) {
         const [playerId, presidentId, releaseType] = params;
         
-        const modal = new Modal()
-            .setCustomId(`release_form_${playerId}_${presidentId}_${releaseType}`)
-            .setTitle('Karşılıklı Fesih Formu');
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
 
-        const oldClubInput = new TextInputComponent()
-            .setCustomId('old_club')
-            .setLabel('Eski Kulüp')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: Galatasaray')
-            .setRequired(true);
+        // Create negotiation channel for the release
+        const channel = await channels.createNegotiationChannel(guild, president.user, player.user, 'release');
+        if (!channel) {
+            return interaction.reply({
+                content: 'Müzakere kanalı oluşturulamadı!',
+                ephemeral: true
+            });
+        }
 
-        const reasonInput = new TextInputComponent()
-            .setCustomId('reason')
-            .setLabel('Fesih Sebebi')
-            .setStyle('PARAGRAPH')
-            .setPlaceholder('Örn: Karşılıklı anlaşma ile ayrılık')
-            .setRequired(true);
+        // Create release embed with form buttons
+        const releaseEmbed = embeds.createReleaseForm(president.user, player.user, releaseType);
+        
+        const buttons = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId(`release_accept_${playerId}_${presidentId}_${releaseType}`)
+                    .setLabel('Kabul Et')
+                    .setStyle('SUCCESS')
+                    .setEmoji('✅'),
+                new MessageButton()
+                    .setCustomId(`release_reject_${playerId}_${presidentId}_${releaseType}`)
+                    .setLabel('Reddet')
+                    .setStyle('DANGER')
+                    .setEmoji('❌'),
+                new MessageButton()
+                    .setCustomId(`release_edit_${playerId}_${presidentId}_${releaseType}`)
+                    .setLabel('Düzenle')
+                    .setStyle('SECONDARY')
+                    .setEmoji('✏️')
+            );
 
-        const compensationInput = new TextInputComponent()
-            .setCustomId('compensation')
-            .setLabel('Tazminat Miktarı')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 500.000₺')
-            .setRequired(false);
+        await channel.send({
+            embeds: [releaseEmbed],
+            components: [buttons]
+        });
 
-        const newTeamInput = new TextInputComponent()
-            .setCustomId('new_team')
-            .setLabel('Yeni Takım (İsteğe Bağlı)')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: Henüz belirlenmedi')
-            .setRequired(false);
-
-        const bonusInput = new TextInputComponent()
-            .setCustomId('bonus')
-            .setLabel('Bonuslar (İsteğe Bağlı)')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 0₺')
-            .setRequired(false);
-
-        const row1 = new MessageActionRow().addComponents(oldClubInput);
-        const row2 = new MessageActionRow().addComponents(reasonInput);
-        const row3 = new MessageActionRow().addComponents(compensationInput);
-        const row4 = new MessageActionRow().addComponents(newTeamInput);
-        const row5 = new MessageActionRow().addComponents(bonusInput);
-
-        modal.addComponents(row1, row2, row3, row4, row5);
-
-        await interaction.showModal(modal);
+        await interaction.reply({
+            content: `Fesih müzakeresi ${channel} kanalında başlatıldı!`,
+            ephemeral: true
+        });
     }
 }
 
