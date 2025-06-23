@@ -832,7 +832,33 @@ class ButtonHandler {
                 .setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Duyuruları' });
+        } else if (type === 'offer') {
+            // Serbest futbolcu teklif transferi
+            const newTeamField = embedFields.find(f => f.name.includes('Yeni Kulüp'));
+            const oldClubField = embedFields.find(f => f.name.includes('Eski Kulüp'));
+            const salaryField = embedFields.find(f => f.name.includes('Maaş'));
+            const durationField = embedFields.find(f => f.name.includes('Sözleşme'));
+            
+            const newTeam = newTeamField ? newTeamField.value : 'Bilinmiyor';
+            const oldClub = oldClubField ? oldClubField.value : 'Bilinmiyor';
+            const salary = salaryField ? salaryField.value : 'Bilinmiyor';
+            const duration = durationField ? durationField.value : 'Bilinmiyor';
+            
+            announcementEmbed = new MessageEmbed()
+                .setColor(config.colors.success)
+                .setTitle('✅ Transfer Teklifi Kabul Edildi!')
+                .setDescription(`**${player.displayName}** teklifi kabul etti ve **${newTeam}** kulübüne transfer oldu!`)
+                .addFields(
+                    { name: '⚽ Futbolcu', value: `${player}`, inline: true },
+                    { name: '🏴 Eski Kulüp', value: oldClub, inline: true },
+                    { name: '🏟️ Yeni Kulüp', value: newTeam, inline: true },
+                    { name: '💰 Maaş', value: salary, inline: true },
+                    { name: '📅 Sözleşme Süresi', value: duration, inline: true }
+                ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Sistemi' });
         } else {
+            // Genel transfer (diğer durumlar)
             const salaryField = embedFields.find(f => f.name.includes('Maaş'));
             const durationField = embedFields.find(f => f.name.includes('Süre'));
             const teamField = embedFields.find(f => f.name.includes('Kulüp') || f.name.includes('Takım'));
@@ -973,7 +999,7 @@ class ButtonHandler {
 
         const editableEmbed = embeds.createOfferForm(president.user, player.user, {
             newTeam: 'Düzenlenecek',
-            playerName: 'Düzenlenecek', 
+            oldClub: 'Düzenlenecek', 
             salary: 'Düzenlenecek',
             contractDuration: 'Düzenlenecek',
             bonus: 'Düzenlenecek'
@@ -1130,11 +1156,11 @@ class ButtonHandler {
             .setPlaceholder('Örn: Galatasaray')
             .setRequired(true);
 
-        const playerNameInput = new TextInputComponent()
-            .setCustomId('player_name')
-            .setLabel('Oyuncu Adı')
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: Lionel Messi')
+            .setPlaceholder('Örn: Manchester United')
             .setRequired(true);
 
         const salaryInput = new TextInputComponent()
@@ -1159,7 +1185,7 @@ class ButtonHandler {
             .setRequired(false);
 
         const row1 = new MessageActionRow().addComponents(newTeamInput);
-        const row2 = new MessageActionRow().addComponents(playerNameInput);
+        const row2 = new MessageActionRow().addComponents(oldClubInput);
         const row3 = new MessageActionRow().addComponents(salaryInput);
         const row4 = new MessageActionRow().addComponents(contractInput);
         const row5 = new MessageActionRow().addComponents(bonusInput);

@@ -11,7 +11,7 @@ class EmbedCreator {
                 { name: `${config.emojis.handshake} Başkan`, value: `${president}`, inline: true },
                 { name: '🏆 Yeni Kulüp', value: offerData?.newTeam || 'Belirtilmedi', inline: true },
                 { name: '⚽ Futbolcu', value: `${player}`, inline: true },
-                { name: '⚽ Oyuncu İsmi', value: offerData?.playerName || 'Belirtilmedi', inline: true },
+                { name: '🏴 Eski Kulüp', value: offerData?.oldClub || 'Belirtilmedi', inline: true },
                 { name: `${config.emojis.money} Önerilen Maaş`, value: offerData?.salary || '6.000.000₺/yıl', inline: true },
                 { name: '📅 Sözleşme Süresi', value: offerData?.contractDuration || '2 yıl', inline: true },
                 { name: '🎯 Bonuslar', value: offerData?.bonus || '250.000₺', inline: true }

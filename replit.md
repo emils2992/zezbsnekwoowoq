@@ -263,6 +263,12 @@ The bot is configured for Replit deployment with:
     - Added self-mention prevention across all transfer commands (offer, contract, trade, hire, release)
     - Users can no longer mention themselves when using transfer commands
     - Improved user experience with direct modal editing and proper embed updates
+- June 23, 2025. Fixed offer command modal fields and transfer announcements:
+    - Changed "Oyuncu Adı" field to "Eski Kulüp" in offer modal forms
+    - Fixed offer transfer announcements to show proper "Transfer Teklifi Kabul Edildi" message
+    - Updated offer announcement format to include old club and new club information
+    - Each transfer command now has its own specific announcement format (offer, contract, trade, hire, release)
+    - Modal field updates properly reflected in both embeds and announcements
 
 ## User Preferences
 
