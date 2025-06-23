@@ -934,9 +934,6 @@ class ButtonHandler {
                 return;
             }
 
-            // Futbolcu yüzü al
-            const playerFace = await api.getPlayerFace();
-
             // Transfer türüne göre renk ve başlık
             let color = config.colors.success;
             let title = '';
@@ -958,13 +955,13 @@ class ButtonHandler {
                     title = 'TRANSFER TAMAMLANDI';
             }
 
-            // Transfer duyuru embed'i oluştur
+            // Transfer duyuru embed'i oluştur - oyuncunun avatarını kullan
             const playerDisplayName = transferData.playerName || transferData.player.username;
             const announcementEmbed = new EmbedBuilder()
                 .setColor(color)
                 .setTitle(`${config.emojis.football} ${title}`)
                 .setDescription(`**${playerDisplayName}** ${transferData.team} takımı ile anlaştı!`)
-                .setThumbnail(playerFace)
+                .setThumbnail(transferData.player.displayAvatarURL({ dynamic: true }))
                 .addFields(
                     { name: '⚽ Oyuncu', value: transferData.playerName ? `${transferData.player} (${transferData.playerName})` : `${transferData.player}`, inline: true },
                     { name: '🏆 Yeni Takım', value: transferData.team, inline: true },
@@ -1252,39 +1249,39 @@ class ButtonHandler {
             .setPlaceholder('Örn: Cristiano Ronaldo')
             .setRequired(true);
 
-        const requirementsInput = new TextInputBuilder()
-            .setCustomId('requirements')
-            .setLabel('Ne İsterim')
-            .setStyle(TextInputStyle.Paragraph)
-            .setPlaceholder('Örn: Samimi takım ortamı, düzenli oynama şansı')
-            .setRequired(false);
-
-        const additionalInput = new TextInputBuilder()
-            .setCustomId('additional')
-            .setLabel('Ek Şart')
+        const newClubInput = new TextInputBuilder()
+            .setCustomId('new_club')
+            .setLabel('Yeni Kulüp')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: Şampiyonlar Ligi oynayan takım')
-            .setRequired(false);
+            .setPlaceholder('Örn: Real Madrid')
+            .setRequired(true);
 
         const salaryInput = new TextInputBuilder()
             .setCustomId('salary')
             .setLabel('Maaş')
             .setStyle(TextInputStyle.Short)
             .setPlaceholder('Örn: 2.000.000₺/yıl')
-            .setRequired(false);
+            .setRequired(true);
+
+        const contractYearsInput = new TextInputBuilder()
+            .setCustomId('contract_years')
+            .setLabel('Sözleşme Yılı')
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('Örn: 3 yıl')
+            .setRequired(true);
 
         const signingBonusInput = new TextInputBuilder()
             .setCustomId('signing_bonus')
-            .setLabel('İmza Primi & Sözleşme Yılı')
+            .setLabel('Bonus')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: 1.000.000₺ - 3 yıl')
-            .setRequired(false);
+            .setPlaceholder('Örn: 1.000.000₺')
+            .setRequired(true);
 
         // Action Row'lar oluştur (en fazla 5 tane olabilir)
         const row1 = new ActionRowBuilder().addComponents(playerNameInput);
-        const row2 = new ActionRowBuilder().addComponents(requirementsInput);
-        const row3 = new ActionRowBuilder().addComponents(additionalInput);
-        const row4 = new ActionRowBuilder().addComponents(salaryInput);
+        const row2 = new ActionRowBuilder().addComponents(newClubInput);
+        const row3 = new ActionRowBuilder().addComponents(salaryInput);
+        const row4 = new ActionRowBuilder().addComponents(contractYearsInput);
         const row5 = new ActionRowBuilder().addComponents(signingBonusInput);
 
         modal.addComponents(row1, row2, row3, row4, row5);

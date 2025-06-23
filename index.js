@@ -510,13 +510,12 @@ async function handleModalSubmit(client, interaction) {
         }
 
         // Form verilerini al
-        const signingBonusAndYears = interaction.fields.getTextInputValue('signing_bonus') || 'Müzakereye açık';
         const announcementData = {
-            playerName: interaction.fields.getTextInputValue('player_name') || player.displayName,
-            requirements: interaction.fields.getTextInputValue('requirements') || 'Belirtilmedi',
-            additional: interaction.fields.getTextInputValue('additional') || 'Belirtilmedi',
-            salary: interaction.fields.getTextInputValue('salary') || 'Müzakereye açık',
-            signingBonusAndYears: signingBonusAndYears
+            playerName: interaction.fields.getTextInputValue('player_name'),
+            newClub: interaction.fields.getTextInputValue('new_club'),
+            salary: interaction.fields.getTextInputValue('salary'),
+            contractYears: interaction.fields.getTextInputValue('contract_years'),
+            signingBonus: interaction.fields.getTextInputValue('signing_bonus')
         };
 
         // Duyuru kanalını bul
@@ -533,18 +532,15 @@ async function handleModalSubmit(client, interaction) {
         const announcementEmbed = new EmbedBuilder()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.football} Serbest Futbolcu Duyurusu`)
-            .setDescription(`**${announcementData.playerName}** transfer için arayışta!`)
+            .setDescription(`**${announcementData.playerName}** ${announcementData.newClub} takımına transfer oldu!`)
             .setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .addFields(
                 { name: '⚽ Oyuncu', value: `${player} (${announcementData.playerName})`, inline: true },
+                { name: '🏆 Yeni Kulüp', value: announcementData.newClub, inline: true },
                 { name: '💰 Maaş', value: announcementData.salary, inline: true },
-                { name: '💎 İmza Primi & Süre', value: announcementData.signingBonusAndYears, inline: true },
-                { name: '🎯 Ne İsterim', value: announcementData.requirements, inline: false }
+                { name: '📅 Sözleşme Yılı', value: announcementData.contractYears, inline: true },
+                { name: '💎 Bonus', value: announcementData.signingBonus, inline: true }
             );
-
-        if (announcementData.additional !== 'Belirtilmedi') {
-            announcementEmbed.addFields({ name: '➕ Ek Şart', value: announcementData.additional, inline: false });
-        }
 
         announcementEmbed
             .setTimestamp()

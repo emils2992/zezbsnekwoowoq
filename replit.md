@@ -139,6 +139,9 @@ The bot is configured for Replit deployment with:
   - Enhanced channel finding system to use saved configurations from JSON instead of hardcoded names
   - Updated release embed creation to properly display modal form data with proper field names
   - Fixed all modal data extraction and consistency issues across transfer, trade, contract, and release systems
+  - Made all duyuru form fields mandatory (player name, new club, salary, contract years, bonus)
+  - Replaced random generated player faces with actual Discord user avatars in all transfer and free agent announcements
+  - Updated announcement structure to display comprehensive transfer information with required details
 
 ## User Preferences
 
