@@ -328,6 +328,20 @@ The bot is configured for Replit deployment with:
     - Target president can edit salary amounts during negotiation for better trade balance
     - All trade channels auto-delete after each stage completion with proper button disabling
     - Trade system now mirrors contract complexity with multi-stage authorization workflow
+- June 23, 2025. Enhanced trade system with improved salary management workflow:
+    - Modified initial trade modal to replace salary field with "Bonus" for cleaner president negotiation
+    - Added comprehensive player approval stage with dedicated salary and contract editing functionality
+    - Both presidents now included in player approval channel for salary editing and oversight
+    - Implemented dual-player acceptance tracking system - channel only closes when BOTH players accept
+    - Added "Düzenle" button in player approval stage opening salary modal with 4 fields:
+      * İstenen Oyuncunun Maaşı (wanted player salary)
+      * Verilecek Oyuncunun Maaşı (given player salary) 
+      * İstenen Oyuncunun Sözleşme/Ek Madde (wanted player contract terms)
+      * Verilecek Oyuncunun Sözleşme/Ek Madde (given player contract terms)
+    - Enhanced transfer announcements to include comprehensive salary and contract details from modal data
+    - Updated trade acceptance tracking to require both players before channel deletion and announcement
+    - Presidents can now edit player salaries after initial agreement for fine-tuning negotiations
+    - Trade system now provides complete salary management workflow as requested by user
 
 ## User Preferences
 

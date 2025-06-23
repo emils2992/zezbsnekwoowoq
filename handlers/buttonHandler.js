@@ -530,17 +530,36 @@ class ButtonHandler {
                 return interaction.editReply({ content: '❌ Oyuncular için müzakere kanalı oluşturulamadı!' });
             }
 
-            // Create player approval embed
+            // Add both presidents to the channel so they can edit salaries
+            try {
+                await playersChannel.permissionOverwrites.create(targetPresident.user, {
+                    VIEW_CHANNEL: true,
+                    SEND_MESSAGES: true,
+                    READ_MESSAGE_HISTORY: true
+                });
+                await playersChannel.permissionOverwrites.create(president.user, {
+                    VIEW_CHANNEL: true,
+                    SEND_MESSAGES: true,
+                    READ_MESSAGE_HISTORY: true
+                });
+            } catch (error) {
+                console.error('Başkanları kanala ekleme hatası:', error);
+            }
+
+            // Create player approval embed with placeholder salary information
             const embed = new MessageEmbed()
                 .setColor(config.colors.warning)
                 .setTitle(`${config.emojis.trade} Takas Onayı - Oyuncular`)
-                .setDescription(`**Başkanlar takas konusunda anlaştı!**\n\nŞimdi her iki oyuncunun da takası onaylaması gerekiyor.`)
+                .setDescription(`**Başkanlar takas konusunda anlaştı!**\n\nŞimdi her iki oyuncunun da takası onaylaması gerekiyor.\n\n🔄 **Takas Detayları:**\n📈 **İstenen:** ${wantedPlayer.user}\n📉 **Verilecek:** ${givenPlayer.user}`)
                 .addFields(
-                    { name: '🔄 Takas Detayları', value: `**${wantedPlayer.user.username}** ↔ **${givenPlayer.user.username}**`, inline: false },
-                    { name: '🏟️ Kulüpler', value: `${targetPresident.user.username} takımı ↔ ${president.user.username} takımı`, inline: false }
+                    { name: '💰 İstenen Oyuncunun Maaşı', value: 'Düzenlenecek', inline: true },
+                    { name: '💸 Verilecek Oyuncunun Maaşı', value: 'Düzenlenecek', inline: true },
+                    { name: '📅 İstenen Oyuncunun Sözleşme/Ek Madde', value: 'Düzenlenecek', inline: false },
+                    { name: '📋 Verilecek Oyuncunun Sözleşme/Ek Madde', value: 'Düzenlenecek', inline: false },
+                    { name: '🏟️ Kulüpler', value: `${targetPresident.user.username} ↔ ${president.user.username}`, inline: false }
                 )
                 .setTimestamp()
-                .setFooter({ text: 'Transfer Sistemi' });
+                .setFooter({ text: 'Transfer Sistemi - Maaşları düzenlemek için Düzenle butonuna basın' });
 
             const playerButtons = new MessageActionRow()
                 .addComponents(
@@ -553,7 +572,12 @@ class ButtonHandler {
                         .setCustomId(`trade_player_reject_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
                         .setLabel('Reddet')
                         .setStyle('DANGER')
-                        .setEmoji('❌')
+                        .setEmoji('❌'),
+                    new MessageButton()
+                        .setCustomId(`trade_player_edit_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                        .setLabel('Düzenle')
+                        .setStyle('SECONDARY')
+                        .setEmoji('✏️')
                 );
 
             await playersChannel.send({
@@ -683,48 +707,89 @@ class ButtonHandler {
 
             await interaction.deferReply();
 
-            // Check if both players have now accepted (this is simplified - in reality you'd track acceptances)
-            await this.sendTransferAnnouncement(guild, {
-                type: 'trade',
-                wantedPlayer: wantedPlayer,
-                givenPlayer: givenPlayer,
-                targetPresident: targetPresident,
-                president: president,
-                embed: interaction.message.embeds[0]
-            });
+            // Check if this channel already has acceptances stored
+            const channelName = interaction.channel.name;
+            const acceptanceKey = `trade_acceptances_${channelName}`;
+            
+            // Initialize acceptances if not exists
+            if (!global[acceptanceKey]) {
+                global[acceptanceKey] = { wantedPlayer: false, givenPlayer: false };
+            }
 
-            await interaction.editReply({
-                content: `✅ Takas tüm taraflar tarafından kabul edildi ve tamamlandı!`
-            });
+            // Mark this player as accepted
+            if (interaction.user.id === wantedPlayerId) {
+                global[acceptanceKey].wantedPlayer = true;
+                await interaction.editReply({
+                    content: `✅ **${wantedPlayer.displayName}** takası kabul etti! Diğer oyuncunun kararı bekleniyor...`
+                });
+            } else if (interaction.user.id === givenPlayerId) {
+                global[acceptanceKey].givenPlayer = true;
+                await interaction.editReply({
+                    content: `✅ **${givenPlayer.displayName}** takası kabul etti! Diğer oyuncunun kararı bekleniyor...`
+                });
+            }
 
-            // Disable all buttons
-            const disabledButtons = interaction.message.components[0].components.map(button => 
-                new MessageButton()
-                    .setCustomId(button.customId)
-                    .setLabel(button.label)
-                    .setStyle(button.style)
-                    .setDisabled(true)
-                    .setEmoji(button.emoji || null)
-            );
+            // Check if both players have accepted
+            if (global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
+                // Extract trade data from embed for complete announcement
+                const embed = interaction.message.embeds[0];
+                const fields = embed.fields;
+                
+                const tradeData = {
+                    wantedPlayerSalary: fields.find(f => f.name.includes('İstenen Oyuncunun Maaşı'))?.value || 'Belirtilmemiş',
+                    givenPlayerSalary: fields.find(f => f.name.includes('Verilecek Oyuncunun Maaşı'))?.value || 'Belirtilmemiş',
+                    wantedPlayerContract: fields.find(f => f.name.includes('İstenen Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
+                    givenPlayerContract: fields.find(f => f.name.includes('Verilecek Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
+                    additionalAmount: fields.find(f => f.name.includes('Ek Miktar'))?.value || 'Yok',
+                    bonus: fields.find(f => f.name.includes('Bonus'))?.value || 'Yok'
+                };
 
-            await interaction.message.edit({
-                embeds: interaction.message.embeds,
-                components: [new MessageActionRow().addComponents(disabledButtons)]
-            });
+                await this.sendTransferAnnouncement(guild, {
+                    type: 'trade',
+                    wantedPlayer: wantedPlayer,
+                    givenPlayer: givenPlayer,
+                    targetPresident: targetPresident,
+                    president: president,
+                    embed: interaction.message.embeds[0],
+                    tradeData: tradeData
+                });
 
-            // Delete channel after delay
-            setTimeout(async () => {
-                try {
-                    const channelToDelete = interaction.channel;
-                    if (channelToDelete && channelToDelete.deletable) {
-                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                        await channelToDelete.delete("Takas tamamlandı - Kanal otomatik silindi");
-                        console.log('KANAL BAŞARIYLA SİLİNDİ');
+                await interaction.followUp({
+                    content: `🎉 **HER İKİ OYUNCU DA KABUL ETTİ!** Takas tamamlandı ve otomatik duyuru gönderildi!\n\n${targetPresident.user} ${president.user}`
+                });
+
+                // Disable all buttons
+                const disabledButtons = interaction.message.components[0].components.map(button => 
+                    new MessageButton()
+                        .setCustomId(button.customId)
+                        .setLabel(button.label)
+                        .setStyle(button.style)
+                        .setDisabled(true)
+                        .setEmoji(button.emoji || null)
+                );
+
+                await interaction.message.edit({
+                    embeds: interaction.message.embeds,
+                    components: [new MessageActionRow().addComponents(disabledButtons)]
+                });
+
+                // Clean up acceptances
+                delete global[acceptanceKey];
+
+                // Delete channel after delay
+                setTimeout(async () => {
+                    try {
+                        const channelToDelete = interaction.channel;
+                        if (channelToDelete && channelToDelete.deletable) {
+                            console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
+                            await channelToDelete.delete("Takas tamamlandı - Kanal otomatik silindi");
+                            console.log('KANAL BAŞARIYLA SİLİNDİ');
+                        }
+                    } catch (error) {
+                        console.error('KANAL SİLME HATASI:', error);
                     }
-                } catch (error) {
-                    console.error('KANAL SİLME HATASI:', error);
-                }
-            }, 1500);
+                }, 1500);
+            }
 
         } else if (buttonType === 'reject') {
             // Check if user is one of the players
@@ -741,8 +806,9 @@ class ButtonHandler {
 
             await interaction.deferReply();
             
+            const playerName = interaction.user.id === wantedPlayerId ? wantedPlayer.displayName : givenPlayer.displayName;
             await interaction.editReply({
-                content: `❌ Takas oyuncular tarafından reddedildi!`
+                content: `❌ **${playerName}** takası reddetti! Müzakere iptal edildi.`
             });
 
             // Disable all buttons
@@ -760,6 +826,11 @@ class ButtonHandler {
                 components: [new MessageActionRow().addComponents(disabledButtons)]
             });
 
+            // Clean up acceptances
+            const channelName = interaction.channel.name;
+            const acceptanceKey = `trade_acceptances_${channelName}`;
+            delete global[acceptanceKey];
+
             // Delete channel after delay
             setTimeout(async () => {
                 try {
@@ -773,6 +844,20 @@ class ButtonHandler {
                     console.error('KANAL SİLME HATASI:', error);
                 }
             }, 1500);
+        } else if (buttonType === 'edit') {
+            // Only presidents can edit the salary details for players
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === presidentId || interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
+                return interaction.reply({
+                    content: '❌ Sadece başkanlar veya transfer yetkilileri maaş detaylarını düzenleyebilir!',
+                    ephemeral: true
+                });
+            }
+
+            // Show salary editing modal for both players
+            await this.handleShowTradePlayerSalaryForm(client, interaction, [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId]);
         }
     }
 
@@ -2091,31 +2176,77 @@ class ButtonHandler {
             .setPlaceholder('Örn: 5.000.000₺')
             .setRequired(false);
 
+        const wantedPlayerInput = new TextInputComponent()
+            .setCustomId('wanted_player')
+            .setLabel('İstenen Oyuncu')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Cristiano Ronaldo')
+            .setRequired(true);
+
+        const bonusInput = new TextInputComponent()
+            .setCustomId('bonus')
+            .setLabel('Bonus')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 2.000.000₺')
+            .setRequired(false);
+
+        const contractInput = new TextInputComponent()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme+Ek Madde')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 2 yıl + performans bonusu')
+            .setRequired(true);
+
+        const row1 = new MessageActionRow().addComponents(additionalAmountInput);
+        const row2 = new MessageActionRow().addComponents(wantedPlayerInput);
+        const row3 = new MessageActionRow().addComponents(bonusInput);
+        const row4 = new MessageActionRow().addComponents(contractInput);
+
+        modal.addComponents(row1, row2, row3, row4);
+
+        await interaction.showModal(modal);
+    }
+
+    // Oyuncular anlaştığında açılacak maaş düzenleme modalı
+    async handleShowTradePlayerSalaryForm(client, interaction, params) {
+        const [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
+        
+        const modal = new Modal()
+            .setCustomId(`trade_player_salary_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+            .setTitle('Oyuncu Maaşları Düzenleme');
+
         const wantedPlayerSalaryInput = new TextInputComponent()
             .setCustomId('wanted_player_salary')
-            .setLabel('İstenen Oyuncunun Yeni Maaşı')
+            .setLabel('İstenen Oyuncunun Maaşı')
             .setStyle('SHORT')
             .setPlaceholder('Örn: 15.000.000₺/yıl')
             .setRequired(true);
 
         const givenPlayerSalaryInput = new TextInputComponent()
             .setCustomId('given_player_salary')
-            .setLabel('Verilecek Oyuncunun Yeni Maaşı')
+            .setLabel('Verilecek Oyuncunun Maaşı')
             .setStyle('SHORT')
             .setPlaceholder('Örn: 10.000.000₺/yıl')
             .setRequired(true);
 
-        const contractInput = new TextInputComponent()
-            .setCustomId('contract_duration')
-            .setLabel('Sözleşme+Ek Madde')
+        const wantedPlayerContractInput = new TextInputComponent()
+            .setCustomId('wanted_player_contract')
+            .setLabel('İstenen Oyuncunun Sözleşme/Ek Madde')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 2 yıl + bonuslar')
+            .setPlaceholder('Örn: 3 yıl + performans bonusu')
             .setRequired(true);
 
-        const row1 = new MessageActionRow().addComponents(additionalAmountInput);
-        const row2 = new MessageActionRow().addComponents(wantedPlayerSalaryInput);
-        const row3 = new MessageActionRow().addComponents(givenPlayerSalaryInput);
-        const row4 = new MessageActionRow().addComponents(contractInput);
+        const givenPlayerContractInput = new TextInputComponent()
+            .setCustomId('given_player_contract')
+            .setLabel('Verilecek Oyuncunun Sözleşme/Ek Madde')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 2 yıl + imza bonusu')
+            .setRequired(true);
+
+        const row1 = new MessageActionRow().addComponents(wantedPlayerSalaryInput);
+        const row2 = new MessageActionRow().addComponents(givenPlayerSalaryInput);
+        const row3 = new MessageActionRow().addComponents(wantedPlayerContractInput);
+        const row4 = new MessageActionRow().addComponents(givenPlayerContractInput);
 
         modal.addComponents(row1, row2, row3, row4);
 

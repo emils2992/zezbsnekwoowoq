@@ -714,6 +714,87 @@ async function handleModalSubmit(client, interaction) {
 
             await interaction.editReply({ content: `✅ Duyurunuz ${announcementChannel} kanalında yayınlandı!` });
         }
+
+        // Trade player salary form modali (başkanlar anlaştığında oyuncu maaşları düzenleme)
+        else if (customId.startsWith('trade_player_salary_form_')) {
+            const [, , , , targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = customId.split('_');
+            
+            const targetPresident = interaction.guild.members.cache.get(targetPresidentId);
+            const wantedPlayer = interaction.guild.members.cache.get(wantedPlayerId);
+            const givenPlayer = interaction.guild.members.cache.get(givenPlayerId);
+            const president = interaction.guild.members.cache.get(presidentId);
+
+            if (!targetPresident || !wantedPlayer || !givenPlayer || !president) {
+                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+            }
+
+            const tradePlayerData = {
+                wantedPlayerSalary: interaction.fields.getTextInputValue('wanted_player_salary') || '',
+                givenPlayerSalary: interaction.fields.getTextInputValue('given_player_salary') || '',
+                wantedPlayerContract: interaction.fields.getTextInputValue('wanted_player_contract') || '',
+                givenPlayerContract: interaction.fields.getTextInputValue('given_player_contract') || ''
+            };
+
+            // Güncel kanalda embed'i güncelle
+            const isNegotiationChannel = interaction.channel && interaction.channel.name && 
+                (interaction.channel.name.includes("takas") || interaction.channel.name.includes("trade") || interaction.channel.name.includes("muzakere"));
+
+            if (isNegotiationChannel) {
+                // Create new embed with updated salary and contract information for both players
+                const updatedEmbed = new MessageEmbed()
+                    .setColor(config.colors.warning)
+                    .setTitle(`${config.emojis.trade} Takas - Oyuncu Onayı`)
+                    .setDescription(`**Başkanlar anlaştı!** Şimdi her iki oyuncunun da onayı gerekiyor:\n\n🔄 **Takas Detayları:**\n📈 **İstenen:** ${wantedPlayer.user}\n📉 **Verilecek:** ${givenPlayer.user}`)
+                    .addFields(
+                        { name: '💰 İstenen Oyuncunun Maaşı', value: tradePlayerData.wantedPlayerSalary, inline: true },
+                        { name: '💸 Verilecek Oyuncunun Maaşı', value: tradePlayerData.givenPlayerSalary, inline: true },
+                        { name: '📅 İstenen Oyuncunun Sözleşme/Ek Madde', value: tradePlayerData.wantedPlayerContract, inline: false },
+                        { name: '📋 Verilecek Oyuncunun Sözleşme/Ek Madde', value: tradePlayerData.givenPlayerContract, inline: false }
+                    )
+                    .setThumbnail(wantedPlayer.user.displayAvatarURL({ dynamic: true }))
+                    .setTimestamp()
+                    .setFooter({ text: 'Transfer Sistemi - Oyuncu Onayı Bekleniyor' });
+
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`trade_player_accept_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`trade_player_reject_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`trade_player_edit_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                // Find and update the original message
+                const messages = await interaction.channel.messages.fetch({ limit: 10 });
+                const originalMessage = messages.find(msg => 
+                    msg.embeds.length > 0 && 
+                    msg.components.length > 0 &&
+                    msg.components[0].components.some(btn => btn.customId && btn.customId.includes('trade_'))
+                );
+
+                if (originalMessage) {
+                    await originalMessage.edit({
+                        embeds: [updatedEmbed],
+                        components: [buttons]
+                    });
+                    await interaction.editReply({ content: `✅ Oyuncu maaşları güncellendi! Her iki oyuncunun da onayı bekleniyor.\n\n${targetPresident.user} ${president.user}` });
+                } else {
+                    await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
+                }
+            } else {
+                await interaction.editReply({ content: `❌ Bu işlem sadece müzakere kanallarında yapılabilir!` });
+            }
+        }
     } catch (error) {
         console.error('Modal submission error:', error);
         if (interaction.deferred) {
