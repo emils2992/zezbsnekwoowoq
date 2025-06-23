@@ -224,6 +224,13 @@ The bot is configured for Replit deployment with:
     - Improved channel deletion timeout to 3 seconds for more reliable operation
     - Added comprehensive logging for channel deletion debugging
     - Bot now successfully deletes channels after accept/reject button interactions
+- June 23, 2025. Fixed .trelease command functionality and completed deprecation cleanup:
+    - Implemented proper button handling for confirm/cancel actions in trelease command
+    - Added automatic free agent announcement posting when unilateral release is confirmed
+    - Fixed all remaining addField deprecation warnings throughout the codebase
+    - Enhanced button click prevention to include confirm buttons for single-click behavior
+    - Trelease command now properly disables buttons after confirmation/cancellation
+    - Unilateral release announcements automatically posted to configured serbest-duyuru channel
 
 ## User Preferences
 

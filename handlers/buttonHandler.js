@@ -24,8 +24,8 @@ class ButtonHandler {
             const [action, ...params] = customId.split('_');
             console.log(`Button interaction: ${customId} | Action: ${action} | Params: ${params.join(', ')}`);
 
-            // Add to processed interactions for accept/reject buttons
-            if (params[0] === 'accept' || params[0] === 'reject') {
+            // Add to processed interactions for accept/reject/confirm buttons
+            if (params[0] === 'accept' || params[0] === 'reject' || params[0] === 'confirm') {
                 this.processedInteractions.add(interactionKey);
                 
                 // Remove from set after 5 minutes to prevent memory leaks
@@ -399,6 +399,92 @@ class ButtonHandler {
 
     async handleReleaseButton(client, interaction, params) {
         const [buttonType, playerId, presidentId, releaseType] = params;
+        
+        // Handle trelease confirm/cancel buttons
+        if (buttonType === 'confirm') {
+            // Only the president who initiated can confirm
+            if (interaction.user.id !== presidentId) {
+                return interaction.reply({
+                    content: '❌ Sadece fesih talebini yapan başkan onaylayabilir!',
+                    ephemeral: true
+                });
+            }
+
+            const guild = interaction.guild;
+            const player = await guild.members.fetch(playerId);
+            const president = await guild.members.fetch(presidentId);
+
+            // Make player free agent
+            await permissions.makePlayerFree(player);
+
+            // Extract data from embed for announcement
+            const embed = interaction.message.embeds[0];
+            const releaseData = {
+                oldClub: embed.fields?.find(f => f.name.includes('Başkan'))?.value || president.displayName,
+                reason: 'Tek taraflı fesih',
+                compensation: 'Yok',
+                newTeam: 'Serbest Futbolcu'
+            };
+
+            // Send announcement to free agent channel
+            await this.sendReleaseTransferAnnouncement(guild, player.user, releaseData, 'unilateral');
+
+            await interaction.reply({
+                content: `✅ **${player.displayName}** tek taraflı fesih ile serbest futbolcu oldu!`,
+                ephemeral: false
+            });
+
+            // Disable all buttons
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            return;
+        }
+
+        if (buttonType === 'cancel') {
+            // Only the president who initiated can cancel
+            if (interaction.user.id !== presidentId) {
+                return interaction.reply({
+                    content: '❌ Sadece fesih talebini yapan başkan iptal edebilir!',
+                    ephemeral: true
+                });
+            }
+
+            await interaction.reply({
+                content: `❌ Tek taraflı fesih talebi iptal edildi.`,
+                ephemeral: false
+            });
+
+            // Disable all buttons
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            return;
+        }
+
+        // Regular release button handling for mutual releases
         const guild = interaction.guild;
         const player = await guild.members.fetch(playerId);
         const president = await guild.members.fetch(presidentId);
@@ -623,7 +709,7 @@ class ButtonHandler {
         const helpEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle('📋 Transfer Sistemi Bilgileri')
-            .addField('📢 Duyuru Sistemi', 'Otomatik transfer duyuruları', false).setTimestamp()
+            .addFields({ name: '📢 Duyuru Sistemi', value: 'Otomatik transfer duyuruları', inline: false }).setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
 
         await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
@@ -633,9 +719,11 @@ class ButtonHandler {
         const helpEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle('👥 Rol Yönetimi')
-            .addField('🎯 Rol Kurulumu', '.rol komutu ile roller ayarlanır', false)
-            .addField('🔑 Yetki Sistemi', 'Başkanlar transfer yapabilir', false)
-            .addField('⚽ Oyuncu Durumu', 'Futbolcu/Serbest rolleri otomatik', false).setTimestamp()
+            .addFields(
+                { name: '🎯 Rol Kurulumu', value: '.rol komutu ile roller ayarlanır', inline: false },
+                { name: '🔑 Yetki Sistemi', value: 'Başkanlar transfer yapabilir', inline: false },
+                { name: '⚽ Oyuncu Durumu', value: 'Futbolcu/Serbest rolleri otomatik', inline: false }
+            ).setTimestamp()
             .setFooter({ text: 'Rol Yönetimi' });
 
         await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
@@ -645,9 +733,11 @@ class ButtonHandler {
         const helpEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle('⚡ Sistem Özellikleri')
-            .addField('🤖 Otomatik Duyurular', 'Transfer tamamlandığında otomatik bildirim', false)
-            .addField('💬 Müzakere Kanalları', 'Özel görüşme kanalları oluşturulur', false)
-            .addField('📊 Form Sistemi', 'Detaylı transfer bilgileri', false).setTimestamp()
+            .addFields(
+                { name: '🤖 Otomatik Duyurular', value: 'Transfer tamamlandığında otomatik bildirim', inline: false },
+                { name: '💬 Müzakere Kanalları', value: 'Özel görüşme kanalları oluşturulur', inline: false },
+                { name: '📊 Form Sistemi', value: 'Detaylı transfer bilgileri', inline: false }
+            ).setTimestamp()
             .setFooter({ text: 'Sistem Özellikleri' });
 
         await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
@@ -688,10 +778,12 @@ class ButtonHandler {
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('✅ Transfer Gerçekleşti!')
-                .addField('⚽ Oyuncu', player.displayName, true)
-                .addField('🏟️ Yeni Kulüp', team, true)
-                .addField('💰 Maaş', salary, true)
-                .addField('📅 Süre', duration, true).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
+                .addFields(
+                    { name: '⚽ Oyuncu', value: player.displayName, inline: true },
+                    { name: '🏟️ Yeni Kulüp', value: team, inline: true },
+                    { name: '💰 Maaş', value: salary, inline: true },
+                    { name: '📅 Süre', value: duration, inline: true }
+                ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Duyuruları' });
         }
@@ -723,19 +815,24 @@ class ButtonHandler {
             .setColor(config.colors.warning)
             .setTitle(`${config.emojis.release} Oyuncu Serbest Kaldı`)
             .setDescription(`**${player.username}** serbest futbolcu oldu!`)
-            .addField('🏆 Eski Kulüp', releaseData.oldClub || 'Belirtilmemiş', true)
-            .addField('📋 Sebep', releaseData.reason || 'Belirtilmemiş', false)
-            .addField('📅 Tarih', new Date().toLocaleDateString('tr-TR'), true)
+            .addFields(
+                { name: '🏆 Eski Kulüp', value: releaseData.oldClub || 'Belirtilmemiş', inline: true },
+                { name: '📋 Sebep', value: releaseData.reason || 'Belirtilmemiş', inline: false },
+                { name: '📅 Tarih', value: new Date().toLocaleDateString('tr-TR'), inline: true }
+            )
             .setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
 
+        const additionalFields = [];
         if (releaseData.compensation && releaseData.compensation.trim() !== '' && releaseData.compensation !== 'Belirtilmemiş') {
-            releaseEmbed.addField('💰 Tazminat', releaseData.compensation, true);
+            additionalFields.push({ name: '💰 Tazminat', value: releaseData.compensation, inline: true });
         }
-
         if (releaseData.newTeam && releaseData.newTeam.trim() !== '' && releaseData.newTeam !== 'Belirtilmemiş') {
-            releaseEmbed.addField('🎯 Yeni Takım', releaseData.newTeam, true);
+            additionalFields.push({ name: '🎯 Yeni Takım', value: releaseData.newTeam, inline: true });
+        }
+        if (additionalFields.length > 0) {
+            releaseEmbed.addFields(additionalFields);
         }
 
         const roleData = permissions.getRoleData(guild.id);
