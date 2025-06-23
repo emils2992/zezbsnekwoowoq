@@ -225,7 +225,7 @@ async function handleModalSubmit(client, interaction) {
             // Form verilerini al
             const offerData = {
                 newTeam: interaction.fields.getTextInputValue('new_team') || '',
-                playerName: interaction.fields.getTextInputValue('player_name') || '',
+                oldClub: interaction.fields.getTextInputValue('old_club') || '',
                 salary: interaction.fields.getTextInputValue('salary') || '6.000.000₺/yıl',
                 contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl',
                 bonus: interaction.fields.getTextInputValue('bonus') || '3.000.000₺'
@@ -297,7 +297,7 @@ async function handleModalSubmit(client, interaction) {
         // Form verilerini al
         const contractData = {
             newClub: interaction.fields.getTextInputValue('new_club') || 'Belirtilmemiş',
-            playerName: interaction.fields.getTextInputValue('player_name') || '',
+            oldClub: interaction.fields.getTextInputValue('old_club') || '',
             transferFee: interaction.fields.getTextInputValue('transfer_fee') || '2.500.000₺',
             salary: interaction.fields.getTextInputValue('salary') || '24.000.000₺/yıl',
             contractDuration: interaction.fields.getTextInputValue('contract_duration') || '3 yıl'
@@ -364,7 +364,7 @@ async function handleModalSubmit(client, interaction) {
 
         // Form verilerini al
         const tradeData = {
-            playerName: interaction.fields.getTextInputValue('player_name') || '',
+            oldClub: interaction.fields.getTextInputValue('old_club') || '',
             additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '0',
             salary: interaction.fields.getTextInputValue('salary') || '10.000.000₺/yıl',
             contractDuration: interaction.fields.getTextInputValue('contract_duration') || '4 yıl',

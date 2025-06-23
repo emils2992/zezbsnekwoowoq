@@ -76,7 +76,7 @@ class ButtonHandler {
         // Embed'den modal verilerini çıkar
         let offerData = {
             newTeam: president.displayName,
-            playerName: player.displayName,
+            oldClub: 'Belirtilmedi',
             salary: '6.000.000₺/yıl',
             contractDuration: '2 yıl',
             bonus: '3.000.000₺'
@@ -95,11 +95,8 @@ class ButtonHandler {
                         offerData.contractDuration = field.value;
                     } else if (field.name.includes('Bonus')) {
                         offerData.bonus = field.value;
-                    } else if (field.name.includes('Futbolcu') && field.value.includes('(') && field.value.includes(')')) {
-                        const nameMatch = field.value.match(/\(([^)]+)\)/);
-                        if (nameMatch) {
-                            offerData.playerName = nameMatch[1];
-                        }
+                    } else if (field.name.includes('Eski Kulüp')) {
+                        offerData.oldClub = field.value;
                     }
                 }
             }
@@ -513,11 +510,8 @@ class ButtonHandler {
                         tradeData.contractDuration = field.value;
                     } else if (field.name.includes('İstenen Oyuncu')) {
                         tradeData.targetPlayer = field.value;
-                    } else if (field.name.includes('Oyuncu') && field.value.includes('(') && field.value.includes(')')) {
-                        const nameMatch = field.value.match(/\(([^)]+)\)/);
-                        if (nameMatch) {
-                            tradeData.playerName = nameMatch[1];
-                        }
+                    } else if (field.name.includes('Eski Kulüp')) {
+                        tradeData.oldClub = field.value;
                     }
                 }
             }
@@ -534,7 +528,7 @@ class ButtonHandler {
 
                 const acceptEmbed = embeds.createSuccess(
                     'Takas Kabul Edildi!',
-                    `**${tradeData.playerName}** <> **${tradeData.targetPlayer}**\n\nBaşkanlar takasladi! Takas işlemi tamamlandı! 🔄${tradeData.additionalAmount !== '0' ? `\n\n**Ek Miktar:** ${tradeData.additionalAmount}` : ''}`
+                    `**${player.user.username}** <> **${tradeData.targetPlayer}**\n\nBaşkanlar takasladi! Takas işlemi tamamlandı! 🔄${tradeData.additionalAmount !== '0' ? `\n\n**Ek Miktar:** ${tradeData.additionalAmount}` : ''}`
                 );
 
                 await interaction.update({ 
@@ -550,7 +544,7 @@ class ButtonHandler {
                     amount: tradeData.additionalAmount !== '0' ? tradeData.additionalAmount : null,
                     salary: tradeData.salary,
                     duration: tradeData.contractDuration,
-                    playerName: tradeData.playerName,
+                    oldClub: tradeData.oldClub,
                     targetPlayer: tradeData.targetPlayer
                 });
 
@@ -859,7 +853,8 @@ class ButtonHandler {
                     amount: contractData.transferFee,
                     salary: contractData.salary,
                     duration: contractData.contractDuration,
-                    bonus: contractData.bonus
+                    bonus: contractData.bonus,
+                    oldClub: contractData.oldClub
                 });
 
                 // Transfer geçmişine kaydet
@@ -955,15 +950,15 @@ class ButtonHandler {
             }
 
             // Transfer duyuru embed'i oluştur - oyuncunun avatarını kullan
-            const playerDisplayName = transferData.playerName || transferData.player.username;
             const announcementEmbed = new EmbedBuilder()
                 .setColor(color)
                 .setTitle(`${config.emojis.football} ${title}`)
-                .setDescription(`**${playerDisplayName}** ${transferData.team} takımı ile anlaştı!`)
+                .setDescription(`**${transferData.player.username}** ${transferData.team} takımı ile anlaştı!`)
                 .setThumbnail(transferData.player.displayAvatarURL({ dynamic: true }))
                 .addFields(
-                    { name: '⚽ Oyuncu', value: transferData.playerName ? `${transferData.player} (${transferData.playerName})` : `${transferData.player}`, inline: true },
-                    { name: '🏆 Yeni Takım', value: transferData.team, inline: true },
+                    { name: '⚽ Oyuncu', value: `${transferData.player}`, inline: true },
+                    { name: '🏆 Eski Kulüp', value: transferData.oldClub || 'Belirtilmedi', inline: true },
+                    { name: '🏟️ Yeni Takım', value: transferData.team, inline: true },
                     { name: '📋 Transfer Türü', value: transferData.type === 'serbest_transfer' ? 'Serbest Transfer' : transferData.type.charAt(0).toUpperCase() + transferData.type.slice(1), inline: true }
                 );
 
@@ -1069,7 +1064,7 @@ class ButtonHandler {
 
         // Action Row'lar oluştur
         const row1 = new ActionRowBuilder().addComponents(newTeamInput);
-        const row2 = new ActionRowBuilder().addComponents(playerNameInput);
+        const row2 = new ActionRowBuilder().addComponents(oldClubInput);
         const row3 = new ActionRowBuilder().addComponents(salaryInput);
         const row4 = new ActionRowBuilder().addComponents(contractDurationInput);
         const row5 = new ActionRowBuilder().addComponents(bonusInput);
@@ -1096,11 +1091,11 @@ class ButtonHandler {
             .setPlaceholder('Örn: Galatasaray')
             .setRequired(true);
 
-        const playerNameInput = new TextInputBuilder()
-            .setCustomId('player_name')
-            .setLabel('Oyuncu İsmi')
+        const oldClubInput = new TextInputBuilder()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: Lionel Messi')
+            .setPlaceholder('Örn: Real Madrid')
             .setRequired(true);
 
         const transferFeeInput = new TextInputBuilder()
@@ -1126,7 +1121,7 @@ class ButtonHandler {
 
         // Action Row'lar oluştur
         const row1 = new ActionRowBuilder().addComponents(newClubInput);
-        const row2 = new ActionRowBuilder().addComponents(playerNameInput);
+        const row2 = new ActionRowBuilder().addComponents(oldClubInput);
         const row3 = new ActionRowBuilder().addComponents(transferFeeInput);
         const row4 = new ActionRowBuilder().addComponents(salaryInput);
         const row5 = new ActionRowBuilder().addComponents(contractDurationInput);
@@ -1146,11 +1141,11 @@ class ButtonHandler {
             .setTitle('Takas Teklifi Formu');
 
         // Form alanları
-        const playerNameInput = new TextInputBuilder()
-            .setCustomId('player_name')
-            .setLabel('Oyuncu İsmi')
+        const oldClubInput = new TextInputBuilder()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
             .setStyle(TextInputStyle.Short)
-            .setPlaceholder('Örn: Neymar Jr')
+            .setPlaceholder('Örn: PSG')
             .setRequired(true);
 
         const additionalAmountInput = new TextInputBuilder()
@@ -1182,7 +1177,7 @@ class ButtonHandler {
             .setRequired(true);
 
         // Action Row'lar oluştur
-        const row1 = new ActionRowBuilder().addComponents(playerNameInput);
+        const row1 = new ActionRowBuilder().addComponents(oldClubInput);
         const row2 = new ActionRowBuilder().addComponents(additionalAmountInput);
         const row3 = new ActionRowBuilder().addComponents(salaryInput);
         const row4 = new ActionRowBuilder().addComponents(contractDurationInput);

@@ -21,7 +21,12 @@ class EmbedCreator {
             },
             {
                 name: `⚽ Futbolcu`,
-                value: `${player} ${offerData?.playerName ? `(${offerData.playerName})` : ''}`,
+                value: `${player}`,
+                inline: true
+            },
+            {
+                name: `🏆 Eski Kulüp`,
+                value: offerData?.oldClub || 'Belirtilmedi',
                 inline: true
             },
             {
@@ -66,7 +71,12 @@ class EmbedCreator {
             },
             {
                 name: `⚽ Oyuncu`,
-                value: `${player} ${contractData?.playerName ? `(${contractData.playerName})` : ''}`,
+                value: `${player}`,
+                inline: true
+            },
+            {
+                name: `🏆 Eski Kulüp`,
+                value: contractData?.oldClub || 'Belirtilmedi',
                 inline: true
             },
             {
@@ -116,7 +126,12 @@ class EmbedCreator {
             },
             {
                 name: `⚽ Takas Edilecek Oyuncu`,
-                value: `${player} ${tradeData?.playerName ? `(${tradeData.playerName})` : ''}`,
+                value: `${player}`,
+                inline: true
+            },
+            {
+                name: `🏆 Eski Kulüp`,
+                value: tradeData?.oldClub || 'Belirtilmedi',
                 inline: true
             }
         );
