@@ -367,8 +367,16 @@ async function handleModalSubmit(client, interaction) {
         // Contract form modali
         else if (customId.startsWith('contract_form_')) {
             const [, , playerId, presidentId] = customId.split('_');
-            const player = interaction.guild.members.cache.get(playerId);
-            const president = interaction.guild.members.cache.get(presidentId);
+            console.log(`Contract form - Player ID: ${playerId}, President ID: ${presidentId}`);
+            
+            let player, president;
+            try {
+                player = await interaction.guild.members.fetch(playerId);
+                president = await interaction.guild.members.fetch(presidentId);
+            } catch (error) {
+                console.error('Error fetching members:', error);
+                return interaction.editReply({ content: 'Kullanıcılar bulunamadı! Lütfen tekrar deneyin.' });
+            }
 
             if (!player || !president) {
                 return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
