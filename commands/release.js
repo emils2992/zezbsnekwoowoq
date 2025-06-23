@@ -5,8 +5,8 @@ const embeds = require('../utils/embeds');
 
 module.exports = {
     name: 'release',
-    description: 'Futbolcu feshi',
-    usage: '.release @futbolcu [karşılıklı/tek_taraflı]',
+    description: 'Karşılıklı fesih işlemi başlat',
+    usage: '.release @futbolcu',
     
     async execute(client, message, args) {
         try {
@@ -18,7 +18,7 @@ module.exports = {
             // Futbolcu belirtildi mi kontrol et
             const targetUser = message.mentions.users.first();
             if (!targetUser) {
-                return message.reply('❌ Lütfen bir futbolcu etiketleyin!\nKullanım: `.release @futbolcu [karşılıklı/tek_taraflı]`');
+                return message.reply('❌ Lütfen bir futbolcu etiketleyin!\nKullanım: `.release @futbolcu`');
             }
 
             const targetMember = message.guild.members.cache.get(targetUser.id);
@@ -36,48 +36,38 @@ module.exports = {
                 return message.reply('❌ Bu futbolcu zaten serbest!');
             }
 
-            // Fesih türünü belirle
-            const releaseType = args[1] && args[1].toLowerCase() === 'tek_taraflı' ? 'tek_taraflı' : 'karşılıklı';
-            
-            if (releaseType === 'karşılıklı') {
-                // Karşılıklı fesih - modal ile ek para detayları al
-                await message.reply({
-                    content: `${config.emojis.release} **Karşılıklı Fesih Formu**\n\n${targetUser.username} ile karşılıklı fesih detaylarını doldurmak için aşağıdaki butona tıklayın.`,
-                    components: [
-                        new ActionRowBuilder().addComponents(
-                            new ButtonBuilder()
-                                .setCustomId(`show_release_modal_${targetUser.id}_${message.author.id}_mutual`)
-                                .setLabel('Karşılıklı Fesih Formu Aç')
-                                .setStyle(ButtonStyle.Primary)
-                                .setEmoji(config.emojis.edit)
-                        )
-                    ]
-                });
-            } else {
-                // Tek taraflı fesih - sadece onay/ret
-                const row = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId(`release_confirm_${targetUser.id}_${message.author.id}_unilateral`)
-                            .setLabel('Evet - Feshi Onayla')
-                            .setStyle(ButtonStyle.Danger)
-                            .setEmoji(config.emojis.warning),
-                        new ButtonBuilder()
-                            .setCustomId(`release_cancel_${targetUser.id}_${message.author.id}`)
-                            .setLabel('Hayır - İptal Et')
-                            .setStyle(ButtonStyle.Secondary)
-                            .setEmoji(config.emojis.cross)
-                    );
+            // Karşılıklı fesih embed'i oluştur
+            const releaseEmbed = new EmbedBuilder()
+                .setColor(config.colors.primary)
+                .setTitle(`${config.emojis.release} Karşılıklı Fesih Teklifi`)
+                .setDescription(`**${message.author.username}** tarafından **${targetUser.username}**'e karşılıklı fesih teklifi yapılıyor.`)
+                .addFields(
+                    { name: '👑 Başkan', value: `${message.author}`, inline: true },
+                    { name: '⚽ Oyuncu', value: `${targetUser}`, inline: true },
+                    { name: '📋 Fesih Türü', value: 'Karşılıklı Anlaşma', inline: true },
+                    { name: '💡 Bilgi', value: 'Fesih detaylarını belirlemek için formu doldurun.', inline: false }
+                )
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Sistemi' });
 
-                await message.reply({
-                    content: `${config.emojis.warning} **Tek Taraflı Fesih Onayı**\n\n${message.author}, ${targetUser} ile tek taraflı fesih yapmak istediğinizi onaylıyor musunuz?\n\n**Uyarı:** Bu işlem geri alınamaz ve otomatik duyuru yapılacaktır.`,
-                    components: [row]
-                });
-            }
+            // Karşılıklı fesih modal formu
+            await message.reply({
+                content: `${config.emojis.handshake} **Karşılıklı Fesih Teklifi**`,
+                embeds: [releaseEmbed],
+                components: [
+                    new ActionRowBuilder().addComponents(
+                        new ButtonBuilder()
+                            .setCustomId(`show_release_modal_${targetUser.id}_${message.author.id}_mutual`)
+                            .setLabel('Fesih Formu Aç')
+                            .setStyle(ButtonStyle.Primary)
+                            .setEmoji(config.emojis.edit)
+                    )
+                ]
+            });
 
         } catch (error) {
             console.error('Release komutu hatası:', error);
-            message.reply('❌ Fesih işlemi başlatılırken bir hata oluştu!');
+            message.reply('❌ Karşılıklı fesih işlemi başlatılırken bir hata oluştu!');
         }
     }
 };

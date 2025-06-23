@@ -121,6 +121,8 @@ The bot is configured for Replit deployment with:
   - Ensured complete modal data consistency across all transfer types (offer, contract, trade, release)
   - Enhanced release system to extract modal data and create detailed free agent announcements in serbest-ayarla channel
   - Eliminated separate transfer announcements for releases - only enhanced free agent announcements using exact modal input
+  - Separated release commands: .release for mutual termination (karşılıklı fesih) and .trelease for unilateral termination (tek taraflı fesih)
+  - Both commands send announcements to serbest-ayarla channel with modal data integration
 
 ## User Preferences
 
