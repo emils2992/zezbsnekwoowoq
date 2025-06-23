@@ -1118,7 +1118,7 @@ class ButtonHandler {
                     { name: '🏟️ Yeni Kulüp', value: newClub, inline: true },
                     { name: '💰 Transfer Bedeli', value: transferFee, inline: true },
                     { name: '💸 Yıllık Maaş', value: salary, inline: true },
-                    { name: '📅 Sözleşme Süresi', value: duration, inline: true }
+                    { name: '📅 Sözleşme+Ek Madde', value: duration, inline: true }
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
@@ -1819,9 +1819,9 @@ class ButtonHandler {
 
         const contractInput = new TextInputComponent()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme Süresi')
+            .setLabel('Sözleşme+Ek Madde')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 3 yıl')
+            .setPlaceholder('Örn: 3 yıl + bonuslar')
             .setRequired(true);
 
         const row1 = new MessageActionRow().addComponents(transferFeeInput);

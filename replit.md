@@ -312,6 +312,8 @@ The bot is configured for Replit deployment with:
     - Corrected parameter extraction in handleContractPlayerButton to properly handle button types and user IDs
     - Fixed contract transfer announcements to display actual form data (transfer fee, old club, new club, salary, duration)
     - Contract announcements now show complete transfer details instead of default placeholder values
+    - Updated contract modal and announcements to show "Sözleşme+Ek Madde" instead of just "Sözleşme Süresi"
+    - Contract system now consistently displays additional clauses field across all interfaces
 
 ## User Preferences
 
