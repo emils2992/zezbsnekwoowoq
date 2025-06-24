@@ -284,7 +284,8 @@ async function handleModalSubmit(client, interaction) {
 
             // Check if we're in a negotiation channel (editing existing form)
             const isNegotiationChannel = interaction.channel && interaction.channel.name && 
-                (interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release") || interaction.channel.name.includes("muzakere"));
+                (interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release") || 
+                 interaction.channel.name.includes("muzakere") || interaction.channel.type === 'GUILD_TEXT');
 
             if (isNegotiationChannel) {
                 // Update existing embed in the same channel

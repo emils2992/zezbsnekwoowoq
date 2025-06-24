@@ -210,6 +210,11 @@ The bot is configured for Replit deployment with:
     - Added debug logging for troubleshooting modal form submissions
     - Bot successfully running without errors or warnings on Discord.js v13.17.1
     - All button interaction errors resolved and transfer system fully operational with working modals
+- June 24, 2025. Fixed release command edit button to update in-place instead of creating new channels:
+    - Updated channel creation naming pattern for release type to use "fesih-" prefix
+    - Enhanced channel detection logic in release form submission handler
+    - Release edit button now updates existing embed in same channel like other transfer commands
+    - Fixed negotiation channel detection to properly identify all channel types for in-place updates
 - June 24, 2025. Updated hire command to work like contract command with rental terminology:
     - Changed hire command structure to use three parameters (@başkan @oyuncu) matching contract command format
     - Updated modal forms to use "Kiralık Bedeli" instead of "Transfer Ücreti" for rental fees

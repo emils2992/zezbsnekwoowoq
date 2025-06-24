@@ -20,6 +20,9 @@ class ChannelManager {
                 case 'trade':
                     channelName = `takas-${user1.username}-${user2.username}`;
                     break;
+                case 'release':
+                    channelName = `fesih-${user1.username}-${user2.username}`;
+                    break;
                 default:
                     channelName = `müzakere-${user1.username}-${user2.username}`;
             }
