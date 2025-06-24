@@ -865,6 +865,13 @@ class ButtonHandler {
                         // Continue execution regardless of response error
                     }
                     console.log('✅ Authority wanted player acceptance completed');
+                    
+                    // Force completion check after authority acceptance
+                    if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
+                        console.log('🎯 DUAL ACCEPTANCE DETECTED - Starting completion process...');
+                        await this.completeTradeTransfer(interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId);
+                        return;
+                    }
                 } else if (!global[acceptanceKey].givenPlayer) {
                     console.log('⭐ Authority accepting for given player...');
                     global[acceptanceKey].givenPlayer = true;
@@ -881,6 +888,13 @@ class ButtonHandler {
                         // Continue execution regardless of response error
                     }
                     console.log('✅ Authority given player acceptance completed');
+                    
+                    // Force completion check after authority acceptance
+                    if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
+                        console.log('🎯 DUAL ACCEPTANCE DETECTED - Starting completion process...');
+                        await this.completeTradeTransfer(interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId);
+                        return;
+                    }
                 } else {
                     console.log('❌ Authority trying to accept but both already accepted');
                     try {
@@ -908,6 +922,13 @@ class ButtonHandler {
                     console.error('❌ Wanted player response FAILED (non-blocking):', error.message);
                 }
                 console.log('✅ Regular wanted player acceptance completed');
+                
+                // Check for completion after regular player acceptance
+                if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
+                    console.log('🎯 DUAL ACCEPTANCE DETECTED - Starting completion process...');
+                    await this.completeTradeTransfer(interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId);
+                    return;
+                }
             } else if (userId === givenId) {
                 console.log('⭐ Regular given player accepting...');
                 global[acceptanceKey].givenPlayer = true;
@@ -923,6 +944,13 @@ class ButtonHandler {
                     console.error('❌ Given player response FAILED (non-blocking):', error.message);
                 }
                 console.log('✅ Regular given player acceptance completed');
+                
+                // Check for completion after regular player acceptance
+                if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
+                    console.log('🎯 DUAL ACCEPTANCE DETECTED - Starting completion process...');
+                    await this.completeTradeTransfer(interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId);
+                    return;
+                }
             } else {
                 console.log(`❌ Unauthorized user ${userId} (wanted: ${wantedId}, given: ${givenId})`);
                 console.log('🚫 Sending unauthorized response...');
@@ -2780,6 +2808,133 @@ class ButtonHandler {
         modal.addComponents(row1, row2, row3, row4);
 
         await interaction.showModal(modal);
+    }
+    async completeTradeTransfer(interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId) {
+        console.log('🎯 STARTING TRADE COMPLETION PROCESS...');
+        
+        try {
+            const guild = interaction.guild;
+            const targetPresident = await guild.members.fetch(targetPresidentId);
+            const wantedPlayer = await guild.members.fetch(wantedPlayerId);
+            const givenPlayer = await guild.members.fetch(givenPlayerId);
+            const president = await guild.members.fetch(presidentId);
+
+            console.log('✅ All users fetched for trade completion');
+
+            // Send transfer announcement
+            await this.sendTradeTransferAnnouncement(guild, {
+                targetPresident,
+                wantedPlayer,
+                givenPlayer,
+                president
+            });
+
+            console.log('✅ Trade announcement sent');
+
+            // Send completion response
+            try {
+                await interaction.editReply({
+                    content: `🎉 **TAKAS TAMAMLANDI!** ${wantedPlayer.displayName} ↔ ${givenPlayer.displayName}\n\nTransfer duyurusu yapıldı. Kanal 3 saniye içinde silinecek.`
+                });
+                console.log('✅ Trade completion response sent');
+            } catch (replyError) {
+                console.error('❌ Trade completion response error:', replyError);
+            }
+
+            // Disable buttons
+            try {
+                const disabledButtons = interaction.message.components[0].components.map(button => 
+                    new MessageButton()
+                        .setCustomId(button.customId)
+                        .setLabel(button.label)
+                        .setStyle(button.style)
+                        .setDisabled(true)
+                        .setEmoji(button.emoji || null)
+                );
+
+                await interaction.message.edit({
+                    embeds: interaction.message.embeds,
+                    components: [new MessageActionRow().addComponents(disabledButtons)]
+                });
+                console.log('✅ Buttons disabled');
+            } catch (buttonError) {
+                console.error('❌ Button disable error:', buttonError);
+            }
+
+            // Delete channel after delay
+            setTimeout(async () => {
+                try {
+                    const channelToDelete = interaction.channel;
+                    if (channelToDelete && channelToDelete.deletable) {
+                        console.log(`🗑️ Deleting trade completion channel: ${channelToDelete.name}`);
+                        await channelToDelete.delete("Takas tamamlandı");
+                        console.log('✅ Trade channel deleted successfully');
+                    }
+                } catch (deleteError) {
+                    console.error('❌ Channel deletion error:', deleteError);
+                }
+            }, 3000);
+
+            // Cleanup acceptance tracking
+            const channelName = interaction.channel.name;
+            const acceptanceKey = `trade_acceptances_${channelName}`;
+            delete global[acceptanceKey];
+            console.log('✅ Trade completion process finished');
+
+        } catch (error) {
+            console.error('❌ Trade completion process error:', error);
+        }
+    }
+
+    async sendTradeTransferAnnouncement(guild, transferData) {
+        console.log('📢 Sending trade transfer announcement...');
+        
+        try {
+            const announcementChannel = await channels.findAnnouncementChannel(guild);
+            
+            if (!announcementChannel) {
+                console.log('❌ No announcement channel found');
+                return;
+            }
+
+            const { targetPresident, wantedPlayer, givenPlayer, president } = transferData;
+
+            const embed = new MessageEmbed()
+                .setColor(config.colors.success)
+                .setTitle(`${config.emojis.trade} Takas Tamamlandı`)
+                .setDescription(`**${wantedPlayer.displayName}** ↔ **${givenPlayer.displayName}**`)
+                .addFields(
+                    { name: '🏟️ Kulüpler', value: `${targetPresident.displayName}'nin takımı ↔ ${president.displayName}'nin takımı`, inline: false },
+                    { name: '📅 Tarih', value: new Date().toLocaleString('tr-TR'), inline: true }
+                )
+                .setImage(wantedPlayer.user.displayAvatarURL({ dynamic: true, size: 256 }))
+                .setThumbnail(givenPlayer.user.displayAvatarURL({ dynamic: true, size: 256 }))
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Sistemi' });
+
+            // Get ping roles
+            const roleData = permissions.getRoleData(guild.id);
+            let mentionText = '';
+
+            if (roleData && roleData.transferPingRole) {
+                const transferPingRole = guild.roles.cache.get(roleData.transferPingRole);
+                if (transferPingRole) {
+                    mentionText = transferPingRole.toString();
+                }
+            }
+
+            const message = await announcementChannel.send({
+                content: mentionText,
+                embeds: [embed]
+            });
+
+            console.log('✅ Trade announcement sent successfully');
+            return message;
+
+        } catch (error) {
+            console.error('❌ Trade announcement error:', error);
+            return null;
+        }
     }
 }
 
