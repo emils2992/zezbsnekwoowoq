@@ -132,9 +132,11 @@ class ButtonHandler {
 
             await interaction.deferReply();
             
-            await interaction.editReply({
-                content: `✅ Transfer kabul edildi!`
-            });
+            if (!interaction.replied) {
+                await interaction.editReply({
+                    content: `✅ Transfer kabul edildi!`
+                });
+            }
 
             // Disable all buttons immediately
             const disabledButtons = interaction.message.components[0].components.map(button => 
@@ -2593,9 +2595,9 @@ class ButtonHandler {
 
         const bonusInput = new TextInputComponent()
             .setCustomId('bonus')
-            .setLabel('Bonus')
+            .setLabel('İstenen Oyuncu Özellikleri')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 2.000.000₺')
+            .setPlaceholder('Örn: Mevki, yaş, özellikler')
             .setRequired(false);
 
         const contractInput = new TextInputComponent()
