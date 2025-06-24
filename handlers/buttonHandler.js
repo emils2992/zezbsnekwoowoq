@@ -2457,12 +2457,11 @@ class ButtonHandler {
             .setPlaceholder('Örn: Galatasaray')
             .setRequired(true);
 
-        const playerNameInput = new TextInputComponent()
-            .setCustomId('player_name')
-            .setLabel('Oyuncu Adı')
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
             .setStyle('SHORT')
-            .setPlaceholder(`${player.displayName}`)
-            .setValue(`${player.displayName}`)
+            .setPlaceholder('Örn: Serbest Futbolcu')
             .setRequired(true);
 
         const salaryInput = new TextInputComponent()
@@ -2486,8 +2485,8 @@ class ButtonHandler {
             .setPlaceholder('Örn: 3.000.000₺')
             .setRequired(false);
 
-        const row1 = new MessageActionRow().addComponents(newTeamInput);
-        const row2 = new MessageActionRow().addComponents(playerNameInput);
+        const row1 = new MessageActionRow().addComponents(oldClubInput);
+        const row2 = new MessageActionRow().addComponents(newTeamInput);
         const row3 = new MessageActionRow().addComponents(salaryInput);
         const row4 = new MessageActionRow().addComponents(contractInput);
         const row5 = new MessageActionRow().addComponents(bonusInput);
