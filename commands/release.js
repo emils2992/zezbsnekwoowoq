@@ -8,13 +8,12 @@ module.exports = {
     name: 'release',
     description: 'Karşılıklı fesih işlemi başlat',
     usage: '.release @futbolcu',
-    
+
     async execute(client, message, args) {
         try {
-            // Yetki kontrolü - hem başkanlar hem serbest futbolcular kullanabilir
-            if (!permissions.isPresident(message.member) && !permissions.isFreeAgent(message.member)) {
-                return message.reply('❌ Bu komutu sadece takım başkanları ve serbest futbolcular kullanabilir!');
-     
+            // Yetki kontrolü - sadece başkanlar ve futbolcular kullanabilir
+            if (!permissions.isPresident(message.member) && !permissions.isPlayer(message.member)) {
+                return message.reply('❌ Bu komutu sadece takım başkanları ve futbolcular kullanabilir!');
             }
 
             // Futbolcu belirtildi mi kontrol et
