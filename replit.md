@@ -210,6 +210,13 @@ The bot is configured for Replit deployment with:
     - Added debug logging for troubleshooting modal form submissions
     - Bot successfully running without errors or warnings on Discord.js v13.17.1
     - All button interaction errors resolved and transfer system fully operational with working modals
+- June 24, 2025. Updated hire command to work like contract command with rental terminology:
+    - Changed hire command structure to use three parameters (@başkan @oyuncu) matching contract command format
+    - Updated modal forms to use "Kiralık Bedeli" instead of "Transfer Ücreti" for rental fees
+    - Added 5 fields like contract command: Kiralık Bedeli, Eski Kulüp, Yeni Kulüp, Maaş, Sözleşme+Ek Madde
+    - Updated announcements to display "Kiralık Anlaşması Tamamlandı" instead of generic transfer messages
+    - Fixed three-parameter structure throughout button handlers and modal submissions
+    - Updated embed creation to match contract command format with proper rental terminology
 - June 24, 2025. Critical trade system fixes and interaction response improvements:
     - Fixed trade modal field mismatch error where "bonus" field was causing TypeError in submissions
     - Updated trade modal "Bonus" field to "İstenen Oyuncu Özellikleri" for better clarity
