@@ -503,7 +503,7 @@ class ButtonHandler {
             }
 
             // Extract existing data from embed and show pre-filled modal
-            await this.showEditContractModal(client, interaction, playerId, presidentId);
+            await this.showEditContractModal(client, interaction, targetPresidentId, playerId, presidentId);
         }
     }
 
