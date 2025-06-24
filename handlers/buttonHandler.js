@@ -2720,6 +2720,12 @@ class ButtonHandler {
         const [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
         
         try {
+            // Check if interaction is still valid before showing modal
+            if (interaction.replied || interaction.deferred) {
+                console.log('Interaction already handled, cannot show modal');
+                return;
+            }
+
             const modal = new Modal()
                 .setCustomId(`trade_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
                 .setTitle('Takas Teklifi Formu');
@@ -2752,13 +2758,19 @@ class ButtonHandler {
             modal.addComponents(row1, row2, row3);
 
             await interaction.showModal(modal);
+            console.log('Trade fill form modal shown successfully');
         } catch (error) {
             console.error('Error showing trade fill form modal:', error);
+            // Don't try to reply if interaction has already been handled
             if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({
-                    content: 'Modal açılırken hata oluştu!',
-                    ephemeral: true
-                });
+                try {
+                    await interaction.reply({
+                        content: 'Modal açılırken hata oluştu!',
+                        ephemeral: true
+                    });
+                } catch (replyError) {
+                    console.error('Failed to send error reply:', replyError);
+                }
             }
         }
     }

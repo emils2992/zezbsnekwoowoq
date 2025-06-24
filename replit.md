@@ -116,6 +116,8 @@ The bot is configured for Replit deployment with:
   - Replaced sendTradeTransferAnnouncement with sendTransferAnnouncement for comprehensive trade details
   - Fixed channel permissions: transfer authorities can view negotiation channels for oversight
   - Channel access: tagged users + command creator + transfer authorities can view channels
+  - Fixed trade fill form modal interaction timeout: added proper interaction state checking
+  - Enhanced error handling to prevent "Unknown interaction" and "Interaction already acknowledged" errors
 - June 24, 2025. Removed Discord connection delay - bot now connects immediately instead of waiting 1 minute
 - June 24, 2025. Fixed authorization bugs in brelease and contract commands:
   - Corrected button authorization logic for both brelease and contract modal buttons
