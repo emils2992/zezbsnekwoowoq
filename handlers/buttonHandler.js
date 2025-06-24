@@ -3014,13 +3014,14 @@ class ButtonHandler {
     async handleBreleaseButton(client, interaction, params) {
         const [buttonType, playerId, presidentId, releaseType] = params;
         
-        // Handle btrelease confirm/cancel buttons
+        // Handle btrelease confirm/cancel buttons for unilateral termination
         if (buttonType === 'confirm') {
             if (interaction.replied || interaction.deferred) {
                 return;
             }
 
-            const isAuthorized = interaction.user.id === presidentId;
+            // Only the player who initiated can confirm their own termination
+            const isAuthorized = interaction.user.id === playerId;
             if (!isAuthorized) {
                 return interaction.reply({
                     content: '❌ Sadece fesih talebini yapan oyuncu onaylayabilir!',
@@ -3043,9 +3044,9 @@ class ButtonHandler {
                 const channels = require('../utils/channels');
                 await channels.createFreeAgentAnnouncement(guild, player.user, 'Tek taraflı fesih');
 
-                await interaction.editReply(`✅ **${player.displayName}** başarıyla serbest futbolcu oldu ve duyuru kanalına eklendi!`);
+                await interaction.editReply(`✅ **${player.displayName}** sözleşmesini tek taraflı feshetti ve serbest futbolcu oldu!`);
             } catch (error) {
-                console.error('BRelease onaylama hatası:', error);
+                console.error('BTRelease onaylama hatası:', error);
                 await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
             }
 
@@ -3067,7 +3068,8 @@ class ButtonHandler {
         }
 
         if (buttonType === 'cancel') {
-            const isAuthorized = interaction.user.id === presidentId;
+            // Only the player who initiated can cancel their own termination
+            const isAuthorized = interaction.user.id === playerId;
             if (!isAuthorized) {
                 return interaction.reply({
                     content: '❌ Sadece fesih talebini yapan oyuncu iptal edebilir!',

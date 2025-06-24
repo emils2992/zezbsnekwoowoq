@@ -15,37 +15,39 @@ module.exports = {
                 return message.reply('❌ Bu komutu sadece futbolcular kullanabilir!');
             }
 
-            const player = message.member;
-            const president = message.author; // Komutu kullanan kişi
+            const player = message.author; // Komutu kullanan oyuncu
+            const playerMember = message.member;
 
-            // Tek taraflı fesih embed'i oluştur
-            const releaseEmbed = embeds.createReleaseForm(president, player.user, 'unilateral');
-            
-            releaseEmbed
+            // Tek taraflı fesih embed'i oluştur - basit onay/iptal sistemi
+            const releaseEmbed = new MessageEmbed()
                 .setTitle(`${config.emojis.warning} Tek Taraflı Fesih Talebi`)
-                .setDescription(`**${player.displayName}** sözleşmesini tek taraflı feshetmek istiyor.`)
+                .setDescription(`**${playerMember.displayName}** sözleşmesini tek taraflı feshetmek istiyor.`)
                 .setColor(config.colors.danger)
-                .setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
-                .setFooter({ text: 'Transfer Sistemi' });
+                .setThumbnail(player.displayAvatarURL({ dynamic: true }))
+                .addField('📋 Durum', 'Onay bekleniyor', true)
+                .addField('⚽ Oyuncu', playerMember.displayName, true)
+                .addField('📅 Tarih', new Date().toLocaleDateString('tr-TR'), true)
+                .setFooter({ text: 'Bu işlem geri alınamaz!' })
+                .setTimestamp();
 
-            // Butonları oluştur
+            // Butonları oluştur - sadece onayla/iptal
             const row = new MessageActionRow()
                 .addComponents(
                     new MessageButton()
-                        .setCustomId(`brelease_confirm_${player.id}_${message.author.id}_unilateral`)
-                        .setLabel('Onayla')
+                        .setCustomId(`brelease_confirm_${player.id}_${player.id}_unilateral`)
+                        .setLabel('Onayla ve Feshet')
                         .setStyle('DANGER')
-                        .setEmoji(config.emojis.check),
+                        .setEmoji('✅'),
                     new MessageButton()
-                        .setCustomId(`brelease_cancel_${player.id}_${message.author.id}`)
+                        .setCustomId(`brelease_cancel_${player.id}_${player.id}_unilateral`)
                         .setLabel('İptal Et')
                         .setStyle('SECONDARY')
-                        .setEmoji(config.emojis.cross)
+                        .setEmoji('❌')
                 );
 
             // Mesajı gönder
             await message.reply({
-                content: `${config.emojis.warning} **Tek Taraflı Fesih Talebi**`,
+                content: `${config.emojis.warning} **Tek Taraflı Fesih Talebi**\n\n⚠️ Bu işlem geri alınamaz! Onayladığınızda sözleşmeniz feshedilecek ve serbest futbolcu olacaksınız.`,
                 embeds: [releaseEmbed],
                 components: [row]
             });

@@ -111,6 +111,8 @@ The bot is configured for Replit deployment with:
   - Updated modal forms to use exact same fields as regular release command (Eski Kulüp, Fesih Nedeni, Tazminat, Yeni Takım)
   - Fixed announcement templates to use identical structure as regular release announcements
   - Button handlers now extract form data from embeds for consistent announcement display
+  - Updated .btrelease command to work without requiring president mention (simple confirm/cancel system)
+  - Fixed button handler logic for unilateral termination authorization checks
 - June 22, 2025. Initial setup
 - June 22, 2025. Complete modal system implementation for all transfer commands:
   - Updated .offer command to use interactive modal forms with team name, player name, salary, years, and bonus fields
