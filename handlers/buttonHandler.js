@@ -1260,6 +1260,16 @@ class ButtonHandler {
             const player = await guild.members.fetch(playerId);
             const president = await guild.members.fetch(presidentId);
 
+            // Role management for trelease - convert player to free agent
+            if (releaseType === 'unilateral') {
+                try {
+                    await permissions.makePlayerFree(player);
+                    console.log(`Converted ${player.displayName} to free agent via trelease`);
+                } catch (error) {
+                    console.error('Role management error in trelease:', error);
+                }
+            }
+
             // Make player free agent
             await permissions.makePlayerFree(player);
 
