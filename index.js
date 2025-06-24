@@ -953,6 +953,106 @@ async function handleModalSubmit(client, interaction) {
 
             await interaction.editReply({ content: `✅ Duyurunuz ${announcementChannel} kanalında yayınlandı!` });
         }
+        
+        // BRelease modal handling
+        else if (customId.startsWith('brelease_modal_')) {
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.deferReply({ ephemeral: true });
+            }
+            
+            const [, , presidentId, playerId, releaseType] = customId.split('_');
+            const player = interaction.guild.members.cache.get(playerId);
+            const president = interaction.guild.members.cache.get(presidentId);
+
+            if (!player || !president) {
+                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+            }
+
+            const releaseData = {
+                compensation: interaction.fields.getTextInputValue('compensation') || '0 TL',
+                reason: interaction.fields.getTextInputValue('reason') || 'Belirtilmemiş',
+                conditions: interaction.fields.getTextInputValue('conditions') || 'Yok'
+            };
+
+            const isNegotiationChannel = interaction.channel.name && 
+                (interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release") || 
+                 interaction.channel.name.includes("muzakere"));
+
+            if (isNegotiationChannel) {
+                const releaseEmbed = embeds.createReleaseForm(player.user, president.user, releaseType, releaseData);
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`brelease_accept_${presidentId}_${playerId}_${releaseType}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`brelease_reject_${presidentId}_${playerId}_${releaseType}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`brelease_edit_${presidentId}_${playerId}_${releaseType}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                const messages = await interaction.channel.messages.fetch({ limit: 10 });
+                const originalMessage = messages.find(msg => 
+                    msg.embeds.length > 0 && 
+                    msg.components.length > 0 &&
+                    msg.components[0].components.some(btn => btn.customId && btn.customId.includes('brelease_'))
+                );
+
+                if (originalMessage) {
+                    await originalMessage.edit({
+                        embeds: [releaseEmbed],
+                        components: [buttons]
+                    });
+                    await interaction.editReply({ content: `✅ Fesih formu güncellendi!` });
+                } else {
+                    await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
+                }
+            } else {
+                const channels = require('./utils/channels');
+                const channel = await channels.createNegotiationChannel(interaction.guild, player.user, president.user, 'fesih');
+                if (!channel) {
+                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                }
+
+                const embeds = require('./utils/embeds');
+                const releaseEmbed = embeds.createReleaseForm(player.user, president.user, releaseType, releaseData);
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`brelease_accept_${presidentId}_${playerId}_${releaseType}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`brelease_reject_${presidentId}_${playerId}_${releaseType}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`brelease_edit_${presidentId}_${playerId}_${releaseType}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                await channel.send({
+                    embeds: [releaseEmbed],
+                    components: [buttons]
+                });
+
+                await interaction.editReply({ content: `✅ Fesih müzakeresi ${channel} kanalında başlatıldı!` });
+            }
+        }
 
         // Trade player salary edit modal handler
         else if (customId.startsWith('trade_edit_')) {
