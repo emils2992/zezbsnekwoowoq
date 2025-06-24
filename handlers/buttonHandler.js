@@ -3179,7 +3179,19 @@ class ButtonHandler {
             }, 2000);
 
         } else if (buttonType === 'edit') {
-            await this.showEditBreleaseModal(client, interaction, playerId, presidentId);
+            // Check if user is authorized (player who initiated or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
+                return interaction.reply({
+                    content: '❌ Sadece fesih talebini yapan oyuncu veya transfer yetkilileri düzenleyebilir!',
+                    ephemeral: true
+                });
+            }
+
+            await this.showEditBreleaseModal(client, interaction, presidentId, playerId, releaseType);
+            return;
         }
 
         if (buttonType === 'accept' || buttonType === 'reject') {
@@ -3200,57 +3212,76 @@ class ButtonHandler {
     }
 
     async showEditBreleaseModal(client, interaction, presidentId, playerId, releaseType) {
-        const embed = interaction.message.embeds[0];
-        const fields = embed.fields;
-        
-        // Extract existing data from embed fields - using same structure as regular release
-        const existingData = {
-            oldClub: fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
-            reason: fields.find(f => f.name.includes('Fesih Nedeni'))?.value || '',
-            compensation: fields.find(f => f.name.includes('Tazminat'))?.value || '',
-            newTeam: fields.find(f => f.name.includes('Yeni Takım'))?.value || ''
-        };
+        try {
+            const embed = interaction.message.embeds[0];
+            const fields = embed.fields;
+            
+            // Extract existing data from embed fields - using same structure as regular release
+            const existingData = {
+                oldClub: fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
+                reason: fields.find(f => f.name.includes('Fesih Nedeni'))?.value || '',
+                compensation: fields.find(f => f.name.includes('Tazminat'))?.value || '',
+                newTeam: fields.find(f => f.name.includes('Yeni Takım'))?.value || ''
+            };
 
-        const modal = new Modal()
-            .setCustomId(`brelease_modal_${presidentId}_${playerId}_${releaseType}`)
-            .setTitle('Fesih Düzenle');
+            const modal = new Modal()
+                .setCustomId(`brelease_modal_${presidentId}_${playerId}_${releaseType}`)
+                .setTitle('Fesih Düzenle');
 
-        const oldClubInput = new TextInputComponent()
-            .setCustomId('old_club')
-            .setLabel('Eski Kulüp')
-            .setStyle('SHORT')
-            .setValue(existingData.oldClub)
-            .setRequired(true);
+            const oldClubInput = new TextInputComponent()
+                .setCustomId('old_club')
+                .setLabel('Eski Kulüp')
+                .setStyle('SHORT')
+                .setValue(existingData.oldClub)
+                .setRequired(true);
 
-        const reasonInput = new TextInputComponent()
-            .setCustomId('reason')
-            .setLabel('Fesih Nedeni')
-            .setStyle('PARAGRAPH')
-            .setValue(existingData.reason)
-            .setRequired(true);
+            const reasonInput = new TextInputComponent()
+                .setCustomId('reason')
+                .setLabel('Fesih Nedeni')
+                .setStyle('PARAGRAPH')
+                .setValue(existingData.reason)
+                .setRequired(true);
 
-        const compensationInput = new TextInputComponent()
-            .setCustomId('compensation')
-            .setLabel('Tazminat')
-            .setStyle('SHORT')
-            .setValue(existingData.compensation)
-            .setRequired(true);
+            const compensationInput = new TextInputComponent()
+                .setCustomId('compensation')
+                .setLabel('Tazminat')
+                .setStyle('SHORT')
+                .setValue(existingData.compensation)
+                .setRequired(true);
 
-        const newTeamInput = new TextInputComponent()
-            .setCustomId('new_team')
-            .setLabel('Yeni Takım')
-            .setStyle('SHORT')
-            .setValue(existingData.newTeam)
-            .setRequired(false);
+            const newTeamInput = new TextInputComponent()
+                .setCustomId('new_team')
+                .setLabel('Yeni Takım')
+                .setStyle('SHORT')
+                .setValue(existingData.newTeam)
+                .setRequired(false);
 
-        modal.addComponents(
-            new MessageActionRow().addComponents(oldClubInput),
-            new MessageActionRow().addComponents(reasonInput),
-            new MessageActionRow().addComponents(compensationInput),
-            new MessageActionRow().addComponents(newTeamInput)
-        );
+            modal.addComponents(
+                new MessageActionRow().addComponents(oldClubInput),
+                new MessageActionRow().addComponents(reasonInput),
+                new MessageActionRow().addComponents(compensationInput),
+                new MessageActionRow().addComponents(newTeamInput)
+            );
 
-        await interaction.showModal(modal);
+            await interaction.showModal(modal);
+        } catch (error) {
+            console.error('BRelease edit modal error:', error);
+            if (error.code === 'INTERACTION_ALREADY_REPLIED') {
+                console.log('BRelease interaction already replied, cannot show modal');
+                return;
+            }
+            // Try to reply with error if possible
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({
+                        content: '❌ Modal açılırken bir hata oluştu!',
+                        ephemeral: true
+                    });
+                }
+            } catch (replyError) {
+                console.error('Could not send error reply:', replyError);
+            }
+        }
     }
 
     async handleShowBreleaseForm(client, interaction, params) {

@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Fixed brelease edit button interaction errors:
+  - Added proper error handling for modal interactions when interaction already replied
+  - Fixed "INTERACTION_ALREADY_REPLIED" error in brelease edit functionality
+  - Enhanced modal error handling with fallback error messages
+  - BRelease edit button now properly shows pre-filled modal forms without errors
 - June 24, 2025. Added automatic role management system for all transfer commands:
   - Release commands (brelease, release, btrelease, trelease): Automatically remove futbolcu role and add serbest futbolcu role when accepted
   - Offer command: Automatically remove serbest futbolcu role and add futbolcu role when accepted
