@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Fixed brelease edit button authorization and parameter consistency:
+  - Fixed initial button creation in brelease.js to use correct parameter order
+  - Added authorization check in showEditBreleaseModal to prevent unauthorized access
+  - Ensured only the player who initiated the release can use edit button
+  - Fixed parameter mapping throughout brelease workflow for consistent authorization
 - June 24, 2025. Fixed brelease button parameter order and authorization consistency:
   - Fixed button creation to maintain consistent parameter order (playerId = president, presidentId = player)
   - Corrected button handler parameter mapping for proper authorization

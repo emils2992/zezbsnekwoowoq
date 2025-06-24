@@ -3111,9 +3111,18 @@ class ButtonHandler {
             });
         }
 
-        // Authorization checks - for brelease, president should accept/reject since player initiated
+        // Authorization checks - for brelease workflow
+        console.log('BRelease authorization check:', {
+            buttonType,
+            userId: interaction.user.id,
+            playerId, // This should be the president
+            presidentId, // This should be the player who initiated
+            playerName: player.displayName,
+            presidentName: president.displayName
+        });
+        
         if (buttonType === 'accept' || buttonType === 'reject') {
-            // For brelease: presidentId is the player who initiated, playerId is the president who should accept
+            // For accept/reject: only the president (playerId) should be able to accept
             if (interaction.user.id !== playerId) {
                 return interaction.reply({
                     content: '❌ Bu fesih teklifini sadece etiketlenen başkan kabul edebilir veya reddedebilir!',
@@ -3121,13 +3130,16 @@ class ButtonHandler {
                 });
             }
         } else if (buttonType === 'edit') {
-            // For brelease: presidentId is the player who initiated and can edit
+            // For edit: only the player who initiated (presidentId) should be able to edit
             if (interaction.user.id !== presidentId) {
                 return interaction.reply({
                     content: '❌ Bu butonu sadece fesih talebini yapan oyuncu kullanabilir!',
                     ephemeral: true
                 });
             }
+            
+            // Show edit modal directly without deferring
+            return this.showEditBreleaseModal(client, interaction, presidentId, playerId, releaseType);
         }
 
         // Only defer reply for accept/reject buttons, not edit buttons (which show modals)
@@ -3213,6 +3225,14 @@ class ButtonHandler {
     }
 
     async showEditBreleaseModal(client, interaction, presidentId, playerId, releaseType) {
+        // Authorization check - only the player who initiated can edit
+        if (interaction.user.id !== presidentId) {
+            return interaction.reply({
+                content: '❌ Bu butonu sadece fesih talebini yapan oyuncu kullanabilir!',
+                ephemeral: true
+            });
+        }
+        
         try {
             const embed = interaction.message.embeds[0];
             const fields = embed.fields;

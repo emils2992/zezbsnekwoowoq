@@ -43,7 +43,7 @@ module.exports = {
                 components: [
                     new MessageActionRow().addComponents(
                         new MessageButton()
-                            .setCustomId(`show_brelease_modal_${targetUser.id}_${message.author.id}_mutual`)
+                            .setCustomId(`show_brelease_modal_${message.author.id}_${targetUser.id}_mutual`)
                             .setLabel('Fesih Formu Aç')
                             .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)
