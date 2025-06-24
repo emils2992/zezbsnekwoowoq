@@ -100,6 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Fixed brelease workflow authorization and role management:
+  - Corrected brelease workflow so president accepts player's release request (not player accepting)
+  - Fixed role management to properly release the requesting player when president accepts
+  - Updated authorization checks to match proper brelease workflow
+  - Fixed announcement system to show player being released correctly
+  - BRelease now follows proper player-initiated, president-approved workflow
 - June 24, 2025. Fixed brelease edit to update existing messages instead of creating new channels:
   - Enhanced negotiation channel detection to include "m-zakere" pattern used by channel creation
   - Brelease edit now properly updates existing embed in same channel instead of creating duplicate channels

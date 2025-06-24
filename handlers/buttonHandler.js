@@ -3110,8 +3110,9 @@ class ButtonHandler {
             });
         }
 
-        // Authorization checks
+        // Authorization checks - for brelease, president should accept/reject since player initiated
         if (buttonType === 'accept' || buttonType === 'reject') {
+            // For brelease: presidentId is the player who initiated, playerId is the president who should accept
             if (interaction.user.id !== playerId) {
                 return interaction.reply({
                     content: '❌ Bu fesih teklifini sadece etiketlenen başkan kabul edebilir veya reddedebilir!',
@@ -3119,6 +3120,7 @@ class ButtonHandler {
                 });
             }
         } else if (buttonType === 'edit') {
+            // For brelease: presidentId is the player who initiated and can edit
             if (interaction.user.id !== presidentId) {
                 return interaction.reply({
                     content: '❌ Bu butonu sadece fesih talebini yapan oyuncu kullanabilir!',
@@ -3136,8 +3138,11 @@ class ButtonHandler {
             try {
                 const permissions = require('../utils/permissions');
                 
+                // For brelease: player is the one who gets released (presidentId is actually the player)
+                const playerToRelease = await guild.members.fetch(presidentId);
+                
                 // Automatic role management: Remove futbolcu role, add serbest futbolcu role
-                await permissions.makePlayerFree(player);
+                await permissions.makePlayerFree(playerToRelease);
 
                 // Extract form data from embed to use in announcement
                 const embed = interaction.message.embeds[0];
@@ -3150,9 +3155,9 @@ class ButtonHandler {
                 };
 
                 const channels = require('../utils/channels');
-                await channels.createFreeAgentAnnouncement(guild, player.user, releaseData.reason, releaseData);
+                await channels.createFreeAgentAnnouncement(guild, playerToRelease.user, releaseData.reason, releaseData);
 
-                await interaction.editReply(`✅ **${player.displayName}** ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu ve roller güncellendi.`);
+                await interaction.editReply(`✅ **${playerToRelease.displayName}** ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu ve roller güncellendi.`);
             } catch (error) {
                 console.error('BRelease kabul hatası:', error);
                 await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
@@ -3169,7 +3174,9 @@ class ButtonHandler {
             }, 2000);
 
         } else if (buttonType === 'reject') {
-            await interaction.editReply(`❌ **${president.displayName}** fesih teklifini reddetti.`);
+            // For brelease: playerId is the president who is rejecting, presidentId is the player who requested
+            const playerWhoRequested = await guild.members.fetch(presidentId);
+            await interaction.editReply(`❌ **${president.displayName}** **${playerWhoRequested.displayName}**'nin fesih teklifini reddetti.`);
             
             setTimeout(async () => {
                 try {
