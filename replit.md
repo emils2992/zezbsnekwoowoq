@@ -226,8 +226,9 @@ The bot is configured for Replit deployment with:
     - Fixed parameter position logic for different command types (announcement, release, others)
     - Applied to all commands: .offer, .contract, .trade, .hire, .release, .duyur
     - Other users get "❌ Bu butonu sadece komutu yazan kişi kullanabilir!" error message
-    - Removed automatic message deletion since authorization control makes it unnecessary
-    - Enhanced security and user experience by preventing unauthorized button usage
+    - Completely removed automatic message deletion from both commands and modal handlers
+    - Enhanced role management with proper permission checks and hierarchy validation
+    - Fixed "Missing Permissions" errors by checking bot role position relative to target roles
 - June 24, 2025. Separated ping roles for different announcement types:
     - Updated role system to use separate ping roles: tfPingRole, serbestPingRole, duyurPingRole
     - Transfer announcements (.offer .contract .hire .trade) now use tfPingRole
