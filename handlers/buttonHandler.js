@@ -1898,6 +1898,15 @@ class ButtonHandler {
         const [type, ...additionalParams] = params;
         console.log('HandleShowButton debug:', { type, additionalParams });
         
+        // Authorization check - only command creator can use their button
+        const commandCreatorId = additionalParams[additionalParams.length - 1];
+        if (interaction.user.id !== commandCreatorId) {
+            return interaction.reply({
+                content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                ephemeral: true
+            });
+        }
+        
         switch (type) {
             case 'offer':
                 if (additionalParams[0] === 'modal') {
