@@ -1973,6 +1973,11 @@ class ButtonHandler {
                     await this.handleShowReleaseForm(client, interaction, additionalParams.slice(1));
                 }
                 break;
+            case 'brelease':
+                if (additionalParams[0] === 'modal') {
+                    await this.handleShowBreleaseForm(client, interaction, additionalParams.slice(1));
+                }
+                break;
             default:
                 await interaction.reply({
                     content: `❌ Bilinmeyen form türü: ${type}`,
@@ -3226,6 +3231,43 @@ class ButtonHandler {
             .setStyle('PARAGRAPH')
             .setPlaceholder('Varsa ek şartları belirtin...')
             .setValue(existingData.conditions || '')
+            .setRequired(false);
+
+        modal.addComponents(
+            new MessageActionRow().addComponents(compensationInput),
+            new MessageActionRow().addComponents(reasonInput),
+            new MessageActionRow().addComponents(conditionsInput)
+        );
+
+        await interaction.showModal(modal);
+    }
+
+    async handleShowBreleaseForm(client, interaction, params) {
+        const [presidentId, playerId, releaseType] = params;
+        
+        const modal = new Modal()
+            .setCustomId(`brelease_modal_${presidentId}_${playerId}_${releaseType}`)
+            .setTitle('Karşılıklı Fesih Formu');
+
+        const compensationInput = new TextInputComponent()
+            .setCustomId('compensation')
+            .setLabel('Tazminat Miktarı')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 1.000.000 TL')
+            .setRequired(true);
+
+        const reasonInput = new TextInputComponent()
+            .setCustomId('reason')
+            .setLabel('Fesih Sebebi')
+            .setStyle('PARAGRAPH')
+            .setPlaceholder('Fesih sebebini açıklayın...')
+            .setRequired(true);
+
+        const conditionsInput = new TextInputComponent()
+            .setCustomId('conditions')
+            .setLabel('Ek Şartlar')
+            .setStyle('PARAGRAPH')
+            .setPlaceholder('Varsa ek şartları belirtin...')
             .setRequired(false);
 
         modal.addComponents(
