@@ -3130,8 +3130,18 @@ class ButtonHandler {
                 const permissions = require('../utils/permissions');
                 await permissions.makePlayerFree(player);
 
+                // Extract form data from embed to use in announcement
+                const embed = interaction.message.embeds[0];
+                const fields = embed.fields;
+                const releaseData = {
+                    oldClub: fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
+                    reason: fields.find(f => f.name.includes('Fesih Nedeni'))?.value || '',
+                    compensation: fields.find(f => f.name.includes('Tazminat'))?.value || '',
+                    newTeam: fields.find(f => f.name.includes('Yeni Takım'))?.value || ''
+                };
+
                 const channels = require('../utils/channels');
-                await channels.createFreeAgentAnnouncement(guild, player.user, 'Karşılıklı fesih');
+                await channels.createFreeAgentAnnouncement(guild, player.user, releaseData.reason, releaseData);
 
                 await interaction.editReply(`✅ **${player.displayName}** ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu.`);
             } catch (error) {
@@ -3183,60 +3193,55 @@ class ButtonHandler {
         }
     }
 
-    async showEditBreleaseModal(client, interaction, presidentId, playerId) {
-        const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
-        
+    async showEditBreleaseModal(client, interaction, presidentId, playerId, releaseType) {
         const embed = interaction.message.embeds[0];
-        let existingData = {};
+        const fields = embed.fields;
         
-        if (embed && embed.fields) {
-            embed.fields.forEach(field => {
-                switch(field.name) {
-                    case 'Tazminat Miktarı':
-                        existingData.compensation = field.value;
-                        break;
-                    case 'Fesih Sebebi':
-                        existingData.reason = field.value;
-                        break;
-                    case 'Ek Şartlar':
-                        existingData.conditions = field.value;
-                        break;
-                }
-            });
-        }
+        // Extract existing data from embed fields - using same structure as regular release
+        const existingData = {
+            oldClub: fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
+            reason: fields.find(f => f.name.includes('Fesih Nedeni'))?.value || '',
+            compensation: fields.find(f => f.name.includes('Tazminat'))?.value || '',
+            newTeam: fields.find(f => f.name.includes('Yeni Takım'))?.value || ''
+        };
 
         const modal = new Modal()
-            .setCustomId(`brelease_modal_${presidentId}_${playerId}_mutual`)
-            .setTitle('Karşılıklı Fesih Düzenle');
+            .setCustomId(`brelease_modal_${presidentId}_${playerId}_${releaseType}`)
+            .setTitle('Fesih Düzenle');
 
-        const compensationInput = new TextInputComponent()
-            .setCustomId('compensation')
-            .setLabel('Tazminat Miktarı')
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 1.000.000 TL')
-            .setValue(existingData.compensation || '')
+            .setValue(existingData.oldClub)
             .setRequired(true);
 
         const reasonInput = new TextInputComponent()
             .setCustomId('reason')
-            .setLabel('Fesih Sebebi')
+            .setLabel('Fesih Nedeni')
             .setStyle('PARAGRAPH')
-            .setPlaceholder('Fesih sebebini açıklayın...')
-            .setValue(existingData.reason || '')
+            .setValue(existingData.reason)
             .setRequired(true);
 
-        const conditionsInput = new TextInputComponent()
-            .setCustomId('conditions')
-            .setLabel('Ek Şartlar')
-            .setStyle('PARAGRAPH')
-            .setPlaceholder('Varsa ek şartları belirtin...')
-            .setValue(existingData.conditions || '')
+        const compensationInput = new TextInputComponent()
+            .setCustomId('compensation')
+            .setLabel('Tazminat')
+            .setStyle('SHORT')
+            .setValue(existingData.compensation)
+            .setRequired(true);
+
+        const newTeamInput = new TextInputComponent()
+            .setCustomId('new_team')
+            .setLabel('Yeni Takım')
+            .setStyle('SHORT')
+            .setValue(existingData.newTeam)
             .setRequired(false);
 
         modal.addComponents(
-            new MessageActionRow().addComponents(compensationInput),
+            new MessageActionRow().addComponents(oldClubInput),
             new MessageActionRow().addComponents(reasonInput),
-            new MessageActionRow().addComponents(conditionsInput)
+            new MessageActionRow().addComponents(compensationInput),
+            new MessageActionRow().addComponents(newTeamInput)
         );
 
         await interaction.showModal(modal);
@@ -3249,31 +3254,40 @@ class ButtonHandler {
             .setCustomId(`brelease_modal_${presidentId}_${playerId}_${releaseType}`)
             .setTitle('Karşılıklı Fesih Formu');
 
-        const compensationInput = new TextInputComponent()
-            .setCustomId('compensation')
-            .setLabel('Tazminat Miktarı')
+        // Use same fields as regular release command
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 1.000.000 TL')
+            .setPlaceholder('Mevcut kulübünüz')
             .setRequired(true);
 
         const reasonInput = new TextInputComponent()
             .setCustomId('reason')
-            .setLabel('Fesih Sebebi')
+            .setLabel('Fesih Nedeni')
             .setStyle('PARAGRAPH')
-            .setPlaceholder('Fesih sebebini açıklayın...')
+            .setPlaceholder('Fesih nedeninizi belirtin...')
             .setRequired(true);
 
-        const conditionsInput = new TextInputComponent()
-            .setCustomId('conditions')
-            .setLabel('Ek Şartlar')
-            .setStyle('PARAGRAPH')
-            .setPlaceholder('Varsa ek şartları belirtin...')
+        const compensationInput = new TextInputComponent()
+            .setCustomId('compensation')
+            .setLabel('Tazminat')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 500.000 TL')
+            .setRequired(true);
+
+        const newTeamInput = new TextInputComponent()
+            .setCustomId('new_team')
+            .setLabel('Yeni Takım')
+            .setStyle('SHORT')
+            .setPlaceholder('Gideceğiniz takım (opsiyonel)')
             .setRequired(false);
 
         modal.addComponents(
-            new MessageActionRow().addComponents(compensationInput),
+            new MessageActionRow().addComponents(oldClubInput),
             new MessageActionRow().addComponents(reasonInput),
-            new MessageActionRow().addComponents(conditionsInput)
+            new MessageActionRow().addComponents(compensationInput),
+            new MessageActionRow().addComponents(newTeamInput)
         );
 
         await interaction.showModal(modal);

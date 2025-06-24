@@ -108,6 +108,9 @@ The bot is configured for Replit deployment with:
   - Players get posted to serbest-duyuru channel instead of presidents when using these commands
   - Enhanced modal submission handling to support player-initiated releases
   - Both commands follow same workflow as existing release system but with reversed roles
+  - Updated modal forms to use exact same fields as regular release command (Eski Kulüp, Fesih Nedeni, Tazminat, Yeni Takım)
+  - Fixed announcement templates to use identical structure as regular release announcements
+  - Button handlers now extract form data from embeds for consistent announcement display
 - June 22, 2025. Initial setup
 - June 22, 2025. Complete modal system implementation for all transfer commands:
   - Updated .offer command to use interactive modal forms with team name, player name, salary, years, and bonus fields

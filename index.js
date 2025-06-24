@@ -954,7 +954,7 @@ async function handleModalSubmit(client, interaction) {
             await interaction.editReply({ content: `✅ Duyurunuz ${announcementChannel} kanalında yayınlandı!` });
         }
         
-        // BRelease modal handling
+        // BRelease modal handling - using same form as regular release
         else if (customId.startsWith('brelease_modal_')) {
             try {
                 console.log('BRelease modal submission received:', customId);
@@ -977,10 +977,12 @@ async function handleModalSubmit(client, interaction) {
                     return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
                 }
 
+                // Use same field names as regular release command
                 const releaseData = {
-                    compensation: interaction.fields.getTextInputValue('compensation') || '0 TL',
-                    reason: interaction.fields.getTextInputValue('reason') || 'Belirtilmemiş',
-                    conditions: interaction.fields.getTextInputValue('conditions') || 'Yok'
+                    oldClub: interaction.fields.getTextInputValue('old_club') || '',
+                    reason: interaction.fields.getTextInputValue('reason') || '',
+                    compensation: interaction.fields.getTextInputValue('compensation') || '',
+                    newTeam: interaction.fields.getTextInputValue('new_team') || ''
                 };
                 console.log('BRelease form data:', releaseData);
 
