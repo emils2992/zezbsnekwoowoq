@@ -1483,42 +1483,37 @@ const maxDelay = 900000; // 15 minutes max
 function attemptLogin() {
     loginAttempts++;
     
-    // Calculate exponential backoff delay
-    const delay = Math.min(baseDelay * Math.pow(1.5, loginAttempts - 1), maxDelay);
+    console.log(`🔄 Discord'a baglaniliyor - deneme #${loginAttempts}`);
+    console.log(`🚀 Discord gateway'e baglaniliyor...`);
     
-    console.log(`🔄 Rate limit bypass - deneme #${loginAttempts}`);
-    console.log(`⏳ ${Math.round(delay/60000)} dakika beklenecek...`);
+    // Destroy existing client if exists
+    if (client.readyTimestamp) {
+        client.destroy();
+    }
     
-    setTimeout(() => {
-        console.log(`🚀 Discord gateway'e baglaniliyor...`);
-        
-        // Destroy existing client if exists
-        if (client.readyTimestamp) {
-            client.destroy();
-        }
-        
-        client.login(process.env.DISCORD_TOKEN)
-            .then(() => {
-                console.log('✅ Baglanti basarili!');
-                loginAttempts = 0;
-            })
-            .catch(error => {
-                if (error.message.includes('429') || error.code === 429) {
-                    console.log(`❌ Rate limit devam ediyor (${Math.round(delay/60000)}dk sonra tekrar)`);
-                    attemptLogin();
-                } else if (error.message.includes('TOKEN_INVALID')) {
-                    console.error('🔑 KRITIK: Token gecersiz - yeni token gerekli');
-                    process.exit(1);
-                } else if (loginAttempts < 15) {
-                    console.log(`❌ Baglanti hatasi: ${error.message.substring(0,50)}...`);
-                    attemptLogin();
-                } else {
-                    console.error('📋 Rate limit cozulemedi - manuel mudahale gerekli');
-                    console.log('💡 Cozum: Discord Developer Portal\'dan token\'i yeniden olusturun');
-                    process.exit(1);
-                }
-            });
-    }, delay);
+    client.login(process.env.DISCORD_TOKEN)
+        .then(() => {
+            console.log('✅ Baglanti basarili!');
+            loginAttempts = 0;
+        })
+        .catch(error => {
+            if (error.message.includes('429') || error.code === 429) {
+                console.log(`❌ Rate limit hatası: ${error.message}`);
+                console.log(`⏳ 5 saniye sonra yeniden deneme...`);
+                setTimeout(() => attemptLogin(), 5000);
+            } else if (error.message.includes('TOKEN_INVALID')) {
+                console.error('🔑 KRITIK: Token gecersiz - yeni token gerekli');
+                process.exit(1);
+            } else if (loginAttempts < 15) {
+                console.log(`❌ Baglanti hatasi: ${error.message.substring(0,50)}...`);
+                console.log(`⏳ 10 saniye sonra yeniden deneme...`);
+                setTimeout(() => attemptLogin(), 10000);
+            } else {
+                console.error('📋 Rate limit cozulemedi - manuel mudahale gerekli');
+                console.log('💡 Cozum: Discord Developer Portal\'dan token\'i yeniden olusturun');
+                process.exit(1);
+            }
+        });
 }
 
 // Hemen bağlanmayı dene - rate limit varsa otomatik bekleyecek

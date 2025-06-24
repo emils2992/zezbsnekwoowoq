@@ -100,6 +100,7 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Removed Discord connection delay - bot now connects immediately instead of waiting 1 minute
 - June 24, 2025. Fixed authorization bugs in brelease and contract commands:
   - Corrected button authorization logic for both brelease and contract modal buttons
   - Fixed parameter order issues where commandCreatorId was checking wrong user ID positions
