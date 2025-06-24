@@ -733,7 +733,7 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'edit') {
-            // Check if user is authorized (president who made trade or target president for salary adjustments)
+            // Check if user is authorized (president who made trade or target president)
             const member = interaction.member;
             const isAuthorized = interaction.user.id === presidentId || interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
             
@@ -744,9 +744,9 @@ class ButtonHandler {
                 });
             }
 
-            // Show modal directly (modals handle their own response)
+            // Show president trade form modal (not player salary modal)
             try {
-                await this.showEditTradeModal(client, interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId);
+                await this.showEditTradePresidentModal(client, interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId);
             } catch (error) {
                 console.error('Modal show error:', error);
                 if (!interaction.replied && !interaction.deferred) {
@@ -2757,6 +2757,70 @@ class ButtonHandler {
             if (!interaction.replied && !interaction.deferred) {
                 await interaction.reply({
                     content: 'Modal açılırken hata oluştu!',
+                    ephemeral: true
+                });
+            }
+        }
+    }
+
+    async showEditTradePresidentModal(client, interaction, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId) {
+        try {
+            // Get current embed data to pre-fill the modal
+            const embed = interaction.message.embeds[0];
+            let currentAdditionalAmount = 'Belirtilmedi';
+            let currentBonus = 'Belirtilmedi';
+            let currentContract = 'Belirtilecek';
+            
+            if (embed && embed.fields) {
+                const additionalField = embed.fields.find(f => f.name.includes('Ek Miktar'));
+                const bonusField = embed.fields.find(f => f.name.includes('Özellikleri') || f.name.includes('Bonus'));
+                const contractField = embed.fields.find(f => f.name.includes('Sözleşme'));
+                
+                if (additionalField && additionalField.value !== 'Belirtilmedi') currentAdditionalAmount = additionalField.value;
+                if (bonusField && bonusField.value !== 'Belirtilmedi') currentBonus = bonusField.value;
+                if (contractField && contractField.value !== 'Belirtilecek') currentContract = contractField.value;
+            }
+
+            const modal = new Modal()
+                .setCustomId(`trade_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                .setTitle('Takas Teklifi Düzenle');
+
+            const additionalAmountInput = new TextInputComponent()
+                .setCustomId('additional_amount')
+                .setLabel('Ek Miktar')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 5.000.000₺')
+                .setValue(currentAdditionalAmount === 'Belirtilmedi' ? '' : currentAdditionalAmount)
+                .setRequired(false);
+
+            const bonusInput = new TextInputComponent()
+                .setCustomId('bonus')
+                .setLabel('İstenen Oyuncu Özellikleri')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: Mevki, yaş, özellikler')
+                .setValue(currentBonus === 'Belirtilmedi' ? '' : currentBonus)
+                .setRequired(false);
+
+            const contractInput = new TextInputComponent()
+                .setCustomId('contract_duration')
+                .setLabel('Sözleşme+Ek Madde')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 2 yıl + performans bonusu')
+                .setValue(currentContract === 'Belirtilecek' ? '' : currentContract)
+                .setRequired(true);
+
+            const row1 = new MessageActionRow().addComponents(additionalAmountInput);
+            const row2 = new MessageActionRow().addComponents(bonusInput);
+            const row3 = new MessageActionRow().addComponents(contractInput);
+
+            modal.addComponents(row1, row2, row3);
+
+            await interaction.showModal(modal);
+        } catch (error) {
+            console.error('Error showing trade president edit modal:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({
+                    content: '❌ Modal açılırken hata oluştu!',
                     ephemeral: true
                 });
             }
