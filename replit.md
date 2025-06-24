@@ -113,6 +113,9 @@ The bot is configured for Replit deployment with:
   - Button handlers now extract form data from embeds for consistent announcement display
   - Updated .btrelease command to work without requiring president mention (simple confirm/cancel system)
   - Fixed button handler logic for unilateral termination authorization checks
+  - Fixed btrelease announcement format to match regular release system exactly
+  - Added serbestPingRole mention functionality to serbest duyuru announcements
+  - Enhanced createFreeAgentAnnouncement with detailed form field display and proper ping role detection
 - June 22, 2025. Initial setup
 - June 22, 2025. Complete modal system implementation for all transfer commands:
   - Updated .offer command to use interactive modal forms with team name, player name, salary, years, and bonus fields

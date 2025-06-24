@@ -277,7 +277,7 @@ class ChannelManager {
         return null;
     }
 
-    async createFreeAgentAnnouncement(guild, player, reason = 'Sözleşme feshi') {
+    async createFreeAgentAnnouncement(guild, player, reason = 'Sözleşme feshi', releaseData = null) {
         try {
             const freeAgentChannel = await this.findFreeAgentChannel(guild);
             
@@ -286,19 +286,50 @@ class ChannelManager {
                 return null;
             }
 
-            const embed = require('./embeds').createSuccess(
-                'Yeni Serbest Futbolcu',
-                `**${player.username}** artık serbest futbolcu!\n\n**Sebep:** ${reason}\n\nTransfer teklifleri için DM atabilir veya \`.offer\` komutunu kullanabilirsiniz.`
-            );
+            const config = require('../config');
+            const { MessageEmbed } = require('discord.js');
 
-            embed.setThumbnail(player.displayAvatarURL({ dynamic: true }));
-            embed.addField('📊 Oyuncu Bilgileri', 'Detaylar için oyuncuyla iletişime geçin', false);
+            // Create detailed release announcement using same format as regular release
+            const embed = new MessageEmbed()
+                .setColor(config.colors.warning)
+                .setTitle('🆓 Serbest Futbolcu')
+                .setDescription(`**${player.username}** artık serbest futbolcu!`)
+                .setThumbnail(player.displayAvatarURL({ dynamic: true }))
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Sistemi' });
+
+            // Add release details if provided (from brelease/btrelease forms)
+            if (releaseData) {
+                if (releaseData.oldClub) embed.addFields({ name: '🏟️ Eski Kulüp', value: releaseData.oldClub, inline: true });
+                if (releaseData.reason) embed.addFields({ name: '📝 Fesih Nedeni', value: releaseData.reason, inline: true });
+                if (releaseData.compensation) embed.addFields({ name: '💰 Tazminat', value: releaseData.compensation, inline: true });
+                if (releaseData.newTeam) embed.addFields({ name: '🎯 Yeni Takım', value: releaseData.newTeam, inline: true });
+            } else {
+                embed.addFields({ name: '📝 Sebep', value: reason, inline: true });
+            }
+
+            embed.addFields({ name: '📞 İletişim', value: 'Transfer teklifleri için `.offer` komutunu kullanın', inline: false });
+
+            // Get serbest ping role
+            const permissions = require('./permissions');
+            const roleData = permissions.getRoleData(guild.id);
+            let mentionText = '';
+
+            console.log('Looking for serbestPingRole:', roleData);
+            if (roleData && roleData.serbestPingRole) {
+                const pingRole = guild.roles.cache.get(roleData.serbestPingRole);
+                console.log('Found ping role:', pingRole ? pingRole.name : 'NOT FOUND');
+                if (pingRole) {
+                    mentionText = `${pingRole} `;
+                }
+            }
 
             const message = await freeAgentChannel.send({
-                content: `${config.emojis.football} **Yeni Serbest Futbolcu Duyurusu**`,
+                content: `${mentionText}🆓 **Yeni Serbest Futbolcu Duyurusu**`,
                 embeds: [embed]
             });
 
+            console.log('Serbest duyuru sent with ping:', mentionText);
             return message;
 
         } catch (error) {
