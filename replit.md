@@ -100,6 +100,10 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Fixed trade command button authorization bug:
+  - Corrected parameter index mapping for trade commands in handleShowButton function
+  - Trade commands use 4 parameters so presidentId is at index 4, not index 2
+  - Fixed "Bu butonu sadece komutu yazan kişi kullanabilir" error for legitimate trade command users
 - June 24, 2025. Removed Discord connection delay - bot now connects immediately instead of waiting 1 minute
 - June 24, 2025. Fixed authorization bugs in brelease and contract commands:
   - Corrected button authorization logic for both brelease and contract modal buttons

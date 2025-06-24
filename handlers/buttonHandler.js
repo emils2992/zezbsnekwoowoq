@@ -1937,8 +1937,11 @@ class ButtonHandler {
         } else if (type === 'contract') {
             // For contract: [modal, targetPresidentId, playerId, presidentId] - presidentId is at index 3
             commandCreatorId = additionalParams[3];
+        } else if (type === 'trade') {
+            // For trade: [modal, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] - presidentId is at index 4
+            commandCreatorId = additionalParams[4];
         } else {
-            // For offer, trade, hire: [modal, targetId, presidentId] - presidentId is at index 2
+            // For offer, hire: [modal, targetId, presidentId] - presidentId is at index 2
             commandCreatorId = additionalParams[2];
         }
         
