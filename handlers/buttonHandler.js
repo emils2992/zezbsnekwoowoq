@@ -1737,7 +1737,7 @@ class ButtonHandler {
             const newTeamField = embedFields.find(f => f.name.includes('Yeni Kulüp'));
             const playerNameField = embedFields.find(f => f.name.includes('Oyuncu Adı'));
             const salaryField = embedFields.find(f => f.name.includes('Maaş'));
-            const durationField = embedFields.find(f => f.name.includes('Sözleşme Ek Madde'));
+            const durationField = embedFields.find(f => f.name.includes('Sözleşme+Ek Madde'));
             const bonusField = embedFields.find(f => f.name.includes('İmza Bonusu'));
             
             const newTeam = newTeamField ? newTeamField.value : 'Bilinmiyor';
@@ -1754,7 +1754,7 @@ class ButtonHandler {
                     { name: '⚽ Oyuncu', value: `${player.user}`, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: newTeam, inline: true },
                     { name: '💰 Maaş', value: salary, inline: true },
-                    { name: '📅 Sözleşme Ek Madde', value: duration, inline: true },
+                    { name: '📅 Sözleşme+Ek Madde', value: duration, inline: true },
                     { name: '🎯 İmza Bonusu', value: bonus, inline: true }
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()

@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Fixed offer command announcement field matching bug:
+  - Resolved "Bilinmiyor" display issue in transfer announcements for contract duration field
+  - Fixed field name matching in sendTransferAnnouncement to use "Sözleşme+Ek Madde" instead of "Sözleşme Ek Madde"
+  - Offer command announcements now properly display user-submitted contract duration data
+  - Modal form data now flows correctly from submission through embed to final announcement
 - June 24, 2025. Successfully deployed Discord bot with rate limit resolution:
   - Bot now actively running as "deneme#7729" on Discord
   - Fixed offer command modal field mismatch error (old_club vs player_name)
