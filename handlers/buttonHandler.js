@@ -1365,7 +1365,13 @@ class ButtonHandler {
                 });
             }
 
-            await permissions.makePlayerFree(player);
+            // Role management for release - convert player to free agent
+            try {
+                await permissions.makePlayerFree(player);
+                console.log(`Converted ${player.displayName} to free agent via release`);
+            } catch (error) {
+                console.error('Role management error in release:', error);
+            }
             
             // Extract release data from embed fields
             const embed = interaction.message.embeds[0];
