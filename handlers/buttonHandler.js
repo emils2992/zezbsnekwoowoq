@@ -40,7 +40,7 @@ class ButtonHandler {
                     break;
                 case 'contract':
                     // Check if it's a player-specific contract button
-                    if (customId.includes('contract_player_')) {
+                    if (customId.includes('contract_player_') || params[0] === 'player') {
                         await this.handleContractPlayerButton(client, interaction, params);
                     } else {
                         await this.handleContractButton(client, interaction, params);
