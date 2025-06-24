@@ -51,11 +51,32 @@ class EmbedCreator {
                 { name: '🎯 Hedef Başkan', value: `${toPresident}`, inline: true },
                 { name: '📈 İstenen Oyuncu', value: `${wantedPlayer}`, inline: true },
                 { name: `${config.emojis.money} Ek Miktar`, value: tradeData?.additionalAmount || '0₺', inline: true },
-                { name: '💰 İstenen Oyuncunun Maaşı', value: tradeData?.wantedPlayerSalary || '15.000.000₺/yıl', inline: true },
-                { name: '📅 Sözleşme+Ek Madde', value: tradeData?.contractDuration || '2 yıl + bonuslar', inline: true }
+                { name: '📋 Bonus/Notlar', value: tradeData?.bonus || 'Belirtilmemiş', inline: true }
             ).setThumbnail(wantedPlayer.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
+
+        return embed;
+    }
+
+    createTradePlayerForm(fromPresident, toPresident, wantedPlayer, givenPlayer, tradeData = null) {
+        const embed = new MessageEmbed()
+            .setColor(config.colors.warning)
+            .setTitle(`${config.emojis.trade} Oyuncu Onay Aşaması`)
+            .setDescription(`Takas için oyuncu onayları bekleniyor. Her iki oyuncu da kabul etmelidir.`)
+            .addFields(
+                { name: `${config.emojis.handshake} Başkan 1`, value: `${fromPresident}`, inline: true },
+                { name: '🎯 Başkan 2', value: `${toPresident}`, inline: true },
+                { name: '📈 İstenen Oyuncu', value: `${wantedPlayer}`, inline: true },
+                { name: '🔄 Verilecek Oyuncu', value: `${givenPlayer}`, inline: true },
+                { name: `${config.emojis.money} Ek Miktar`, value: tradeData?.additionalAmount || '0₺', inline: true },
+                { name: '💰 İstenen Oyuncu Maaşı', value: tradeData?.wantedPlayerSalary || '15.000.000₺/yıl', inline: true },
+                { name: '💰 Verilecek Oyuncu Maaşı', value: tradeData?.givenPlayerSalary || '15.000.000₺/yıl', inline: true },
+                { name: '📅 İstenen Oyuncu Sözleşme', value: tradeData?.wantedPlayerContract || '2 yıl + bonuslar', inline: true },
+                { name: '📅 Verilecek Oyuncu Sözleşme', value: tradeData?.givenPlayerContract || '2 yıl + bonuslar', inline: true }
+            ).setThumbnail(wantedPlayer.displayAvatarURL({ dynamic: true }))
+            .setTimestamp()
+            .setFooter({ text: 'Transfer Sistemi - Oyuncu Onayı' });
 
         return embed;
     }

@@ -234,6 +234,12 @@ The bot is configured for Replit deployment with:
     - Channel names created with display names for better readability
     - Command messages and embeds show server nicknames
     - Maintains fallback to username if display name unavailable
+- June 24, 2025. Fixed trade system contract details flow:
+    - Removed salary and contract fields from initial president negotiation stage
+    - Contract details now only appear during player approval stage
+    - Added channel topic storage to preserve contract data between stages
+    - Created separate createTradePlayerForm embed for player approval with full contract details
+    - Trade data is now properly saved and carried through the entire workflow
 - June 24, 2025. Separated ping roles for different announcement types:
     - Updated role system to use separate ping roles: tfPingRole, serbestPingRole, duyurPingRole
     - Transfer announcements (.offer .contract .hire .trade) now use tfPingRole
