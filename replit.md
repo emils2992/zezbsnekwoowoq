@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Added automatic role management system for all transfer commands:
+  - Release commands (brelease, release, btrelease, trelease): Automatically remove futbolcu role and add serbest futbolcu role when accepted
+  - Offer command: Automatically remove serbest futbolcu role and add futbolcu role when accepted
+  - Enhanced success messages to confirm role updates for user feedback
+  - All transfer commands now provide complete role management without manual intervention
 - June 24, 2025. Added new player self-release commands:
   - Created .brelease command for players to initiate mutual termination with presidents
   - Created .btrelease command for players to initiate unilateral termination

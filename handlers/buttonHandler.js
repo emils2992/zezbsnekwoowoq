@@ -137,7 +137,7 @@ class ButtonHandler {
             
             if (!interaction.replied) {
                 await interaction.editReply({
-                    content: `✅ Transfer kabul edildi!`
+                    content: `✅ Transfer kabul edildi! Roller güncellendi (serbest futbolcu → futbolcu).`
                 });
             }
 
@@ -1289,7 +1289,7 @@ class ButtonHandler {
             await this.sendReleaseTransferAnnouncement(guild, player.user, releaseData, 'unilateral');
 
             await interaction.editReply({
-                content: `✅ **${player.displayName}** tek taraflı fesih ile serbest futbolcu oldu!`
+                content: `✅ **${player.displayName}** tek taraflı fesih ile serbest futbolcu oldu! Roller güncellendi.`
             });
 
             // Disable all buttons
@@ -1390,7 +1390,7 @@ class ButtonHandler {
             await interaction.deferReply();
             
             await interaction.editReply({
-                content: `✅ Fesih kabul edildi! **${player.displayName}** artık serbest oyuncu.`
+                content: `✅ Fesih kabul edildi! **${player.displayName}** artık serbest oyuncu ve roller güncellendi.`
             });
 
             // Disable all buttons immediately
@@ -3039,12 +3039,14 @@ class ButtonHandler {
 
             try {
                 const permissions = require('../utils/permissions');
+                
+                // Automatic role management: Remove futbolcu role, add serbest futbolcu role
                 await permissions.makePlayerFree(player);
 
                 const channels = require('../utils/channels');
                 await channels.createFreeAgentAnnouncement(guild, player.user, 'Tek taraflı fesih');
 
-                await interaction.editReply(`✅ **${player.displayName}** sözleşmesini tek taraflı feshetti ve serbest futbolcu oldu!`);
+                await interaction.editReply(`✅ **${player.displayName}** sözleşmesini tek taraflı feshetti ve serbest futbolcu oldu! Roller güncellendi.`);
             } catch (error) {
                 console.error('BTRelease onaylama hatası:', error);
                 await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
@@ -3130,6 +3132,8 @@ class ButtonHandler {
         if (buttonType === 'accept') {
             try {
                 const permissions = require('../utils/permissions');
+                
+                // Automatic role management: Remove futbolcu role, add serbest futbolcu role
                 await permissions.makePlayerFree(player);
 
                 // Extract form data from embed to use in announcement
@@ -3145,7 +3149,7 @@ class ButtonHandler {
                 const channels = require('../utils/channels');
                 await channels.createFreeAgentAnnouncement(guild, player.user, releaseData.reason, releaseData);
 
-                await interaction.editReply(`✅ **${player.displayName}** ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu.`);
+                await interaction.editReply(`✅ **${player.displayName}** ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu ve roller güncellendi.`);
             } catch (error) {
                 console.error('BRelease kabul hatası:', error);
                 await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
