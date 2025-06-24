@@ -956,101 +956,122 @@ async function handleModalSubmit(client, interaction) {
         
         // BRelease modal handling
         else if (customId.startsWith('brelease_modal_')) {
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.deferReply({ ephemeral: true });
-            }
-            
-            const [, , presidentId, playerId, releaseType] = customId.split('_');
-            const player = interaction.guild.members.cache.get(playerId);
-            const president = interaction.guild.members.cache.get(presidentId);
-
-            if (!player || !president) {
-                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
-            }
-
-            const releaseData = {
-                compensation: interaction.fields.getTextInputValue('compensation') || '0 TL',
-                reason: interaction.fields.getTextInputValue('reason') || 'Belirtilmemiş',
-                conditions: interaction.fields.getTextInputValue('conditions') || 'Yok'
-            };
-
-            const isNegotiationChannel = interaction.channel.name && 
-                (interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release") || 
-                 interaction.channel.name.includes("muzakere"));
-
-            if (isNegotiationChannel) {
-                const releaseEmbed = embeds.createReleaseForm(player.user, president.user, releaseType, releaseData);
+            try {
+                console.log('BRelease modal submission received:', customId);
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.deferReply({ ephemeral: true });
+                    console.log('BRelease interaction deferred');
+                }
                 
-                const buttons = new MessageActionRow()
-                    .addComponents(
-                        new MessageButton()
-                            .setCustomId(`brelease_accept_${presidentId}_${playerId}_${releaseType}`)
-                            .setLabel('Kabul Et')
-                            .setStyle('SUCCESS')
-                            .setEmoji('✅'),
-                        new MessageButton()
-                            .setCustomId(`brelease_reject_${presidentId}_${playerId}_${releaseType}`)
-                            .setLabel('Reddet')
-                            .setStyle('DANGER')
-                            .setEmoji('❌'),
-                        new MessageButton()
-                            .setCustomId(`brelease_edit_${presidentId}_${playerId}_${releaseType}`)
-                            .setLabel('Düzenle')
-                            .setStyle('SECONDARY')
-                            .setEmoji('✏️')
+                const [, , presidentId, playerId, releaseType] = customId.split('_');
+                console.log('BRelease parsed IDs:', { presidentId, playerId, releaseType });
+                const player = interaction.guild.members.cache.get(playerId);
+                const president = interaction.guild.members.cache.get(presidentId);
+                console.log('BRelease found users:', { 
+                    player: player ? player.displayName : 'NOT FOUND', 
+                    president: president ? president.displayName : 'NOT FOUND' 
+                });
+
+                if (!player || !president) {
+                    console.log('BRelease: Users not found, stopping');
+                    return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+                }
+
+                const releaseData = {
+                    compensation: interaction.fields.getTextInputValue('compensation') || '0 TL',
+                    reason: interaction.fields.getTextInputValue('reason') || 'Belirtilmemiş',
+                    conditions: interaction.fields.getTextInputValue('conditions') || 'Yok'
+                };
+                console.log('BRelease form data:', releaseData);
+
+                const isNegotiationChannel = interaction.channel.name && 
+                    (interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release") || 
+                     interaction.channel.name.includes("muzakere"));
+                console.log('BRelease is negotiation channel:', isNegotiationChannel);
+
+                if (isNegotiationChannel) {
+                    console.log('Updating existing brelease channel...');
+                    const embeds = require('./utils/embeds');
+                    const releaseEmbed = embeds.createReleaseForm(player.user, president.user, releaseType, releaseData);
+                    
+                    const buttons = new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(`brelease_accept_${presidentId}_${playerId}_${releaseType}`)
+                                .setLabel('Kabul Et')
+                                .setStyle('SUCCESS')
+                                .setEmoji('✅'),
+                            new MessageButton()
+                                .setCustomId(`brelease_reject_${presidentId}_${playerId}_${releaseType}`)
+                                .setLabel('Reddet')
+                                .setStyle('DANGER')
+                                .setEmoji('❌'),
+                            new MessageButton()
+                                .setCustomId(`brelease_edit_${presidentId}_${playerId}_${releaseType}`)
+                                .setLabel('Düzenle')
+                                .setStyle('SECONDARY')
+                                .setEmoji('✏️')
+                        );
+
+                    const messages = await interaction.channel.messages.fetch({ limit: 10 });
+                    const originalMessage = messages.find(msg => 
+                        msg.embeds.length > 0 && 
+                        msg.components.length > 0 &&
+                        msg.components[0].components.some(btn => btn.customId && btn.customId.includes('brelease_'))
                     );
 
-                const messages = await interaction.channel.messages.fetch({ limit: 10 });
-                const originalMessage = messages.find(msg => 
-                    msg.embeds.length > 0 && 
-                    msg.components.length > 0 &&
-                    msg.components[0].components.some(btn => btn.customId && btn.customId.includes('brelease_'))
-                );
+                    if (originalMessage) {
+                        await originalMessage.edit({
+                            embeds: [releaseEmbed],
+                            components: [buttons]
+                        });
+                        await interaction.editReply({ content: `✅ Fesih formu güncellendi!` });
+                    } else {
+                        await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
+                    }
+                } else {
+                    console.log('Creating new negotiation channel for brelease...');
+                    const channels = require('./utils/channels');
+                    const channel = await channels.createNegotiationChannel(interaction.guild, player.user, president.user, 'fesih');
+                    console.log('BRelease channel creation result:', channel ? channel.name : 'FAILED');
+                    if (!channel) {
+                        console.log('BRelease channel creation failed!');
+                        return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                    }
 
-                if (originalMessage) {
-                    await originalMessage.edit({
+                    const embeds = require('./utils/embeds');
+                    const releaseEmbed = embeds.createReleaseForm(player.user, president.user, releaseType, releaseData);
+                    
+                    const buttons = new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(`brelease_accept_${presidentId}_${playerId}_${releaseType}`)
+                                .setLabel('Kabul Et')
+                                .setStyle('SUCCESS')
+                                .setEmoji('✅'),
+                            new MessageButton()
+                                .setCustomId(`brelease_reject_${presidentId}_${playerId}_${releaseType}`)
+                                .setLabel('Reddet')
+                                .setStyle('DANGER')
+                                .setEmoji('❌'),
+                            new MessageButton()
+                                .setCustomId(`brelease_edit_${presidentId}_${playerId}_${releaseType}`)
+                                .setLabel('Düzenle')
+                                .setStyle('SECONDARY')
+                                .setEmoji('✏️')
+                        );
+
+                    await channel.send({
                         embeds: [releaseEmbed],
                         components: [buttons]
                     });
-                    await interaction.editReply({ content: `✅ Fesih formu güncellendi!` });
-                } else {
-                    await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
+
+                    await interaction.editReply({ content: `✅ Fesih müzakeresi ${channel} kanalında başlatıldı!` });
+                    console.log('BRelease channel created successfully:', channel.name);
                 }
-            } else {
-                const channels = require('./utils/channels');
-                const channel = await channels.createNegotiationChannel(interaction.guild, player.user, president.user, 'fesih');
-                if (!channel) {
-                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
-                }
-
-                const embeds = require('./utils/embeds');
-                const releaseEmbed = embeds.createReleaseForm(player.user, president.user, releaseType, releaseData);
-                
-                const buttons = new MessageActionRow()
-                    .addComponents(
-                        new MessageButton()
-                            .setCustomId(`brelease_accept_${presidentId}_${playerId}_${releaseType}`)
-                            .setLabel('Kabul Et')
-                            .setStyle('SUCCESS')
-                            .setEmoji('✅'),
-                        new MessageButton()
-                            .setCustomId(`brelease_reject_${presidentId}_${playerId}_${releaseType}`)
-                            .setLabel('Reddet')
-                            .setStyle('DANGER')
-                            .setEmoji('❌'),
-                        new MessageButton()
-                            .setCustomId(`brelease_edit_${presidentId}_${playerId}_${releaseType}`)
-                            .setLabel('Düzenle')
-                            .setStyle('SECONDARY')
-                            .setEmoji('✏️')
-                    );
-
-                await channel.send({
-                    embeds: [releaseEmbed],
-                    components: [buttons]
-                });
-
-                await interaction.editReply({ content: `✅ Fesih müzakeresi ${channel} kanalında başlatıldı!` });
+            } catch (error) {
+                console.error('BRelease modal error:', error);
+                await interaction.editReply({ content: `❌ Fesih işlemi sırasında hata oluştu: ${error.message}` });
             }
         }
 
