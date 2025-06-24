@@ -89,15 +89,7 @@ class ChannelManager {
                 });
             }
 
-            // Transfer yetkililerine erişim ver
-            const permissions = require('./permissions');
-            const transferAuthorities = permissions.getTransferAuthorities(guild);
-            for (const authorityRole of transferAuthorities) {
-                permissionOverwrites.push({
-                    id: authorityRole.id,
-                    allow: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY']
-                });
-            }
+            // Transfer authorities removed - only specific tagged users can access channels
 
             console.log(`[CHANNEL] Creating channel with name: ${channelName}`);
             console.log(`[CHANNEL] Category:`, category ? category.name : 'No category');

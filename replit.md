@@ -114,6 +114,8 @@ The bot is configured for Replit deployment with:
   - Fixed trade announcement to show complete trade details instead of just club names and dates
   - Trade announcements now extract and display salary, contract, and bonus information from player approval stage
   - Replaced sendTradeTransferAnnouncement with sendTransferAnnouncement for comprehensive trade details
+  - Fixed channel permissions: removed transfer authority access, only tagged users and command creator can view negotiation channels
+  - Restricted channel visibility to specific participants instead of all presidents
 - June 24, 2025. Removed Discord connection delay - bot now connects immediately instead of waiting 1 minute
 - June 24, 2025. Fixed authorization bugs in brelease and contract commands:
   - Corrected button authorization logic for both brelease and contract modal buttons
