@@ -8,9 +8,9 @@ module.exports = {
     description: 'Tek taraflı fesih işlemi başlat',
     async execute(client, message, args) {
         try {
-            // Yetki kontrolü - hem başkanlar hem serbest futbolcular kullanabilir
-            if (!permissions.isPresident(message.member) && !permissions.isFreeAgent(message.member)) {
-                return message.reply('❌ Bu komutu sadece takım başkanları ve serbest futbolcular kullanabilir!');
+            // Yetki kontrolü - başkanlar, futbolcular ve serbest futbolcular kullanabilir
+            if (!permissions.isPresident(message.member) && !permissions.isFreeAgent(message.member) && !permissions.isPlayer(message.member)) {
+                return message.reply('❌ Bu komutu sadece takım başkanları, futbolcular ve serbest futbolcular kullanabilir!');
             }
 
             // Oyuncu belirtildi mi?
