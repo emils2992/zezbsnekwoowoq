@@ -150,14 +150,14 @@ class ChannelManager {
                 console.log(`[CHANNEL] Cleaned up ${deletedCount} channels, retrying creation...`);
                 
                 try {
-                    const channel = await guild.channels.create(channelName, {
+                    const retryChannel = await guild.channels.create(channelName, {
                         type: 'GUILD_TEXT',
                         parent: category,
                         permissionOverwrites: permissionOverwrites,
                         topic: `${type} müzakeresi - ${user1.username} & ${user2.username}${player ? ` (Oyuncu: ${player.username})` : ''}`
                     });
                     
-                    console.log(`[CHANNEL] Successfully created channel after cleanup: ${channel.name}`);
+                    console.log(`[CHANNEL] Successfully created channel after cleanup: ${retryChannel.name}`);
                     
                     // Send welcome message
                     const typeNames = {
@@ -170,9 +170,9 @@ class ChannelManager {
                     
                     const typeName = typeNames[type] || type.toUpperCase();
                     const welcomeMessage = `${user1} ${user2}\n\n🏈 **${typeName} Müzakeresi Başladı**\n\nBu kanalda transfer detaylarını görüşebilirsiniz. Formu doldurup onay/red verebilirsiniz.`;
-                    await channel.send(welcomeMessage);
+                    await retryChannel.send(welcomeMessage);
                     
-                    return channel;
+                    return retryChannel;
                 } catch (retryError) {
                     console.log(`[CHANNEL] Retry failed: ${retryError.message}`);
                     return null;
@@ -338,17 +338,17 @@ class ChannelManager {
                             const channelAge = Date.now() - channel.createdTimestamp;
                             let shouldDelete = false;
                             
-                            // Delete very old channels (1+ hour)
-                            if (channelAge > oneHourAgo) {
+                            // When category is full, be very aggressive - delete channels older than 2 minutes
+                            if (channelAge > (2 * 60 * 1000)) { // 2 minutes
                                 shouldDelete = true;
                             }
-                            // Delete channels older than 30 minutes with no recent activity
-                            else if (channelAge > thirtyMinutesAgo) {
+                            // Delete channels older than 1 minute with no recent activity
+                            else if (channelAge > (1 * 60 * 1000)) { // 1 minute
                                 try {
                                     const messages = await channel.messages.fetch({ limit: 1 });
                                     const lastMessage = messages.first();
                                     
-                                    if (!lastMessage || (Date.now() - lastMessage.createdTimestamp) > thirtyMinutesAgo) {
+                                    if (!lastMessage || (Date.now() - lastMessage.createdTimestamp) > (1 * 60 * 1000)) {
                                         shouldDelete = true;
                                     }
                                 } catch (fetchError) {
