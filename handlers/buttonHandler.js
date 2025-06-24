@@ -1697,7 +1697,7 @@ class ButtonHandler {
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('🔄 Takas Gerçekleşti!')
-                .setDescription(`**${wantedPlayer.user.username}** ↔ **${givenPlayer.user.username}**`)
+                .setDescription(`${wantedPlayer.user} ↔ ${givenPlayer.user}`)
                 .addFields(
                     { name: '📈 İstenen Oyuncu', value: `${wantedPlayer.user}`, inline: true },
                     { name: '📉 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true },
@@ -1749,9 +1749,9 @@ class ButtonHandler {
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('✅ Transfer Teklifi Kabul Edildi!')
-                .setDescription(`**${playerName}** teklifi kabul etti ve **${newTeam}** kulübüne transfer oldu!\n\n${player} ➤ ${president}`)
+                .setDescription(`${player.user} teklifi kabul etti ve **${newTeam}** kulübüne transfer oldu!`)
                 .addFields(
-                    { name: '⚽ Oyuncu', value: playerName, inline: true },
+                    { name: '⚽ Oyuncu', value: `${player.user}`, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: newTeam, inline: true },
                     { name: '💰 Maaş', value: salary, inline: true },
                     { name: '📅 Sözleşme Ek Madde', value: duration, inline: true },
@@ -1777,9 +1777,9 @@ class ButtonHandler {
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle('✅ Sözleşme Transferi Gerçekleşti!')
-                .setDescription(`**${player.displayName}** kulüp değiştirdi!\n\n${oldClub} ➤ ${newClub}`)
+                .setDescription(`${player.user} kulüp değiştirdi!\n\n${oldClub} ➤ ${newClub}`)
                 .addFields(
-                    { name: '⚽ Oyuncu', value: player.displayName, inline: true },
+                    { name: '⚽ Oyuncu', value: `${player.user}`, inline: true },
                     { name: '🏆 Eski Kulüp', value: oldClub, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: newClub, inline: true },
                     { name: '💰 Transfer Bedeli', value: transferFee, inline: true },
@@ -1803,7 +1803,7 @@ class ButtonHandler {
                 .setColor(config.colors.success)
                 .setTitle('✅ Transfer Gerçekleşti!')
                 .addFields(
-                    { name: '⚽ Oyuncu', value: player.displayName, inline: true },
+                    { name: '⚽ Oyuncu', value: `${player.user}`, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: team, inline: true },
                     { name: '💰 Maaş', value: salary, inline: true },
                     { name: '📅 Süre', value: duration, inline: true }

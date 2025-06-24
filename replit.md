@@ -116,6 +116,8 @@ The bot is configured for Replit deployment with:
   - Fixed btrelease announcement format to match regular release system exactly
   - Added serbestPingRole mention functionality to serbest duyuru announcements
   - Enhanced createFreeAgentAnnouncement with detailed form field display and proper ping role detection
+  - Updated all transfer announcements to use player mentions instead of usernames for consistent display
+  - Fixed serbest duyuru and all transfer announcement embeds to properly mention players
 - June 22, 2025. Initial setup
 - June 22, 2025. Complete modal system implementation for all transfer commands:
   - Updated .offer command to use interactive modal forms with team name, player name, salary, years, and bonus fields

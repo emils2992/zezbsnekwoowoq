@@ -293,7 +293,7 @@ class ChannelManager {
             const embed = new MessageEmbed()
                 .setColor(config.colors.warning)
                 .setTitle('🆓 Serbest Futbolcu')
-                .setDescription(`**${player.username}** artık serbest futbolcu!`)
+                .setDescription(`${player} artık serbest futbolcu!`)
                 .setThumbnail(player.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
