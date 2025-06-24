@@ -9,13 +9,18 @@ const ButtonHandler = require('./handlers/buttonHandler');
 const commandHandler = new CommandHandler();
 const buttonHandler = new ButtonHandler();
 
-// Bot client oluştur
+// Bot client oluştur - Aggressive rate limit bypass
 const client = new Client({
     intents: [
         Intents.FLAGS.GUILDS,
         Intents.FLAGS.GUILD_MESSAGES,
         Intents.FLAGS.GUILD_MEMBERS
-    ]
+    ],
+    restTimeOffset: 500,
+    restRequestTimeout: 60000,
+    retryLimit: 10,
+    restGlobalTimeout: 60000,
+    restSweepInterval: 60
 });
 
 // Commands collection
@@ -59,7 +64,13 @@ client.on('warn', info => {
 
 client.on('debug', info => {
     if (info.includes('Heartbeat') || info.includes('latency')) return;
-    console.log('🔍 Discord debug:', info);
+    if (info.includes('429')) {
+        console.log('🚫 API rate limit - bekleniyor...');
+        return;
+    }
+    if (info.includes('Session') || info.includes('Ready')) {
+        console.log('📡 Discord session:', info);
+    }
 });
 
 // Mesaj dinleyicisi
@@ -1429,16 +1440,57 @@ process.on('unhandledRejection', error => {
     console.error('Unhandled promise rejection:', error);
 });
 
-// Bot'u başlat
+// Bot'u başlat - retry mekanizması ile
 console.log('🚀 Bot baslatiliyor...');
 console.log(`📋 Token uzunlugu: ${process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.length : 'YOK'}`);
+console.log('ℹ️  Replit\'te Discord rate limit sorunu yasamak normaldir');
+console.log('ℹ️  Bot otomatik olarak baglanti kurmaya devam edecektir');
 
-client.login(process.env.DISCORD_TOKEN)
-    .then(() => {
-        console.log('✅ Discord API baglantisi basarili');
-    })
-    .catch(error => {
-        console.error('❌ Bot baslatilamadi:', error.message);
-        console.error('📋 Hata detaylari:', error);
-        process.exit(1);
-    });
+// Aggressive retry with exponential backoff
+let loginAttempts = 0;
+const baseDelay = 60000; // 1 minute base
+const maxDelay = 900000; // 15 minutes max
+
+function attemptLogin() {
+    loginAttempts++;
+    
+    // Calculate exponential backoff delay
+    const delay = Math.min(baseDelay * Math.pow(1.5, loginAttempts - 1), maxDelay);
+    
+    console.log(`🔄 Rate limit bypass - deneme #${loginAttempts}`);
+    console.log(`⏳ ${Math.round(delay/60000)} dakika beklenecek...`);
+    
+    setTimeout(() => {
+        console.log(`🚀 Discord gateway'e baglaniliyor...`);
+        
+        // Destroy existing client if exists
+        if (client.readyTimestamp) {
+            client.destroy();
+        }
+        
+        client.login(process.env.DISCORD_TOKEN)
+            .then(() => {
+                console.log('✅ Baglanti basarili!');
+                loginAttempts = 0;
+            })
+            .catch(error => {
+                if (error.message.includes('429') || error.code === 429) {
+                    console.log(`❌ Rate limit devam ediyor (${Math.round(delay/60000)}dk sonra tekrar)`);
+                    attemptLogin();
+                } else if (error.message.includes('TOKEN_INVALID')) {
+                    console.error('🔑 KRITIK: Token gecersiz - yeni token gerekli');
+                    process.exit(1);
+                } else if (loginAttempts < 15) {
+                    console.log(`❌ Baglanti hatasi: ${error.message.substring(0,50)}...`);
+                    attemptLogin();
+                } else {
+                    console.error('📋 Rate limit cozulemedi - manuel mudahale gerekli');
+                    console.log('💡 Cozum: Discord Developer Portal\'dan token\'i yeniden olusturun');
+                    process.exit(1);
+                }
+            });
+    }, delay);
+}
+
+// Hemen bağlanmayı dene - rate limit varsa otomatik bekleyecek
+attemptLogin();
