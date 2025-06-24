@@ -19,6 +19,8 @@ module.exports = {
                     { name: `${config.emojis.trade || '🔄'} .trade @başkan @futbolcu`, value: 'Takas transfer işlemi başlat', inline: false },
                     { name: `${config.emojis.release || '❌'} .release @futbolcu`, value: 'Futbolcu ile karşılıklı fesih yap', inline: false },
                     { name: `${config.emojis.trelease || '🚫'} .trelease @futbolcu`, value: 'Futbolcuyu tek taraflı fesih et', inline: false },
+                    { name: `${config.emojis.release || '❌'} .brelease @başkan`, value: 'Oyuncunun kendi sözleşmesini karşılıklı feshetmesi', inline: false },
+                    { name: `${config.emojis.trelease || '🚫'} .btrelease`, value: 'Oyuncunun kendi sözleşmesini tek taraflı feshetmesi', inline: false },
                     { name: `${config.emojis.settings || '⚙️'} .rol`, value: 'Sistem rollerini ayarla ve görüntüle', inline: false },
                     { name: `${config.emojis.announcement || '📢'} .duyur @futbolcu`, value: 'Manuel transfer duyurusu yap', inline: false },
                     { name: `${config.emojis.settings || '⚙️'} .duyur-ayarla #kanal`, value: 'Otomatik duyuru kanalını ayarla', inline: false },

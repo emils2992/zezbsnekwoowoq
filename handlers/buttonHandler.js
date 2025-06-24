@@ -59,6 +59,9 @@ class ButtonHandler {
                 case 'release':
                     await this.handleReleaseButton(client, interaction, params);
                     break;
+                case 'brelease':
+                    await this.handleBreleaseButton(client, interaction, params);
+                    break;
                 case 'hire':
                     await this.handleHireButton(client, interaction, params);
                     break;
@@ -3002,6 +3005,236 @@ class ButtonHandler {
             console.error('❌ Trade announcement error:', error);
             return null;
         }
+    }
+    async handleBreleaseButton(client, interaction, params) {
+        const [buttonType, playerId, presidentId, releaseType] = params;
+        
+        // Handle btrelease confirm/cancel buttons
+        if (buttonType === 'confirm') {
+            if (interaction.replied || interaction.deferred) {
+                return;
+            }
+
+            const isAuthorized = interaction.user.id === presidentId;
+            if (!isAuthorized) {
+                return interaction.reply({
+                    content: '❌ Sadece fesih talebini yapan oyuncu onaylayabilir!',
+                    ephemeral: true
+                });
+            }
+
+            await interaction.deferReply();
+            const guild = interaction.guild;
+            const player = await guild.members.fetch(playerId);
+            
+            if (!player) {
+                return interaction.editReply('❌ Oyuncu bulunamadı!');
+            }
+
+            try {
+                const permissions = require('../utils/permissions');
+                await permissions.makePlayerFree(player);
+
+                const channels = require('../utils/channels');
+                await channels.createFreeAgentAnnouncement(guild, player.user, 'Tek taraflı fesih');
+
+                await interaction.editReply(`✅ **${player.displayName}** başarıyla serbest futbolcu oldu ve duyuru kanalına eklendi!`);
+            } catch (error) {
+                console.error('BRelease onaylama hatası:', error);
+                await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
+            }
+
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            return;
+        }
+
+        if (buttonType === 'cancel') {
+            const isAuthorized = interaction.user.id === presidentId;
+            if (!isAuthorized) {
+                return interaction.reply({
+                    content: '❌ Sadece fesih talebini yapan oyuncu iptal edebilir!',
+                    ephemeral: true
+                });
+            }
+
+            await interaction.reply(`❌ Tek taraflı fesih talebi iptal edildi.`);
+
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            return;
+        }
+
+        // Regular brelease button handling for mutual releases
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(presidentId); // Player who initiated
+        const president = await guild.members.fetch(playerId); // President who was tagged
+        
+        if (!player || !president) {
+            return interaction.reply({
+                content: '❌ Kullanıcılar bulunamadı!',
+                ephemeral: true
+            });
+        }
+
+        // Authorization checks
+        if (buttonType === 'accept' || buttonType === 'reject') {
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Bu fesih teklifini sadece etiketlenen başkan kabul edebilir veya reddedebilir!',
+                    ephemeral: true
+                });
+            }
+        } else if (buttonType === 'edit') {
+            if (interaction.user.id !== presidentId) {
+                return interaction.reply({
+                    content: '❌ Bu butonu sadece fesih talebini yapan oyuncu kullanabilir!',
+                    ephemeral: true
+                });
+            }
+        }
+
+        await interaction.deferReply();
+
+        if (buttonType === 'accept') {
+            try {
+                const permissions = require('../utils/permissions');
+                await permissions.makePlayerFree(player);
+
+                const channels = require('../utils/channels');
+                await channels.createFreeAgentAnnouncement(guild, player.user, 'Karşılıklı fesih');
+
+                await interaction.editReply(`✅ **${player.displayName}** ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu.`);
+            } catch (error) {
+                console.error('BRelease kabul hatası:', error);
+                await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
+            }
+
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel && interaction.channel.deletable) {
+                        await interaction.channel.delete('Karşılıklı fesih tamamlandı');
+                    }
+                } catch (error) {
+                    console.error('Kanal silme hatası:', error);
+                }
+            }, 2000);
+
+        } else if (buttonType === 'reject') {
+            await interaction.editReply(`❌ **${president.displayName}** fesih teklifini reddetti.`);
+            
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel && interaction.channel.deletable) {
+                        await interaction.channel.delete('Fesih teklifi reddedildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silme hatası:', error);
+                }
+            }, 2000);
+
+        } else if (buttonType === 'edit') {
+            await this.showEditBreleaseModal(client, interaction, playerId, presidentId);
+        }
+
+        if (buttonType === 'accept' || buttonType === 'reject') {
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+        }
+    }
+
+    async showEditBreleaseModal(client, interaction, presidentId, playerId) {
+        const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
+        
+        const embed = interaction.message.embeds[0];
+        let existingData = {};
+        
+        if (embed && embed.fields) {
+            embed.fields.forEach(field => {
+                switch(field.name) {
+                    case 'Tazminat Miktarı':
+                        existingData.compensation = field.value;
+                        break;
+                    case 'Fesih Sebebi':
+                        existingData.reason = field.value;
+                        break;
+                    case 'Ek Şartlar':
+                        existingData.conditions = field.value;
+                        break;
+                }
+            });
+        }
+
+        const modal = new Modal()
+            .setCustomId(`brelease_modal_${presidentId}_${playerId}_mutual`)
+            .setTitle('Karşılıklı Fesih Düzenle');
+
+        const compensationInput = new TextInputComponent()
+            .setCustomId('compensation')
+            .setLabel('Tazminat Miktarı')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 1.000.000 TL')
+            .setValue(existingData.compensation || '')
+            .setRequired(true);
+
+        const reasonInput = new TextInputComponent()
+            .setCustomId('reason')
+            .setLabel('Fesih Sebebi')
+            .setStyle('PARAGRAPH')
+            .setPlaceholder('Fesih sebebini açıklayın...')
+            .setValue(existingData.reason || '')
+            .setRequired(true);
+
+        const conditionsInput = new TextInputComponent()
+            .setCustomId('conditions')
+            .setLabel('Ek Şartlar')
+            .setStyle('PARAGRAPH')
+            .setPlaceholder('Varsa ek şartları belirtin...')
+            .setValue(existingData.conditions || '')
+            .setRequired(false);
+
+        modal.addComponents(
+            new MessageActionRow().addComponents(compensationInput),
+            new MessageActionRow().addComponents(reasonInput),
+            new MessageActionRow().addComponents(conditionsInput)
+        );
+
+        await interaction.showModal(modal);
     }
 }
 

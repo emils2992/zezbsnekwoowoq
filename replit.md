@@ -100,6 +100,14 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Added new player self-release commands:
+  - Created .brelease command for players to initiate mutual termination with presidents
+  - Created .btrelease command for players to initiate unilateral termination
+  - Updated help system to include new commands with clear descriptions
+  - Implemented complete button handling and modal forms for both commands
+  - Players get posted to serbest-duyuru channel instead of presidents when using these commands
+  - Enhanced modal submission handling to support player-initiated releases
+  - Both commands follow same workflow as existing release system but with reversed roles
 - June 22, 2025. Initial setup
 - June 22, 2025. Complete modal system implementation for all transfer commands:
   - Updated .offer command to use interactive modal forms with team name, player name, salary, years, and bonus fields
