@@ -380,11 +380,11 @@ class ButtonHandler {
     }
 
     async handleContractPlayerButton(client, interaction, params) {
-        // For contract_player_accept_ buttons, params are: ['player', 'accept', 'targetPresidentId', 'playerId', 'presidentId']
-        const buttonType = params[1]; // 'accept', 'reject', or 'edit'
-        const targetPresidentId = params[2];
-        const playerId = params[3];
-        const presidentId = params[4];
+        // For contract_player_accept_ buttons, params from slice(2) are: ['accept', 'targetPresidentId', 'playerId', 'presidentId']
+        const buttonType = params[0]; // 'accept', 'reject', or 'edit'
+        const targetPresidentId = params[1];
+        const playerId = params[2];
+        const presidentId = params[3];
         const guild = interaction.guild;
         
         console.log('Contract player button debug:', { buttonType, targetPresidentId, playerId, presidentId });

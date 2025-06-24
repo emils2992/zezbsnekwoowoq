@@ -110,7 +110,8 @@ The bot is configured for Replit deployment with:
   - Enhanced negotiation channel detection to include "m-zakere" pattern
   - Improved original message finding logic for contract form updates
   - Fixed contract player button routing with explicit startsWith check for contract_player_ buttons
-  - Implemented proper parameter parsing for contract player buttons
+  - Fixed contract player button parameter parsing - corrected index positions after slice(2)
+  - Contract player edit button now works properly
   - Contract player acceptance now properly completes transfers instead of creating new channels
   - Eliminated "Bu butonu sadece komutu yazan kişi kullanabilir" errors for legitimate users
 - June 24, 2025. Fixed offer command announcement field matching bug:
