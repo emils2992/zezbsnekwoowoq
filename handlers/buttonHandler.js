@@ -21,8 +21,17 @@ class ButtonHandler {
             }
 
             const customId = interaction.customId;
+            console.log(`Button interaction: ${customId} | Action: ${customId.split('_')[0]} | Params: ${customId.split('_').slice(1).join(', ')}`);
+
+            // Special handling for contract_player buttons first
+            if (customId.startsWith('contract_player_')) {
+                const params = customId.split('_').slice(2); // Remove 'contract' and 'player'
+                console.log('Contract player button routing:', { customId, params });
+                await this.handleContractPlayerButton(client, interaction, params);
+                return;
+            }
+
             const [action, ...params] = customId.split('_');
-            console.log(`Button interaction: ${customId} | Action: ${action} | Params: ${params.join(', ')}`);
 
             // Add to processed interactions for accept/reject/confirm buttons
             if (params[0] === 'accept' || params[0] === 'reject' || params[0] === 'confirm') {
@@ -39,12 +48,7 @@ class ButtonHandler {
                     await this.handleOfferButton(client, interaction, params);
                     break;
                 case 'contract':
-                    // Check if it's a player-specific contract button
-                    if (customId.includes('contract_player_') || params[0] === 'player') {
-                        await this.handleContractPlayerButton(client, interaction, params);
-                    } else {
-                        await this.handleContractButton(client, interaction, params);
-                    }
+                    await this.handleContractButton(client, interaction, params);
                     break;
                 case 'contract_player':
                     await this.handleContractPlayerButton(client, interaction, params);
