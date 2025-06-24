@@ -581,7 +581,8 @@ async function handleModalSubmit(client, interaction) {
 
             // Check if we're in a negotiation channel (editing existing form)
             const isNegotiationChannel = interaction.channel && interaction.channel.name && 
-                (interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("contract") || interaction.channel.name.includes("muzakere"));
+                (interaction.channel.name.includes("sozlesme") || interaction.channel.name.includes("contract") || 
+                 interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("m-zakere"));
 
             if (isNegotiationChannel) {
                 // Update existing embed in the same channel
@@ -607,11 +608,13 @@ async function handleModalSubmit(client, interaction) {
                     );
 
                 // Find and update the original message
-                const messages = await interaction.channel.messages.fetch({ limit: 10 });
+                const messages = await interaction.channel.messages.fetch({ limit: 15 });
                 const originalMessage = messages.find(msg => 
                     msg.embeds.length > 0 && 
                     msg.components.length > 0 &&
-                    msg.components[0].components.some(btn => btn.customId && btn.customId.includes('contract_'))
+                    (msg.components[0].components.some(btn => btn.customId && btn.customId.includes('contract_')) ||
+                     msg.embeds[0].title?.includes('Sözleşme') || 
+                     msg.embeds[0].fields?.some(field => field.name.includes('Transfer')))
                 );
 
                 if (originalMessage) {

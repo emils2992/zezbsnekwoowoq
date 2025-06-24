@@ -106,6 +106,9 @@ The bot is configured for Replit deployment with:
   - BRelease: Player who initiated can use their buttons (playerId at index 1)
   - Contract: Command creator can use their buttons (presidentId at index 3)
   - Fixed contract player edit modal parameter passing to prevent "undefined" user ID errors
+  - Fixed contract edit to update existing messages instead of creating new channels
+  - Enhanced negotiation channel detection to include "m-zakere" pattern
+  - Improved original message finding logic for contract form updates
   - Eliminated "Bu butonu sadece komutu yazan kişi kullanabilir" errors for legitimate users
 - June 24, 2025. Fixed offer command announcement field matching bug:
   - Resolved "Bilinmiyor" display issue in transfer announcements for contract duration field
