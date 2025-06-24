@@ -100,6 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Fixed authorization bugs in brelease and contract commands:
+  - Corrected button authorization logic for both brelease and contract modal buttons
+  - Fixed parameter order issues where commandCreatorId was checking wrong user ID positions
+  - BRelease: Player who initiated can use their buttons (playerId at index 1)
+  - Contract: Command creator can use their buttons (presidentId at index 3)
+  - Eliminated "Bu butonu sadece komutu yazan kişi kullanabilir" errors for legitimate users
 - June 24, 2025. Fixed offer command announcement field matching bug:
   - Resolved "Bilinmiyor" display issue in transfer announcements for contract duration field
   - Fixed field name matching in sendTransferAnnouncement to use "Sözleşme+Ek Madde" instead of "Sözleşme Ek Madde"

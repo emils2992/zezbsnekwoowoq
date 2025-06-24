@@ -1927,8 +1927,14 @@ class ButtonHandler {
         } else if (type === 'release') {
             // For release: [modal, playerId, presidentId, releaseType] - presidentId is at index 2
             commandCreatorId = additionalParams[2];
+        } else if (type === 'brelease') {
+            // For brelease: [modal, playerId, presidentId, releaseType] - playerId is at index 1 (player who initiated)
+            commandCreatorId = additionalParams[1];
+        } else if (type === 'contract') {
+            // For contract: [modal, targetPresidentId, playerId, presidentId] - presidentId is at index 3
+            commandCreatorId = additionalParams[3];
         } else {
-            // For offer, contract, trade, hire: [modal, targetId, presidentId] - presidentId is at index 2
+            // For offer, trade, hire: [modal, targetId, presidentId] - presidentId is at index 2
             commandCreatorId = additionalParams[2];
         }
         
