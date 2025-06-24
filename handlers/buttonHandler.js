@@ -1799,14 +1799,14 @@ class ButtonHandler {
         // Use appropriate ping role based on transfer type
         let pingRoleId = null;
         if (transferData.type === 'offer' || transferData.type === 'contract' || transferData.type === 'trade' || transferData.type === 'hire') {
-            // Use transferPingRole for general transfers
-            pingRoleId = roleData.transferPingRole;
+            // Use tfPingRole for transfer announcements
+            pingRoleId = roleData.tfPingRole;
         } else if (transferData.type === 'release') {
-            // Use freeAgentPingRole for releases
-            pingRoleId = roleData.freeAgentPingRole;
+            // Use serbestPingRole for releases
+            pingRoleId = roleData.serbestPingRole;
         } else {
-            // Default to transferPingRole
-            pingRoleId = roleData.transferPingRole;
+            // Default to tfPingRole
+            pingRoleId = roleData.tfPingRole;
         }
         
         if (pingRoleId) {

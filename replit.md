@@ -210,6 +210,13 @@ The bot is configured for Replit deployment with:
     - Added debug logging for troubleshooting modal form submissions
     - Bot successfully running without errors or warnings on Discord.js v13.17.1
     - All button interaction errors resolved and transfer system fully operational with working modals
+- June 24, 2025. Separated ping roles for different announcement types:
+    - Updated role system to use separate ping roles: tfPingRole, serbestPingRole, duyurPingRole
+    - Transfer announcements (.offer .contract .hire .trade) now use tfPingRole
+    - Release announcements (.release .trelease) now use serbestPingRole  
+    - Manual announcements (.duyur) now use duyurPingRole
+    - Updated .rol command with new role types: ping_tf, ping_serbest, ping_duyur
+    - Each announcement type now mentions only its specific ping role, preventing cross-contamination
 - June 24, 2025. Fixed release command edit button to update in-place instead of creating new channels:
     - Updated channel creation naming pattern for release type to use "fesih-" prefix
     - Enhanced channel detection logic in release form submission handler

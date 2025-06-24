@@ -67,9 +67,9 @@ module.exports = {
             { key: 'player', name: 'Futbolcu', emoji: '⚽' },
             { key: 'freeAgent', name: 'Serbest Futbolcu', emoji: '🆓' },
             { key: 'transferAuthority', name: 'Transfer Yetkilisi', emoji: '📢' },
-            { key: 'transferPingRole', name: 'Transfer Duyuru Ping', emoji: '🔔' },
-            { key: 'freeAgentPingRole', name: 'Serbest Duyuru Ping', emoji: '🔔' },
-            { key: 'announcementPingRole', name: 'Duyur Duyuru Ping', emoji: '🔔' }
+            { key: 'tfPingRole', name: 'TF Duyuru Ping', emoji: '🔔' },
+            { key: 'serbestPingRole', name: 'Serbest Duyuru Ping', emoji: '🔔' },
+            { key: 'duyurPingRole', name: 'Duyur Ping', emoji: '🔔' }
         ];
 
         for (const roleType of roleTypes) {
@@ -86,8 +86,8 @@ module.exports = {
         const setupEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.settings} Rol Ayarlama Sistemi`)
-            .setDescription('Bu mesajı **yanıtlayarak** rolleri ayarlayın:\n\n**Format:** `rol_türü @rol_adı` veya `rol_türü rol_id`\n\n**Örnekler:**\n`başkan @Başkan`\n`futbolcu @Oyuncu`\n`serbest @Serbest`\n`yetkili @Transfer Admin`\n`ping_transfer @Transfer Ping` (Transfer duyuruları için)\n`ping_serbest @Serbest Ping` (Serbest oyuncu duyuruları için)\n`ping_duyuru @Duyuru Ping` (.duyur komutu için)')
-            .addField('📋 Kullanılabilir Rol Türleri', '**başkan** - Transfer yapabilir\n**futbolcu** - Transfer edilebilir\n**serbest** - Serbest oyuncular\n**yetkili** - Transfer yetkilisi\n**ping_transfer** - Transfer duyuru pingi\n**ping_serbest** - Serbest oyuncu pingi\n**ping_duyuru** - Manuel duyuru pingi', false).setFooter({ text: 'Bu mesajı yanıtlayarak rol ayarlarını yapın. Örnek: başkan @Başkan' })
+            .setDescription('Bu mesajı **yanıtlayarak** rolleri ayarlayın:\n\n**Format:** `rol_türü @rol_adı` veya `rol_türü rol_id`\n\n**Örnekler:**\n`başkan @Başkan`\n`futbolcu @Oyuncu`\n`serbest @Serbest`\n`yetkili @Transfer Admin`\n`ping_tf @TF Ping` (.offer .contract .hire .trade için)\n`ping_serbest @Serbest Ping` (.release .trelease için)\n`ping_duyur @Duyur Ping` (.duyur komutu için)')
+            .addField('📋 Kullanılabilir Rol Türleri', '**başkan** - Transfer yapabilir\n**futbolcu** - Transfer edilebilir\n**serbest** - Serbest oyuncular\n**yetkili** - Transfer yetkilisi\n**ping_tf** - TF duyuru pingi (.offer .contract .hire .trade)\n**ping_serbest** - Serbest oyuncu pingi (.release .trelease)\n**ping_duyur** - Manuel duyuru pingi (.duyur)', false).setFooter({ text: 'Bu mesajı yanıtlayarak rol ayarlarını yapın. Örnek: başkan @Başkan' })
             .setTimestamp();
 
         const sentMessage = await message.reply({ embeds: [setupEmbed] });
@@ -124,17 +124,17 @@ module.exports = {
                 'serbest': 'freeAgent',
                 'yetkili': 'transferAuthority',
                 'admin': 'transferAuthority',
-                'ping_transfer': 'transferPingRole',
-                'transfer_ping': 'transferPingRole',
-                'ping_serbest': 'freeAgentPingRole',
-                'serbest_ping': 'freeAgentPingRole',
-                'ping_duyuru': 'announcementPingRole',
-                'duyuru_ping': 'announcementPingRole'
+                'ping_tf': 'tfPingRole',
+                'tf_ping': 'tfPingRole',
+                'ping_serbest': 'serbestPingRole',
+                'serbest_ping': 'serbestPingRole',
+                'ping_duyur': 'duyurPingRole',
+                'duyur_ping': 'duyurPingRole'
             };
             
             const mappedRoleType = roleMapping[roleType];
             if (!mappedRoleType) {
-                return responseMessage.reply('❌ Geçersiz rol türü! Kullanılabilir türler: başkan, futbolcu, serbest, yetkili, ping_transfer, ping_serbest, ping_duyuru');
+                return responseMessage.reply('❌ Geçersiz rol türü! Kullanılabilir türler: başkan, futbolcu, serbest, yetkili, ping_tf, ping_serbest, ping_duyur');
             }
             
             // Rol bulma
@@ -165,9 +165,9 @@ module.exports = {
                 'player': 'Futbolcu Rolü',
                 'freeAgent': 'Serbest Futbolcu Rolü',
                 'transferAuthority': 'Transfer Yetkilisi',
-                'transferPingRole': 'Transfer Duyuru Ping',
-                'freeAgentPingRole': 'Serbest Duyuru Ping',
-                'announcementPingRole': 'Duyuru Duyuru Ping'
+                'tfPingRole': 'TF Duyuru Ping',
+                'serbestPingRole': 'Serbest Duyuru Ping',
+                'duyurPingRole': 'Duyur Ping'
             };
             
             const successEmbed = new MessageEmbed()
