@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Fixed brelease button parameter order and authorization consistency:
+  - Fixed button creation to maintain consistent parameter order (playerId = president, presidentId = player)
+  - Corrected button handler parameter mapping for proper authorization
+  - Ensured president can accept and player can edit throughout entire workflow
+  - Fixed parameter swapping issues that occurred during form editing
 - June 24, 2025. Fixed brelease workflow authorization and role management:
   - Corrected brelease workflow so president accepts player's release request (not player accepting)
   - Fixed role management to properly release the requesting player when president accepts

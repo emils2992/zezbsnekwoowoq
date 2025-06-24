@@ -3100,8 +3100,9 @@ class ButtonHandler {
 
         // Regular brelease button handling for mutual releases
         const guild = interaction.guild;
+        // For brelease: playerId is the president who should accept, presidentId is the player who initiated
+        const president = await guild.members.fetch(playerId); // President who should accept
         const player = await guild.members.fetch(presidentId); // Player who initiated
-        const president = await guild.members.fetch(playerId); // President who was tagged
         
         if (!player || !president) {
             return interaction.reply({

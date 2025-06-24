@@ -997,20 +997,21 @@ async function handleModalSubmit(client, interaction) {
                     const embeds = require('./utils/embeds');
                     const releaseEmbed = embeds.createReleaseForm(player.user, president.user, releaseType, releaseData);
                     
+                    // For brelease: maintain consistent parameter order - playerId should be president, presidentId should be player
                     const buttons = new MessageActionRow()
                         .addComponents(
                             new MessageButton()
-                                .setCustomId(`brelease_accept_${presidentId}_${playerId}_${releaseType}`)
+                                .setCustomId(`brelease_accept_${playerId}_${presidentId}_${releaseType}`)
                                 .setLabel('Kabul Et')
                                 .setStyle('SUCCESS')
                                 .setEmoji('✅'),
                             new MessageButton()
-                                .setCustomId(`brelease_reject_${presidentId}_${playerId}_${releaseType}`)
+                                .setCustomId(`brelease_reject_${playerId}_${presidentId}_${releaseType}`)
                                 .setLabel('Reddet')
                                 .setStyle('DANGER')
                                 .setEmoji('❌'),
                             new MessageButton()
-                                .setCustomId(`brelease_edit_${presidentId}_${playerId}_${releaseType}`)
+                                .setCustomId(`brelease_edit_${playerId}_${presidentId}_${releaseType}`)
                                 .setLabel('Düzenle')
                                 .setStyle('SECONDARY')
                                 .setEmoji('✏️')
@@ -1045,20 +1046,21 @@ async function handleModalSubmit(client, interaction) {
                     const embeds = require('./utils/embeds');
                     const releaseEmbed = embeds.createReleaseForm(player.user, president.user, releaseType, releaseData);
                     
+                    // For brelease: maintain consistent parameter order - playerId should be president, presidentId should be player
                     const buttons = new MessageActionRow()
                         .addComponents(
                             new MessageButton()
-                                .setCustomId(`brelease_accept_${presidentId}_${playerId}_${releaseType}`)
+                                .setCustomId(`brelease_accept_${playerId}_${presidentId}_${releaseType}`)
                                 .setLabel('Kabul Et')
                                 .setStyle('SUCCESS')
                                 .setEmoji('✅'),
                             new MessageButton()
-                                .setCustomId(`brelease_reject_${presidentId}_${playerId}_${releaseType}`)
+                                .setCustomId(`brelease_reject_${playerId}_${presidentId}_${releaseType}`)
                                 .setLabel('Reddet')
                                 .setStyle('DANGER')
                                 .setEmoji('❌'),
                             new MessageButton()
-                                .setCustomId(`brelease_edit_${presidentId}_${playerId}_${releaseType}`)
+                                .setCustomId(`brelease_edit_${playerId}_${presidentId}_${releaseType}`)
                                 .setLabel('Düzenle')
                                 .setStyle('SECONDARY')
                                 .setEmoji('✏️')
