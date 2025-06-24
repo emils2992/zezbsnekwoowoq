@@ -22,20 +22,44 @@ const client = new Client({
 client.commands = new Collection();
 
 // Komutları yükle
+console.log('📁 Komutlar yukleniyor...');
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-    const filePath = path.join(commandsPath, file);
-    const command = require(filePath);
-    client.commands.set(command.name, command);
+    try {
+        const filePath = path.join(commandsPath, file);
+        const command = require(filePath);
+        client.commands.set(command.name, command);
+        console.log(`✅ Komut yuklendi: ${command.name}`);
+    } catch (error) {
+        console.error(`❌ Komut yuklenemedi (${file}):`, error.message);
+    }
 }
+
+console.log(`📋 Toplam ${client.commands.size} komut yuklendi`);
 
 // Bot hazır olduğunda
 client.once('ready', () => {
     console.log('🏈 Futbol Transfer Botu aktif!');
-    console.log(`🤖 ${client.user.tag} olarak giriş yapıldı`);
+    console.log(`🤖 ${client.user.tag} olarak giris yapildi`);
+    console.log(`📊 Sunucu sayisi: ${client.guilds.cache.size}`);
+    console.log(`👥 Kullanici sayisi: ${client.users.cache.size}`);
     client.user.setActivity('⚽ Transfer müzakereleri', { type: 3 }); // 3 = WATCHING
+});
+
+// Hata yakalama
+client.on('error', error => {
+    console.error('❌ Discord client hatasi:', error.message);
+});
+
+client.on('warn', info => {
+    console.warn('⚠️ Discord uyarisi:', info);
+});
+
+client.on('debug', info => {
+    if (info.includes('Heartbeat') || info.includes('latency')) return;
+    console.log('🔍 Discord debug:', info);
 });
 
 // Mesaj dinleyicisi
@@ -1406,4 +1430,15 @@ process.on('unhandledRejection', error => {
 });
 
 // Bot'u başlat
-client.login(process.env.DISCORD_TOKEN);
+console.log('🚀 Bot baslatiliyor...');
+console.log(`📋 Token uzunlugu: ${process.env.DISCORD_TOKEN ? process.env.DISCORD_TOKEN.length : 'YOK'}`);
+
+client.login(process.env.DISCORD_TOKEN)
+    .then(() => {
+        console.log('✅ Discord API baglantisi basarili');
+    })
+    .catch(error => {
+        console.error('❌ Bot baslatilamadi:', error.message);
+        console.error('📋 Hata detaylari:', error);
+        process.exit(1);
+    });
