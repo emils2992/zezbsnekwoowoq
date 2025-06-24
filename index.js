@@ -320,7 +320,15 @@ function getRoleName(roleType) {
 // Modal submission işleyicisi
 async function handleModalSubmit(client, interaction) {
     try {
-        await interaction.deferReply({ ephemeral: true });
+        // Check if we can defer the interaction
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.deferReply({ ephemeral: true });
+        } else {
+            console.log('Interaction already handled, state:', {
+                replied: interaction.replied,
+                deferred: interaction.deferred
+            });
+        }
         
         const customId = interaction.customId;
         const embeds = require('./utils/embeds');
@@ -699,6 +707,12 @@ async function handleModalSubmit(client, interaction) {
             console.log('Parsed IDs:', { targetPresidentId, wantedPlayerId, givenPlayerId, presidentId });
             
             try {
+                // Check if interaction is still valid
+                if (interaction.replied && !interaction.deferred) {
+                    console.log('Interaction already replied, cannot process');
+                    return;
+                }
+
                 const targetPresident = await interaction.guild.members.fetch(targetPresidentId);
                 const wantedPlayer = await interaction.guild.members.fetch(wantedPlayerId);
                 const givenPlayer = await interaction.guild.members.fetch(givenPlayerId);
