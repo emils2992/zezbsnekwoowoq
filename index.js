@@ -988,8 +988,9 @@ async function handleModalSubmit(client, interaction) {
 
                 const isNegotiationChannel = interaction.channel.name && 
                     (interaction.channel.name.includes("fesih") || interaction.channel.name.includes("release") || 
-                     interaction.channel.name.includes("muzakere"));
+                     interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("m-zakere"));
                 console.log('BRelease is negotiation channel:', isNegotiationChannel);
+                console.log('Channel name:', interaction.channel.name);
 
                 if (isNegotiationChannel) {
                     console.log('Updating existing brelease channel...');

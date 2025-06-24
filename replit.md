@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Fixed brelease edit to update existing messages instead of creating new channels:
+  - Enhanced negotiation channel detection to include "m-zakere" pattern used by channel creation
+  - Brelease edit now properly updates existing embed in same channel instead of creating duplicate channels
+  - Fixed channel name pattern matching for all negotiation channel types
+  - Edit functionality now preserves existing conversation context
 - June 24, 2025. Completely fixed brelease edit button modal interaction:
   - Removed conflicting deferReply calls for edit buttons that show modals
   - Fixed interaction flow to prevent "INTERACTION_ALREADY_REPLIED" errors
