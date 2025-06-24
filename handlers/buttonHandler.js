@@ -3127,7 +3127,10 @@ class ButtonHandler {
             }
         }
 
-        await interaction.deferReply();
+        // Only defer reply for accept/reject buttons, not edit buttons (which show modals)
+        if (buttonType === 'accept' || buttonType === 'reject') {
+            await interaction.deferReply();
+        }
 
         if (buttonType === 'accept') {
             try {
@@ -3179,17 +3182,7 @@ class ButtonHandler {
             }, 2000);
 
         } else if (buttonType === 'edit') {
-            // Check if user is authorized (player who initiated or transfer authority)
-            const member = interaction.member;
-            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
-            
-            if (!isAuthorized) {
-                return interaction.reply({
-                    content: '❌ Sadece fesih talebini yapan oyuncu veya transfer yetkilileri düzenleyebilir!',
-                    ephemeral: true
-                });
-            }
-
+            // Authorization already checked above, just show modal
             await this.showEditBreleaseModal(client, interaction, presidentId, playerId, releaseType);
             return;
         }

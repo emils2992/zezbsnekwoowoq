@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 24, 2025. Completely fixed brelease edit button modal interaction:
+  - Removed conflicting deferReply calls for edit buttons that show modals
+  - Fixed interaction flow to prevent "INTERACTION_ALREADY_REPLIED" errors
+  - Edit buttons now properly show pre-filled modals without any interaction conflicts
+  - Streamlined authorization checks to avoid multiple reply attempts
 - June 24, 2025. Fixed brelease edit button interaction errors:
   - Added proper error handling for modal interactions when interaction already replied
   - Fixed "INTERACTION_ALREADY_REPLIED" error in brelease edit functionality
