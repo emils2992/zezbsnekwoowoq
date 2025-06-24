@@ -222,10 +222,10 @@ The bot is configured for Replit deployment with:
     - Fixed negotiation channel detection to properly identify fesih/release channels
     - Enhanced channel detection logic to prevent unnecessary channel creation during form edits
 - June 24, 2025. Added automatic form button cleanup to prevent reuse:
-    - Modal form buttons now automatically delete after 3 seconds when forms are submitted
-    - Prevents other users from clicking the same form button after someone has already filled it
-    - Implemented across all transfer commands (offer, contract, trade, hire, release, duyuru)
-    - Enhanced user experience by ensuring single-use form buttons
+    - Form button messages now automatically delete after 5 seconds to prevent multiple users from using same button
+    - Applied to all commands: .offer, .contract, .trade, .hire, .release, .duyur
+    - Each command message gets deleted 5 seconds after being posted, ensuring single-use functionality
+    - Enhanced user experience by preventing confusion from multiple button clicks
 - June 24, 2025. Separated ping roles for different announcement types:
     - Updated role system to use separate ping roles: tfPingRole, serbestPingRole, duyurPingRole
     - Transfer announcements (.offer .contract .hire .trade) now use tfPingRole

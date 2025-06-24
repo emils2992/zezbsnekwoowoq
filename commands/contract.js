@@ -61,7 +61,7 @@ module.exports = {
             }
 
             // Modal formu butonunu göster
-            await message.reply({
+            const reply = await message.reply({
                 content: `${config.emojis.contract} **Sözleşme Teklifi Formu**\n\n${playerUser.username} için sözleşme formunu doldurmak üzere aşağıdaki butona tıklayın.`,
                 components: [
                     new MessageActionRow().addComponents(
@@ -73,6 +73,18 @@ module.exports = {
                     )
                 ]
             });
+
+            // Mesajı 5 saniye sonra sil
+            setTimeout(async () => {
+                try {
+                    if (reply.deletable) {
+                        await reply.delete();
+                        console.log('✅ Contract form button message deleted after 5 seconds');
+                    }
+                } catch (error) {
+                    console.log('Could not delete contract button message:', error.message);
+                }
+            }, 5000);
 
         } catch (error) {
             console.error('Contract komutu hatası:', error);
