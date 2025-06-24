@@ -609,55 +609,130 @@ async function handleModalSubmit(client, interaction) {
 
         // Hire form modali
         else if (customId.startsWith('hire_form_')) {
-            const [, , playerId, presidentId] = customId.split('_');
-            const player = interaction.guild.members.cache.get(playerId);
-            const president = interaction.guild.members.cache.get(presidentId);
+            console.log('Hire form submission started:', customId);
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.deferReply({ ephemeral: true });
+                    console.log('✅ Hire form interaction deferred');
+                }
 
-            if (!player || !president) {
+            const params = customId.split('_');
+            const targetPresidentId = params[2];
+            const playerId = params[3];  
+            const presidentId = params[4];
+
+            console.log('Parsed IDs:', { targetPresidentId, playerId, presidentId });
+
+            const guild = interaction.guild;
+            const targetPresident = await guild.members.fetch(targetPresidentId);
+            const player = await guild.members.fetch(playerId);
+            const president = await guild.members.fetch(presidentId);
+
+            console.log('Found users:', {
+                targetPresident: targetPresident.displayName,
+                player: player.displayName,
+                president: president.displayName
+            });
+
+            if (!targetPresident || !player || !president) {
+                console.log('Missing users error');
                 return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
             }
 
             const hireData = {
                 loanFee: interaction.fields.getTextInputValue('loan_fee') || '',
+                oldClub: interaction.fields.getTextInputValue('old_club') || '',
+                newClub: interaction.fields.getTextInputValue('new_club') || '',
                 salary: interaction.fields.getTextInputValue('salary') || '',
-                loanDuration: interaction.fields.getTextInputValue('loan_duration') || '',
-                optionToBuy: interaction.fields.getTextInputValue('option_to_buy') || ''
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
             };
 
-            // Müzakere kanalı oluştur
-            const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'hire');
-            if (!channel) {
-                return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
-            }
+            // Check if we're in a negotiation channel (editing existing form)
+            const isNegotiationChannel = interaction.channel && interaction.channel.name && 
+                (interaction.channel.name.includes("kiralık") || interaction.channel.name.includes("hire") || interaction.channel.name.includes("muzakere"));
 
-            // Kiralık embed'i oluştur
-            const hireEmbed = embeds.createHireForm(president.user, player.user, player.user, hireData);
-            
-            const buttons = new MessageActionRow()
-                .addComponents(
-                    new MessageButton()
-                        .setCustomId(`hire_accept_${playerId}_${presidentId}`)
-                        .setLabel('Kabul Et')
-                        .setStyle('SUCCESS')
-                        .setEmoji('✅'),
-                    new MessageButton()
-                        .setCustomId(`hire_reject_${playerId}_${presidentId}`)
-                        .setLabel('Reddet')
-                        .setStyle('DANGER')
-                        .setEmoji('❌'),
-                    new MessageButton()
-                        .setCustomId(`hire_edit_${playerId}_${presidentId}`)
-                        .setLabel('Düzenle')
-                        .setStyle('SECONDARY')
-                        .setEmoji('✏️')
+            if (isNegotiationChannel) {
+                // Update existing embed in the same channel
+                const hireEmbed = embeds.createHireForm(president.user, targetPresident.user, player.user, hireData);
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`hire_accept_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`hire_reject_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`hire_edit_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                // Find and update the original message
+                const messages = await interaction.channel.messages.fetch({ limit: 10 });
+                const originalMessage = messages.find(msg => 
+                    msg.embeds.length > 0 && 
+                    msg.components.length > 0 &&
+                    msg.components[0].components.some(btn => btn.customId && btn.customId.includes('hire_'))
                 );
 
-            await channel.send({
-                embeds: [hireEmbed],
-                components: [buttons]
-            });
+                if (originalMessage) {
+                    await originalMessage.edit({
+                        embeds: [hireEmbed],
+                        components: [buttons]
+                    });
+                    await interaction.editReply({ content: `✅ Kiralık formu güncellendi!` });
+                } else {
+                    await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
+                }
+            } else {
+                // İlk başkan ile hedef başkan arasında müzakere kanalı oluştur
+                console.log('Creating hire channel for:', president.user.username, 'and', targetPresident.user.username);
+                const channel = await channels.createNegotiationChannel(interaction.guild, president.user, targetPresident.user, 'hire');
+                console.log('Channel creation result:', channel ? channel.name : 'FAILED');
+                if (!channel) {
+                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                }
 
-            await interaction.editReply({ content: `✅ Kiralık müzakeresi ${channel} kanalında başlatıldı!` });
+                // Kiralık embed'i oluştur
+                const hireEmbed = embeds.createHireForm(president.user, targetPresident.user, player.user, hireData);
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`hire_accept_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`hire_reject_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`hire_edit_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                await channel.send({
+                    embeds: [hireEmbed],
+                    components: [buttons]
+                });
+
+                await interaction.editReply({ content: `✅ Kiralık müzakeresi ${channel} kanalında başlatıldı!\n\n${targetPresident.user} ${president.user} - Lütfen ${channel} kanalına gidin ve müzakereyi tamamlayın.` });
+            }
+            } catch (error) {
+                console.error('Hire form submission error:', error);
+                return interaction.editReply({ content: 'Kullanıcılar getirilirken hata oluştu!' });
+            }
         }
 
         // Announcement form modali

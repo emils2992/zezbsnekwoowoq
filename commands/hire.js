@@ -61,11 +61,11 @@ module.exports = {
 
             // Modal formu butonunu göster
             await message.reply({
-                content: `${config.emojis.contract} **Kiralık Sözleşme Teklifi Formu**\n\n${playerUser.username} için kiralık formunu doldurmak üzere aşağıdaki butona tıklayın.`,
+                content: `${config.emojis.hire} **Kiralık Teklifi Formu**\n\n${playerUser.username} için kiralık formunu doldurmak üzere aşağıdaki butona tıklayın.`,
                 components: [
                     new MessageActionRow().addComponents(
                         new MessageButton()
-                            .setCustomId(`show_hire_modal_${playerUser.id}_${message.author.id}`)
+                            .setCustomId(`show_hire_modal_${targetPresident.id}_${playerUser.id}_${message.author.id}`)
                             .setLabel('Kiralık Formu Aç')
                             .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)

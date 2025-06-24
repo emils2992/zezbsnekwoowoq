@@ -1472,15 +1472,16 @@ class ButtonHandler {
     }
 
     async handleHireButton(client, interaction, params) {
-        const [buttonType, playerId, presidentId] = params;
+        const [buttonType, targetPresidentId, playerId, presidentId] = params;
         const guild = interaction.guild;
+        const targetPresident = await guild.members.fetch(targetPresidentId);
         const player = await guild.members.fetch(playerId);
         const president = await guild.members.fetch(presidentId);
 
         if (buttonType === 'accept') {
             // Check if user is authorized (target president or transfer authority)
             const member = interaction.member;
-            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
             
             if (!isAuthorized) {
                 return interaction.reply({
@@ -1493,6 +1494,7 @@ class ButtonHandler {
                 type: 'hire',
                 player: player,
                 president: president,
+                targetPresident: targetPresident,
                 embed: interaction.message.embeds[0]
             });
 
@@ -2268,20 +2270,21 @@ class ButtonHandler {
         await interaction.showModal(modal);
     }
 
-    async showEditHireModal(client, interaction, playerId, presidentId) {
+    async showEditHireModal(client, interaction, targetPresidentId, playerId, presidentId) {
         const embed = interaction.message.embeds[0];
         const fields = embed.fields;
         
         // Extract existing data from embed fields
         const existingData = {
             loanFee: fields.find(f => f.name.includes('Kiralık Bedeli'))?.value || '',
+            oldClub: fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
+            newClub: fields.find(f => f.name.includes('Yeni Kulüp'))?.value || '',
             salary: fields.find(f => f.name.includes('Maaş'))?.value || '',
-            loanDuration: fields.find(f => f.name.includes('Kiralık Süresi'))?.value || '',
-            optionToBuy: fields.find(f => f.name.includes('Satın Alma'))?.value || ''
+            contractDuration: fields.find(f => f.name.includes('Sözleşme'))?.value || ''
         };
 
         const modal = new Modal()
-            .setCustomId(`hire_form_${playerId}_${presidentId}`)
+            .setCustomId(`hire_form_${targetPresidentId}_${playerId}_${presidentId}`)
             .setTitle('Kiralık Düzenle');
 
         const loanFeeInput = new TextInputComponent()
@@ -2289,6 +2292,20 @@ class ButtonHandler {
             .setLabel('Kiralık Bedeli')
             .setStyle('SHORT')
             .setValue(existingData.loanFee)
+            .setRequired(true);
+
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
+            .setStyle('SHORT')
+            .setValue(existingData.oldClub)
+            .setRequired(true);
+
+        const newClubInput = new TextInputComponent()
+            .setCustomId('new_club')
+            .setLabel('Yeni Kulüp')
+            .setStyle('SHORT')
+            .setValue(existingData.newClub)
             .setRequired(true);
 
         const salaryInput = new TextInputComponent()
@@ -2533,11 +2550,11 @@ class ButtonHandler {
     }
 
     async handleShowHireForm(client, interaction, params) {
-        const [playerId, presidentId] = params;
+        const [targetPresidentId, playerId, presidentId] = params;
         
         const modal = new Modal()
-            .setCustomId(`hire_form_${playerId}_${presidentId}`)
-            .setTitle('Kiralık Sözleşme Formu');
+            .setCustomId(`hire_form_${targetPresidentId}_${playerId}_${presidentId}`)
+            .setTitle('Kiralık Teklifi Formu');
 
         const loanFeeInput = new TextInputComponent()
             .setCustomId('loan_fee')
@@ -2546,33 +2563,41 @@ class ButtonHandler {
             .setPlaceholder('Örn: 2.000.000₺')
             .setRequired(true);
 
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Fenerbahçe')
+            .setRequired(true);
+
+        const newClubInput = new TextInputComponent()
+            .setCustomId('new_club')
+            .setLabel('Yeni Kulüp')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: Galatasaray')
+            .setRequired(true);
+
         const salaryInput = new TextInputComponent()
             .setCustomId('salary')
             .setLabel('Maaş (Yıllık)')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 4.000.000₺/yıl')
+            .setPlaceholder('Örn: 8.000.000₺/yıl')
             .setRequired(true);
 
-        const loanDurationInput = new TextInputComponent()
-            .setCustomId('loan_duration')
-            .setLabel('Kiralık Süresi')
+        const contractInput = new TextInputComponent()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme+Ek Madde')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 1 yıl')
+            .setPlaceholder('Örn: 1 yıl + opsiyon')
             .setRequired(true);
-
-        const optionToBuyInput = new TextInputComponent()
-            .setCustomId('option_to_buy')
-            .setLabel('Satın Alma Opsiyonu')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 12.000.000₺')
-            .setRequired(false);
 
         const row1 = new MessageActionRow().addComponents(loanFeeInput);
-        const row2 = new MessageActionRow().addComponents(salaryInput);
-        const row3 = new MessageActionRow().addComponents(loanDurationInput);
-        const row4 = new MessageActionRow().addComponents(optionToBuyInput);
+        const row2 = new MessageActionRow().addComponents(oldClubInput);
+        const row3 = new MessageActionRow().addComponents(newClubInput);
+        const row4 = new MessageActionRow().addComponents(salaryInput);
+        const row5 = new MessageActionRow().addComponents(contractInput);
 
-        modal.addComponents(row1, row2, row3, row4);
+        modal.addComponents(row1, row2, row3, row4, row5);
 
         await interaction.showModal(modal);
     }

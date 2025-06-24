@@ -68,14 +68,12 @@ class EmbedCreator {
             .addFields(
                 { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
                 { name: '⚽ Futbolcu', value: `${player}`, inline: true },
-                { name: `${config.emojis.money} Kiralık Bedeli`, value: hireData?.loanFee || '500.000₺', inline: true },
-                { name: '💰 Yıllık Maaş', value: hireData?.salary || '4.000.000₺/yıl', inline: true },
-                { name: '📅 Kiralık Süresi', value: hireData?.loanDuration || '1 yıl', inline: true }
+                { name: `${config.emojis.money} Kiralık Bedeli`, value: hireData?.loanFee || '2.000.000₺', inline: true },
+                { name: '🏆 Eski Kulüp', value: hireData?.oldClub || 'Belirtilmemiş', inline: true },
+                { name: '🎯 Yeni Kulüp', value: hireData?.newClub || 'Belirtilmemiş', inline: true },
+                { name: '💰 Yıllık Maaş', value: hireData?.salary || '8.000.000₺/yıl', inline: true },
+                { name: '📅 Sözleşme+Ek Madde', value: hireData?.contractDuration || '1 yıl + opsiyon', inline: true }
             );
-        
-        if (hireData?.optionToBuy) {
-            embed.addFields({ name: '🔄 Satın Alma Opsiyonu', value: hireData.optionToBuy, inline: true });
-        }
 
         return embed
             .setThumbnail(player.displayAvatarURL({ dynamic: true }))
