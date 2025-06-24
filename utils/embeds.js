@@ -25,7 +25,7 @@ class EmbedCreator {
         const embed = new MessageEmbed()
             .setColor(config.colors.accent)
             .setTitle(`${config.emojis.contract} Sözleşme Teklifi`)
-            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan sözleşme teklifi:\n\n*Bu teklifin onaylanması için önce başkan onayı, sonra oyuncu onayı gereklidir.*`)
+            .setDescription(`**${fromPresident.displayName || fromPresident.username}** tarafından **${toPresident.displayName || toPresident.username}** için yapılan sözleşme teklifi:\n\n*Bu teklifin onaylanması için önce başkan onayı, sonra oyuncu onayı gereklidir.*`)
             .addFields(
                 { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
                 { name: '🏠 Eski Kulüp', value: contractData?.oldClub || 'Belirtilmemiş', inline: true },
@@ -45,7 +45,7 @@ class EmbedCreator {
         const embed = new MessageEmbed()
             .setColor(config.colors.warning)
             .setTitle(`${config.emojis.trade} Takas Teklifi`)
-            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan takas teklifi:`)
+            .setDescription(`**${fromPresident.displayName || fromPresident.username}** tarafından **${toPresident.displayName || toPresident.username}** için yapılan takas teklifi:`)
             .addFields(
                 { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
                 { name: '🎯 Hedef Başkan', value: `${toPresident}`, inline: true },
@@ -64,7 +64,7 @@ class EmbedCreator {
         const embed = new MessageEmbed()
             .setColor(config.colors.info)
             .setTitle(`${config.emojis.hire} Kiralık Teklifi`)
-            .setDescription(`**${fromPresident.username}** tarafından **${toPresident.username}** için yapılan kiralık teklifi:`)
+            .setDescription(`**${fromPresident.displayName || fromPresident.username}** tarafından **${toPresident.displayName || toPresident.username}** için yapılan kiralık teklifi:`)
             .addFields(
                 { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
                 { name: '⚽ Futbolcu', value: `${player}`, inline: true },
@@ -88,7 +88,7 @@ class EmbedCreator {
         const embed = new MessageEmbed()
             .setColor(color)
             .setTitle(`${config.emojis.release} ${title}`)
-            .setDescription(`**${president.username}** tarafından **${player.username}** için yapılan fesih teklifi:`)
+            .setDescription(`**${president.displayName || president.username}** tarafından **${player.displayName || player.username}** için yapılan fesih teklifi:`)
         
         const fields = [
             { name: `${config.emojis.handshake} Başkan`, value: `${president}`, inline: true },

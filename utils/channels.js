@@ -4,27 +4,33 @@ const config = require('../config');
 class ChannelManager {
     async createNegotiationChannel(guild, user1, user2, type, player = null) {
         try {
-            console.log(`[CHANNEL] Creating ${type} channel for ${user1.username} and ${user2.username}`);
+            // Get display names from guild members
+            const member1 = guild.members.cache.get(user1.id);
+            const member2 = guild.members.cache.get(user2.id);
+            const displayName1 = member1 ? member1.displayName : user1.username;
+            const displayName2 = member2 ? member2.displayName : user2.username;
+            
+            console.log(`[CHANNEL] Creating ${type} channel for ${displayName1} and ${displayName2}`);
             // Kanal adını oluştur
             let channelName;
             switch (type) {
                 case 'offer':
-                    channelName = `teklif-${user1.username}-${user2.username}`;
+                    channelName = `teklif-${displayName1}-${displayName2}`;
                     break;
                 case 'contract':
-                    channelName = `sozlesme-${user1.username}-${user2.username}`;
+                    channelName = `sozlesme-${displayName1}-${displayName2}`;
                     break;
                 case 'hire':
-                    channelName = `kiralik-${user1.username}-${user2.username}`;
+                    channelName = `kiralik-${displayName1}-${displayName2}`;
                     break;
                 case 'trade':
-                    channelName = `takas-${user1.username}-${user2.username}`;
+                    channelName = `takas-${displayName1}-${displayName2}`;
                     break;
                 case 'release':
-                    channelName = `fesih-${user1.username}-${user2.username}`;
+                    channelName = `fesih-${displayName1}-${displayName2}`;
                     break;
                 default:
-                    channelName = `müzakere-${user1.username}-${user2.username}`;
+                    channelName = `müzakere-${displayName1}-${displayName2}`;
             }
 
             // Kanal ismini Discord kurallarına uygun hale getir

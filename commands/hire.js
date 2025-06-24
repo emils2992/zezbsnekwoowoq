@@ -61,7 +61,7 @@ module.exports = {
 
             // Modal formu butonunu göster
             await message.reply({
-                content: `${config.emojis.hire} **Kiralık Teklifi Formu**\n\n${playerUser.username} için kiralık formunu doldurmak üzere aşağıdaki butona tıklayın.`,
+                content: `${config.emojis.hire} **Kiralık Teklifi Formu**\n\n${player.displayName} için kiralık formunu doldurmak üzere aşağıdaki butona tıklayın.`,
                 components: [
                     new MessageActionRow().addComponents(
                         new MessageButton()

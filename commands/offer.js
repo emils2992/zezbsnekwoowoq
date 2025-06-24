@@ -44,7 +44,7 @@ module.exports = {
 
             // Modal formu butonunu göster
             await message.reply({
-                content: `${config.emojis.football} **Transfer Teklifi Formu**\n\n${targetUser.username} için teklif formunu doldurmak üzere aşağıdaki butona tıklayın.`,
+                content: `${config.emojis.football} **Transfer Teklifi Formu**\n\n${targetMember.displayName} için teklif formunu doldurmak üzere aşağıdaki butona tıklayın.`,
                 components: [
                     new MessageActionRow().addComponents(
                         new MessageButton()

@@ -62,7 +62,7 @@ module.exports = {
 
             // Modal formu butonunu göster
             await message.reply({
-                content: `${config.emojis.contract} **Sözleşme Teklifi Formu**\n\n${playerUser.username} için sözleşme formunu doldurmak üzere aşağıdaki butona tıklayın.`,
+                content: `${config.emojis.contract} **Sözleşme Teklifi Formu**\n\n${player.displayName} için sözleşme formunu doldurmak üzere aşağıdaki butona tıklayın.`,
                 components: [
                     new MessageActionRow().addComponents(
                         new MessageButton()

@@ -702,7 +702,7 @@ async function handleModalSubmit(client, interaction) {
 
 
                 // İlk başkan ile hedef başkan arasında müzakere kanalı oluştur
-                console.log('Creating hire channel for:', president.user.username, 'and', targetPresident.user.username);
+                console.log('Creating hire channel for:', president.displayName, 'and', targetPresident.displayName);
                 const channel = await channels.createNegotiationChannel(interaction.guild, president.user, targetPresident.user, 'hire');
                 console.log('Channel creation result:', channel ? channel.name : 'FAILED');
                 if (!channel) {

@@ -229,6 +229,11 @@ The bot is configured for Replit deployment with:
     - Completely removed automatic message deletion from both commands and modal handlers
     - Enhanced role management with proper permission checks and hierarchy validation
     - Fixed "Missing Permissions" errors by checking bot role position relative to target roles
+- June 24, 2025. Updated display names throughout bot system:
+    - Bot now uses server display names (nicknames) instead of usernames for all transfers
+    - Channel names created with display names for better readability
+    - Command messages and embeds show server nicknames
+    - Maintains fallback to username if display name unavailable
 - June 24, 2025. Separated ping roles for different announcement types:
     - Updated role system to use separate ping roles: tfPingRole, serbestPingRole, duyurPingRole
     - Transfer announcements (.offer .contract .hire .trade) now use tfPingRole

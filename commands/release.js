@@ -40,7 +40,7 @@ module.exports = {
 
             // Modal formu butonunu göster
             await message.reply({
-                content: `${config.emojis.handshake} **Karşılıklı Fesih Teklifi Formu**\n\n${targetUser.username} için fesih formunu doldurmak üzere aşağıdaki butona tıklayın.`,
+                content: `${config.emojis.handshake} **Karşılıklı Fesih Teklifi Formu**\n\n${targetMember.displayName} için fesih formunu doldurmak üzere aşağıdaki butona tıklayın.`,
                 components: [
                     new MessageActionRow().addComponents(
                         new MessageButton()
