@@ -11,44 +11,112 @@ module.exports = {
     
     async execute(client, message, args) {
         try {
-            // Admin yetkisi kontrolü
-            if (!message.member.permissions.has('Administrator')) {
-                return message.reply('❌ Bu komutu sadece yöneticiler kullanabilir!');
+            // Yetki kontrolü
+            if (!permissions.isTransferAuthority(message.member) && !message.member.permissions.has('ADMINISTRATOR')) {
+                return message.reply('❌ Bu komutu sadece transfer yetkilileri veya yöneticiler kullanabilir!');
             }
 
-            const subCommand = args[0]?.toLowerCase();
+            if (args.length === 0) {
+                return this.showRoleMenu(message);
+            }
+
+            const subCommand = args[0].toLowerCase();
 
             switch (subCommand) {
-                case 'liste':
-                    await this.showRoleList(message);
-                    break;
                 case 'ayarla':
-                    await this.setupRoles(message);
-                    break;
+                    if (args.length === 1) {
+                        return this.showRoleMenu(message);
+                    }
+                    return this.setupRoles(message, args.slice(1));
+                case 'liste':
+                    return this.showRoleList(message);
                 case 'sıfırla':
-                    await this.resetRoles(message);
-                    break;
+                case 'sifirla':
+                    return this.resetRoles(message);
+                case 'menu':
+                    return this.showRoleMenu(message);
                 default:
-                    await this.showHelp(message);
-                    break;
+                    return this.showRoleMenu(message);
             }
-
         } catch (error) {
             console.error('Rol komutu hatası:', error);
-            message.reply('❌ Rol ayarlarında bir hata oluştu!');
+            message.reply('❌ Rol ayarlarken bir hata oluştu!');
         }
     },
 
-    async showHelp(message) {
-        const helpEmbed = new MessageEmbed()
-            .setColor(config.colors.primary)
-            .setTitle(`${config.emojis.warning} Rol Yönetimi Yardım`)
-            .setDescription('Transfer sistemi için rol ayarlarını yönetin')
-            .addField('📋 Komutlar', '`.rol liste` - Mevcut rol ayarlarını görüntüle\n`.rol ayarla` - Rolleri ayarla\n`.rol sıfırla` - Rol ayarlarını sıfırla', false)
-            .addField('🎭 Rol Türleri', '**Takım Başkanı:** Transfer yetkisi olan kişiler\n**Futbolcu:** Transfer edilebilir oyuncular\n**Serbest Futbolcu:** Sözleşmesiz oyuncular\n**Transfer Yetkilisi:** Duyuru yapabilir', false).setTimestamp()
-            .setFooter({ text: 'Transfer Sistemi' });
+    async showRoleMenu(message) {
+        const embed = new MessageEmbed()
+            .setColor(config.colors.info)
+            .setTitle('🎭 Rol Yönetim Menüsü')
+            .setDescription('Hangi rolü ayarlamak istiyorsunuz? Aşağıdaki butonlardan birini seçin:')
+            .addFields(
+                { name: '📋 Mevcut Roller', value: 'Rolleri görmek için "Liste" butonuna tıklayın', inline: false },
+                { name: '🔧 Kullanım', value: 'Bir rol türü seçtikten sonra rol etiketleyerek ayarlayın', inline: false }
+            )
+            .setFooter({ text: 'Rol Sistemi' })
+            .setTimestamp();
 
-        await message.reply({ embeds: [helpEmbed] });
+        const row1 = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId('role_select_baskan')
+                    .setLabel('Başkan Rolü')
+                    .setStyle('PRIMARY')
+                    .setEmoji('👑'),
+                new MessageButton()
+                    .setCustomId('role_select_futbolcu')
+                    .setLabel('Futbolcu Rolü')
+                    .setStyle('PRIMARY')
+                    .setEmoji('⚽'),
+                new MessageButton()
+                    .setCustomId('role_select_serbest')
+                    .setLabel('Serbest Futbolcu')
+                    .setStyle('PRIMARY')
+                    .setEmoji('🆓')
+            );
+
+        const row2 = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId('role_select_yetkili')
+                    .setLabel('Transfer Yetkili')
+                    .setStyle('SUCCESS')
+                    .setEmoji('🔧'),
+                new MessageButton()
+                    .setCustomId('role_select_ping_tf')
+                    .setLabel('Transfer Ping')
+                    .setStyle('SECONDARY')
+                    .setEmoji('📢'),
+                new MessageButton()
+                    .setCustomId('role_select_ping_serbest')
+                    .setLabel('Serbest Ping')
+                    .setStyle('SECONDARY')
+                    .setEmoji('🔔')
+            );
+
+        const row3 = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setCustomId('role_select_ping_duyur')
+                    .setLabel('Duyuru Ping')
+                    .setStyle('SECONDARY')
+                    .setEmoji('📣'),
+                new MessageButton()
+                    .setCustomId('role_list')
+                    .setLabel('Liste')
+                    .setStyle('SUCCESS')
+                    .setEmoji('📋'),
+                new MessageButton()
+                    .setCustomId('role_reset')
+                    .setLabel('Sıfırla')
+                    .setStyle('DANGER')
+                    .setEmoji('🗑️')
+            );
+
+        await message.reply({ 
+            embeds: [embed], 
+            components: [row1, row2, row3]
+        });
     },
 
     async showRoleList(message) {

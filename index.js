@@ -51,23 +51,161 @@ client.on('messageCreate', async message => {
 
 // Etkileşim dinleyicisi (butonlar, select menüler ve modaller)
 client.on('interactionCreate', async interaction => {
-    try {
-        if (interaction.isButton()) {
-            await buttonHandler.handleButton(client, interaction);
-        } else if (interaction.isSelectMenu()) {
-            await handleSelectMenu(client, interaction);
-        } else if (interaction.isModalSubmit && interaction.isModalSubmit()) {
-            await handleModalSubmit(client, interaction);
+    if (interaction.isButton()) {
+        try {
+            // Handle role selection buttons
+            if (interaction.customId.startsWith('role_select_') || 
+                interaction.customId === 'role_list' || 
+                interaction.customId === 'role_reset') {
+                await handleRoleButtons(client, interaction);
+            } else {
+                await buttonHandler.handleButton(client, interaction);
+            }
+        } catch (error) {
+            console.error('Button interaction error:', error);
         }
-    } catch (error) {
-        console.error('Etkileşim hatası:', error);
-        if (!interaction.replied && !interaction.deferred) {
-            await interaction.reply({ content: '❌ Bir hata oluştu!', ephemeral: true });
+    } else if (interaction.isSelectMenu()) {
+        try {
+            await handleSelectMenu(client, interaction);
+        } catch (error) {
+            console.error('Select menu error:', error);
+        }
+    } else if (interaction.isModalSubmit()) {
+        try {
+            await handleModalSubmit(client, interaction);
+        } catch (error) {
+            console.error('Modal submit error:', error);
         }
     }
 });
 
 // Select menu işleyicisi
+async function handleRoleButtons(client, interaction) {
+    const permissions = require('./utils/permissions');
+    const { MessageEmbed } = require('discord.js');
+    const config = require('./config');
+
+    // Yetki kontrolü
+    if (!permissions.isTransferAuthority(interaction.member) && !interaction.member.permissions.has('ADMINISTRATOR')) {
+        return interaction.reply({
+            content: '❌ Bu işlemi sadece transfer yetkilileri veya yöneticiler yapabilir!',
+            ephemeral: true
+        });
+    }
+
+    if (interaction.customId === 'role_list') {
+        // Show role list
+        const roleData = permissions.getRoleData(interaction.guild.id);
+        const embed = new MessageEmbed()
+            .setColor(config.colors.info)
+            .setTitle('📋 Mevcut Rol Ayarları')
+            .setDescription('Sunucuda ayarlanan roller:')
+            .addFields(
+                { name: '👑 Başkan Rolü', value: roleData.president ? `<@&${roleData.president}>` : 'Ayarlanmamış', inline: true },
+                { name: '⚽ Futbolcu Rolü', value: roleData.player ? `<@&${roleData.player}>` : 'Ayarlanmamış', inline: true },
+                { name: '🆓 Serbest Futbolcu', value: roleData.freeAgent ? `<@&${roleData.freeAgent}>` : 'Ayarlanmamış', inline: true },
+                { name: '🔧 Transfer Yetkili', value: roleData.transferAuthority ? `<@&${roleData.transferAuthority}>` : 'Ayarlanmamış', inline: true },
+                { name: '📢 Transfer Ping', value: roleData.tfPingRole ? `<@&${roleData.tfPingRole}>` : 'Ayarlanmamış', inline: true },
+                { name: '🔔 Serbest Ping', value: roleData.serbestPingRole ? `<@&${roleData.serbestPingRole}>` : 'Ayarlanmamış', inline: true },
+                { name: '📣 Duyuru Ping', value: roleData.duyurPingRole ? `<@&${roleData.duyurPingRole}>` : 'Ayarlanmamış', inline: true }
+            )
+            .setTimestamp();
+
+        return interaction.reply({ embeds: [embed], ephemeral: true });
+    }
+
+    if (interaction.customId === 'role_reset') {
+        permissions.resetRoles(interaction.guild.id);
+        return interaction.reply({
+            content: '✅ Tüm rol ayarları sıfırlandı!',
+            ephemeral: true
+        });
+    }
+
+    // Handle role selection
+    const roleType = interaction.customId.replace('role_select_', '');
+    const roleNames = {
+        'baskan': 'Başkan Rolü',
+        'futbolcu': 'Futbolcu Rolü', 
+        'serbest': 'Serbest Futbolcu Rolü',
+        'yetkili': 'Transfer Yetkili Rolü',
+        'ping_tf': 'Transfer Ping Rolü',
+        'ping_serbest': 'Serbest Ping Rolü',
+        'ping_duyur': 'Duyuru Ping Rolü'
+    };
+
+    await interaction.reply({
+        content: `🎭 **${roleNames[roleType]}** ayarlama için rol etiketleyin veya rol ID'sini yazın.\n\nÖrnek: \`@Başkan\` veya \`1234567890\`\n\n*60 saniye içinde yanıtlayın...*`,
+        ephemeral: false
+    });
+
+    // Wait for role mention or ID
+    const filter = m => m.author.id === interaction.user.id;
+    try {
+        const collected = await interaction.channel.awaitMessages({ 
+            filter, 
+            max: 1, 
+            time: 60000, 
+            errors: ['time'] 
+        });
+
+        const message = collected.first();
+        let roleId = null;
+
+        // Check for role mention
+        if (message.mentions.roles.size > 0) {
+            roleId = message.mentions.roles.first().id;
+        } else {
+            // Check for role ID or name
+            const content = message.content.trim();
+            
+            // Try as ID first
+            if (/^\d+$/.test(content)) {
+                const role = interaction.guild.roles.cache.get(content);
+                if (role) roleId = content;
+            } else {
+                // Try as role name
+                const role = interaction.guild.roles.cache.find(r => 
+                    r.name.toLowerCase() === content.toLowerCase()
+                );
+                if (role) roleId = role.id;
+            }
+        }
+
+        if (!roleId) {
+            return message.reply('❌ Geçerli bir rol bulunamadı! Rol etiketleyin, ID yazın veya doğru rol adını girin.');
+        }
+
+        // Set the role
+        const roleTypeMapping = {
+            'baskan': 'president',
+            'futbolcu': 'player',
+            'serbest': 'freeAgent', 
+            'yetkili': 'transferAuthority',
+            'ping_tf': 'tfPingRole',
+            'ping_serbest': 'serbestPingRole',
+            'ping_duyur': 'duyurPingRole'
+        };
+
+        const mappedType = roleTypeMapping[roleType];
+        if (mappedType) {
+            permissions.setRole(interaction.guild.id, mappedType, roleId);
+            const role = interaction.guild.roles.cache.get(roleId);
+            await message.reply(`✅ **${roleNames[roleType]}** ${role} olarak ayarlandı!`);
+        }
+
+    } catch (error) {
+        if (error.code === 'INTERACTION_COLLECTOR_ERROR') {
+            await interaction.followUp({
+                content: '❌ Zaman aşımı! 60 saniye içinde yanıt verilmedi.',
+                ephemeral: true
+            });
+        } else {
+            console.error('Role setup error:', error);
+        }
+    }
+}
+
 async function handleSelectMenu(client, interaction) {
     const customId = interaction.customId;
     

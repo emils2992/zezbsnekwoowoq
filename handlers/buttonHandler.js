@@ -2164,7 +2164,7 @@ class ButtonHandler {
             .setLabel('İmza Bonusu')
             .setStyle('SHORT')
             .setValue(existingData.bonus || '')
-            .setRequired(true);
+            .setRequired(false);
 
         modal.addComponents(
             new MessageActionRow().addComponents(oldClubInput),

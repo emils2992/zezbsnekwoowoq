@@ -245,6 +245,13 @@ The bot is configured for Replit deployment with:
     - Fixed modal form field names to match embed display names
     - Corrected contract duration field label to "Sözleşme+Ek Madde"
     - Offer forms now properly save and display all field data without "Bilinmiyor" errors
+- June 24, 2025. Enhanced role management system with streamlined interface:
+    - Added interactive button-based role selection menu for easier role management
+    - Single `.rol` command now opens comprehensive role management interface
+    - Users can select role types via buttons instead of typing commands
+    - Streamlined workflow: button selection → role mention/ID → automatic setup
+    - Added visual role list display and reset functionality through buttons
+    - Eliminated need for repeated `.rol ayarla` commands between role setups
 - June 24, 2025. Separated ping roles for different announcement types:
     - Updated role system to use separate ping roles: tfPingRole, serbestPingRole, duyurPingRole
     - Transfer announcements (.offer .contract .hire .trade) now use tfPingRole
