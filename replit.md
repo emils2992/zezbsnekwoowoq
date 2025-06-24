@@ -240,6 +240,11 @@ The bot is configured for Replit deployment with:
     - Added channel topic storage to preserve contract data between stages
     - Created separate createTradePlayerForm embed for player approval with full contract details
     - Trade data is now properly saved and carried through the entire workflow
+- June 24, 2025. Fixed offer command form field mapping:
+    - Updated offer form to use "Eski Kulüp" instead of "Oyuncu Adı" field
+    - Fixed modal form field names to match embed display names
+    - Corrected contract duration field label to "Sözleşme+Ek Madde"
+    - Offer forms now properly save and display all field data without "Bilinmiyor" errors
 - June 24, 2025. Separated ping roles for different announcement types:
     - Updated role system to use separate ping roles: tfPingRole, serbestPingRole, duyurPingRole
     - Transfer announcements (.offer .contract .hire .trade) now use tfPingRole

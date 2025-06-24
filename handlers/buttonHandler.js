@@ -2120,10 +2120,10 @@ class ButtonHandler {
         
         // Extract existing data from embed fields
         const existingData = {
+            oldClub: fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
             newTeam: fields.find(f => f.name.includes('Yeni Kulüp'))?.value || '',
-            playerName: fields.find(f => f.name.includes('Oyuncu Adı'))?.value || '',
             salary: fields.find(f => f.name.includes('Maaş'))?.value || '',
-            contractDuration: fields.find(f => f.name.includes('Sözleşme'))?.value || '',
+            contractDuration: fields.find(f => f.name.includes('Sözleşme+Ek Madde'))?.value || '',
             bonus: fields.find(f => f.name.includes('Bonus'))?.value || ''
         };
 
@@ -2131,18 +2131,18 @@ class ButtonHandler {
             .setCustomId(`offer_form_${playerId}_${presidentId}`)
             .setTitle('Transfer Teklifi Düzenle');
 
+        const oldClubInput = new TextInputComponent()
+            .setCustomId('old_club')
+            .setLabel('Eski Kulüp')
+            .setStyle('SHORT')
+            .setValue(existingData.oldClub)
+            .setRequired(true);
+
         const newTeamInput = new TextInputComponent()
             .setCustomId('new_team')
             .setLabel('Yeni Kulüp')
             .setStyle('SHORT')
             .setValue(existingData.newTeam)
-            .setRequired(true);
-
-        const playerNameInput = new TextInputComponent()
-            .setCustomId('player_name')
-            .setLabel('Oyuncu Adı')
-            .setStyle('SHORT')
-            .setValue(existingData.playerName)
             .setRequired(true);
 
         const salaryInput = new TextInputComponent()
@@ -2154,7 +2154,7 @@ class ButtonHandler {
 
         const contractInput = new TextInputComponent()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme+Ekmadde')
+            .setLabel('Sözleşme+Ek Madde')
             .setStyle('SHORT')
             .setValue(existingData.contractDuration)
             .setRequired(true);
@@ -2164,11 +2164,11 @@ class ButtonHandler {
             .setLabel('İmza Bonusu')
             .setStyle('SHORT')
             .setValue(existingData.bonus || '')
-            .setRequired(false);
+            .setRequired(true);
 
         modal.addComponents(
+            new MessageActionRow().addComponents(oldClubInput),
             new MessageActionRow().addComponents(newTeamInput),
-            new MessageActionRow().addComponents(playerNameInput),
             new MessageActionRow().addComponents(salaryInput),
             new MessageActionRow().addComponents(contractInput),
             new MessageActionRow().addComponents(bonusInput)
