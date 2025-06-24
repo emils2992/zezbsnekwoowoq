@@ -1718,11 +1718,14 @@ class ButtonHandler {
                 if (tradeData.givenPlayerSalary && tradeData.givenPlayerSalary !== 'Belirtilmemiş') {
                     announcementEmbed.addFields({ name: '💸 Verilecek Oyuncunun Maaşı', value: tradeData.givenPlayerSalary, inline: true });
                 }
-                if (tradeData.additionalAmount && tradeData.additionalAmount !== 'Yok') {
+                if (tradeData.additionalAmount && tradeData.additionalAmount !== 'Yok' && tradeData.additionalAmount !== 'Belirtilmemiş' && tradeData.additionalAmount.trim() !== '') {
                     announcementEmbed.addFields({ name: '💵 Ek Tazminat', value: tradeData.additionalAmount, inline: true });
                 }
-                if (tradeData.bonus && tradeData.bonus !== 'Yok') {
-                    announcementEmbed.addFields({ name: '🎁 Bonus', value: tradeData.bonus, inline: true });
+                if (tradeData.bonus && tradeData.bonus !== 'Yok' && tradeData.bonus !== 'Belirtilmemiş' && tradeData.bonus.trim() !== '') {
+                    announcementEmbed.addFields({ name: '🎁 İstenen Oyuncu Özellikleri', value: tradeData.bonus, inline: true });
+                }
+                if (tradeData.contractDuration && tradeData.contractDuration !== 'Belirtilmemiş' && tradeData.contractDuration.trim() !== '') {
+                    announcementEmbed.addFields({ name: '📋 Sözleşme Süresi', value: tradeData.contractDuration, inline: true });
                 }
                 if (tradeData.wantedPlayerContract && tradeData.wantedPlayerContract !== 'Belirtilmemiş') {
                     announcementEmbed.addFields({ name: '📅 İstenen Oyuncunun Sözleşmesi', value: tradeData.wantedPlayerContract, inline: false });
@@ -3102,8 +3105,9 @@ class ButtonHandler {
                 givenPlayerSalary: fields.find(f => f.name.includes('Verilecek Oyuncunun Maaşı'))?.value || 'Belirtilmemiş',
                 wantedPlayerContract: fields.find(f => f.name.includes('İstenen Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
                 givenPlayerContract: fields.find(f => f.name.includes('Verilecek Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
-                additionalAmount: fields.find(f => f.name.includes('Ek Miktar'))?.value || 'Yok',
-                bonus: fields.find(f => f.name.includes('Bonus') || f.name.includes('Özellikleri'))?.value || 'Yok'
+                additionalAmount: fields.find(f => f.name.includes('Ek Miktar') || f.name.includes('💰 Ek Miktar'))?.value || 'Yok',
+                bonus: fields.find(f => f.name.includes('Bonus') || f.name.includes('Özellikleri') || f.name.includes('🎁'))?.value || 'Yok',
+                contractDuration: fields.find(f => f.name.includes('Sözleşme+Ek Madde') || f.name.includes('📅 Sözleşme'))?.value || 'Belirtilmemiş'
             };
 
             console.log('📊 Trade data extracted for announcement:', tradeData);

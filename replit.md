@@ -120,6 +120,8 @@ The bot is configured for Replit deployment with:
   - Enhanced error handling to prevent "Unknown interaction" and "Interaction already acknowledged" errors
   - Added comprehensive error logging and interaction state validation in modal submission handler
   - Improved trade form processing with better timeout and duplicate response prevention
+  - Fixed trade announcement to display all form fields (additional amount, bonus/player specs, contract duration)
+  - Enhanced field extraction to capture data from both initial trade form and player approval stages
 - June 24, 2025. Removed Discord connection delay - bot now connects immediately instead of waiting 1 minute
 - June 24, 2025. Fixed authorization bugs in brelease and contract commands:
   - Corrected button authorization logic for both brelease and contract modal buttons
