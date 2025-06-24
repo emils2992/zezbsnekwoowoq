@@ -2667,38 +2667,59 @@ class ButtonHandler {
     async handleShowTradeForm(client, interaction, params) {
         const [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
         
-        const modal = new Modal()
-            .setCustomId(`trade_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
-            .setTitle('Takas Teklifi Formu');
+        // Check if interaction is still valid
+        if (interaction.replied || interaction.deferred) {
+            console.log('Trade modal: Interaction already processed');
+            return;
+        }
 
-        const additionalAmountInput = new TextInputComponent()
-            .setCustomId('additional_amount')
-            .setLabel('Ek Miktar')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 5.000.000₺')
-            .setRequired(false);
+        try {
+            const modal = new Modal()
+                .setCustomId(`trade_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                .setTitle('Takas Teklifi Formu');
 
-        const bonusInput = new TextInputComponent()
-            .setCustomId('bonus')
-            .setLabel('İstenen Oyuncu Özellikleri')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: Mevki, yaş, özellikler')
-            .setRequired(false);
+            const additionalAmountInput = new TextInputComponent()
+                .setCustomId('additional_amount')
+                .setLabel('Ek Miktar')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 5.000.000₺')
+                .setRequired(false);
 
-        const contractInput = new TextInputComponent()
-            .setCustomId('contract_duration')
-            .setLabel('Sözleşme+Ek Madde')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 2 yıl + performans bonusu')
-            .setRequired(true);
+            const bonusInput = new TextInputComponent()
+                .setCustomId('bonus')
+                .setLabel('İstenen Oyuncu Özellikleri')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: Mevki, yaş, özellikler')
+                .setRequired(false);
 
-        const row1 = new MessageActionRow().addComponents(additionalAmountInput);
-        const row2 = new MessageActionRow().addComponents(bonusInput);
-        const row3 = new MessageActionRow().addComponents(contractInput);
+            const contractInput = new TextInputComponent()
+                .setCustomId('contract_duration')
+                .setLabel('Sözleşme+Ek Madde')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 2 yıl + performans bonusu')
+                .setRequired(true);
 
-        modal.addComponents(row1, row2, row3);
+            const row1 = new MessageActionRow().addComponents(additionalAmountInput);
+            const row2 = new MessageActionRow().addComponents(bonusInput);
+            const row3 = new MessageActionRow().addComponents(contractInput);
 
-        await interaction.showModal(modal);
+            modal.addComponents(row1, row2, row3);
+
+            await interaction.showModal(modal);
+            console.log('Trade modal shown successfully');
+        } catch (error) {
+            console.error('Error showing trade modal:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                try {
+                    await interaction.reply({
+                        content: 'Modal açılırken hata oluştu!',
+                        ephemeral: true
+                    });
+                } catch (replyError) {
+                    console.error('Failed to send error reply:', replyError);
+                }
+            }
+        }
     }
 
     // Oyuncular anlaştığında açılacak maaş düzenleme modalı
