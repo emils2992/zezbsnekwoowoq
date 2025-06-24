@@ -93,6 +93,16 @@ class ChannelManager {
             console.log(`[CHANNEL] Creating channel with name: ${channelName}`);
             console.log(`[CHANNEL] Category:`, category ? category.name : 'No category');
             
+            // Check category channel count before creation
+            const categoryChannels = guild.channels.cache.filter(ch => ch.parentId === category.id);
+            console.log(`[CHANNEL] Category has ${categoryChannels.size} channels`);
+            
+            if (categoryChannels.size >= 45) {
+                console.log(`[CHANNEL] Category approaching limit, cleaning up old channels...`);
+                const deletedCount = await this.cleanupOldChannels(guild);
+                console.log(`[CHANNEL] Cleaned up ${deletedCount} old channels`);
+            }
+
             // Kanalı oluştur
             const channel = await guild.channels.create(channelName, {
                 type: 'GUILD_TEXT',
@@ -132,6 +142,43 @@ class ChannelManager {
         } catch (error) {
             console.error('[CHANNEL] Creation error:', error);
             console.error('[CHANNEL] Error details:', error.message);
+            
+            // If category is full (error code 50035), attempt cleanup and retry
+            if (error.code === 50035) {
+                console.log(`[CHANNEL] Category full, attempting cleanup and retry...`);
+                const deletedCount = await this.cleanupOldChannels(guild);
+                console.log(`[CHANNEL] Cleaned up ${deletedCount} channels, retrying creation...`);
+                
+                try {
+                    const channel = await guild.channels.create(channelName, {
+                        type: 'GUILD_TEXT',
+                        parent: category,
+                        permissionOverwrites: permissionOverwrites,
+                        topic: `${type} müzakeresi - ${user1.username} & ${user2.username}${player ? ` (Oyuncu: ${player.username})` : ''}`
+                    });
+                    
+                    console.log(`[CHANNEL] Successfully created channel after cleanup: ${channel.name}`);
+                    
+                    // Send welcome message
+                    const typeNames = {
+                        'offer': 'TRANSFER TEKLİFİ',
+                        'contract': 'SÖZLEŞME',
+                        'trade': 'TAKAS',
+                        'hire': 'KİRALIK',
+                        'release': 'FESİH'
+                    };
+                    
+                    const typeName = typeNames[type] || type.toUpperCase();
+                    const welcomeMessage = `${user1} ${user2}\n\n🏈 **${typeName} Müzakeresi Başladı**\n\nBu kanalda transfer detaylarını görüşebilirsiniz. Formu doldurup onay/red verebilirsiniz.`;
+                    await channel.send(welcomeMessage);
+                    
+                    return channel;
+                } catch (retryError) {
+                    console.log(`[CHANNEL] Retry failed: ${retryError.message}`);
+                    return null;
+                }
+            }
+            
             console.error('[CHANNEL] Stack trace:', error.stack);
             return null;
         }
@@ -252,24 +299,81 @@ class ChannelManager {
     }
 
     async cleanupOldChannels(guild) {
+        console.log('🧹 Starting cleanup of old negotiation channels...');
+        let deletedCount = 0;
+        
         try {
             const category = guild.channels.cache.find(c => 
                 c.type === 'GUILD_CATEGORY' && 
                 c.name.toLowerCase().includes('müzakere')
             );
 
-            if (!category) return;
+            if (!category) {
+                console.log('❌ Müzakere kategorisi bulunamadı');
+                return deletedCount;
+            }
 
-            const channels = category.children;
-            const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+            const channels = Array.from(category.children.values());
+            console.log(`Found ${channels.length} channels in category`);
+            
+            // Sort by creation time, oldest first
+            channels.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+            
+            // More aggressive cleanup when category is full
+            const thirtyMinutesAgo = Date.now() - (30 * 60 * 1000); // 30 minutes
+            const oneHourAgo = Date.now() - (60 * 60 * 1000); // 1 hour
 
-            for (const [channelId, channel] of channels) {
-                if (channel.type === 'GUILD_TEXT' && channel.createdTimestamp < oneDayAgo) {
+            for (const channel of channels) {
+                if (channel.type === 'GUILD_TEXT') {
                     try {
-                        await channel.delete('Otomatik temizlik - 24 saat geçti');
-                        console.log(`Eski müzakere kanalı silindi: ${channel.name}`);
+                        // Check for negotiation channel patterns
+                        const isNegotiationChannel = channel.name.includes('muzakere') || 
+                                                   channel.name.includes('teklif') || 
+                                                   channel.name.includes('sozlesme') ||
+                                                   channel.name.includes('takas') ||
+                                                   channel.name.includes('kiralik') ||
+                                                   channel.name.includes('fesih');
+                        
+                        if (isNegotiationChannel) {
+                            const channelAge = Date.now() - channel.createdTimestamp;
+                            let shouldDelete = false;
+                            
+                            // Delete very old channels (1+ hour)
+                            if (channelAge > oneHourAgo) {
+                                shouldDelete = true;
+                            }
+                            // Delete channels older than 30 minutes with no recent activity
+                            else if (channelAge > thirtyMinutesAgo) {
+                                try {
+                                    const messages = await channel.messages.fetch({ limit: 1 });
+                                    const lastMessage = messages.first();
+                                    
+                                    if (!lastMessage || (Date.now() - lastMessage.createdTimestamp) > thirtyMinutesAgo) {
+                                        shouldDelete = true;
+                                    }
+                                } catch (fetchError) {
+                                    // If can't fetch messages, assume it's inactive
+                                    shouldDelete = true;
+                                }
+                            }
+                            
+                            if (shouldDelete) {
+                                await channel.delete('Otomatik temizlik - Kategori limit aşımı');
+                                deletedCount++;
+                                console.log(`🗑️ Deleted old channel: ${channel.name}`);
+                                
+                                // Stop after cleaning 15 channels to avoid rate limits
+                                if (deletedCount >= 15) {
+                                    console.log(`✅ Cleanup limit reached: ${deletedCount} channels deleted`);
+                                    break;
+                                }
+                                
+                                // Add delay to avoid rate limits
+                                await new Promise(resolve => setTimeout(resolve, 300));
+                            }
+                        }
                     } catch (error) {
-                        console.log(`Kanal silme hatası: ${error.message}`);
+                        console.log(`❌ Error cleaning up channel ${channel.name}:`, error.message);
                     }
                 }
             }
@@ -277,6 +381,9 @@ class ChannelManager {
         } catch (error) {
             console.error('Kanal temizleme hatası:', error);
         }
+        
+        console.log(`✅ Cleanup completed: ${deletedCount} channels deleted`);
+        return deletedCount;
     }
 }
 

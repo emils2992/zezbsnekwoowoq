@@ -418,6 +418,12 @@ The bot is configured for Replit deployment with:
     - Enhanced debugging and logging throughout trade system for better troubleshooting
     - Bot now responds immediately to all interactions without Discord timeout issues
     - Trade system fully operational: modal forms → channel creation → button interactions → announcements → cleanup
+- June 23, 2025. Fixed Discord category channel limit issue:
+    - Implemented automatic cleanup of old negotiation channels when category approaches 50-channel limit
+    - Added retry mechanism for channel creation after cleanup completion
+    - Enhanced cleanup system to target channels older than 30 minutes with no recent activity
+    - Added rate limit protection with delays between channel deletions
+    - Trade system now handles category overflow gracefully without "Maximum channels reached" errors
 
 ## User Preferences
 
