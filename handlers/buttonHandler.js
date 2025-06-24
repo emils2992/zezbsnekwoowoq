@@ -3081,12 +3081,30 @@ class ButtonHandler {
 
             console.log('✅ All users fetched for trade completion');
 
-            // Send transfer announcement
-            await this.sendTradeTransferAnnouncement(guild, {
-                targetPresident,
+            // Extract trade data from the embed to pass to announcement
+            const embed = interaction.message.embeds[0];
+            const fields = embed ? embed.fields : [];
+            
+            const tradeData = {
+                wantedPlayerSalary: fields.find(f => f.name.includes('İstenen Oyuncunun Maaşı'))?.value || 'Belirtilmemiş',
+                givenPlayerSalary: fields.find(f => f.name.includes('Verilecek Oyuncunun Maaşı'))?.value || 'Belirtilmemiş',
+                wantedPlayerContract: fields.find(f => f.name.includes('İstenen Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
+                givenPlayerContract: fields.find(f => f.name.includes('Verilecek Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
+                additionalAmount: fields.find(f => f.name.includes('Ek Miktar'))?.value || 'Yok',
+                bonus: fields.find(f => f.name.includes('Bonus') || f.name.includes('Özellikleri'))?.value || 'Yok'
+            };
+
+            console.log('📊 Trade data extracted for announcement:', tradeData);
+
+            // Send transfer announcement with complete trade data
+            await this.sendTransferAnnouncement(guild, {
+                type: 'trade',
                 wantedPlayer,
                 givenPlayer,
-                president
+                targetPresident,
+                president,
+                tradeData,
+                embed: { fields }
             });
 
             console.log('✅ Trade announcement sent');

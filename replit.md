@@ -111,6 +111,9 @@ The bot is configured for Replit deployment with:
   - Fixed president channel edit button to show correct trade form modal instead of player salary modal
   - Added showEditTradePresidentModal function with pre-filled values from existing embed data
   - Presidents can now properly edit their original trade form details in negotiation channels
+  - Fixed trade announcement to show complete trade details instead of just club names and dates
+  - Trade announcements now extract and display salary, contract, and bonus information from player approval stage
+  - Replaced sendTradeTransferAnnouncement with sendTransferAnnouncement for comprehensive trade details
 - June 24, 2025. Removed Discord connection delay - bot now connects immediately instead of waiting 1 minute
 - June 24, 2025. Fixed authorization bugs in brelease and contract commands:
   - Corrected button authorization logic for both brelease and contract modal buttons
