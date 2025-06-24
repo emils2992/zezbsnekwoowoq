@@ -222,10 +222,11 @@ The bot is configured for Replit deployment with:
     - Fixed negotiation channel detection to properly identify fesih/release channels
     - Enhanced channel detection logic to prevent unnecessary channel creation during form edits
 - June 24, 2025. Added comprehensive button protection system:
-    - Form button messages now automatically delete after 5 seconds to prevent multiple users from using same button
     - Added authorization check: only the user who wrote the command can use their own button
+    - Fixed parameter position logic for different command types (announcement, release, others)
     - Applied to all commands: .offer, .contract, .trade, .hire, .release, .duyur
     - Other users get "❌ Bu butonu sadece komutu yazan kişi kullanabilir!" error message
+    - Removed automatic message deletion since authorization control makes it unnecessary
     - Enhanced security and user experience by preventing unauthorized button usage
 - June 24, 2025. Separated ping roles for different announcement types:
     - Updated role system to use separate ping roles: tfPingRole, serbestPingRole, duyurPingRole

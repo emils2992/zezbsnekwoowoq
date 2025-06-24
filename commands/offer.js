@@ -43,7 +43,7 @@ module.exports = {
             }
 
             // Modal formu butonunu göster
-            const reply = await message.reply({
+            await message.reply({
                 content: `${config.emojis.football} **Transfer Teklifi Formu**\n\n${targetUser.username} için teklif formunu doldurmak üzere aşağıdaki butona tıklayın.`,
                 components: [
                     new MessageActionRow().addComponents(
@@ -55,18 +55,6 @@ module.exports = {
                     )
                 ]
             });
-
-            // Mesajı 5 saniye sonra sil
-            setTimeout(async () => {
-                try {
-                    if (reply.deletable) {
-                        await reply.delete();
-                        console.log('✅ Offer form button message deleted after 5 seconds');
-                    }
-                } catch (error) {
-                    console.log('Could not delete offer button message:', error.message);
-                }
-            }, 5000);
 
         } catch (error) {
             console.error('Offer komutu hatası:', error);

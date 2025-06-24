@@ -39,7 +39,7 @@ module.exports = {
             }
 
             // Modal formu butonunu göster
-            const reply = await message.reply({
+            await message.reply({
                 content: `${config.emojis.handshake} **Karşılıklı Fesih Teklifi Formu**\n\n${targetUser.username} için fesih formunu doldurmak üzere aşağıdaki butona tıklayın.`,
                 components: [
                     new MessageActionRow().addComponents(
@@ -51,18 +51,6 @@ module.exports = {
                     )
                 ]
             });
-
-            // Mesajı 5 saniye sonra sil
-            setTimeout(async () => {
-                try {
-                    if (reply.deletable) {
-                        await reply.delete();
-                        console.log('✅ Release form button message deleted after 5 seconds');
-                    }
-                } catch (error) {
-                    console.log('Could not delete release button message:', error.message);
-                }
-            }, 5000);
 
         } catch (error) {
             console.error('Release komutu hatası:', error);

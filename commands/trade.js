@@ -87,22 +87,10 @@ module.exports = {
                         .setEmoji('📝')
                 );
 
-            const reply = await message.reply({
+            await message.reply({
                 embeds: [embed],
                 components: [button]
             });
-
-            // Mesajı 5 saniye sonra sil
-            setTimeout(async () => {
-                try {
-                    if (reply.deletable) {
-                        await reply.delete();
-                        console.log('✅ Trade form button message deleted after 5 seconds');
-                    }
-                } catch (error) {
-                    console.log('Could not delete trade button message:', error.message);
-                }
-            }, 5000);
 
         } catch (error) {
             console.error('Trade komutu hatası:', error);

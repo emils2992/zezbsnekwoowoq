@@ -1896,10 +1896,25 @@ class ButtonHandler {
 
     async handleShowButton(client, interaction, params) {
         const [type, ...additionalParams] = params;
-        console.log('HandleShowButton debug:', { type, additionalParams });
+        console.log('HandleShowButton debug:', { type, additionalParams, userId: interaction.user.id });
         
         // Authorization check - only command creator can use their button
-        const commandCreatorId = additionalParams[additionalParams.length - 1];
+        // For release: [modal, playerId, presidentId, releaseType] - presidentId is at index 2
+        // For others: [modal, targetId, presidentId] - presidentId is at index 2
+        let commandCreatorId;
+        if (type === 'announcement') {
+            // For announcement: [modal, userId] - userId is at index 1
+            commandCreatorId = additionalParams[1];
+        } else if (type === 'release') {
+            // For release: [modal, playerId, presidentId, releaseType] - presidentId is at index 2
+            commandCreatorId = additionalParams[2];
+        } else {
+            // For offer, contract, trade, hire: [modal, targetId, presidentId] - presidentId is at index 2
+            commandCreatorId = additionalParams[2];
+        }
+        
+        console.log('Authorization check:', { commandCreatorId, userId: interaction.user.id });
+        
         if (interaction.user.id !== commandCreatorId) {
             return interaction.reply({
                 content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
