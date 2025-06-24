@@ -111,6 +111,8 @@ The bot is configured for Replit deployment with:
   - Improved original message finding logic for contract form updates
   - Fixed contract player button routing with explicit startsWith check for contract_player_ buttons
   - Fixed contract player button parameter parsing - corrected index positions after slice(2)
+  - Fixed contract edit to detect player vs president channels and create appropriate button types
+  - Player channel edits now maintain contract_player_ buttons to prevent wrong routing
   - Contract player edit button now works properly
   - Contract player acceptance now properly completes transfers instead of creating new channels
   - Eliminated "Bu butonu sadece komutu yazan kişi kullanabilir" errors for legitimate users

@@ -4,7 +4,6 @@ modules = ["nodejs-20"]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Discord Bot"
 
 [[workflows.workflow]]
 name = "Project"

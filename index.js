@@ -588,8 +588,33 @@ async function handleModalSubmit(client, interaction) {
                 // Update existing embed in the same channel
                 const contractEmbed = embeds.createContractForm(president.user, targetPresident.user, player.user, contractData);
                 
-                const buttons = new MessageActionRow()
-                    .addComponents(
+                // Check if this is a player channel (m-zakere) or president channel
+                const isPlayerChannel = interaction.channel.name.includes("m-zakere");
+                
+                const buttons = new MessageActionRow();
+                
+                if (isPlayerChannel) {
+                    // Player channel - use contract_player_ buttons
+                    buttons.addComponents(
+                        new MessageButton()
+                            .setCustomId(`contract_player_accept_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`contract_player_reject_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`contract_player_edit_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+                } else {
+                    // President channel - use regular contract_ buttons
+                    buttons.addComponents(
                         new MessageButton()
                             .setCustomId(`contract_accept_${targetPresidentId}_${playerId}_${presidentId}`)
                             .setLabel('Kabul Et')
@@ -606,6 +631,7 @@ async function handleModalSubmit(client, interaction) {
                             .setStyle('SECONDARY')
                             .setEmoji('✏️')
                     );
+                }
 
                 // Find and update the original message
                 const messages = await interaction.channel.messages.fetch({ limit: 15 });
