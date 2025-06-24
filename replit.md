@@ -216,6 +216,11 @@ The bot is configured for Replit deployment with:
     - .offer command restricted to serbest futbolcu only, blocking futbolcu (players)
     - Enhanced permission checks across all transfer commands to enforce proper role-based workflow
     - Clear error messages guide users to correct commands based on player status
+- June 24, 2025. Fixed release command edit button to update in-place instead of creating new channels:
+    - Updated release form modal handler to detect negotiation channels and update existing embeds
+    - Release edit button now updates existing embed in same channel like other transfer commands
+    - Fixed negotiation channel detection to properly identify fesih/release channels
+    - Enhanced channel detection logic to prevent unnecessary channel creation during form edits
 - June 24, 2025. Added automatic form button cleanup to prevent reuse:
     - Modal form buttons now automatically delete after 3 seconds when forms are submitted
     - Prevents other users from clicking the same form button after someone has already filled it
