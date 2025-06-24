@@ -224,6 +224,24 @@ async function handleModalSubmit(client, interaction) {
                     await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
                 }
             } else {
+                // Delete the original command message with form button to prevent reuse
+                setTimeout(async () => {
+                    try {
+                        const messages = await interaction.channel.messages.fetch({ limit: 20 });
+                        const originalCommand = messages.find(msg => 
+                            msg.content.includes('Transfer Teklifi Formu') && 
+                            msg.components.length > 0 &&
+                            msg.components[0].components.some(btn => btn.customId && btn.customId.includes('show_offer_modal'))
+                        );
+                        if (originalCommand && originalCommand.deletable) {
+                            await originalCommand.delete();
+                            console.log('✅ Original offer form button deleted to prevent reuse');
+                        }
+                    } catch (error) {
+                        console.log('Could not delete original command message:', error.message);
+                    }
+                }, 3000);
+
                 // Create new negotiation channel only if not in a negotiation channel
                 const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'offer');
                 if (!channel) {
@@ -328,6 +346,24 @@ async function handleModalSubmit(client, interaction) {
                     await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
                 }
             } else {
+                // Delete the original command message with form button to prevent reuse
+                setTimeout(async () => {
+                    try {
+                        const messages = await interaction.channel.messages.fetch({ limit: 20 });
+                        const originalCommand = messages.find(msg => 
+                            msg.content.includes('Fesih Teklifi Formu') && 
+                            msg.components.length > 0 &&
+                            msg.components[0].components.some(btn => btn.customId && btn.customId.includes('show_release_modal'))
+                        );
+                        if (originalCommand && originalCommand.deletable) {
+                            await originalCommand.delete();
+                            console.log('✅ Original release form button deleted to prevent reuse');
+                        }
+                    } catch (error) {
+                        console.log('Could not delete original command message:', error.message);
+                    }
+                }, 3000);
+
                 // Create new negotiation channel only if not in a negotiation channel
                 const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'release');
                 if (!channel) {
@@ -447,6 +483,24 @@ async function handleModalSubmit(client, interaction) {
                     await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
                 }
             } else {
+                // Delete the original command message with form button to prevent reuse
+                setTimeout(async () => {
+                    try {
+                        const messages = await interaction.channel.messages.fetch({ limit: 20 });
+                        const originalCommand = messages.find(msg => 
+                            msg.content.includes('Sözleşme Teklifi Formu') && 
+                            msg.components.length > 0 &&
+                            msg.components[0].components.some(btn => btn.customId && btn.customId.includes('show_contract_modal'))
+                        );
+                        if (originalCommand && originalCommand.deletable) {
+                            await originalCommand.delete();
+                            console.log('✅ Original contract form button deleted to prevent reuse');
+                        }
+                    } catch (error) {
+                        console.log('Could not delete original command message:', error.message);
+                    }
+                }, 3000);
+
                 // Create new negotiation channel only if not in a negotiation channel
                 const channel = await channels.createNegotiationChannel(interaction.guild, president.user, targetPresident.user, 'contract');
                 if (!channel) {
@@ -693,6 +747,24 @@ async function handleModalSubmit(client, interaction) {
                     await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
                 }
             } else {
+                // Delete the original command message with form button to prevent reuse
+                setTimeout(async () => {
+                    try {
+                        const messages = await interaction.channel.messages.fetch({ limit: 20 });
+                        const originalCommand = messages.find(msg => 
+                            msg.content.includes('Kiralık Teklifi Formu') && 
+                            msg.components.length > 0 &&
+                            msg.components[0].components.some(btn => btn.customId && btn.customId.includes('show_hire_modal'))
+                        );
+                        if (originalCommand && originalCommand.deletable) {
+                            await originalCommand.delete();
+                            console.log('✅ Original hire form button deleted to prevent reuse');
+                        }
+                    } catch (error) {
+                        console.log('Could not delete original command message:', error.message);
+                    }
+                }, 3000);
+
                 // İlk başkan ile hedef başkan arasında müzakere kanalı oluştur
                 console.log('Creating hire channel for:', president.user.username, 'and', targetPresident.user.username);
                 const channel = await channels.createNegotiationChannel(interaction.guild, president.user, targetPresident.user, 'hire');
@@ -796,6 +868,24 @@ async function handleModalSubmit(client, interaction) {
                     mention = `<@&${roleData.duyurPingRole}>`;
                 }
             }
+
+            // Delete the original command message with form button to prevent reuse
+            setTimeout(async () => {
+                try {
+                    const messages = await interaction.channel.messages.fetch({ limit: 20 });
+                    const originalCommand = messages.find(msg => 
+                        msg.content.includes('Duyuru Formu') && 
+                        msg.components.length > 0 &&
+                        msg.components[0].components.some(btn => btn.customId && btn.customId.includes('show_announcement_modal'))
+                    );
+                    if (originalCommand && originalCommand.deletable) {
+                        await originalCommand.delete();
+                        console.log('✅ Original announcement form button deleted to prevent reuse');
+                    }
+                } catch (error) {
+                    console.log('Could not delete original command message:', error.message);
+                }
+            }, 3000);
 
             const content = mention && mention.trim() !== '' ? mention : '📢 **Futbolcu Duyurusu**';
             await announcementChannel.send({

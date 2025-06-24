@@ -58,12 +58,13 @@ module.exports = {
                 return message.reply('❌ İlk etiketlenen kullanıcı takım başkanı olmalı!');
             }
 
-            if (!permissions.isPlayer(wantedPlayer) && !permissions.isFreeAgent(wantedPlayer)) {
-                return message.reply('❌ İstenen futbolcu, futbolcu rolüne sahip olmalı!');
+            // Sadece futbolculara takas teklifi yapılabilir (serbest futbolcular yasak)
+            if (!permissions.isPlayer(wantedPlayer)) {
+                return message.reply('❌ İstenen oyuncu futbolcu rolüne sahip değil! Takas sadece futbolcular arasında yapılabilir, serbest futbolculara .offer kullanın.');
             }
 
-            if (!permissions.isPlayer(givenPlayer) && !permissions.isFreeAgent(givenPlayer)) {
-                return message.reply('❌ Verilecek futbolcu, futbolcu rolüne sahip olmalı!');
+            if (!permissions.isPlayer(givenPlayer)) {
+                return message.reply('❌ Verilecek oyuncu futbolcu rolüne sahip değil! Takas sadece futbolcular arasında yapılabilir, serbest futbolculara .offer kullanın.');
             }
 
             // Modal göster

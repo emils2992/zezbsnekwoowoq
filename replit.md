@@ -210,6 +210,17 @@ The bot is configured for Replit deployment with:
     - Added debug logging for troubleshooting modal form submissions
     - Bot successfully running without errors or warnings on Discord.js v13.17.1
     - All button interaction errors resolved and transfer system fully operational with working modals
+- June 24, 2025. Added role restrictions and automatic role assignment for transfers:
+    - Updated .offer command to automatically give futbolcu role when offer is accepted by serbest futbolcu
+    - Added role restrictions: .contract .hire .trade .trelease .release now only work with futbolcu (players), blocking serbest futbolcu (free agents)
+    - .offer command restricted to serbest futbolcu only, blocking futbolcu (players)
+    - Enhanced permission checks across all transfer commands to enforce proper role-based workflow
+    - Clear error messages guide users to correct commands based on player status
+- June 24, 2025. Added automatic form button cleanup to prevent reuse:
+    - Modal form buttons now automatically delete after 3 seconds when forms are submitted
+    - Prevents other users from clicking the same form button after someone has already filled it
+    - Implemented across all transfer commands (offer, contract, trade, hire, release, duyuru)
+    - Enhanced user experience by ensuring single-use form buttons
 - June 24, 2025. Separated ping roles for different announcement types:
     - Updated role system to use separate ping roles: tfPingRole, serbestPingRole, duyurPingRole
     - Transfer announcements (.offer .contract .hire .trade) now use tfPingRole

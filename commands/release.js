@@ -33,14 +33,9 @@ module.exports = {
                 return message.reply('❌ Etiketlenen kullanıcı sunucuda bulunamadı!');
             }
 
-            // Serbest futbolcu kontrolü - serbest futbolcu rolü yeterli
-            if (!permissions.isFreeAgent(targetMember) && !permissions.isPlayer(targetMember)) {
-                return message.reply('❌ Etiketlenen kişi futbolcu veya serbest futbolcu değil!');
-            }
-
-            // Serbest futbolcu kontrolü
-            if (permissions.isFreeAgent(targetMember)) {
-                return message.reply('❌ Bu futbolcu zaten serbest!');
+            // Sadece futbolculara fesih teklifi yapılabilir (serbest futbolcular yasak)
+            if (!permissions.isPlayer(targetMember)) {
+                return message.reply('❌ Fesih teklifi sadece futbolculara yapılabilir! Bu oyuncu zaten serbest futbolcu.');
             }
 
             // Modal formu butonunu göster
