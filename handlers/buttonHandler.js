@@ -56,6 +56,8 @@ class ButtonHandler {
                 case 'trade':
                     if (params[0] === 'player') {
                         await this.handleTradePlayerButton(client, interaction, params.slice(1));
+                    } else if (params[0] === 'fill' && params[1] === 'form') {
+                        await this.handleTradeFillForm(client, interaction, params.slice(2));
                     } else {
                         await this.handleTradeButton(client, interaction, params);
                     }
@@ -1968,7 +1970,13 @@ class ButtonHandler {
                 break;
             case 'trade':
                 if (additionalParams[0] === 'modal') {
-                    await this.handleShowTradeForm(client, interaction, additionalParams.slice(1));
+                    // Defer interaction first to prevent timeout
+                    if (!interaction.replied && !interaction.deferred) {
+                        await interaction.deferReply({ ephemeral: true });
+                    }
+                    
+                    // Instead of showing modal immediately, create a form in the channel
+                    await this.createTradeFormInChannel(client, interaction, additionalParams.slice(1));
                 }
                 break;
             case 'hire':
@@ -2664,15 +2672,53 @@ class ButtonHandler {
 
 
 
-    async handleShowTradeForm(client, interaction, params) {
+    async createTradeFormInChannel(client, interaction, params) {
         const [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
         
-        // Check if interaction is still valid
-        if (interaction.replied || interaction.deferred) {
-            console.log('Trade modal: Interaction already processed');
-            return;
-        }
+        try {
+            const guild = interaction.guild;
+            const targetPresident = await guild.members.fetch(targetPresidentId);
+            const wantedPlayer = await guild.members.fetch(wantedPlayerId);
+            const givenPlayer = await guild.members.fetch(givenPlayerId);
+            const president = await guild.members.fetch(presidentId);
 
+            // Create trade form with modal button
+            const tradeData = {
+                additionalAmount: 'Belirtilmedi',
+                bonus: 'Belirtilmedi', 
+                contractDuration: 'Belirtilecek'
+            };
+
+            const tradeEmbed = embeds.createTradeForm(president.user, targetPresident.user, wantedPlayer.user, tradeData);
+            tradeEmbed.addFields(
+                { name: '🔄 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true }
+            );
+            
+            const formButton = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(`trade_fill_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                        .setLabel('Formu Doldur')
+                        .setStyle('PRIMARY')
+                        .setEmoji('📝')
+                );
+
+            await interaction.editReply({
+                content: '✅ Takas formu hazırlandı. Lütfen "Formu Doldur" butonuna tıklayarak detayları girin.',
+                embeds: [tradeEmbed],
+                components: [formButton]
+            });
+        } catch (error) {
+            console.error('Error creating trade form:', error);
+            await interaction.editReply({
+                content: '❌ Takas formu oluşturulurken hata oluştu!'
+            });
+        }
+    }
+
+    async handleTradeFillForm(client, interaction, params) {
+        const [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
+        
         try {
             const modal = new Modal()
                 .setCustomId(`trade_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
@@ -2706,18 +2752,60 @@ class ButtonHandler {
             modal.addComponents(row1, row2, row3);
 
             await interaction.showModal(modal);
-            console.log('Trade modal shown successfully');
+        } catch (error) {
+            console.error('Error showing trade fill form modal:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({
+                    content: 'Modal açılırken hata oluştu!',
+                    ephemeral: true
+                });
+            }
+        }
+    }
+
+    async handleShowTradeForm(client, interaction, params) {
+        const [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
+        
+        try {
+            const modal = new Modal()
+                .setCustomId(`trade_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
+                .setTitle('Takas Teklifi Formu');
+
+            const additionalAmountInput = new TextInputComponent()
+                .setCustomId('additional_amount')
+                .setLabel('Ek Miktar')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 5.000.000₺')
+                .setRequired(false);
+
+            const bonusInput = new TextInputComponent()
+                .setCustomId('bonus')
+                .setLabel('İstenen Oyuncu Özellikleri')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: Mevki, yaş, özellikler')
+                .setRequired(false);
+
+            const contractInput = new TextInputComponent()
+                .setCustomId('contract_duration')
+                .setLabel('Sözleşme+Ek Madde')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 2 yıl + performans bonusu')
+                .setRequired(true);
+
+            const row1 = new MessageActionRow().addComponents(additionalAmountInput);
+            const row2 = new MessageActionRow().addComponents(bonusInput);
+            const row3 = new MessageActionRow().addComponents(contractInput);
+
+            modal.addComponents(row1, row2, row3);
+
+            await interaction.showModal(modal);
         } catch (error) {
             console.error('Error showing trade modal:', error);
             if (!interaction.replied && !interaction.deferred) {
-                try {
-                    await interaction.reply({
-                        content: 'Modal açılırken hata oluştu!',
-                        ephemeral: true
-                    });
-                } catch (replyError) {
-                    console.error('Failed to send error reply:', replyError);
-                }
+                await interaction.reply({
+                    content: '❌ Modal açılırken hata oluştu!',
+                    ephemeral: true
+                });
             }
         }
     }

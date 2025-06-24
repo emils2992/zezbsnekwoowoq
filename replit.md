@@ -106,6 +106,8 @@ The bot is configured for Replit deployment with:
   - Fixed "Bu butonu sadece komutu yazan kişi kullanabilir" error for legitimate trade command users
   - Enhanced handleShowTradeForm with proper interaction state checking and error handling
   - Added timeout protection and validation before showing modals to prevent "Unknown interaction" errors
+  - Implemented two-step trade modal system: initial button creates form preview, "Formu Doldur" button opens actual modal
+  - Separated basic trade details from player salary negotiations for better workflow
 - June 24, 2025. Removed Discord connection delay - bot now connects immediately instead of waiting 1 minute
 - June 24, 2025. Fixed authorization bugs in brelease and contract commands:
   - Corrected button authorization logic for both brelease and contract modal buttons
