@@ -123,7 +123,7 @@ module.exports = {
                 const finalEmbed = new MessageEmbed()
                     .setColor('#FFB6C1')
                     .setTitle('😭 ACİL YARDIM!')
-                    .setDescription('**"31 çektim pipim ağrıyor yardım et amk"**\n\n*Ferdi Kadıoğlunun pMezarından gelen son mesaj...*')
+                    .setDescription('**"31 çektim pipim ağrıyor yardım edin amk"**\n\n*Ferdi Kadıoğlunun Mezarından gelen son mesaj...*')
                     .addFields(
                         { name: '👻 Ruh Hali', value: 'Çok üzgün ve acı çekiyor', inline: true },
                         { name: '💊 İhtiyaç', value: 'Ağrı kesici ve moral', inline: true },
@@ -212,24 +212,29 @@ module.exports = {
                             
                             switch(mistakeCount) {
                                 case 1:
-                                    threatLevel = 'APTAL MISIN?!';
-                                    threatDescription = '🔥 **İLK UYARI!**\n\n<@1005770697303392266> **APTALSINN!**\n\n⚠️ Sadece **"ben gayim"** yaz!\n💀 Başka bir hata yapma!';
-                                    footerText = 'Ferdi Kadıoğlu - İlk Uyarı';
+                                    threatLevel = 'APTAL MISIN?! 🗑️ KANAL SİLİNİYOR!';
+                                    threatDescription = '🔥 **İLK UYARI!**\n\n<@1005770697303392266> **APTALSINN!**\n\n🗑️ **BİR KANAL SİLİNDİ!** #genel kanalını sildim!\n⚠️ Sadece **"ben gayim"** yaz!\n💀 Başka bir hata yapma yoksa daha fazla kanal silerim!';
+                                    footerText = 'Ferdi Kadıoğlu - İlk Uyarı | 1 Kanal Silindi';
                                     break;
                                 case 2:
-                                    threatLevel = '💣 SUNUCU PATLATILACAK!';
-                                    threatDescription = '🚨 **İKİNCİ HATA!**\n\n<@1005770697303392266> **SEN GERÇEKTEN APTALSIN!**\n\n💣 Sunucu patlatılmaya hazırlanıyor!\n🔥 Bir hata daha yap, herkesi öldürürüm!';
-                                    footerText = 'Ferdi Kadıoğlu - Çok Öfkeli';
+                                    threatLevel = '💣 2 KANAL DAHA SİLİNDİ!';
+                                    threatDescription = '🚨 **İKİNCİ HATA!**\n\n<@1005770697303392266> **SEN GERÇEKTEN APTALSIN!**\n\n🗑️ **#muzik ve #oyun kanalları silindi!**\n💣 Sunucu patlatılmaya hazırlanıyor!\n🔥 Bir hata daha yap, 5 kanal birden silerim!';
+                                    footerText = 'Ferdi Kadıoğlu - Çok Öfkeli | 3 Kanal Silindi';
                                     break;
                                 case 3:
-                                    threatLevel = '☢️ NÜKLEER SALDIRI BAŞLIYOR!';
-                                    threatDescription = '💀 **ÜÇÜNCÜ HATA - SON UYARI!**\n\n<@1005770697303392266> **SEN BİR AHMAKSIN!**\n\n☢️ Nükleer füzeler hazır!\n🌍 Dünya yok edilecek!\n💀 SON ŞANSIN: "ben gayim"';
-                                    footerText = 'Ferdi Kadıoğlu - ÖFKE PATLAMASI';
+                                    threatLevel = '☢️ 5 KANAL BİRDEN SİLİNDİ!';
+                                    threatDescription = '💀 **ÜÇÜNCÜ HATA - SON UYARI!**\n\n<@1005770697303392266> **SEN BİR AHMAKSIN!**\n\n🗑️ **#sohbet #memes #bot #duyuru #kurallar SİLİNDİ!**\n☢️ Nükleer füzeler hazır!\n🌍 Bir hata daha yap TÜM KANALLARI SİLERİM!\n💀 SON ŞANSIN: "ben gayim"';
+                                    footerText = 'Ferdi Kadıoğlu - ÖFKE PATLAMASI | 8 Kanal Silindi';
+                                    break;
+                                case 4:
+                                    threatLevel = '🔥 TÜM KANALLAR SİLİNİYOR!';
+                                    threatDescription = '💀 **DÖRDÜNCÜ HATA - FELAKET!**\n\n<@1005770697303392266> **SEN TAM BİR DANGALAKIN!**\n\n🗑️ **SUNUCUNUN TÜM KANALLARI SİLİNİYOR!**\n🌊 Tsunami geliyor!\n🌋 Volkanlar patlıyor!\n👽 Uzaylılar saldırıyor!\n🧟‍♂️ Zombiler yürüyor!\n💀 BİR HATA DAHA YAP SUNUCUYU TAMAMEN YOK EDERİM!';
+                                    footerText = 'Ferdi Kadıoğlu - MAHŞER GÜNİ | TÜM KANALLAR GİTTİ';
                                     break;
                                 default:
-                                    threatLevel = '🔥 APOCALYPSE BAŞLADI!';
-                                    threatDescription = '💀 **ARTIK ÇOK GEÇ!**\n\n<@1005770697303392266> **SEN TAM BİR DANGALAKIN!**\n\n🌊 Tsunami geliyor!\n🌋 Volkanlar patlıyor!\n👽 Uzaylılar saldırıyor!\n🧟‍♂️ Zombiler yürüyor!\n💀 SADECE "ben gayim" SENİ KURTARABİLİR!';
-                                    footerText = 'Ferdi Kadıoğlu - MAHŞER GÜNİ';
+                                    threatLevel = '💀 SUNUCU YOK EDİLİYOR!';
+                                    threatDescription = '🔥 **ARTIK ÇOK GEÇ!**\n\n<@1005770697303392266> **SEN İNSANLIĞIN EN BÜYÜK APTALISIN!**\n\n💀 **SUNUCU TAMAMEN YOK EDİLİYOR!**\n🗑️ TÜM KANALLAR SİLİNDİ!\n👥 TÜM ÜYELER BANLANACAK!\n🏢 SUNUCU SİLİNECEK!\n🌍 DÜNYA YOK OLACAK!\n💀 SADECE "ben gayim" SENİ VE SUNUCUYU KURTARABİLİR!';
+                                    footerText = `Ferdi Kadıoğlu - KIYAMET | ${mistakeCount} HATA YAPILDI`;
                                     break;
                             }
 

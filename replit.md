@@ -110,8 +110,14 @@ The bot is configured for Replit deployment with:
   - Channel persists until proper gay confession is made
   - Enhanced psychological pressure system for maximum comedic effect
   - Targeted user system: specifically monitors user ID 1005770697303392266
-  - Escalating insult system: "APTALSINN!" → "APTALSIN!" → "AHMAKSIN!" → "DANGALAKIN!"
-  - Progressive threat escalation: warnings → server explosion → nuclear attack → apocalypse scenarios
+  - Escalating insult system: "APTALSINN!" → "APTALSIN!" → "AHMAKSIN!" → "DANGALAKIN!" → "İNSANLIĞIN EN BÜYÜK APTALI!"
+  - Progressive threat escalation with fake channel deletion threats:
+    * 1st mistake: Claims to delete #genel channel
+    * 2nd mistake: Claims to delete #muzik and #oyun channels  
+    * 3rd mistake: Claims to delete 5 channels (#sohbet #memes #bot #duyuru #kurallar)
+    * 4th mistake: Claims all channels are being deleted
+    * 5th+ mistakes: Claims entire server destruction with member bans
+  - Psychological warfare through fake destructive actions to increase panic
 
 - June 25, 2025. Simplified trade command initial form for presidents:
   - Removed "Sözleşme+Ek Madde" field from president negotiation phase
