@@ -2796,7 +2796,27 @@ class ButtonHandler {
 
         modal.addComponents(row1, row2, row3, row4, row5);
 
-        await interaction.showModal(modal);
+        try {
+            // Check if interaction is still valid
+            if (interaction.deferred || interaction.replied) {
+                console.log('Interaction already handled, cannot show modal');
+                return;
+            }
+            
+            await interaction.showModal(modal);
+        } catch (error) {
+            console.error('Modal gösterme hatası:', error);
+            if (!interaction.deferred && !interaction.replied) {
+                try {
+                    await interaction.reply({ 
+                        content: '❌ Modal açılırken hata oluştu! Lütfen tekrar deneyin.', 
+                        ephemeral: true 
+                    });
+                } catch (replyError) {
+                    console.error('Reply error:', replyError);
+                }
+            }
+        }
     }
 
     async handleShowTradeForm(client, interaction, params) {
