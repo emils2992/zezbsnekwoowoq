@@ -446,9 +446,19 @@ class ButtonHandler {
         
         console.log('Contract player button debug:', { buttonType, targetPresidentId, playerId, presidentId });
         
-        const player = await guild.members.fetch(playerId);
-        const president = await guild.members.fetch(presidentId);
-        const targetPresident = await guild.members.fetch(targetPresidentId);
+        let player, president, targetPresident;
+        
+        try {
+            player = await guild.members.fetch(playerId);
+            president = await guild.members.fetch(presidentId);
+            targetPresident = await guild.members.fetch(targetPresidentId);
+        } catch (error) {
+            console.error('Kullanıcılar getirilirken hata:', error);
+            return interaction.reply({
+                content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Lütfen tekrar deneyin.',
+                ephemeral: true
+            });
+        }
 
         if (buttonType === 'accept') {
             // Check if user is authorized (target player or transfer authority)
@@ -803,10 +813,21 @@ class ButtonHandler {
         
         console.log('Trade player button clicked:', { buttonType: buttonType, params: params, userId: interaction.user.id });
         const guild = interaction.guild;
-        const targetPresident = await guild.members.fetch(targetPresidentId);
-        const wantedPlayer = await guild.members.fetch(wantedPlayerId);
-        const givenPlayer = await guild.members.fetch(givenPlayerId);
-        const president = await guild.members.fetch(presidentId);
+        
+        let targetPresident, wantedPlayer, givenPlayer, president;
+        
+        try {
+            targetPresident = await guild.members.fetch(targetPresidentId);
+            wantedPlayer = await guild.members.fetch(wantedPlayerId);
+            givenPlayer = await guild.members.fetch(givenPlayerId);
+            president = await guild.members.fetch(presidentId);
+        } catch (error) {
+            console.error('Kullanıcılar getirilirken hata:', error);
+            return interaction.reply({
+                content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Lütfen tekrar deneyin.',
+                ephemeral: true
+            });
+        }
         
         console.log(`Trade button debug: User ${interaction.user.id} clicked ${buttonType}, WantedPlayer: ${wantedPlayerId}, GivenPlayer: ${givenPlayerId}`);
 
@@ -3371,12 +3392,29 @@ class ButtonHandler {
         
         try {
             const guild = interaction.guild;
-            const targetPresident = await guild.members.fetch(targetPresidentId);
-            const wantedPlayer = await guild.members.fetch(wantedPlayerId);
-            const givenPlayer = await guild.members.fetch(givenPlayerId);
-            const president = await guild.members.fetch(presidentId);
-
-            console.log('✅ All users fetched for trade completion');
+            
+            let targetPresident, wantedPlayer, givenPlayer, president;
+            
+            try {
+                targetPresident = await guild.members.fetch(targetPresidentId);
+                wantedPlayer = await guild.members.fetch(wantedPlayerId);
+                givenPlayer = await guild.members.fetch(givenPlayerId);
+                president = await guild.members.fetch(presidentId);
+                console.log('✅ All users fetched for trade completion');
+            } catch (fetchError) {
+                console.error('❌ Kullanıcılar getirilirken hata:', fetchError);
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({
+                        content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Takas tamamlanamadı.',
+                        ephemeral: true
+                    });
+                } else {
+                    await interaction.editReply({
+                        content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Takas tamamlanamadı.'
+                    });
+                }
+                return;
+            }
 
             // Extract trade data from the embed to pass to announcement
             const embed = interaction.message.embeds[0];

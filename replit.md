@@ -127,6 +127,9 @@ The bot is configured for Replit deployment with:
   - Fixed trade modal interaction timeout errors with proper state checking and error handling
   - Enhanced trade announcement field extraction to properly display "ek tazminat" and player characteristics
   - Updated field mapping to capture additional compensation and player specifications in trade announcements
+  - Fixed "Kullanıcılar getirilirken hata oluştu!" error by adding comprehensive error handling to user fetching operations
+  - Added robust error handling in trade player buttons, contract player buttons, and completeTradeTransfer function
+  - User fetching failures now show clear error messages instead of crashing the bot workflow
 
 - June 25, 2025. Enhanced .oldurferdi with one-time usage restriction and special channel creation:
   - Epic troll sequence with 7 stages over 56 seconds (8-second intervals)
