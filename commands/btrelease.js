@@ -10,9 +10,13 @@ module.exports = {
 
     async execute(client, message, args) {
         try {
-            // Yetki kontrolü - sadece futbolcular kullanabilir
+            // Yetki kontrolü - sadece tek taraflı fesih yetkisi olan futbolcular kullanabilir
             if (!permissions.isPlayer(message.member)) {
                 return message.reply('❌ Bu komutu sadece futbolcular kullanabilir!');
+            }
+            
+            if (!permissions.canUseUnilateralTermination(message.member)) {
+                return message.reply('❌ Bu komutu kullanabilmek için tek taraflı fesih yetkisine sahip olmanız gerekiyor! Yetkililer `.rol` komutuyla bu yetkiyi ayarlayabilir.');
             }
 
             const player = message.author; // Komutu kullanan oyuncu

@@ -100,6 +100,13 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed trelease and btrelease modal submission handlers:
+  - Added missing modal submission handlers for trelease_modal and btrelease_modal custom IDs
+  - Fixed "bilinmeyen form türü" (unknown form type) errors for both commands
+  - Changed .trelease authorization from "Tek Taraflı Fesih" role to presidents only
+  - Kept "Tek Taraflı Fesih" role restriction only for .btrelease command as requested
+  - Both commands now properly create negotiation channels with modal form data
+  - Modal forms include "Eski Kulüp" and "Tazminat" fields that display in announcements
 - June 25, 2025. Fixed transfer period control system file path issues:
   - Fixed rolesPath vs rolesFilePath inconsistency in permissions class that was causing write errors
   - Resolved "TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string" error

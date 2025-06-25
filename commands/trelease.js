@@ -8,9 +8,9 @@ module.exports = {
     description: 'Tek taraflı fesih işlemi başlat',
     async execute(client, message, args) {
         try {
-            // Yetki kontrolü - sadece tek taraflı fesih yetkisi olan kullanıcılar kullanabilir
-            if (!permissions.canUseUnilateralTermination(message.member)) {
-                return message.reply('❌ Bu komutu kullanabilmek için tek taraflı fesih yetkisine sahip olmanız gerekiyor! Yetkililer `.rol` komutuyla bu yetkiyi ayarlayabilir.');
+            // Yetki kontrolü - sadece başkanlar kullanabilir
+            if (!permissions.isPresident(message.member)) {
+                return message.reply('❌ Bu komutu sadece takım başkanları kullanabilir!');
             }
 
             // Oyuncu belirtildi mi?

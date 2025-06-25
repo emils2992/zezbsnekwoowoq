@@ -1657,6 +1657,134 @@ async function handleModalSubmit(client, interaction) {
                 }
             }
         }
+        
+        // TRelease modal handling
+        else if (customId.startsWith('trelease_modal_')) {
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.deferReply({ ephemeral: true });
+                }
+                
+                const [, , playerId, presidentId] = customId.split('_');
+                const player = interaction.guild.members.cache.get(playerId);
+                const president = interaction.guild.members.cache.get(presidentId);
+
+                if (!player || !president) {
+                    return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+                }
+
+                const releaseData = {
+                    oldClub: interaction.fields.getTextInputValue('old_club') || '',
+                    reason: interaction.fields.getTextInputValue('reason') || '',
+                    compensation: interaction.fields.getTextInputValue('compensation') || '',
+                    newTeam: interaction.fields.getTextInputValue('new_team') || 'Yok'
+                };
+
+                // Create negotiation channel
+                const channels = require('./utils/channels');
+                const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'trelease');
+                
+                if (!channel) {
+                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                }
+
+                const embeds = require('./utils/embeds');
+                const releaseEmbed = embeds.createReleaseForm(president.user, player.user, 'tek_tarafli', releaseData);
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`trelease_accept_${playerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`trelease_reject_${playerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`trelease_edit_${playerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                await channel.send({
+                    embeds: [releaseEmbed],
+                    components: [buttons]
+                });
+
+                await interaction.editReply({ content: `✅ Tek taraflı fesih müzakeresi ${channel} kanalında başlatıldı!` });
+            } catch (error) {
+                console.error('TRelease modal error:', error);
+                await interaction.editReply({ content: `❌ Fesih işlemi sırasında hata oluştu: ${error.message}` });
+            }
+        }
+        
+        // BTRelease modal handling  
+        else if (customId.startsWith('btrelease_modal_')) {
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.deferReply({ ephemeral: true });
+                }
+                
+                const [, , playerId, ] = customId.split('_');
+                const player = interaction.guild.members.cache.get(playerId);
+
+                if (!player) {
+                    return interaction.editReply({ content: 'Oyuncu bulunamadı!' });
+                }
+
+                const releaseData = {
+                    oldClub: interaction.fields.getTextInputValue('old_club') || '',
+                    reason: interaction.fields.getTextInputValue('reason') || '',
+                    compensation: interaction.fields.getTextInputValue('compensation') || '',
+                    newTeam: interaction.fields.getTextInputValue('new_team') || 'Yok'
+                };
+
+                // Create negotiation channel for player
+                const channels = require('./utils/channels');
+                const channel = await channels.createNegotiationChannel(interaction.guild, player.user, player.user, 'btrelease');
+                
+                if (!channel) {
+                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                }
+
+                const embeds = require('./utils/embeds');
+                const releaseEmbed = embeds.createReleaseForm(player.user, player.user, 'tek_tarafli_oyuncu', releaseData);
+                
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`btrelease_confirm_${playerId}`)
+                            .setLabel('Onayla')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`btrelease_cancel_${playerId}`)
+                            .setLabel('İptal')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`btrelease_edit_${playerId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                await channel.send({
+                    embeds: [releaseEmbed],
+                    components: [buttons]
+                });
+
+                await interaction.editReply({ content: `✅ Tek taraflı fesih formu ${channel} kanalında oluşturuldu!` });
+            } catch (error) {
+                console.error('BTRelease modal error:', error);
+                await interaction.editReply({ content: `❌ Fesih işlemi sırasında hata oluştu: ${error.message}` });
+            }
+        }
+        
     } catch (error) {
         console.error('Modal submission error:', error);
         if (interaction.deferred) {
