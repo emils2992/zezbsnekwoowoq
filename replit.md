@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Added bduyur ping role button to .rol command interface:
+  - Added "Transfer Listesi Ping" button to role management system
+  - Users can now easily configure ping_bduyur role through button interface
+  - Enhanced modal interaction error handling to prevent timeout issues
+  - Improved interaction state checking before showing modals
 - June 25, 2025. Fixed .bduyur button interaction issues and authorization:
   - Fixed "Unknown interaction" errors by properly handling edit button modal interactions
   - Added transfer authority permission for accepting transfer list proposals

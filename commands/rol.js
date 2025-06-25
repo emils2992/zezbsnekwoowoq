@@ -102,10 +102,19 @@ module.exports = {
                     .setStyle('SECONDARY')
                     .setEmoji('📣'),
                 new MessageButton()
+                    .setCustomId('role_select_ping_bduyur')
+                    .setLabel('Transfer Listesi Ping')
+                    .setStyle('SECONDARY')
+                    .setEmoji('📋'),
+                new MessageButton()
                     .setCustomId('role_list')
                     .setLabel('Liste')
                     .setStyle('SUCCESS')
-                    .setEmoji('📋'),
+                    .setEmoji('📋')
+            );
+
+        const row4 = new MessageActionRow()
+            .addComponents(
                 new MessageButton()
                     .setCustomId('role_reset')
                     .setLabel('Sıfırla')
@@ -115,7 +124,7 @@ module.exports = {
 
         await message.reply({ 
             embeds: [embed], 
-            components: [row1, row2, row3]
+            components: [row1, row2, row3, row4]
         });
     },
 
@@ -154,8 +163,8 @@ module.exports = {
         const setupEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.settings} Rol Ayarlama Sistemi`)
-            .setDescription('Bu mesajı **yanıtlayarak** rolleri ayarlayın:\n\n**Format:** `rol_türü @rol_adı` veya `rol_türü rol_id`\n\n**Örnekler:**\n`başkan @Başkan`\n`futbolcu @Oyuncu`\n`serbest @Serbest`\n`yetkili @Transfer Admin`\n`ping_tf @TF Ping` (.offer .contract .hire .trade için)\n`ping_serbest @Serbest Ping` (.release .trelease için)\n`ping_duyur @Duyur Ping` (.duyur komutu için)')
-            .addField('📋 Kullanılabilir Rol Türleri', '**başkan** - Transfer yapabilir\n**futbolcu** - Transfer edilebilir\n**serbest** - Serbest oyuncular\n**yetkili** - Transfer yetkilisi\n**ping_tf** - TF duyuru pingi (.offer .contract .hire .trade)\n**ping_serbest** - Serbest oyuncu pingi (.release .trelease)\n**ping_duyur** - Manuel duyuru pingi (.duyur)', false).setFooter({ text: 'Bu mesajı yanıtlayarak rol ayarlarını yapın. Örnek: başkan @Başkan' })
+            .setDescription('Bu mesajı **yanıtlayarak** rolleri ayarlayın:\n\n**Format:** `rol_türü @rol_adı` veya `rol_türü rol_id`\n\n**Örnekler:**\n`başkan @Başkan`\n`futbolcu @Oyuncu`\n`serbest @Serbest`\n`yetkili @Transfer Admin`\n`ping_tf @TF Ping` (.offer .contract .hire .trade için)\n`ping_serbest @Serbest Ping` (.release .trelease için)\n`ping_duyur @Duyur Ping` (.duyur komutu için)\n`ping_bduyur @BDuyur Ping` (.bduyur transfer listesi için)')
+            .addField('📋 Kullanılabilir Rol Türleri', '**başkan** - Transfer yapabilir\n**futbolcu** - Transfer edilebilir\n**serbest** - Serbest oyuncular\n**yetkili** - Transfer yetkilisi\n**ping_tf** - TF duyuru pingi (.offer .contract .hire .trade)\n**ping_serbest** - Serbest oyuncu pingi (.release .trelease)\n**ping_duyur** - Manuel duyuru pingi (.duyur)\n**ping_bduyur** - Transfer listesi pingi (.bduyur)', false).setFooter({ text: 'Bu mesajı yanıtlayarak rol ayarlarını yapın. Örnek: başkan @Başkan' })
             .setTimestamp();
 
         const sentMessage = await message.reply({ embeds: [setupEmbed] });

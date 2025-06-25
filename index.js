@@ -166,7 +166,8 @@ async function handleRoleButtons(client, interaction) {
         'yetkili': 'Transfer Yetkili Rolü',
         'ping_tf': 'Transfer Ping Rolü',
         'ping_serbest': 'Serbest Ping Rolü',
-        'ping_duyur': 'Duyuru Ping Rolü'
+        'ping_duyur': 'Duyuru Ping Rolü',
+        'ping_bduyur': 'Transfer Listesi Ping Rolü'
     };
 
     await interaction.reply({
@@ -219,7 +220,8 @@ async function handleRoleButtons(client, interaction) {
             'yetkili': 'transferAuthority',
             'ping_tf': 'tfPingRole',
             'ping_serbest': 'serbestPingRole',
-            'ping_duyur': 'duyurPingRole'
+            'ping_duyur': 'duyurPingRole',
+            'ping_bduyur': 'bduyurPingRole'
         };
 
         const mappedType = roleTypeMapping[roleType];

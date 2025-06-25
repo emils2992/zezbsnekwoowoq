@@ -3760,11 +3760,21 @@ class ButtonHandler {
         );
 
         try {
+            // Check if interaction is still valid before showing modal
+            if (interaction.replied || interaction.deferred) {
+                console.log('Cannot show modal - interaction already processed');
+                return;
+            }
+            
             await interaction.showModal(modal);
         } catch (error) {
             console.error('Modal show error:', error);
             if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({ content: '❌ Modal açılırken hata oluştu!', ephemeral: true });
+                try {
+                    await interaction.reply({ content: '❌ Modal açılırken hata oluştu!', ephemeral: true });
+                } catch (replyError) {
+                    console.error('Could not send error reply:', replyError);
+                }
             }
         }
     }
