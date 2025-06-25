@@ -127,6 +127,9 @@ class ButtonHandler {
                     } else if (customId.startsWith('show_offer_modal_')) {
                         const params = customId.split('_').slice(3); // Remove 'show', 'offer', 'modal'
                         await this.handleShowOfferForm(client, interaction, params);
+                    } else if (customId.startsWith('show_bduyur_modal_')) {
+                        const params = customId.split('_').slice(3); // Remove 'show', 'bduyur', 'modal'
+                        await this.handleShowBduyurForm(client, interaction, params);
                     } else {
                         await this.handleShowButton(client, interaction, params);
                     }
