@@ -100,17 +100,19 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Updated .btrelease and .trelease commands to post directly to serbest-duyuru channel:
+  - Changed workflow from modal → negotiation channel → approval to modal → direct announcement
+  - Both commands now immediately convert players to free agents after form submission
+  - Modal forms collect Eski Kulüp, Fesih Nedeni, Tazminat, Yeni Takım information
+  - Announcements posted directly to serbest-duyuru channel with all form data displayed
+  - Simplified workflow: command → modal form → immediate release announcement
+  - Removed unnecessary negotiation channels for unilateral termination commands
 - June 25, 2025. Fixed and implemented complete modal forms for .btrelease and .trelease commands:
   - Added missing modal button handlers for show_btrelease_modal_ and show_trelease_modal_ custom IDs
   - Created handleShowTReleaseForm and handleShowBTReleaseForm functions with proper authorization checks
-  - Added handleTReleaseButton and handleBTReleaseButton functions for complete button interaction handling
   - Modal forms include all required fields: Eski Kulüp, Fesih Nedeni, Tazminat, Yeni Takım
-  - Updated modal submission handlers to support in-channel editing of existing forms
-  - Release announcements in serbest-duyuru channel now display compensation and old club information from modal forms
-  - Both commands create negotiation channels with proper accept/reject/edit button workflows
-  - Added automatic role management converting players to free agents when releases are accepted
-  - Edit buttons show pre-filled modals with existing data for easy modification
-  - Complete workflow: command → modal form → negotiation channel → player approval → announcement with form data
+  - Release announcements in serbest-duyuru channel display compensation and old club information from modal forms
+  - Added automatic role management converting players to free agents when releases are processed
 - June 25, 2025. Fixed trelease and btrelease modal submission handlers:
   - Added missing modal submission handlers for trelease_modal and btrelease_modal custom IDs
   - Fixed "bilinmeyen form türü" (unknown form type) errors for both commands

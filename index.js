@@ -1727,42 +1727,20 @@ async function handleModalSubmit(client, interaction) {
                         await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
                     }
                 } else {
-                    // Create negotiation channel
-                    const channels = require('./utils/channels');
-                    const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'trelease');
-                    
-                    if (!channel) {
-                        return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                    // Role management for release - convert player to free agent
+                    try {
+                        await permissions.makePlayerFree(player);
+                        console.log(`Converted ${player.displayName} to free agent via trelease`);
+                    } catch (error) {
+                        console.error('Role management error in trelease:', error);
                     }
 
-                    const embeds = require('./utils/embeds');
-                    const releaseEmbed = embeds.createReleaseForm(president.user, player.user, 'tek_tarafli', releaseData);
-                    
-                    const buttons = new MessageActionRow()
-                        .addComponents(
-                            new MessageButton()
-                                .setCustomId(`trelease_accept_${playerId}_${presidentId}`)
-                                .setLabel('Kabul Et')
-                                .setStyle('SUCCESS')
-                                .setEmoji('✅'),
-                            new MessageButton()
-                                .setCustomId(`trelease_reject_${playerId}_${presidentId}`)
-                                .setLabel('Reddet')
-                                .setStyle('DANGER')
-                                .setEmoji('❌'),
-                            new MessageButton()
-                                .setCustomId(`trelease_edit_${playerId}_${presidentId}`)
-                                .setLabel('Düzenle')
-                                .setStyle('SECONDARY')
-                                .setEmoji('✏️')
-                        );
+                    // Send directly to serbest-duyuru channel
+                    const buttonHandler = require('./handlers/buttonHandler');
+                    const handler = new buttonHandler();
+                    await handler.sendReleaseTransferAnnouncement(interaction.guild, player, releaseData, 'tek_tarafli');
 
-                    await channel.send({
-                        embeds: [releaseEmbed],
-                        components: [buttons]
-                    });
-
-                    await interaction.editReply({ content: `✅ Tek taraflı fesih müzakeresi ${channel} kanalında başlatıldı!` });
+                    await interaction.editReply({ content: `✅ Tek taraflı fesih tamamlandı! ${player.user} serbest futbolcu oldu ve serbest-duyuru kanalına ilan verildi.` });
                 }
             } catch (error) {
                 console.error('TRelease modal error:', error);
@@ -1838,42 +1816,20 @@ async function handleModalSubmit(client, interaction) {
                         await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
                     }
                 } else {
-                    // Create negotiation channel for player
-                    const channels = require('./utils/channels');
-                    const channel = await channels.createNegotiationChannel(interaction.guild, player.user, player.user, 'btrelease');
-                    
-                    if (!channel) {
-                        return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                    // Role management for release - convert player to free agent
+                    try {
+                        await permissions.makePlayerFree(player);
+                        console.log(`Converted ${player.displayName} to free agent via btrelease`);
+                    } catch (error) {
+                        console.error('Role management error in btrelease:', error);
                     }
 
-                    const embeds = require('./utils/embeds');
-                    const releaseEmbed = embeds.createReleaseForm(player.user, player.user, 'tek_tarafli_oyuncu', releaseData);
-                    
-                    const buttons = new MessageActionRow()
-                        .addComponents(
-                            new MessageButton()
-                                .setCustomId(`btrelease_confirm_${playerId}`)
-                                .setLabel('Onayla')
-                                .setStyle('SUCCESS')
-                                .setEmoji('✅'),
-                            new MessageButton()
-                                .setCustomId(`btrelease_cancel_${playerId}`)
-                                .setLabel('İptal')
-                                .setStyle('DANGER')
-                                .setEmoji('❌'),
-                            new MessageButton()
-                                .setCustomId(`btrelease_edit_${playerId}`)
-                                .setLabel('Düzenle')
-                                .setStyle('SECONDARY')
-                                .setEmoji('✏️')
-                        );
+                    // Send directly to serbest-duyuru channel
+                    const buttonHandler = require('./handlers/buttonHandler');
+                    const handler = new buttonHandler();
+                    await handler.sendReleaseTransferAnnouncement(interaction.guild, player, releaseData, 'tek_tarafli_oyuncu');
 
-                    await channel.send({
-                        embeds: [releaseEmbed],
-                        components: [buttons]
-                    });
-
-                    await interaction.editReply({ content: `✅ Tek taraflı fesih formu ${channel} kanalında oluşturuldu!` });
+                    await interaction.editReply({ content: `✅ Tek taraflı fesih tamamlandı! Serbest futbolcu oldunuz ve serbest-duyuru kanalına ilan verildi.` });
                 }
             } catch (error) {
                 console.error('BTRelease modal error:', error);
