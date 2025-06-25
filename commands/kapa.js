@@ -14,6 +14,13 @@ module.exports = {
                 return message.reply('❌ Bu komutu sadece yöneticiler kullanabilir!');
             }
 
+            // Transfer dönemi durumunu kontrol et
+            const isOpen = permissions.isTransferPeriodOpen(message.guild.id);
+            
+            if (!isOpen) {
+                return message.reply('⚠️ Transfer dönemi zaten kapalı!');
+            }
+
             // Transfer dönemini kapat
             permissions.setTransferPeriod(message.guild.id, false);
 
