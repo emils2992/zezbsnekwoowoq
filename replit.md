@@ -104,6 +104,8 @@ The bot is configured for Replit deployment with:
   - Added missing PermissionManager require statements in index.js for both .btrelease and .trelease commands
   - Fixed ReferenceError that was preventing role management from working
   - Fixed PermissionManager constructor error by changing module export to class instead of instance
+  - Fixed "permissions.isPlayer is not a function" error by updating imports in all release commands
+  - Updated btrelease, trelease, brelease, and release commands to properly instantiate PermissionManager class
   - Added comprehensive debugging logs to permission checks and command execution
   - Enhanced isPlayer method to properly handle both futbolcu and serbest futbolcu roles
   - Role management now properly instantiates permissions class before attempting role changes
