@@ -31,6 +31,13 @@ class ButtonHandler {
                 return;
             }
 
+            // Handle show_hire_modal_ buttons specially
+            if (customId.startsWith('show_hire_modal_')) {
+                const params = customId.split('_').slice(3); // Remove 'show', 'hire', 'modal'
+                await this.handleShowHireForm(client, interaction, params);
+                return;
+            }
+
             const [action, ...params] = customId.split('_');
 
             // Add to processed interactions for accept/reject/confirm buttons

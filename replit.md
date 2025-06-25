@@ -100,6 +100,14 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed hire command modal and button interaction issues:
+  - Added missing button handler for show_hire_modal_ custom IDs that was preventing modal forms from opening
+  - Fixed authorization bug in hire reject button - was checking playerId instead of targetPresidentId
+  - Added complete showEditHireModal function with proper parameter handling and pre-filled form fields
+  - Fixed parameter order consistency throughout hire workflow (targetPresidentId, playerId, presidentId)
+  - Hire command now properly opens modal forms when "Kiralık Formu Aç" button is clicked
+  - Edit functionality works correctly with pre-filled existing data from embed fields
+  - All hire workflow buttons (accept, reject, edit) now have proper authorization checks
 - June 24, 2025. Fixed trade command button authorization bug and interaction timeout issues:
   - Corrected parameter index mapping for trade commands in handleShowButton function
   - Trade commands use 4 parameters so presidentId is at index 4, not index 2
