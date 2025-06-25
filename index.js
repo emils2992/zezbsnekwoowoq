@@ -323,6 +323,8 @@ function getRoleName(roleType) {
 
 // Modal submission işleyicisi
 async function handleModalSubmit(client, interaction) {
+    console.log('🔍 Modal submission handler started:', interaction.customId);
+    
     try {
         // Check if we can defer the interaction
         if (!interaction.replied && !interaction.deferred) {
@@ -345,8 +347,17 @@ async function handleModalSubmit(client, interaction) {
         // Offer form modali
         if (customId.startsWith('offer_form_')) {
             const [, , playerId, presidentId] = customId.split('_');
-            const player = interaction.guild.members.cache.get(playerId);
-            const president = interaction.guild.members.cache.get(presidentId);
+            
+            let player, president;
+            try {
+                player = await interaction.guild.members.fetch(playerId);
+                president = await interaction.guild.members.fetch(presidentId);
+            } catch (fetchError) {
+                console.error('❌ Kullanıcılar getirilirken hata (offer modal):', fetchError);
+                return interaction.editReply({ 
+                    content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Lütfen tekrar deneyin.' 
+                });
+            }
 
             if (!player || !president) {
                 return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
@@ -461,8 +472,16 @@ async function handleModalSubmit(client, interaction) {
             const presidentId = parts[3];
             const releaseType = parts[4];
             
-            const player = interaction.guild.members.cache.get(playerId);
-            const president = interaction.guild.members.cache.get(presidentId);
+            let player, president;
+            try {
+                player = await interaction.guild.members.fetch(playerId);
+                president = await interaction.guild.members.fetch(presidentId);
+            } catch (fetchError) {
+                console.error('❌ Kullanıcılar getirilirken hata (release modal):', fetchError);
+                return interaction.editReply({ 
+                    content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Lütfen tekrar deneyin.' 
+                });
+            }
 
             if (!player || !president) {
                 return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
@@ -1415,17 +1434,27 @@ async function handleModalSubmit(client, interaction) {
             console.log('Parsed IDs:', { targetPresidentId, wantedPlayerId, givenPlayerId, presidentId });
 
             const guild = interaction.guild;
-                const targetPresident = await guild.members.fetch(targetPresidentId);
-                const wantedPlayer = await guild.members.fetch(wantedPlayerId);
-                const givenPlayer = await guild.members.fetch(givenPlayerId);
-                const president = await guild.members.fetch(presidentId);
-
+            
+            let targetPresident, wantedPlayer, givenPlayer, president;
+            
+            try {
+                targetPresident = await guild.members.fetch(targetPresidentId);
+                wantedPlayer = await guild.members.fetch(wantedPlayerId);
+                givenPlayer = await guild.members.fetch(givenPlayerId);
+                president = await guild.members.fetch(presidentId);
+                
                 console.log('Found users:', {
                     targetPresident: targetPresident.user.username,
                     wantedPlayer: wantedPlayer.user.username,
                     givenPlayer: givenPlayer.user.username,
                     president: president.user.username
                 });
+            } catch (fetchError) {
+                console.error('❌ Kullanıcılar getirilirken hata (trade modal):', fetchError);
+                return interaction.editReply({ 
+                    content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Lütfen tekrar deneyin.' 
+                });
+            }
 
                 if (!targetPresident || !wantedPlayer || !givenPlayer || !president) {
                     console.log('Missing users error');
@@ -1537,10 +1566,19 @@ async function handleModalSubmit(client, interaction) {
             const { targetPresidentId, wantedPlayerId, givenPlayerId, presidentId } = params;
             const guild = interaction.guild;
             
-            const targetPresident = await guild.members.fetch(targetPresidentId);
-            const wantedPlayer = await guild.members.fetch(wantedPlayerId);
-            const givenPlayer = await guild.members.fetch(givenPlayerId);
-            const president = await guild.members.fetch(presidentId);
+            let targetPresident, wantedPlayer, givenPlayer, president;
+            
+            try {
+                targetPresident = await guild.members.fetch(targetPresidentId);
+                wantedPlayer = await guild.members.fetch(wantedPlayerId);
+                givenPlayer = await guild.members.fetch(givenPlayerId);
+                president = await guild.members.fetch(presidentId);
+            } catch (fetchError) {
+                console.error('❌ Kullanıcılar getirilirken hata (trade salary modal):', fetchError);
+                return interaction.editReply({ 
+                    content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Lütfen tekrar deneyin.' 
+                });
+            }
 
             const tradePlayerData = {
                 wantedPlayerSalary: interaction.fields.getTextInputValue('wanted_player_salary') || '',
@@ -1643,8 +1681,17 @@ async function handleModalSubmit(client, interaction) {
                 }
                 
                 const [, , playerId, presidentId] = customId.split('_');
-                const player = interaction.guild.members.cache.get(playerId);
-                const president = interaction.guild.members.cache.get(presidentId);
+                
+                let player, president;
+                try {
+                    player = await interaction.guild.members.fetch(playerId);
+                    president = await interaction.guild.members.fetch(presidentId);
+                } catch (fetchError) {
+                    console.error('❌ Kullanıcılar getirilirken hata (trelease modal):', fetchError);
+                    return interaction.editReply({ 
+                        content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Lütfen tekrar deneyin.' 
+                    });
+                }
 
                 if (!player || !president) {
                     return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
@@ -1747,7 +1794,16 @@ async function handleModalSubmit(client, interaction) {
                 }
                 
                 const [, , playerId, ] = customId.split('_');
-                const player = interaction.guild.members.cache.get(playerId);
+                
+                let player;
+                try {
+                    player = await interaction.guild.members.fetch(playerId);
+                } catch (fetchError) {
+                    console.error('❌ Kullanıcılar getirilirken hata (btrelease modal):', fetchError);
+                    return interaction.editReply({ 
+                        content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Lütfen tekrar deneyin.' 
+                    });
+                }
 
                 if (!player) {
                     return interaction.editReply({ content: 'Oyuncu bulunamadı!' });
