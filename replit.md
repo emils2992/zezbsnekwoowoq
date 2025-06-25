@@ -100,6 +100,14 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Added transfer period control system with .aç and .kapa commands:
+  - Created .aç command to open transfer period (administrator only)
+  - Created .kapa command to close transfer period (administrator only) 
+  - When closed, .hire, .contract, and .trade commands are disabled with clear error messages
+  - Transfer period state stored in roles.json file per guild
+  - Defaults to open if not set, maintains backward compatibility
+  - Added transfer period section to .eyardım help documentation
+  - System allows fine-grained control over when transfers can occur
 - June 25, 2025. Added modal forms to .trelease and .btrelease commands with old club and compensation fields:
   - Updated .trelease and .btrelease commands to use modal forms instead of simple confirm/cancel buttons
   - Added "Eski Kulüp" and "Tazminat" fields to both commands for detailed release information

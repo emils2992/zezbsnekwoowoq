@@ -11,6 +11,11 @@ module.exports = {
     
     async execute(client, message, args) {
         try {
+            // Transfer dönemi kontrolü
+            if (!permissions.isTransferPeriodOpen(message.guild.id)) {
+                return message.reply('❌ Transfer dönemi kapalı! Yöneticiler `.aç` komutuyla transfer dönemini açabilir.');
+            }
+
             // Yetki kontrolü
             if (!permissions.isPresident(message.member)) {
                 return message.reply('❌ Bu komutu sadece takım başkanları kullanabilir!');

@@ -90,6 +90,33 @@ class PermissionManager {
         return member.roles.cache.has(unilateralTerminationRoleId);
     }
 
+    setTransferPeriod(guildId, isOpen) {
+        this.ensureRolesFile();
+        
+        let data = {};
+        try {
+            const fileContent = fs.readFileSync(this.rolesFilePath, 'utf8');
+            data = JSON.parse(fileContent);
+        } catch (error) {
+            console.log('Creating new roles file');
+        }
+
+        if (!data[guildId]) {
+            data[guildId] = {};
+        }
+
+        data[guildId].transferPeriodOpen = isOpen;
+
+        fs.writeFileSync(this.rolesFilePath, JSON.stringify(data, null, 2));
+        console.log(`Transfer period ${isOpen ? 'opened' : 'closed'} for guild ${guildId}`);
+    }
+
+    isTransferPeriodOpen(guildId) {
+        const roleData = this.getRoleData(guildId);
+        // Default to true if not set
+        return roleData.transferPeriodOpen !== false;
+    }
+
     isAuthorized(member, action) {
         // Admin her zaman yetkili
         if (member.permissions.has('ADMINISTRATOR')) return true;
