@@ -1145,7 +1145,7 @@ async function handleModalSubmit(client, interaction) {
                 .addFields(
                     { name: '⚽ Futbolcu', value: `${user}`, inline: true },
                     { name: '🎯 Ne İsterim', value: announcementData.desire, inline: false },
-                    { name: '🏟️ Takımdaki Rolüm', value: announcementData.teamRole, inline: true },
+                    { name: '📊 kaç stat kasarım', value: announcementData.teamRole, inline: true },
                     { name: '💰 Maaş Beklentim', value: announcementData.salary, inline: true },
                     { name: '📅 Sözleşme Tercihi', value: announcementData.contract, inline: true }
                 );

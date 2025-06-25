@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Updated .duyur command field from role to stat farming:
+  - Changed "Takımdaki Rolüm" field to "kaç stat kasarım" in modal form
+  - Updated placeholder text to show stat examples (100 stat, 200 stat, günde 50 stat)
+  - Updated announcement display to show "📊 kaç stat kasarım" instead of "🏟️ Takımdaki Rolüm"
+  - Both modal form and announcement embed now consistently use stat farming terminology
 - June 25, 2025. Updated .eyardım help command with bduyur system:
   - Added comprehensive transfer list system documentation
   - Updated description to highlight new bduyur features

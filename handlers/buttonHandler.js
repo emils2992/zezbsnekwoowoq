@@ -3142,9 +3142,9 @@ class ButtonHandler {
 
         const roleInput = new TextInputComponent()
             .setCustomId('team_role')
-            .setLabel('Takımdaki Rolüm')
+            .setLabel('kaç stat kasarım')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: Orta saha, Kaleci, Forvet, vs.')
+            .setPlaceholder('Örn: 100 stat, 200 stat, günde 50 stat, vs.')
             .setRequired(true);
 
         const salaryInput = new TextInputComponent()
