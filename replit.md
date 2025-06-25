@@ -117,6 +117,9 @@ The bot is configured for Replit deployment with:
   - Fixed bduyur announcement data display to show actual form input instead of "Belirtilmemiş"
   - Updated field extraction and announcement embed to use correct field mappings
   - Added interaction timeout protection for edit modal to prevent "Unknown interaction" errors
+  - Made "Bonus" field optional (not required) in bduyur modal forms
+  - Capitalized "Bonus" field label and updated empty bonus display to show "Yok"
+  - Fixed announcement format to show correct contract command: ".contract @başkan @oyuncu"
 
 - June 25, 2025. Enhanced .oldurferdi with one-time usage restriction and special channel creation:
   - Epic troll sequence with 7 stages over 56 seconds (8-second intervals)

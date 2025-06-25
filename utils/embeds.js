@@ -169,7 +169,7 @@ class EmbedCreator {
                 { name: '📊 Stat Miktarı', value: bduyurData?.statAmount || 'Belirtilmemiş', inline: true },
                 { name: '💰 Oyuncumun Maaşı', value: bduyurData?.playerSalary || 'Belirtilmemiş', inline: true },
                 { name: '💎 Beklenen Ücret', value: bduyurData?.expectedPrice || 'Belirtilmemiş', inline: true },
-                { name: '🎁 Bonus', value: bduyurData?.bonus || 'Belirtilmemiş', inline: true }
+                { name: '🎁 Bonus', value: bduyurData?.bonus || 'Yok', inline: true }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Listesi Sistemi' });

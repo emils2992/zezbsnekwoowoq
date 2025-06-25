@@ -3817,10 +3817,10 @@ class ButtonHandler {
 
         const bonusInput = new TextInputComponent()
             .setCustomId('bonus')
-            .setLabel('bonus')
+            .setLabel('Bonus')
             .setStyle('SHORT')
             .setPlaceholder('İmza bonusu, performans bonusu')
-            .setRequired(true);
+            .setRequired(false);
 
         modal.addComponents(
             new MessageActionRow().addComponents(transferTypeInput),
@@ -4044,10 +4044,10 @@ class ButtonHandler {
 
         const bonusInput = new TextInputComponent()
             .setCustomId('bonus')
-            .setLabel('bonus')
+            .setLabel('Bonus')
             .setStyle('SHORT')
             .setValue(existingData.bonus)
-            .setRequired(true);
+            .setRequired(false);
 
         modal.addComponents(
             new MessageActionRow().addComponents(transferTypeInput),
@@ -4122,7 +4122,7 @@ class ButtonHandler {
             const bduyurEmbed = new MessageEmbed()
                 .setColor('#FFD700')
                 .setTitle(`${config.emojis.football} Transfer Listesi`)
-                .setDescription(`${president.user} tarafından ${player.user} transfer listesine kondu:\n\n**.contract ${president.user}** komutuyla iletişime geçin`)
+                .setDescription(`${president.user} tarafından ${player.user} transfer listesine kondu:\n\n**.contract ${president.user} ${player.user}** komutuyla iletişime geçin`)
                 .addFields(
                     { name: '🎯 Oyuncu', value: `${player.user}`, inline: true },
                     { name: '🔄 Transfer Türü', value: bduyurData.transferType || 'Belirtilmemiş', inline: true },
