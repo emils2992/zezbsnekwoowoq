@@ -3,9 +3,9 @@ const config = require('../config');
 const permissions = require('../utils/permissions');
 
 module.exports = {
-    name: 'aç',
+    name: 'ac',
     description: 'Transfer dönemini açar',
-    usage: '.aç',
+    usage: '.ac',
     
     async execute(client, message, args) {
         try {
@@ -32,7 +32,7 @@ module.exports = {
             await message.reply({ embeds: [embed] });
 
         } catch (error) {
-            console.error('Aç komutu hatası:', error);
+            console.error('Ac komutu hatası:', error);
             message.reply('❌ Transfer dönemi açılırken bir hata oluştu!');
         }
     }
