@@ -100,6 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed hire command two-stage approval system to prevent duplicate announcements:
+  - President acceptance now creates player approval channel instead of immediate announcement
+  - Added handleHirePlayerButton function for player approval stage with proper authorization
+  - Fixed button routing to handle hire_player_ buttons separately from regular hire_ buttons
+  - Only sends transfer announcement when player accepts in second channel
+  - Eliminated duplicate announcement issue by implementing proper two-stage workflow
 - June 25, 2025. Fixed hire command edit button to update messages in-place instead of creating new channels:
   - Enhanced channel detection to include "kiralik", "hire", "muzakere", and "m-zakere" patterns
   - Added proper button type detection for both president and player approval channels

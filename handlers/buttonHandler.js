@@ -1540,21 +1540,50 @@ class ButtonHandler {
                 });
             }
 
-            await this.sendTransferAnnouncement(guild, {
-                type: 'hire',
-                player: player,
-                president: president,
-                targetPresident: targetPresident,
-                embed: interaction.message.embeds[0]
-            });
-
             await interaction.deferReply();
             
             await interaction.editReply({
-                content: `✅ Kiralık transfer kabul edildi!`
+                content: `✅ Başkan onayladı! Oyuncu onayı için kanal oluşturuluyor...`
             });
 
-            // Disable all buttons immediately
+            // Create player approval channel
+            const channels = require('../utils/channels');
+            const embeds = require('../utils/embeds');
+            
+            const playerChannel = await channels.createNegotiationChannel(guild, player.user, targetPresident.user, 'hire_player');
+            if (!playerChannel) {
+                return interaction.editReply({ content: 'Oyuncu onay kanalı oluşturulamadı!' });
+            }
+
+            // Create hire form for player approval with hire_player_ buttons
+            const hireEmbed = embeds.createHireForm(president.user, targetPresident.user, player.user, null);
+            
+            const playerButtons = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId(`hire_player_accept_${targetPresidentId}_${playerId}_${presidentId}`)
+                        .setLabel('Kabul Et')
+                        .setStyle('SUCCESS')
+                        .setEmoji('✅'),
+                    new MessageButton()
+                        .setCustomId(`hire_player_reject_${targetPresidentId}_${playerId}_${presidentId}`)
+                        .setLabel('Reddet')
+                        .setStyle('DANGER')
+                        .setEmoji('❌'),
+                    new MessageButton()
+                        .setCustomId(`hire_player_edit_${targetPresidentId}_${playerId}_${presidentId}`)
+                        .setLabel('Düzenle')
+                        .setStyle('SECONDARY')
+                        .setEmoji('✏️')
+                );
+
+            await playerChannel.send({
+                content: `${player.user} kiralık anlaşmasını onaylamanız bekleniyor.\n\n${targetPresident.user} ve ${president.user} başkanlar anlaşmaya vardı.`,
+                embeds: [hireEmbed],
+                components: [playerButtons]
+            });
+
+            // Disable all buttons in current channel
             const disabledButtons = interaction.message.components[0].components.map(button => 
                 new MessageButton()
                     .setCustomId(button.customId)
@@ -1569,16 +1598,14 @@ class ButtonHandler {
                 components: [new MessageActionRow().addComponents(disabledButtons)]
             });
 
-            // Force channel deletion
+            // Delete president negotiation channel after creating player channel
             setTimeout(async () => {
                 try {
                     const channelToDelete = interaction.channel;
                     if (channelToDelete && channelToDelete.deletable) {
                         console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                        await channelToDelete.delete("İşlem tamamlandı - Kanal otomatik silindi");
+                        await channelToDelete.delete("Başkan onayı tamamlandı - Oyuncu onayına geçildi");
                         console.log('KANAL BAŞARIYLA SİLİNDİ');
-                    } else {
-                        console.log('Kanal silinemez veya bulunamadı');
                     }
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
@@ -1639,6 +1666,133 @@ class ButtonHandler {
             if (interaction.user.id !== presidentId) {
                 return interaction.reply({
                     content: '❌ Sadece teklifi yapan başkan düzenleyebilir!',
+                    ephemeral: true
+                });
+            }
+
+            // Extract existing data from embed and show pre-filled modal
+            await this.showEditHireModal(client, interaction, targetPresidentId, playerId, presidentId);
+        }
+    }
+
+    async handleHirePlayerButton(client, interaction, params) {
+        const [buttonType, targetPresidentId, playerId, presidentId] = params;
+        const guild = interaction.guild;
+        const targetPresident = await guild.members.fetch(targetPresidentId);
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+
+        if (buttonType === 'accept') {
+            // Check if user is authorized (player or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef oyuncu veya transfer yetkilileri kiralık anlaşmasını kabul edebilir!',
+                    ephemeral: true
+                });
+            }
+
+            await interaction.deferReply();
+            
+            // Send transfer announcement
+            await this.sendTransferAnnouncement(guild, {
+                type: 'hire',
+                player: player,
+                president: president,
+                targetPresident: targetPresident,
+                embed: interaction.message.embeds[0]
+            });
+
+            await interaction.editReply({
+                content: `✅ Kiralık anlaşması oyuncu tarafından kabul edildi! Transfer tamamlandı.`
+            });
+
+            // Disable all buttons
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            // Delete channel
+            setTimeout(async () => {
+                try {
+                    const channelToDelete = interaction.channel;
+                    if (channelToDelete && channelToDelete.deletable) {
+                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
+                        await channelToDelete.delete("Kiralık anlaşması tamamlandı");
+                        console.log('KANAL BAŞARIYLA SİLİNDİ');
+                    }
+                } catch (error) {
+                    console.error('KANAL SİLME HATASI:', error);
+                }
+            }, 1500);
+
+        } else if (buttonType === 'reject') {
+            // Check if user is authorized (player or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
+                return interaction.reply({
+                    content: '❌ Sadece hedef oyuncu veya transfer yetkilileri kiralık anlaşmasını reddedebilir!',
+                    ephemeral: true
+                });
+            }
+
+            await interaction.deferReply();
+            
+            await interaction.editReply({
+                content: `❌ Kiralık anlaşması oyuncu tarafından reddedildi!`
+            });
+
+            // Disable all buttons
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            // Delete channel
+            setTimeout(async () => {
+                try {
+                    const channelToDelete = interaction.channel;
+                    if (channelToDelete && channelToDelete.deletable) {
+                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
+                        await channelToDelete.delete("Kiralık anlaşması reddedildi");
+                        console.log('KANAL BAŞARIYLA SİLİNDİ');
+                    }
+                } catch (error) {
+                    console.error('KANAL SİLME HATASI:', error);
+                }
+            }, 1500);
+
+        } else if (buttonType === 'edit') {
+            // Check if user is authorized (player, president, or transfer authority)
+            const member = interaction.member;
+            const isAuthorized = interaction.user.id === playerId || interaction.user.id === presidentId || interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
+            
+            if (!isAuthorized) {
+                return interaction.reply({
+                    content: '❌ Sadece oyuncu, başkanlar veya transfer yetkilileri düzenleyebilir!',
                     ephemeral: true
                 });
             }
