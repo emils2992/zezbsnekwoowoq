@@ -100,7 +100,7 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 25, 2025. Enhanced role management system with comprehensive logging and unilateral termination cleanup:
+- June 25, 2025. Fixed role management errors with detailed debugging and permission checks:
   - Enhanced makePlayerFree function with detailed logging for each role operation
   - Added automatic removal of "Tek Taraflı Fesih" role after .btrelease usage
   - Applied comprehensive role management to .trelease command as well

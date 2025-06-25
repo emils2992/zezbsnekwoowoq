@@ -3458,7 +3458,8 @@ class ButtonHandler {
 
                 await interaction.editReply(`✅ ${player.user} sözleşmesini tek taraflı feshetti ve serbest futbolcu oldu! Roller güncellendi.`);
             } catch (error) {
-                console.error('BTRelease onaylama hatası:', error);
+                console.error('❌ BTRelease onaylama hatası:', error);
+                console.error('❌ BTRelease button error stack:', error.stack);
                 await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
             }
 
@@ -3591,8 +3592,13 @@ class ButtonHandler {
 
                 await interaction.editReply(`✅ ${playerToRelease.user} ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu ve roller güncellendi.`);
             } catch (error) {
-                console.error('BRelease kabul hatası:', error);
-                await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
+                console.error('❌ BRelease kabul hatası:', error);
+                console.error('❌ BRelease button error stack:', error.stack);
+                try {
+                    await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
+                } catch (replyError) {
+                    console.error('❌ Could not send error reply:', replyError);
+                }
             }
 
             setTimeout(async () => {

@@ -1743,15 +1743,20 @@ async function handleModalSubmit(client, interaction) {
                     }
 
                     // Send directly to serbest-duyuru channel
-                    const buttonHandler = require('./handlers/buttonHandler');
-                    const handler = new buttonHandler();
+                    const ButtonHandler = require('./handlers/buttonHandler');
+                    const handler = new ButtonHandler();
                     await handler.sendReleaseTransferAnnouncement(interaction.guild, player, releaseData, 'tek_tarafli');
 
                     await interaction.editReply({ content: `✅ Tek taraflı fesih tamamlandı! ${player.user} serbest futbolcu oldu ve serbest-duyuru kanalına ilan verildi.` });
                 }
             } catch (error) {
-                console.error('TRelease modal error:', error);
-                await interaction.editReply({ content: `❌ Fesih işlemi sırasında hata oluştu: ${error.message}` });
+                console.error('❌ TRelease modal error:', error);
+                console.error('❌ TRelease error stack:', error.stack);
+                try {
+                    await interaction.editReply({ content: `❌ Fesih işlemi sırasında hata oluştu: ${error.message}` });
+                } catch (replyError) {
+                    console.error('❌ Could not send error reply:', replyError);
+                }
             }
         }
         
@@ -1839,15 +1844,20 @@ async function handleModalSubmit(client, interaction) {
                     }
 
                     // Send directly to serbest-duyuru channel
-                    const buttonHandler = require('./handlers/buttonHandler');
-                    const handler = new buttonHandler();
+                    const ButtonHandler = require('./handlers/buttonHandler');
+                    const handler = new ButtonHandler();
                     await handler.sendReleaseTransferAnnouncement(interaction.guild, player, releaseData, 'tek_tarafli_oyuncu');
 
                     await interaction.editReply({ content: `✅ Tek taraflı fesih tamamlandı! Serbest futbolcu oldunuz ve serbest-duyuru kanalına ilan verildi.` });
                 }
             } catch (error) {
-                console.error('BTRelease modal error:', error);
-                await interaction.editReply({ content: `❌ Fesih işlemi sırasında hata oluştu: ${error.message}` });
+                console.error('❌ BTRelease modal error:', error);
+                console.error('❌ BTRelease error stack:', error.stack);
+                try {
+                    await interaction.editReply({ content: `❌ Fesih işlemi sırasında hata oluştu: ${error.message}` });
+                } catch (replyError) {
+                    console.error('❌ Could not send error reply:', replyError);
+                }
             }
         }
         
