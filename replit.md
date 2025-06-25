@@ -100,6 +100,10 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed bduyur edit button to update messages in-place:
+  - Enhanced channel detection to include bduyur, transfer-listesi, muzakere, and m-zakere patterns
+  - Edit button now updates existing message instead of creating new channels
+  - Improved bduyur form editing workflow for better user experience
 - June 25, 2025. Added bduyur ping role button to .rol command interface:
   - Added "Transfer Listesi Ping" button to role management system
   - Users can now easily configure ping_bduyur role through button interface

@@ -576,7 +576,9 @@ async function handleModalSubmit(client, interaction) {
             // Check if we're already in a negotiation channel
             const isNegotiationChannel = interaction.channel.name && 
                 (interaction.channel.name.includes('bduyur-') || 
-                 interaction.channel.name.includes('transfer-listesi-'));
+                 interaction.channel.name.includes('transfer-listesi-') ||
+                 interaction.channel.name.includes('muzakere') ||
+                 interaction.channel.name.includes('m-zakere'));
 
             if (isNegotiationChannel) {
                 console.log('BDuyur: Updating existing embed in channel');
