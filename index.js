@@ -571,120 +571,126 @@ async function handleModalSubmit(client, interaction) {
         if (customId.startsWith('bduyur_modal_')) {
             console.log('BDuyur modal submission received:', customId);
             const [, , playerId, presidentId] = customId.split('_');
-            const player = interaction.guild.members.cache.get(playerId);
-            const president = interaction.guild.members.cache.get(presidentId);
+            
+            try {
+                const player = await interaction.guild.members.fetch(playerId);
+                const president = await interaction.guild.members.fetch(presidentId);
 
-            if (!player || !president) {
-                console.log('BDuyur: Users not found');
-                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
-            }
+                if (!player || !president) {
+                    console.log('BDuyur: Users not found');
+                    return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+                }
 
-            const bduyurData = {
-                transferType: interaction.fields.getTextInputValue('transfer_type') || 'Belirtilmemiş',
-                statAmount: interaction.fields.getTextInputValue('stat_amount') || 'Belirtilmemiş',
-                playerSalary: interaction.fields.getTextInputValue('player_salary') || 'Belirtilmemiş',
-                expectedPrice: interaction.fields.getTextInputValue('expected_price') || 'Belirtilmemiş',
-                bonus: interaction.fields.getTextInputValue('bonus') || 'Belirtilmemiş'
-            };
+                const bduyurData = {
+                    transferType: interaction.fields.getTextInputValue('transfer_type') || 'Belirtilmemiş',
+                    statAmount: interaction.fields.getTextInputValue('stat_amount') || 'Belirtilmemiş',
+                    playerSalary: interaction.fields.getTextInputValue('player_salary') || 'Belirtilmemiş',
+                    expectedPrice: interaction.fields.getTextInputValue('expected_price') || 'Belirtilmemiş',
+                    bonus: interaction.fields.getTextInputValue('bonus') || 'Belirtilmemiş'
+                };
 
-            console.log('BDuyur data:', bduyurData);
+                console.log('BDuyur data:', bduyurData);
 
-            // Check if we're already in a negotiation channel
-            const isNegotiationChannel = interaction.channel.name && 
-                (interaction.channel.name.includes('bduyur-') || 
-                 interaction.channel.name.includes('transfer-listesi-') ||
-                 interaction.channel.name.includes('muzakere') ||
-                 interaction.channel.name.includes('m-zakere'));
+                // Check if we're already in a negotiation channel
+                const isNegotiationChannel = interaction.channel.name && 
+                    (interaction.channel.name.includes('bduyur-') || 
+                     interaction.channel.name.includes('transfer-listesi-') ||
+                     interaction.channel.name.includes('muzakere') ||
+                     interaction.channel.name.includes('m-zakere'));
 
-            if (isNegotiationChannel) {
-                console.log('BDuyur: Updating existing embed in channel');
-                // Update existing embed in same channel
-                const embeds = require('./utils/embeds');
-                const updatedEmbed = embeds.createBduyurForm(president.user, player.user, bduyurData);
+                if (isNegotiationChannel) {
+                    console.log('BDuyur: Updating existing embed in channel');
+                    // Update existing embed in same channel
+                    const embeds = require('./utils/embeds');
+                    const updatedEmbed = embeds.createBduyurForm(president.user, player.user, bduyurData);
 
-                const buttons = new MessageActionRow()
-                    .addComponents(
-                        new MessageButton()
-                            .setCustomId(`bduyur_accept_${playerId}_${presidentId}`)
-                            .setLabel('Kabul Et')
-                            .setStyle('SUCCESS')
-                            .setEmoji('✅'),
-                        new MessageButton()
-                            .setCustomId(`bduyur_reject_${playerId}_${presidentId}`)
-                            .setLabel('Reddet')
-                            .setStyle('DANGER')
-                            .setEmoji('❌'),
-                        new MessageButton()
-                            .setCustomId(`bduyur_edit_${playerId}_${presidentId}`)
-                            .setLabel('Düzenle')
-                            .setStyle('SECONDARY')
-                            .setEmoji('✏️')
+                    const buttons = new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(`bduyur_accept_${playerId}_${presidentId}`)
+                                .setLabel('Kabul Et')
+                                .setStyle('SUCCESS')
+                                .setEmoji('✅'),
+                            new MessageButton()
+                                .setCustomId(`bduyur_reject_${playerId}_${presidentId}`)
+                                .setLabel('Reddet')
+                                .setStyle('DANGER')
+                                .setEmoji('❌'),
+                            new MessageButton()
+                                .setCustomId(`bduyur_edit_${playerId}_${presidentId}`)
+                                .setLabel('Düzenle')
+                                .setStyle('SECONDARY')
+                                .setEmoji('✏️')
+                        );
+
+                    // Find and update the original message
+                    const messages = await interaction.channel.messages.fetch({ limit: 50 });
+                    const originalMessage = messages.find(msg => 
+                        msg.embeds?.[0]?.title?.includes('Transfer Listesi') && 
+                        msg.components?.length > 0
                     );
 
-                // Find and update the original message
-                const messages = await interaction.channel.messages.fetch({ limit: 50 });
-                const originalMessage = messages.find(msg => 
-                    msg.embeds?.[0]?.title?.includes('Transfer Listesi') && 
-                    msg.components?.length > 0
-                );
-
-                if (originalMessage) {
-                    await originalMessage.edit({
-                        embeds: [updatedEmbed],
-                        components: [buttons]
-                    });
-                    await interaction.editReply('✅ Transfer listesi formu güncellendi!');
+                    if (originalMessage) {
+                        await originalMessage.edit({
+                            embeds: [updatedEmbed],
+                            components: [buttons]
+                        });
+                        await interaction.editReply('✅ Transfer listesi formu güncellendi!');
+                    } else {
+                        await interaction.editReply('❌ Güncellenecek form bulunamadı!');
+                    }
                 } else {
-                    await interaction.editReply('❌ Güncellenecek form bulunamadı!');
-                }
-            } else {
-                console.log('BDuyur: Creating new negotiation channel');
-                // Create new negotiation channel
-                const embeds = require('./utils/embeds');
-                const embed = embeds.createBduyurForm(president.user, player.user, bduyurData);
+                    console.log('BDuyur: Creating new negotiation channel');
+                    // Create new negotiation channel
+                    const embeds = require('./utils/embeds');
+                    const embed = embeds.createBduyurForm(president.user, player.user, bduyurData);
 
-                const buttons = new MessageActionRow()
-                    .addComponents(
-                        new MessageButton()
-                            .setCustomId(`bduyur_accept_${playerId}_${presidentId}`)
-                            .setLabel('Kabul Et')
-                            .setStyle('SUCCESS')
-                            .setEmoji('✅'),
-                        new MessageButton()
-                            .setCustomId(`bduyur_reject_${playerId}_${presidentId}`)
-                            .setLabel('Reddet')
-                            .setStyle('DANGER')
-                            .setEmoji('❌'),
-                        new MessageButton()
-                            .setCustomId(`bduyur_edit_${playerId}_${presidentId}`)
-                            .setLabel('Düzenle')
-                            .setStyle('SECONDARY')
-                            .setEmoji('✏️')
+                    const buttons = new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(`bduyur_accept_${playerId}_${presidentId}`)
+                                .setLabel('Kabul Et')
+                                .setStyle('SUCCESS')
+                                .setEmoji('✅'),
+                            new MessageButton()
+                                .setCustomId(`bduyur_reject_${playerId}_${presidentId}`)
+                                .setLabel('Reddet')
+                                .setStyle('DANGER')
+                                .setEmoji('❌'),
+                            new MessageButton()
+                                .setCustomId(`bduyur_edit_${playerId}_${presidentId}`)
+                                .setLabel('Düzenle')
+                                .setStyle('SECONDARY')
+                                .setEmoji('✏️')
+                        );
+
+                    const channels = require('./utils/channels');
+                    const channel = await channels.createNegotiationChannel(
+                        interaction.guild, 
+                        president.user, 
+                        player.user, 
+                        'bduyur',
+                        player.user,
+                        false
                     );
 
-                const channels = require('./utils/channels');
-                const channel = await channels.createNegotiationChannel(
-                    interaction.guild, 
-                    president.user, 
-                    player.user, 
-                    'bduyur',
-                    player.user,
-                    false
-                );
+                    if (channel) {
+                        console.log('BDuyur: Channel created successfully:', channel.name);
+                        await channel.send({
+                            content: `${player.user} ${president.user}`,
+                            embeds: [embed],
+                            components: [buttons]
+                        });
 
-                if (channel) {
-                    console.log('BDuyur: Channel created successfully:', channel.name);
-                    await channel.send({
-                        content: `${player.user} ${president.user}`,
-                        embeds: [embed],
-                        components: [buttons]
-                    });
-
-                    await interaction.editReply(`✅ Transfer listesi duyurusu ${channel} kanalında oluşturuldu!`);
-                } else {
-                    console.log('BDuyur: Failed to create channel');
-                    await interaction.editReply('❌ Kanal oluşturulurken bir hata oluştu!');
+                        await interaction.editReply(`✅ Transfer listesi duyurusu ${channel} kanalında oluşturuldu!`);
+                    } else {
+                        console.log('BDuyur: Failed to create channel');
+                        await interaction.editReply('❌ Kanal oluşturulurken bir hata oluştu!');
+                    }
                 }
+            } catch (error) {
+                console.error('BDuyur modal submission error:', error);
+                await interaction.editReply({ content: '❌ Transfer listesi formu işlenirken hata oluştu! Lütfen tekrar deneyin.' });
             }
             return;
         }
