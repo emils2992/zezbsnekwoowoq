@@ -117,6 +117,8 @@ The bot is configured for Replit deployment with:
   - Updated channel creation utilities to use proper PermissionManager instantiation
   - Fixed .duyur command permissions import and added missing button handler for announcement modals
   - Fixed .offer command permissions import and added missing button handler for offer modals
+  - Fixed .offer command role detection to properly distinguish between active players and free agents
+  - Updated isPlayer method to check only "futbolcu" role, preventing false positives with free agents
   - Enhanced error handling across all transfer commands with detailed error messages
   - Resolved all remaining permission-related errors across the entire codebase
 - June 25, 2025. Fixed role management errors with detailed debugging and permission checks:

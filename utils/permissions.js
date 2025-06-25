@@ -68,15 +68,16 @@ class PermissionManager {
     isPlayer(member) {
         const roleData = this.getRoleData(member.guild.id);
         const playerRoleId = roleData.player;
-        const freeAgentRoleId = roleData.freeAgent;
-        console.log('Player role data:', playerRoleId, 'Free agent role data:', freeAgentRoleId);
         
-        // Oyuncu ya da serbest futbolcu olması yeterli
-        const isPlayerRole = playerRoleId && member.roles.cache.has(playerRoleId);
-        const isFreeAgent = freeAgentRoleId && member.roles.cache.has(freeAgentRoleId);
-        console.log('Has player role:', isPlayerRole, 'Has free agent role:', isFreeAgent);
+        console.log('isPlayer check - Player role ID:', playerRoleId);
+        console.log('isPlayer check - Member roles:', member.roles.cache.map(r => `${r.name} (${r.id})`));
         
-        return isPlayerRole || isFreeAgent;
+        // Check ONLY for the specific "futbolcu" role, not free agent role
+        const hasPlayerRole = playerRoleId && member.roles.cache.has(playerRoleId);
+        
+        console.log('isPlayer check - Has player role:', hasPlayerRole);
+        console.log('isPlayer final result:', hasPlayerRole);
+        return hasPlayerRole;
     }
 
     isFreeAgent(member) {

@@ -33,12 +33,18 @@ module.exports = {
                 return message.reply('❌ Etiketlenen kullanıcı sunucuda bulunamadı!');
             }
 
-            // Serbest futbolcu kontrolü - serbest futbolcu rolü varsa yeterli
+            // Role debugging
+            console.log(`Offer command - checking roles for ${targetMember.displayName}`);
+            console.log(`Is free agent: ${permissions.isFreeAgent(targetMember)}`);
+            console.log(`Is player: ${permissions.isPlayer(targetMember)}`);
+            console.log(`User roles:`, targetMember.roles.cache.map(r => r.name));
+
+            // Serbest futbolcu kontrolü - serbest futbolcu rolü olmalı
             if (!permissions.isFreeAgent(targetMember)) {
                 return message.reply('❌ Bu kişi serbest futbolcu değil! Sadece serbest futbolculara teklif gönderilebilir.');
             }
 
-            // Futbolcu rolü kontrolü - futbolcu rolü varsa teklif gönderilemez
+            // Futbolcu rolü kontrolü - futbolcu rolü varsa teklif gönderilemez (takımda olan oyuncular)
             if (permissions.isPlayer(targetMember)) {
                 return message.reply('❌ Bu kişi zaten bir takımda! Futbolculara teklif gönderilemez, sözleşme teklifi kullanın.');
             }
