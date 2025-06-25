@@ -100,6 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed role management in .brelease and .trelease commands:
+  - Fixed broken require statements that were preventing role management from working
+  - Updated permissions instantiation to use proper PermissionManager class
+  - Added comprehensive logging for role management debugging
+  - Both commands now properly remove futbolcu role and add serbest futbolcu role
+  - Role management works for both direct workflow (.btrelease, .trelease) and button approvals (.brelease)
 - June 25, 2025. Updated .btrelease and .trelease commands to post directly to serbest-duyuru channel:
   - Changed workflow from modal → negotiation channel → approval to modal → direct announcement
   - Both commands now immediately convert players to free agents after form submission

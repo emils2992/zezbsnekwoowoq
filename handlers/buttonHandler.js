@@ -3437,10 +3437,13 @@ class ButtonHandler {
             }
 
             try {
-                const permissions = require('../utils/permissions');
+                const PermissionManager = require('../utils/permissions');
+                const permissions = new PermissionManager();
                 
                 // Automatic role management: Remove futbolcu role, add serbest futbolcu role
-                await permissions.makePlayerFree(player);
+                console.log(`BTRelease: Converting ${player.displayName} to free agent...`);
+                const result = await permissions.makePlayerFree(player);
+                console.log(`BTRelease role management result: ${result}`);
 
                 const channels = require('../utils/channels');
                 await channels.createFreeAgentAnnouncement(guild, player, 'Tek taraflı fesih');
@@ -3548,13 +3551,16 @@ class ButtonHandler {
 
         if (buttonType === 'accept') {
             try {
-                const permissions = require('../utils/permissions');
+                const PermissionManager = require('../utils/permissions');
+                const permissions = new PermissionManager();
                 
                 // For brelease: player is the one who gets released (presidentId is actually the player)
                 const playerToRelease = await guild.members.fetch(presidentId);
                 
                 // Automatic role management: Remove futbolcu role, add serbest futbolcu role
-                await permissions.makePlayerFree(playerToRelease);
+                console.log(`BRelease: Converting ${playerToRelease.displayName} to free agent...`);
+                const result = await permissions.makePlayerFree(playerToRelease);
+                console.log(`BRelease role management result: ${result}`);
 
                 // Extract form data from embed to use in announcement
                 const embed = interaction.message.embeds[0];
