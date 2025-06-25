@@ -34,6 +34,13 @@ class ButtonHandler {
             // Handle show_hire_modal_ buttons specially
             if (customId.startsWith('show_hire_modal_')) {
                 const params = customId.split('_').slice(3); // Remove 'show', 'hire', 'modal'
+                
+                // Check if interaction is still valid
+                if (interaction.replied || interaction.deferred) {
+                    console.log('Interaction already processed, skipping');
+                    return;
+                }
+                
                 await this.handleShowHireForm(client, interaction, params);
                 return;
             }
@@ -2625,13 +2632,14 @@ class ButtonHandler {
     }
 
     async handleShowHireForm(client, interaction, params) {
-        const [targetPresidentId, playerId, presidentId] = params;
-        console.log('HandleShowHireForm received params:', params);
-        console.log('Parsed hire params:', { targetPresidentId, playerId, presidentId });
-        
-        const modal = new Modal()
-            .setCustomId(`hire_form_${targetPresidentId}_${playerId}_${presidentId}`)
-            .setTitle('Kiralık Teklifi Formu');
+        try {
+            const [targetPresidentId, playerId, presidentId] = params;
+            console.log('HandleShowHireForm received params:', params);
+            console.log('Parsed hire params:', { targetPresidentId, playerId, presidentId });
+            
+            const modal = new Modal()
+                .setCustomId(`hire_form_${targetPresidentId}_${playerId}_${presidentId}`)
+                .setTitle('Kiralık Teklifi Formu');
 
         const loanFeeInput = new TextInputComponent()
             .setCustomId('loan_fee')
@@ -2668,15 +2676,28 @@ class ButtonHandler {
             .setPlaceholder('Örn: 1 yıl + opsiyon')
             .setRequired(true);
 
-        const row1 = new MessageActionRow().addComponents(loanFeeInput);
-        const row2 = new MessageActionRow().addComponents(oldClubInput);
-        const row3 = new MessageActionRow().addComponents(newClubInput);
-        const row4 = new MessageActionRow().addComponents(salaryInput);
-        const row5 = new MessageActionRow().addComponents(contractInput);
+            const row1 = new MessageActionRow().addComponents(loanFeeInput);
+            const row2 = new MessageActionRow().addComponents(oldClubInput);
+            const row3 = new MessageActionRow().addComponents(newClubInput);
+            const row4 = new MessageActionRow().addComponents(salaryInput);
+            const row5 = new MessageActionRow().addComponents(contractInput);
 
-        modal.addComponents(row1, row2, row3, row4, row5);
+            modal.addComponents(row1, row2, row3, row4, row5);
 
-        await interaction.showModal(modal);
+            await interaction.showModal(modal);
+        } catch (error) {
+            console.error('Error showing hire modal:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                try {
+                    await interaction.reply({
+                        content: '❌ Modal form açılırken bir hata oluştu!',
+                        ephemeral: true
+                    });
+                } catch (replyError) {
+                    console.error('Failed to send error reply:', replyError);
+                }
+            }
+        }
     }
 
 
