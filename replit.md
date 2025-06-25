@@ -100,6 +100,10 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed .bduyur-ayarla command channel configuration:
+  - Fixed command to properly save bduyur channel as bduyurChannelId instead of transferChannel
+  - Updated permissions system to handle channel ID storage correctly
+  - .bduyur-ayarla now saves to dedicated bduyur channel field in database
 - June 25, 2025. Fixed bduyur edit button to update messages in-place:
   - Enhanced channel detection to include bduyur, transfer-listesi, muzakere, and m-zakere patterns
   - Edit button now updates existing message instead of creating new channels
