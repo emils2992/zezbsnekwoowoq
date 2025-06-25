@@ -45,6 +45,13 @@ class ButtonHandler {
                 return;
             }
 
+            // Handle show_contract_modal_ buttons specially
+            if (customId.startsWith('show_contract_modal_')) {
+                const params = customId.split('_').slice(3); // Remove 'show', 'contract', 'modal'
+                await this.handleShowContractForm(client, interaction, params);
+                return;
+            }
+
             const [action, ...params] = customId.split('_');
 
             // Add to processed interactions for accept/reject/confirm buttons
@@ -83,7 +90,11 @@ class ButtonHandler {
                     await this.handleBreleaseButton(client, interaction, params);
                     break;
                 case 'hire':
-                    await this.handleHireButton(client, interaction, params);
+                    if (params[0] === 'player') {
+                        await this.handleHirePlayerButton(client, interaction, params.slice(1));
+                    } else {
+                        await this.handleHireButton(client, interaction, params);
+                    }
                     break;
                 case 'show':
                     await this.handleShowButton(client, interaction, params);
@@ -1806,6 +1817,35 @@ class ButtonHandler {
                     { name: '🏆 Eski Kulüp', value: oldClub, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: newClub, inline: true },
                     { name: '💰 Transfer Bedeli', value: transferFee, inline: true },
+                    { name: '💸 Yıllık Maaş', value: salary, inline: true },
+                    { name: '📅 Sözleşme+Ek Madde', value: duration, inline: true }
+                ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Sistemi' });
+        } else if (transferData.type === 'hire') {
+            // Hire transfer announcement
+            const { player, president } = transferData;
+            const loanFeeField = embedFields.find(f => f.name.includes('Kiralık Bedeli'));
+            const oldClubField = embedFields.find(f => f.name.includes('Eski Kulüp'));
+            const newClubField = embedFields.find(f => f.name.includes('Yeni Kulüp'));
+            const salaryField = embedFields.find(f => f.name.includes('Maaş'));
+            const durationField = embedFields.find(f => f.name.includes('Sözleşme'));
+            
+            const loanFee = loanFeeField ? loanFeeField.value : 'Belirtilmemiş';
+            const oldClub = oldClubField ? oldClubField.value : 'Belirtilmemiş';
+            const newClub = newClubField ? newClubField.value : 'Belirtilmemiş';
+            const salary = salaryField ? salaryField.value : 'Belirtilmemiş';
+            const duration = durationField ? durationField.value : 'Belirtilmemiş';
+            
+            announcementEmbed = new MessageEmbed()
+                .setColor(config.colors.success)
+                .setTitle('✅ Kiralık Anlaşması Tamamlandı!')
+                .setDescription(`${player.user} kiralık olarak kulüp değiştirdi!\n\n${oldClub} ➤ ${newClub}`)
+                .addFields(
+                    { name: '⚽ Oyuncu', value: `${player.user}`, inline: true },
+                    { name: '🏆 Eski Kulüp', value: oldClub, inline: true },
+                    { name: '🏟️ Yeni Kulüp', value: newClub, inline: true },
+                    { name: '💰 Kiralık Ücreti', value: loanFee, inline: true },
                     { name: '💸 Yıllık Maaş', value: salary, inline: true },
                     { name: '📅 Sözleşme+Ek Madde', value: duration, inline: true }
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))

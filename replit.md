@@ -100,6 +100,16 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Completely rebuilt hire command to match contract command structure:
+  - Copied entire contract command logic and adapted for hire (kiralık) workflow
+  - Implemented two-stage approval system: president accepts → player approval channel created → player accepts
+  - Added hire_player_accept/reject/edit button handlers with proper authorization
+  - Modal form uses "Kiralık Bedeli" instead of "Transfer Ücreti" in all interfaces
+  - Announcements show "Kiralık Anlaşması Tamamlandı" and "Kiralık Ücreti" correctly
+  - Added show_contract_modal_ button handler for contract command modal support
+  - Both hire and contract commands now work identically with full modal → channel → approval workflow
+  - Enhanced sendTransferAnnouncement to properly handle hire type with loan fee extraction
+  - Hire command now supports complete contract-style negotiation with all required fields
 - June 25, 2025. Fixed hire command modal and button interaction issues:
   - Added missing button handler for show_hire_modal_ custom IDs that was preventing modal forms from opening
   - Fixed authorization bug in hire reject button - was checking playerId instead of targetPresidentId

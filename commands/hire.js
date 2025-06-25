@@ -6,8 +6,8 @@ const channels = require('../utils/channels');
 
 module.exports = {
     name: 'hire',
-    description: 'Kiralık transfer işlemi başlat',
-    usage: '.hire @hedefbaşkan @futbolcu',
+    description: 'Başkanlar arası kiralık müzakeresi',
+    usage: '.hire @başkan @oyuncu',
     
     async execute(client, message, args) {
         try {
@@ -24,39 +24,40 @@ module.exports = {
 
             // Mentions'ı array'e çevir ve doğru sırayla al
             const mentionsArray = Array.from(mentions.values());
-            const targetPresident = mentionsArray[0];
+            const targetPresidentUser = mentionsArray[0];
             const playerUser = mentionsArray[1];
 
-            // Debug için log ekle
-            console.log('Hire command - Mentions debug:');
-            console.log('Total mentions:', mentions.size);
-            console.log('First user:', targetPresident.username, targetPresident.id);
-            console.log('Second user:', playerUser.username, playerUser.id);
 
-            if (targetPresident.id === playerUser.id) {
+
+            if (targetPresidentUser.id === playerUser.id) {
                 return message.reply('❌ Başkan ve oyuncu farklı kişiler olmalı!');
             }
 
             // Kendi kendini etiketleme kontrolü
-            if (targetPresident.id === message.author.id || playerUser.id === message.author.id) {
+            if (targetPresidentUser.id === message.author.id || playerUser.id === message.author.id) {
                 return message.reply('❌ Kendinizi etiketleyemezsiniz!');
             }
 
-            const targetMember = message.guild.members.cache.get(targetPresident.id);
+            const targetPresident = message.guild.members.cache.get(targetPresidentUser.id);
             const player = message.guild.members.cache.get(playerUser.id);
 
-            if (!targetMember || !player) {
+            if (!targetPresident || !player) {
                 return message.reply('❌ Etiketlenen kullanıcılar sunucuda bulunamadı!');
             }
 
-            // Hedef başkan kontrolü
-            if (!permissions.isPresident(targetMember)) {
+            // Başkan rolü kontrolü
+            if (!permissions.isPresident(targetPresident)) {
                 return message.reply('❌ İlk etiketlenen kişi takım başkanı değil!');
             }
 
-            // Futbolcu kontrolü
+            // Oyuncu rolü kontrolü
             if (!permissions.isPlayer(player)) {
                 return message.reply('❌ İkinci etiketlenen kişi futbolcu değil!');
+            }
+
+            // Oyuncunun müsait olup olmadığını kontrol et
+            if (permissions.isFreeAgent(player)) {
+                return message.reply('❌ Bu oyuncu serbest! Serbest oyuncular için `.offer` komutunu kullanın.');
             }
 
             // Modal formu butonunu göster
@@ -65,7 +66,7 @@ module.exports = {
                 components: [
                     new MessageActionRow().addComponents(
                         new MessageButton()
-                            .setCustomId(`show_hire_modal_${targetPresident.id}_${playerUser.id}_${message.author.id}`)
+                            .setCustomId(`show_hire_modal_${targetPresidentUser.id}_${playerUser.id}_${message.author.id}`)
                             .setLabel('Kiralık Formu Aç')
                             .setStyle('PRIMARY')
                             .setEmoji(config.emojis.edit)
@@ -75,7 +76,37 @@ module.exports = {
 
         } catch (error) {
             console.error('Hire komutu hatası:', error);
-            message.reply('❌ Kiralık sözleşme işlemi başlatılırken bir hata oluştu!');
+            message.reply('❌ Kiralık teklifi gönderilirken bir hata oluştu!');
         }
+    },
+
+    parseHireForm(content) {
+        const data = {
+            playerName: '',
+            loanFee: '2.500.000₺',
+            salary: '750.000₺/ay',
+            contractDuration: '1 yıl',
+            bonus: '500.000₺'
+        };
+
+        const lines = content.split('\n');
+        
+        for (const line of lines) {
+            const trimmed = line.trim();
+            
+            if (trimmed.toLowerCase().includes('oyuncu') && trimmed.includes(':')) {
+                data.playerName = trimmed.split(':')[1].trim();
+            } else if (trimmed.toLowerCase().includes('kiralık') && trimmed.includes(':')) {
+                data.loanFee = trimmed.split(':')[1].trim();
+            } else if (trimmed.toLowerCase().includes('maaş') && trimmed.includes(':')) {
+                data.salary = trimmed.split(':')[1].trim();
+            } else if (trimmed.toLowerCase().includes('sözleşme') && trimmed.includes(':')) {
+                data.contractDuration = trimmed.split(':')[1].trim();
+            } else if (trimmed.toLowerCase().includes('bonus') && trimmed.includes(':')) {
+                data.bonus = trimmed.split(':')[1].trim();
+            }
+        }
+
+        return data;
     }
 };
