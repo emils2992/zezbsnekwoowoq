@@ -100,7 +100,7 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 25, 2025. Enhanced .oldurferdi with special channel creation and gay confession requirement:
+- June 25, 2025. Enhanced .oldurferdi with one-time usage restriction and special channel creation:
   - Epic troll sequence with 7 stages over 56 seconds (8-second intervals)
   - Character name "Ferdi Kadıoğlu" throughout all stages
   - After final stage, creates special channel "ferdi-kadıoğlu-{username}"
@@ -118,6 +118,8 @@ The bot is configured for Replit deployment with:
     * 4th mistake: Claims all channels are being deleted
     * 5th+ mistakes: Claims entire server destruction with member bans
   - Psychological warfare through fake destructive actions to increase panic
+  - One-time usage restriction: each user can only use command once (stored in data/oldurferdi.json)
+  - Prevents spam and maintains exclusivity of the troll experience
 
 - June 25, 2025. Simplified trade command initial form for presidents:
   - Removed "Sözleşme+Ek Madde" field from president negotiation phase

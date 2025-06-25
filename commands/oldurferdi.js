@@ -1,5 +1,7 @@
 const { MessageEmbed } = require('discord.js');
 const config = require('../config');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
     name: 'oldurferdi',
@@ -8,6 +10,45 @@ module.exports = {
     
     async execute(client, message, args) {
         try {
+            // Kullanım verilerini kontrol et
+            const dataPath = path.join(__dirname, '..', 'data', 'oldurferdi.json');
+            let usageData = { usedUsers: [] };
+            
+            // JSON dosyasını oku
+            try {
+                if (fs.existsSync(dataPath)) {
+                    const fileContent = fs.readFileSync(dataPath, 'utf8');
+                    usageData = JSON.parse(fileContent);
+                }
+            } catch (error) {
+                console.error('Oldurferdi data okuma hatası:', error);
+            }
+            
+            // Kullanıcı daha önce kullandı mı kontrol et
+            if (usageData.usedUsers.includes(message.author.id)) {
+                const alreadyUsedEmbed = new MessageEmbed()
+                    .setColor('#FF0000')
+                    .setTitle('⛔ ZATEN KULLANILDI!')
+                    .setDescription(`${message.author} **Bu komutu zaten kullandın!**\n\n🚫 Ferdi Kadıoğlu sadece bir kez öldürülebilir!\n👻 Ruhu artık sessiz...`)
+                    .addFields(
+                        { name: '💀 Durum', value: 'Ferdi zaten ölü', inline: true },
+                        { name: '🔒 Kısıtlama', value: 'Tek kullanım', inline: true }
+                    )
+                    .setTimestamp()
+                    .setFooter({ text: 'Ferdi Kadıoğlu - Ebedi Huzur' });
+                
+                return message.reply({ embeds: [alreadyUsedEmbed] });
+            }
+            
+            // Kullanıcıyı kullanılan listesine ekle
+            usageData.usedUsers.push(message.author.id);
+            
+            // JSON dosyasını güncelle
+            try {
+                fs.writeFileSync(dataPath, JSON.stringify(usageData, null, 2));
+            } catch (error) {
+                console.error('Oldurferdi data yazma hatası:', error);
+            }
             // İlk mesaj - Ferdi öldürüldü
             const killEmbed = new MessageEmbed()
                 .setColor('#FF0000')
