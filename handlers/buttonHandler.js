@@ -96,6 +96,9 @@ class ButtonHandler {
                         await this.handleHireButton(client, interaction, params);
                     }
                     break;
+                case 'bduyur':
+                    await this.handleBduyurButton(client, interaction, params);
+                    break;
                 case 'show':
                     await this.handleShowButton(client, interaction, params);
                     break;
@@ -2182,6 +2185,12 @@ class ButtonHandler {
                 break;
             case 'bduyur':
                 if (additionalParams[0] === 'modal') {
+                    // Check interaction state before showing modal
+                    if (interaction.replied || interaction.deferred) {
+                        console.log('Interaction already replied/deferred, cannot show modal');
+                        return;
+                    }
+                    
                     await this.handleShowBduyurForm(client, interaction, additionalParams.slice(1));
                 }
                 break;
@@ -3750,18 +3759,28 @@ class ButtonHandler {
             new MessageActionRow().addComponents(salaryInput)
         );
 
-        await interaction.showModal(modal);
+        try {
+            await interaction.showModal(modal);
+        } catch (error) {
+            console.error('Modal show error:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({ content: '❌ Modal açılırken hata oluştu!', ephemeral: true });
+            }
+        }
     }
 
     async handleBduyurButton(client, interaction, params) {
-        await interaction.deferReply();
-        
-        const [buttonType, playerId, presidentId] = params;
-        const guild = interaction.guild;
-        const player = await guild.members.fetch(playerId);
-        const president = await guild.members.fetch(presidentId);
+        try {
+            await interaction.deferReply();
+            
+            const [buttonType, playerId, presidentId] = params;
+            const guild = interaction.guild;
+            const player = await guild.members.fetch(playerId);
+            const president = await guild.members.fetch(presidentId);
 
-        if (buttonType === 'accept') {
+            console.log('BDuyur button handling:', { buttonType, playerId, presidentId });
+
+            if (buttonType === 'accept') {
             // Only the player can accept being put on transfer list
             const isAuthorized = interaction.user.id === playerId;
             if (!isAuthorized) {
@@ -3862,6 +3881,19 @@ class ButtonHandler {
 
             await this.showEditBduyurModal(client, interaction, playerId, presidentId);
         }
+        
+        } catch (error) {
+            console.error('BDuyur button error:', error);
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ content: '❌ Bir hata oluştu!', ephemeral: true });
+                } else {
+                    await interaction.editReply({ content: '❌ Bir hata oluştu!' });
+                }
+            } catch (replyError) {
+                console.error('Could not send error reply:', replyError);
+            }
+        }
     }
 
     async showEditBduyurModal(client, interaction, playerId, presidentId) {
@@ -3924,7 +3956,14 @@ class ButtonHandler {
             new MessageActionRow().addComponents(salaryInput)
         );
 
-        await interaction.showModal(modal);
+        try {
+            await interaction.showModal(modal);
+        } catch (error) {
+            console.error('Edit modal show error:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({ content: '❌ Modal açılırken hata oluştu!', ephemeral: true });
+            }
+        }
     }
 
     async sendBduyurAnnouncement(guild, player, president, bduyurData) {
