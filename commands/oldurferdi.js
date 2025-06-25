@@ -118,12 +118,12 @@ module.exports = {
                 await killMessage.edit({ embeds: [matrixEmbed] });
             }, 48000);
 
-            // 56 saniye sonra final mesaj ve özel kanal
+            // 56 saniye sonra final mesaj
             setTimeout(async () => {
                 const finalEmbed = new MessageEmbed()
                     .setColor('#FFB6C1')
                     .setTitle('😭 ACİL YARDIM!')
-                    .setDescription('**"pipim ağrıyor yardım et"**\n\n*Mezarından gelen son mesaj...*')
+                    .setDescription('**"31 çektim pipim ağrıyor yardım et amk"**\n\n*Ferdi Kadıoğlunun pMezarından gelen son mesaj...*')
                     .addFields(
                         { name: '👻 Ruh Hali', value: 'Çok üzgün ve acı çekiyor', inline: true },
                         { name: '💊 İhtiyaç', value: 'Ağrı kesici ve moral', inline: true },
