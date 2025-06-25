@@ -551,10 +551,48 @@ async function handleModalSubmit(client, interaction) {
             }
         }
 
-        // BDuyur form modali
-        if (customId.startsWith('bduyur_form_')) {
-            console.log('BDuyur form submission received:', customId);
-            const [, , playerId, presidentId] = customId.split('_');
+        // BDuyur form modali - 1. form (transfer details)
+        if (customId.startsWith('bduyur_form_1_')) {
+            console.log('BDuyur form 1 submission received:', customId);
+            const [, , , playerId, presidentId] = customId.split('_');
+            
+            // Store first modal data temporarily
+            const formData1 = {
+                playerLoan: interaction.fields.getTextInputValue('player_loan') || 'Hayır',
+                bonservis: interaction.fields.getTextInputValue('bonservis') || 'Hayır',
+                mandatory: interaction.fields.getTextInputValue('mandatory') || 'Hayır',
+                optional: interaction.fields.getTextInputValue('optional') || 'Hayır',
+                loan: interaction.fields.getTextInputValue('loan') || 'Hayır'
+            };
+            
+            // Store data globally for second modal
+            global[`bduyur_temp_${playerId}_${presidentId}`] = formData1;
+            
+            // Show second modal for stat farming
+            const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
+            const modal2 = new Modal()
+                .setCustomId(`bduyur_form_2_${playerId}_${presidentId}`)
+                .setTitle('Transfer Listesi - 2. Form');
+
+            const statInput = new TextInputComponent()
+                .setCustomId('stat_farming')
+                .setLabel('oyuncum kaç stat kasar')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: günde 100 stat, haftalık 500 stat')
+                .setRequired(true);
+
+            modal2.addComponents(
+                new MessageActionRow().addComponents(statInput)
+            );
+
+            await interaction.showModal(modal2);
+            return;
+        }
+
+        // BDuyur form modali - 2. form (stat farming)
+        if (customId.startsWith('bduyur_form_2_')) {
+            console.log('BDuyur form 2 submission received:', customId);
+            const [, , , playerId, presidentId] = customId.split('_');
             const player = interaction.guild.members.cache.get(playerId);
             const president = interaction.guild.members.cache.get(presidentId);
 
@@ -563,12 +601,17 @@ async function handleModalSubmit(client, interaction) {
                 return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
             }
 
+            // Get stored data from first modal
+            const formData1 = global[`bduyur_temp_${playerId}_${presidentId}`] || {};
+            delete global[`bduyur_temp_${playerId}_${presidentId}`]; // Clean up
+
             const bduyurData = {
-                amount: interaction.fields.getTextInputValue('amount') || '10.000.000₺',
-                reason: interaction.fields.getTextInputValue('reason') || 'Belirtilmemiş',
-                loan: interaction.fields.getTextInputValue('loan') || 'Hayır',
-                bonservis: interaction.fields.getTextInputValue('bonservis') || 'Hayır',
-                salary: interaction.fields.getTextInputValue('salary') || '5.000.000₺/yıl'
+                playerLoan: formData1.playerLoan || 'Hayır',
+                bonservis: formData1.bonservis || 'Hayır', 
+                mandatory: formData1.mandatory || 'Hayır',
+                optional: formData1.optional || 'Hayır',
+                loan: formData1.loan || 'Hayır',
+                statFarming: interaction.fields.getTextInputValue('stat_farming') || 'Belirtilmemiş'
             };
 
             console.log('BDuyur data:', bduyurData);
@@ -1145,7 +1188,7 @@ async function handleModalSubmit(client, interaction) {
                 .addFields(
                     { name: '⚽ Futbolcu', value: `${user}`, inline: true },
                     { name: '🎯 Ne İsterim', value: announcementData.desire, inline: false },
-                    { name: '📊 kaç stat kasarım', value: announcementData.teamRole, inline: true },
+                    { name: '📊 Kaç stat Kasarım', value: announcementData.teamRole, inline: true },
                     { name: '💰 Maaş Beklentim', value: announcementData.salary, inline: true },
                     { name: '📅 Sözleşme Tercihi', value: announcementData.contract, inline: true }
                 );

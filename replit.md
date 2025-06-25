@@ -100,6 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Implemented two-modal system for .bduyur command:
+  - First modal: "oyuncu kiralikmi", "bonservislimi", "zorunlu", "opsiyonlu", "kiralikmi"
+  - Second modal: "oyuncum kaç stat kasar" 
+  - Updated embed display to show all new fields from both modals
+  - Updated edit modal to support new two-modal field structure
+  - Form data flows from first modal through global storage to second modal completion
 - June 25, 2025. Updated .duyur command field from role to stat farming:
   - Changed "Takımdaki Rolüm" field to "kaç stat kasarım" in modal form
   - Updated placeholder text to show stat examples (100 stat, 200 stat, günde 50 stat)
