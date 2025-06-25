@@ -353,7 +353,7 @@ class ButtonHandler {
         } else if (buttonType === 'reject') {
             // Check if user is authorized (target president or transfer authority)
             const member = interaction.member;
-            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
             
             if (!isAuthorized) {
                 return interaction.reply({
@@ -1634,7 +1634,7 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'reject') {
-            // Check if user is authorized (target president or transfer authority)
+            // Check if user is authorized (target president or transfer authority)  
             const member = interaction.member;
             const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
             
