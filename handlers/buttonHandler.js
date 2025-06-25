@@ -119,11 +119,14 @@ class ButtonHandler {
             }
         } catch (error) {
             console.error('Buton işleme hatası:', error);
+            console.error('Error stack:', error.stack);
             try {
-                await interaction.reply({ 
-                    content: '❌ Buton işlenirken bir hata oluştu!', 
-                    ephemeral: true 
-                });
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ 
+                        content: '❌ Buton işlenirken bir hata oluştu!', 
+                        ephemeral: true 
+                    });
+                }
             } catch (replyError) {
                 console.error('Hata yanıtı gönderilemedi:', replyError);
             }
@@ -2643,50 +2646,66 @@ class ButtonHandler {
     }
 
     async handleShowOfferForm(client, interaction, params) {
-        const [playerId, presidentId] = params;
-        const guild = interaction.guild;
-        const player = await guild.members.fetch(playerId);
-        
-        const modal = new Modal()
-            .setCustomId(`offer_form_${playerId}_${presidentId}`)
-            .setTitle('Transfer Teklifi Formu');
+        try {
+            // Check if interaction is already replied or deferred
+            if (interaction.replied || interaction.deferred) {
+                console.log('Interaction already processed, cannot show modal');
+                return;
+            }
 
-        const newTeamInput = new TextInputComponent()
-            .setCustomId('new_team')
-            .setLabel('Yeni Kulüp')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: Galatasaray')
-            .setRequired(true);
+            const [playerId, presidentId] = params;
+            const guild = interaction.guild;
+            const player = await guild.members.fetch(playerId);
+            
+            const modal = new Modal()
+                .setCustomId(`offer_form_${playerId}_${presidentId}`)
+                .setTitle('Transfer Teklifi Formu');
 
-        const salaryInput = new TextInputComponent()
-            .setCustomId('salary')
-            .setLabel('Maaş (Yıllık)')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 6.000.000₺/yıl')
-            .setRequired(true);
+            const newTeamInput = new TextInputComponent()
+                .setCustomId('new_team')
+                .setLabel('Yeni Kulüp')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: Galatasaray')
+                .setRequired(true);
 
-        const contractInput = new TextInputComponent()
-            .setCustomId('contract_duration')
-            .setLabel('Sözleşme+Ek Madde')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 2 yıl + bonuslar')
-            .setRequired(true);
+            const salaryInput = new TextInputComponent()
+                .setCustomId('salary')
+                .setLabel('Maaş (Yıllık)')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 6.000.000₺/yıl')
+                .setRequired(true);
 
-        const bonusInput = new TextInputComponent()
-            .setCustomId('bonus')
-            .setLabel('İmza Bonusu')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: 3.000.000₺')
-            .setRequired(false);
+            const contractInput = new TextInputComponent()
+                .setCustomId('contract_duration')
+                .setLabel('Sözleşme+Ek Madde')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 2 yıl + bonuslar')
+                .setRequired(true);
 
-        const row1 = new MessageActionRow().addComponents(newTeamInput);
-        const row2 = new MessageActionRow().addComponents(salaryInput);
-        const row3 = new MessageActionRow().addComponents(contractInput);
-        const row4 = new MessageActionRow().addComponents(bonusInput);
+            const bonusInput = new TextInputComponent()
+                .setCustomId('bonus')
+                .setLabel('İmza Bonusu')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 3.000.000₺')
+                .setRequired(false);
 
-        modal.addComponents(row1, row2, row3, row4);
+            const row1 = new MessageActionRow().addComponents(newTeamInput);
+            const row2 = new MessageActionRow().addComponents(salaryInput);
+            const row3 = new MessageActionRow().addComponents(contractInput);
+            const row4 = new MessageActionRow().addComponents(bonusInput);
 
-        await interaction.showModal(modal);
+            modal.addComponents(row1, row2, row3, row4);
+
+            await interaction.showModal(modal);
+        } catch (error) {
+            console.error('Error showing offer modal:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({
+                    content: 'Modal gösterilirken hata oluştu! Lütfen tekrar deneyin.',
+                    ephemeral: true
+                });
+            }
+        }
     }
 
     async handleShowContractForm(client, interaction, params) {
