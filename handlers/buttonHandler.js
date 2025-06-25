@@ -2966,53 +2966,7 @@ class ButtonHandler {
         await interaction.showModal(modal);
     }
 
-    async handleShowHireForm(client, interaction, params) {
-        const [playerId, presidentId] = params;
-        const guild = interaction.guild;
-        const player = await guild.members.fetch(playerId);
-        const president = await guild.members.fetch(presidentId);
 
-        // Create negotiation channel for the hire
-        const channel = await channels.createNegotiationChannel(guild, president.user, player.user, 'hire');
-        if (!channel) {
-            return interaction.reply({
-                content: '❌ Müzakere kanalı oluşturulamadı!',
-                ephemeral: true
-            });
-        }
-
-        // Create hire embed with form buttons
-        const hireEmbed = embeds.createHireForm(president.user, player.user, player.user);
-        
-        const buttons = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setCustomId(`hire_accept_${playerId}_${presidentId}`)
-                    .setLabel('Kabul Et')
-                    .setStyle('SUCCESS')
-                    .setEmoji('✅'),
-                new MessageButton()
-                    .setCustomId(`hire_reject_${playerId}_${presidentId}`)
-                    .setLabel('Reddet')
-                    .setStyle('DANGER')
-                    .setEmoji('❌'),
-                new MessageButton()
-                    .setCustomId(`hire_edit_${playerId}_${presidentId}`)
-                    .setLabel('Düzenle')
-                    .setStyle('SECONDARY')
-                    .setEmoji('✏️')
-            );
-
-        await channel.send({
-            embeds: [hireEmbed],
-            components: [buttons]
-        });
-
-        await interaction.reply({
-            content: `✅ Kiralık müzakeresi ${channel} kanalında başlatıldı!`,
-            ephemeral: true
-        });
-    }
 
     async handleShowAnnouncementForm(client, interaction, params) {
         const [userId] = params;
