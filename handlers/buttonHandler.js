@@ -446,19 +446,9 @@ class ButtonHandler {
         
         console.log('Contract player button debug:', { buttonType, targetPresidentId, playerId, presidentId });
         
-        let player, president, targetPresident;
-        
-        try {
-            player = await guild.members.fetch(playerId);
-            president = await guild.members.fetch(presidentId);
-            targetPresident = await guild.members.fetch(targetPresidentId);
-        } catch (error) {
-            console.error('Kullanıcılar getirilirken hata:', error);
-            return interaction.reply({
-                content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Lütfen tekrar deneyin.',
-                ephemeral: true
-            });
-        }
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+        const targetPresident = await guild.members.fetch(targetPresidentId);
 
         if (buttonType === 'accept') {
             // Check if user is authorized (target player or transfer authority)
@@ -813,21 +803,10 @@ class ButtonHandler {
         
         console.log('Trade player button clicked:', { buttonType: buttonType, params: params, userId: interaction.user.id });
         const guild = interaction.guild;
-        
-        let targetPresident, wantedPlayer, givenPlayer, president;
-        
-        try {
-            targetPresident = await guild.members.fetch(targetPresidentId);
-            wantedPlayer = await guild.members.fetch(wantedPlayerId);
-            givenPlayer = await guild.members.fetch(givenPlayerId);
-            president = await guild.members.fetch(presidentId);
-        } catch (error) {
-            console.error('Kullanıcılar getirilirken hata:', error);
-            return interaction.reply({
-                content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Lütfen tekrar deneyin.',
-                ephemeral: true
-            });
-        }
+        const targetPresident = await guild.members.fetch(targetPresidentId);
+        const wantedPlayer = await guild.members.fetch(wantedPlayerId);
+        const givenPlayer = await guild.members.fetch(givenPlayerId);
+        const president = await guild.members.fetch(presidentId);
         
         console.log(`Trade button debug: User ${interaction.user.id} clicked ${buttonType}, WantedPlayer: ${wantedPlayerId}, GivenPlayer: ${givenPlayerId}`);
 
@@ -1123,8 +1102,8 @@ class ButtonHandler {
                         givenPlayerSalary: fields.find(f => f.name.includes('Verilecek Oyuncunun Maaşı'))?.value || 'Belirtilmemiş',
                         wantedPlayerContract: fields.find(f => f.name.includes('İstenen Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
                         givenPlayerContract: fields.find(f => f.name.includes('Verilecek Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
-                        additionalAmount: fields.find(f => f.name.includes('Ek Miktar') || f.name.includes('💰'))?.value || 'Yok',
-                        bonus: fields.find(f => f.name.includes('Özellikleri') || f.name.includes('Bonus') || f.name.includes('🎁'))?.value || 'Yok'
+                        additionalAmount: fields.find(f => f.name.includes('Ek Miktar'))?.value || 'Yok',
+                        bonus: fields.find(f => f.name.includes('Bonus'))?.value || 'Yok'
                     };
 
                     console.log('📊 Trade data extracted:', tradeData);
@@ -2276,36 +2255,13 @@ class ButtonHandler {
                 break;
             case 'trade':
                 if (additionalParams[0] === 'modal') {
-                    try {
-                        // Check if interaction is still valid with timeout protection
-                        if (interaction.deferred || interaction.replied) {
-                            console.log('Trade interaction already handled, cannot show modal');
-                            return;
-                        }
-                        
-                        // Add timeout check before showing modal
-                        const now = Date.now();
-                        const interactionAge = now - interaction.createdTimestamp;
-                        
-                        if (interactionAge > 2500) { // 2.5 second safety margin
-                            console.log(`Trade interaction too old: ${interactionAge}ms, skipping modal`);
-                            return;
-                        }
-                        
-                        await this.handleShowTradeForm(client, interaction, additionalParams.slice(1));
-                    } catch (error) {
-                        console.error('Trade modal gösterme hatası:', error);
-                        if (!interaction.deferred && !interaction.replied) {
-                            try {
-                                await interaction.reply({ 
-                                    content: '❌ Takas formu açılırken hata oluştu! Lütfen tekrar deneyin.', 
-                                    ephemeral: true 
-                                });
-                            } catch (replyError) {
-                                console.error('Trade reply error:', replyError);
-                            }
-                        }
+                    // Defer interaction first to prevent timeout
+                    if (!interaction.replied && !interaction.deferred) {
+                        await interaction.deferReply({ ephemeral: true });
                     }
+                    
+                    // Instead of showing modal immediately, create a form in the channel
+                    await this.createTradeFormInChannel(client, interaction, additionalParams.slice(1));
                 }
                 break;
             case 'hire':
@@ -3212,22 +3168,6 @@ class ButtonHandler {
         const [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
         
         try {
-            // Check if interaction is still valid before proceeding
-            if (interaction.replied || interaction.deferred) {
-                console.log('Trade interaction already handled, cannot show modal');
-                return;
-            }
-            
-            // Validate interaction is still within time limit
-            const now = Date.now();
-            const interactionTime = interaction.createdTimestamp;
-            const timeDiff = now - interactionTime;
-            
-            if (timeDiff > 2800) { // 2.8 seconds safety margin
-                console.log(`Trade interaction expired: ${timeDiff}ms old`);
-                return;
-            }
-            
             const modal = new Modal()
                 .setCustomId(`trade_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
                 .setTitle('Takas Teklifi Formu');
@@ -3244,7 +3184,7 @@ class ButtonHandler {
                 .setLabel('İstenen Oyuncu Özellikleri')
                 .setStyle('SHORT')
                 .setPlaceholder('Örn: Mevki, yaş, özellikler')
-                .setRequired(true);
+                .setRequired(false);
 
             const row1 = new MessageActionRow().addComponents(additionalAmountInput);
             const row2 = new MessageActionRow().addComponents(bonusInput);
@@ -3254,22 +3194,11 @@ class ButtonHandler {
             await interaction.showModal(modal);
         } catch (error) {
             console.error('Error showing trade modal:', error);
-            console.error('Trade modal gösterme hatası:', error);
-            
-            // Better error handling for interaction state
-            try {
-                if (!interaction.replied && !interaction.deferred) {
-                    await interaction.reply({
-                        content: '❌ Modal açılırken hata oluştu!',
-                        ephemeral: true
-                    });
-                } else if (interaction.deferred) {
-                    await interaction.editReply({
-                        content: '❌ Modal açılırken hata oluştu!'
-                    });
-                }
-            } catch (replyError) {
-                console.error('Trade reply error:', replyError);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({
+                    content: '❌ Modal açılırken hata oluştu!',
+                    ephemeral: true
+                });
             }
         }
     }
@@ -3428,29 +3357,12 @@ class ButtonHandler {
         
         try {
             const guild = interaction.guild;
-            
-            let targetPresident, wantedPlayer, givenPlayer, president;
-            
-            try {
-                targetPresident = await guild.members.fetch(targetPresidentId);
-                wantedPlayer = await guild.members.fetch(wantedPlayerId);
-                givenPlayer = await guild.members.fetch(givenPlayerId);
-                president = await guild.members.fetch(presidentId);
-                console.log('✅ All users fetched for trade completion');
-            } catch (fetchError) {
-                console.error('❌ Kullanıcılar getirilirken hata:', fetchError);
-                if (!interaction.replied && !interaction.deferred) {
-                    await interaction.reply({
-                        content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Takas tamamlanamadı.',
-                        ephemeral: true
-                    });
-                } else {
-                    await interaction.editReply({
-                        content: '❌ Kullanıcı bilgileri alınırken hata oluştu. Takas tamamlanamadı.'
-                    });
-                }
-                return;
-            }
+            const targetPresident = await guild.members.fetch(targetPresidentId);
+            const wantedPlayer = await guild.members.fetch(wantedPlayerId);
+            const givenPlayer = await guild.members.fetch(givenPlayerId);
+            const president = await guild.members.fetch(presidentId);
+
+            console.log('✅ All users fetched for trade completion');
 
             // Extract trade data from the embed to pass to announcement
             const embed = interaction.message.embeds[0];

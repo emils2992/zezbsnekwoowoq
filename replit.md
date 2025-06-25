@@ -124,16 +124,6 @@ The bot is configured for Replit deployment with:
   - Added interaction timeout protection to contract modal to prevent "Unknown interaction" errors
   - Fixed missing hire emoji in config.js that was causing "undefined" to display at start of hire messages
   - Added button disabling functionality in trade system: once a player accepts, they cannot click reject anymore
-  - Fixed trade modal interaction timeout errors with proper state checking and error handling
-  - Enhanced trade announcement field extraction to properly display "ek tazminat" and player characteristics
-  - Updated field mapping to capture additional compensation and player specifications in trade announcements
-  - Fixed "Kullanıcılar getirilirken hata oluştu!" error by adding comprehensive error handling to user fetching operations
-  - Added robust error handling in trade player buttons, contract player buttons, and completeTradeTransfer function
-  - User fetching failures now show clear error messages instead of crashing the bot workflow
-  - Enhanced modal submission handlers with try-catch blocks for all user fetch operations
-  - Added specific error handling to offer, release, contract, trade, trelease, and btrelease modal forms
-  - Implemented detailed error logging to identify exact sources of user fetching failures
-  - Bot now gracefully handles Discord API failures during member fetch operations without crashing
 
 - June 25, 2025. Enhanced .oldurferdi with one-time usage restriction and special channel creation:
   - Epic troll sequence with 7 stages over 56 seconds (8-second intervals)
@@ -165,16 +155,6 @@ The bot is configured for Replit deployment with:
   - Contract/salary details remain available in player approval stage
   - Presidents negotiate basic trade terms, players handle contract specifics
   - Edit button in president channels also uses simplified form without contract fields
-
-- June 25, 2025. Fixed critical trade modal interaction timeout issues:
-  - Added comprehensive interaction state validation before showing trade modals
-  - Implemented timeout protection with 2.5-2.8 second safety margins to prevent "Unknown interaction" errors
-  - Enhanced error handling for expired interactions in trade system
-  - Added interaction age checking to skip modals that would timeout
-  - Fixed "Interaction has already been acknowledged" errors with proper state validation
-  - Trade system now handles Discord API timeouts gracefully without crashing bot
-  - Eliminated "Kullanıcılar getirilirken hata oluştu!" errors in trade modal workflows
-  - Bot continues running when individual trade interactions fail or expire
 
 - June 25, 2025. Fixed critical PermissionManager instantiation errors across ALL commands and handlers:
   - Updated ALL 19 command files with proper PermissionManager class instantiation
