@@ -100,6 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed hire command edit button to update messages in-place instead of creating new channels:
+  - Enhanced channel detection to include "kiralik", "hire", "muzakere", and "m-zakere" patterns
+  - Added proper button type detection for both president and player approval channels
+  - Edit buttons now correctly identify negotiation channels and update existing messages
+  - Improved message finding logic to detect hire-related embeds and buttons consistently
+  - Fixed button routing for both regular hire_ and hire_player_ button types in different channel stages
 - June 25, 2025. Completely rebuilt hire command to match contract command structure:
   - Copied entire contract command logic and adapted for hire (kiralık) workflow
   - Implemented two-stage approval system: president accepts → player approval channel created → player accepts

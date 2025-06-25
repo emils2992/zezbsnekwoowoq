@@ -870,16 +870,42 @@ async function handleModalSubmit(client, interaction) {
                 contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
             };
 
-            // Check if we're in a negotiation channel (editing existing form)
+            // Always check if we're in a negotiation channel first (editing existing form)
             const isNegotiationChannel = interaction.channel && interaction.channel.name && 
-                (interaction.channel.name.includes("kiralık") || interaction.channel.name.includes("hire") || interaction.channel.name.includes("muzakere"));
+                (interaction.channel.name.includes("kiralik") || interaction.channel.name.includes("hire") || 
+                 interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("m-zakere"));
 
             if (isNegotiationChannel) {
                 // Update existing embed in the same channel
                 const hireEmbed = embeds.createHireForm(president.user, targetPresident.user, player.user, hireData);
                 
-                const buttons = new MessageActionRow()
-                    .addComponents(
+                // Check if this is a player channel (m-zakere) or president channel
+                const isPlayerChannel = interaction.channel.name.includes("m-zakere");
+                
+                const buttons = new MessageActionRow();
+                
+                if (isPlayerChannel) {
+                    // Player channel - use hire_player_ buttons
+                    buttons.addComponents(
+                        new MessageButton()
+                            .setCustomId(`hire_player_accept_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`hire_player_reject_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`hire_player_edit_${targetPresidentId}_${playerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+                } else {
+                    // President channel - use regular hire_ buttons
+                    buttons.addComponents(
                         new MessageButton()
                             .setCustomId(`hire_accept_${targetPresidentId}_${playerId}_${presidentId}`)
                             .setLabel('Kabul Et')
@@ -896,13 +922,15 @@ async function handleModalSubmit(client, interaction) {
                             .setStyle('SECONDARY')
                             .setEmoji('✏️')
                     );
+                }
 
                 // Find and update the original message
                 const messages = await interaction.channel.messages.fetch({ limit: 10 });
                 const originalMessage = messages.find(msg => 
                     msg.embeds.length > 0 && 
                     msg.components.length > 0 &&
-                    msg.components[0].components.some(btn => btn.customId && btn.customId.includes('hire_'))
+                    (msg.embeds[0].title && msg.embeds[0].title.includes('Kiralık') || 
+                     msg.components[0].components.some(btn => btn.customId && (btn.customId.includes('hire_') || btn.customId.includes('hire_player_'))))
                 );
 
                 if (originalMessage) {
