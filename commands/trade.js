@@ -1,8 +1,10 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const config = require('../config');
-const permissions = require('../utils/permissions');
+const PermissionManager = require('../utils/permissions');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
+
+const permissions = new PermissionManager();
 
 module.exports = {
     name: 'trade',
