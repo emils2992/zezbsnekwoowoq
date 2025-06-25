@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Removed "Eski Kulüp" field from offer command for free agents:
+  - Removed "Eski Kulüp" field from offer modal forms since free agents don't have previous clubs
+  - Updated createOfferForm embed to exclude old club field for cleaner display
+  - Fixed modal form components to use 4 fields instead of 5 for offer command
+  - Offer forms now show: Yeni Kulüp, Maaş, Sözleşme+Ek Madde, İmza Bonusu
 - June 25, 2025. Fixed release and trelease announcements to properly mention players:
   - Fixed sendReleaseTransferAnnouncement to use player mentions instead of usernames in descriptions
   - Fixed trelease command embed to use player mentions instead of usernames

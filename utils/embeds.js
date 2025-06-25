@@ -9,7 +9,6 @@ class EmbedCreator {
             .setDescription(`**${president.username}** tarafından **${player.username}** için yapılan teklif:`)
             .addFields(
                 { name: `${config.emojis.handshake} Başkan`, value: `${president}`, inline: true },
-                { name: '🏆 Eski Kulüp', value: offerData?.oldClub || 'Serbest Futbolcu', inline: true },
                 { name: '🎯 Yeni Kulüp', value: offerData?.newTeam || 'Belirtilmemiş', inline: true },
                 { name: `${config.emojis.money} Önerilen Maaş`, value: offerData?.salary || '6.000.000₺/yıl', inline: true },
                 { name: '📅 Sözleşme+Ek Madde', value: offerData?.contractDuration || '2 yıl + bonuslar', inline: true },

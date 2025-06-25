@@ -2346,7 +2346,6 @@ class ButtonHandler {
         
         // Extract existing data from embed fields
         const existingData = {
-            oldClub: fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
             newTeam: fields.find(f => f.name.includes('Yeni Kulüp'))?.value || '',
             salary: fields.find(f => f.name.includes('Maaş'))?.value || '',
             contractDuration: fields.find(f => f.name.includes('Sözleşme+Ek Madde'))?.value || '',
@@ -2356,13 +2355,6 @@ class ButtonHandler {
         const modal = new Modal()
             .setCustomId(`offer_form_${playerId}_${presidentId}`)
             .setTitle('Transfer Teklifi Düzenle');
-
-        const oldClubInput = new TextInputComponent()
-            .setCustomId('old_club')
-            .setLabel('Eski Kulüp')
-            .setStyle('SHORT')
-            .setValue(existingData.oldClub)
-            .setRequired(true);
 
         const newTeamInput = new TextInputComponent()
             .setCustomId('new_team')
@@ -2393,7 +2385,6 @@ class ButtonHandler {
             .setRequired(false);
 
         modal.addComponents(
-            new MessageActionRow().addComponents(oldClubInput),
             new MessageActionRow().addComponents(newTeamInput),
             new MessageActionRow().addComponents(salaryInput),
             new MessageActionRow().addComponents(contractInput),
@@ -2653,13 +2644,6 @@ class ButtonHandler {
             .setPlaceholder('Örn: Galatasaray')
             .setRequired(true);
 
-        const oldClubInput = new TextInputComponent()
-            .setCustomId('old_club')
-            .setLabel('Eski Kulüp')
-            .setStyle('SHORT')
-            .setPlaceholder('Örn: Serbest Futbolcu')
-            .setRequired(true);
-
         const salaryInput = new TextInputComponent()
             .setCustomId('salary')
             .setLabel('Maaş (Yıllık)')
@@ -2669,7 +2653,7 @@ class ButtonHandler {
 
         const contractInput = new TextInputComponent()
             .setCustomId('contract_duration')
-            .setLabel('Sözleşme+Ekmadde')
+            .setLabel('Sözleşme+Ek Madde')
             .setStyle('SHORT')
             .setPlaceholder('Örn: 2 yıl + bonuslar')
             .setRequired(true);
@@ -2681,13 +2665,12 @@ class ButtonHandler {
             .setPlaceholder('Örn: 3.000.000₺')
             .setRequired(false);
 
-        const row1 = new MessageActionRow().addComponents(oldClubInput);
-        const row2 = new MessageActionRow().addComponents(newTeamInput);
-        const row3 = new MessageActionRow().addComponents(salaryInput);
-        const row4 = new MessageActionRow().addComponents(contractInput);
-        const row5 = new MessageActionRow().addComponents(bonusInput);
+        const row1 = new MessageActionRow().addComponents(newTeamInput);
+        const row2 = new MessageActionRow().addComponents(salaryInput);
+        const row3 = new MessageActionRow().addComponents(contractInput);
+        const row4 = new MessageActionRow().addComponents(bonusInput);
 
-        modal.addComponents(row1, row2, row3, row4, row5);
+        modal.addComponents(row1, row2, row3, row4);
 
         await interaction.showModal(modal);
     }
