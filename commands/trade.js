@@ -13,7 +13,7 @@ module.exports = {
         try {
             // Transfer dönemi kontrolü
             if (!permissions.isTransferPeriodOpen(message.guild.id)) {
-                return message.reply('❌ Transfer dönemi kapalı! Yöneticiler `.aç` komutuyla transfer dönemini açabilir.');
+                return message.reply('❌ Transfer dönemi kapalı! Yöneticiler `.ac` komutuyla transfer dönemini açabilir.');
             }
 
             // Yetki kontrolü

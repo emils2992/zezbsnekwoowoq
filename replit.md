@@ -100,7 +100,13 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 25, 2025. Added transfer period control system with .aç and .kapa commands:
+- June 25, 2025. Fixed transfer period control system file path issues:
+  - Fixed rolesPath vs rolesFilePath inconsistency in permissions class that was causing write errors
+  - Resolved "TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string" error
+  - Commands .ac and .kapa now work properly for administrators to control transfer periods
+  - Updated error messages to reference correct .ac command instead of .aç
+  - Transfer period control system fully functional with proper file handling
+- June 25, 2025. Added transfer period control system with .ac and .kapa commands:
   - Created .aç command to open transfer period (administrator only)
   - Created .kapa command to close transfer period (administrator only) 
   - When closed, .hire, .contract, and .trade commands are disabled with clear error messages

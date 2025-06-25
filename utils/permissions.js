@@ -95,7 +95,7 @@ class PermissionManager {
         
         let data = {};
         try {
-            const fileContent = fs.readFileSync(this.rolesFilePath, 'utf8');
+            const fileContent = fs.readFileSync(this.rolesPath, 'utf8');
             data = JSON.parse(fileContent);
         } catch (error) {
             console.log('Creating new roles file');
@@ -107,7 +107,7 @@ class PermissionManager {
 
         data[guildId].transferPeriodOpen = isOpen;
 
-        fs.writeFileSync(this.rolesFilePath, JSON.stringify(data, null, 2));
+        fs.writeFileSync(this.rolesPath, JSON.stringify(data, null, 2));
         console.log(`Transfer period ${isOpen ? 'opened' : 'closed'} for guild ${guildId}`);
     }
 
