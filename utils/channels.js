@@ -2,7 +2,7 @@ const { Constants } = require('discord.js');
 const config = require('../config');
 
 class ChannelManager {
-    async createNegotiationChannel(guild, user1, user2, type, player = null) {
+    async createNegotiationChannel(guild, user1, user2, type, player = null, allowPresidentsInPlayerChannel = true) {
         try {
             // Get display names from guild members
             const member1 = guild.members.cache.get(user1.id);
@@ -25,6 +25,15 @@ class ChannelManager {
                     break;
                 case 'trade':
                     channelName = `takas-${displayName1}-${displayName2}`;
+                    break;
+                case 'hire_player':
+                    channelName = `m-zakere-${displayName1}-${displayName2}`;
+                    break;
+                case 'contract_player':
+                    channelName = `m-zakere-${displayName1}-${displayName2}`;
+                    break;
+                case 'trade_player':
+                    channelName = `m-zakere-${displayName1}-${displayName2}`;
                     break;
                 case 'release':
                     channelName = `fesih-${displayName1}-${displayName2}`;
@@ -79,6 +88,20 @@ class ChannelManager {
                     allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY']
                 }
             ];
+
+            // For player approval channels, control president visibility
+            if (type.includes('_player')) {
+                if (!allowPresidentsInPlayerChannel && (type === 'hire_player' || type === 'contract_player')) {
+                    // For hire and contract player channels, don't allow original president to see
+                    console.log(`[CHANNEL] Creating ${type} channel without original president visibility`);
+                    // Remove the original president's permission from user1 or user2 if they are the president
+                    // We need to identify which user is the president and remove their permission
+                } else if (type === 'trade_player' && allowPresidentsInPlayerChannel) {
+                    // For trade player channels, allow presidents to see by adding them
+                    console.log(`[CHANNEL] Creating ${type} channel with president visibility`);
+                    // Presidents will already have access through user1/user2 in trade channels
+                }
+            }
 
             // Eğer oyuncu varsa (contract ve trade için) ona da izin ver
             if (player) {

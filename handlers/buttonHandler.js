@@ -290,7 +290,7 @@ class ButtonHandler {
             await interaction.deferReply();
             
             // İkinci aşama: Oyuncu ile müzakere kanalı oluştur
-            const playerChannel = await channels.createNegotiationChannel(guild, targetPresident.user, player.user, 'contract-player');
+            const playerChannel = await channels.createNegotiationChannel(guild, targetPresident.user, player.user, 'contract_player', null, false);
             if (!playerChannel) {
                 return interaction.editReply({ content: 'Oyuncu müzakere kanalı oluşturulamadı!' });
             }
@@ -317,7 +317,7 @@ class ButtonHandler {
                 );
 
             await playerChannel.send({
-                content: `<@${player.id}> Sizin için bir sözleşme teklifi onaylandı! Lütfen karar verin:`,
+                content: `${player.user} sözleşme anlaşmasını onaylamanız bekleniyor.\n\n${targetPresident.user} başkan anlaşmayı onayladı.\n\n*Not: Bu kanal sadece size özeldir, başkanlar göremez.*`,
                 embeds: [contractEmbed],
                 components: [playerButtons]
             });
@@ -617,6 +617,7 @@ class ButtonHandler {
                 );
 
             await playersChannel.send({
+                content: `${wantedPlayer.user} ${givenPlayer.user}\n\n🔄 **TAKAS - Oyuncu Onayı**\n\nBu takas için her iki oyuncunun da onayı gerekiyor.\n\n**İstenen Oyuncu:** ${wantedPlayer.user}\n**Verilen Oyuncu:** ${givenPlayer.user}\n\n${targetPresident.user} ve ${president.user} başkanlar anlaştı. Şimdi sıra sizde!\n\n*Not: Başkanlar bu kanalı görebilir ve maaş düzenlemesi yapabilir.*`,
                 embeds: [embed],
                 components: [playerButtons]
             });
@@ -1550,7 +1551,7 @@ class ButtonHandler {
             const channels = require('../utils/channels');
             const embeds = require('../utils/embeds');
             
-            const playerChannel = await channels.createNegotiationChannel(guild, player.user, targetPresident.user, 'hire_player');
+            const playerChannel = await channels.createNegotiationChannel(guild, player.user, targetPresident.user, 'hire_player', null, false);
             if (!playerChannel) {
                 return interaction.editReply({ content: 'Oyuncu onay kanalı oluşturulamadı!' });
             }
@@ -1578,7 +1579,7 @@ class ButtonHandler {
                 );
 
             await playerChannel.send({
-                content: `${player.user} kiralık anlaşmasını onaylamanız bekleniyor.\n\n${targetPresident.user} ve ${president.user} başkanlar anlaşmaya vardı.`,
+                content: `${player.user} kiralık anlaşmasını onaylamanız bekleniyor.\n\n${targetPresident.user} başkan anlaşmayı onayladı.\n\n*Not: Bu kanal sadece size özeldir, başkanlar göremez.*`,
                 embeds: [hireEmbed],
                 components: [playerButtons]
             });

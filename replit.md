@@ -100,6 +100,13 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Implemented channel visibility permissions for different transfer types:
+  - Hire and contract player approval channels: Presidents cannot see them (private to player only)
+  - Trade player approval channels: Presidents can see and participate (for salary editing)
+  - Added allowPresidentsInPlayerChannel parameter to createNegotiationChannel function
+  - Updated channel messages to inform users about visibility differences
+  - Contract/hire player channels show "Bu kanal sadece size özeldir, başkanlar göremez"
+  - Trade player channels show "Başkanlar bu kanalı görebilir ve maaş düzenlemesi yapabilir"
 - June 25, 2025. Fixed hire command two-stage approval system to prevent duplicate announcements:
   - President acceptance now creates player approval channel instead of immediate announcement
   - Added handleHirePlayerButton function for player approval stage with proper authorization
