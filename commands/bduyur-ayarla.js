@@ -14,6 +14,29 @@ module.exports = {
                 return message.reply('❌ Bu komutu sadece transfer yetkilileri kullanabilir!');
             }
 
+            // Kanal argümanını kontrol et
+            if (!args[0]) {
+                return message.reply('❌ Lütfen bir kanal belirtin! Kullanım: `.bduyur-ayarla #kanal`');
+            }
+
+            // Kanal mention'ını parse et
+            let targetChannel;
+            const channelMention = args[0];
+            
+            if (channelMention.startsWith('<#') && channelMention.endsWith('>')) {
+                const channelId = channelMention.slice(2, -1);
+                targetChannel = message.guild.channels.cache.get(channelId);
+            } else {
+                // Kanal adı ile arama
+                targetChannel = message.guild.channels.cache.find(channel => 
+                    channel.name === channelMention.replace('#', '') && channel.type === 'GUILD_TEXT'
+                );
+            }
+
+            if (!targetChannel) {
+                return message.reply('❌ Belirtilen kanal bulunamadı!');
+            }
+
             const rolesFilePath = path.join(__dirname, '../data/roles.json');
             
             // Roles dosyasını oku
@@ -27,13 +50,13 @@ module.exports = {
                 rolesData[message.guild.id] = {};
             }
 
-            // Bu kanalı transfer listesi duyuru kanalı olarak ayarla
-            rolesData[message.guild.id].bduyurChannelId = message.channel.id;
+            // Belirtilen kanalı transfer listesi duyuru kanalı olarak ayarla
+            rolesData[message.guild.id].bduyurChannelId = targetChannel.id;
 
             // Dosyayı kaydet
             fs.writeFileSync(rolesFilePath, JSON.stringify(rolesData, null, 2));
 
-            await message.reply(`✅ ${message.channel} kanalı transfer listesi duyuru kanalı olarak ayarlandı!`);
+            await message.reply(`✅ ${targetChannel} kanalı transfer listesi duyuru kanalı olarak ayarlandı!`);
 
         } catch (error) {
             console.error('BDuyur-ayarla komutu hatası:', error);
