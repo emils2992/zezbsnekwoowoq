@@ -164,6 +164,7 @@ async function handleRoleButtons(client, interaction) {
         'futbolcu': 'Futbolcu Rolü', 
         'serbest': 'Serbest Futbolcu Rolü',
         'yetkili': 'Transfer Yetkili Rolü',
+        'unilateral': 'Tek Taraflı Fesih Rolü',
         'ping_tf': 'Transfer Ping Rolü',
         'ping_serbest': 'Serbest Ping Rolü',
         'ping_duyur': 'Duyuru Ping Rolü',
@@ -216,8 +217,9 @@ async function handleRoleButtons(client, interaction) {
         const roleTypeMapping = {
             'baskan': 'president',
             'futbolcu': 'player',
-            'serbest': 'freeAgent', 
+            'serbest': 'freeAgent',
             'yetkili': 'transferAuthority',
+            'unilateral': 'unilateralTermination',
             'ping_tf': 'tfPingRole',
             'ping_serbest': 'serbestPingRole',
             'ping_duyur': 'duyurPingRole',

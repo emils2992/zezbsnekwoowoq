@@ -100,7 +100,7 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 25, 2025. Fixed modal form empty field handling, interaction errors, and channel visibility:
+- June 25, 2025. Fixed modal form empty field handling, interaction errors, channel visibility, and added role-based .trelease restrictions:
   - Updated all embed creation functions to use "Yok" fallback instead of empty strings
   - Fixed Discord API error when modal fields are left empty (non-empty string requirement)
   - Modal forms now show "Yok" for unfilled fields instead of causing embed field value errors
@@ -108,7 +108,9 @@ The bot is configured for Replit deployment with:
   - Updated all channel deletion timeouts to 5 seconds for consistent user experience
   - Fixed contract and hire player approval channel visibility to include command creator (original president)
   - Player approval channels now visible to both player and command creator for proper oversight
-  - Applied to all commands: offer, contract, trade, hire, release, bduyur, duyur
+  - Added role-based restriction for .trelease command - requires specific "unilateralTermination" role
+  - Added "Tek Taraflı Fesih" role type to .rol command system for controlling .trelease access
+  - Applied to all commands: offer, contract, trade, hire, release, bduyur, duyur, trelease
 - June 25, 2025. Fixed contract edit data transfer issue:
   - Fixed field name matching in contract data extraction to use exact embed field names
   - Updated field extraction to match "Transfer Bedeli", "Eski Kulüp", "Yeni Kulüp", "Yıllık Maaş", "Sözleşme+Ekmadde"

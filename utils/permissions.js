@@ -82,6 +82,14 @@ class PermissionManager {
         return member.roles.cache.has(transferAuthorityRoleId);
     }
 
+    canUseUnilateralTermination(member) {
+        const roleData = this.getRoleData(member.guild.id);
+        const unilateralTerminationRoleId = roleData.unilateralTermination;
+        
+        if (!unilateralTerminationRoleId) return false;
+        return member.roles.cache.has(unilateralTerminationRoleId);
+    }
+
     isAuthorized(member, action) {
         // Admin her zaman yetkili
         if (member.permissions.has('ADMINISTRATOR')) return true;
