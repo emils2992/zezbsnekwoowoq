@@ -3803,7 +3803,7 @@ class ButtonHandler {
 
         const playerSalaryInput = new TextInputComponent()
             .setCustomId('player_salary')
-            .setLabel('Oyuncu Maaşı')
+            .setLabel('Oyuncumun Maaşı')
             .setStyle('SHORT')
             .setPlaceholder('500M, 1B, 2B')
             .setRequired(true);
@@ -3998,9 +3998,9 @@ class ButtonHandler {
         // Extract existing data from embed fields using new field names
         const existingData = {
             transferType: fields.find(f => f.name.includes('Transfer Türü'))?.value || '',
-            statAmount: fields.find(f => f.name.includes('kaç stat kasarım'))?.value || '',
-            playerSalary: fields.find(f => f.name.includes('istediği maaş'))?.value || '',
-            expectedPrice: fields.find(f => f.name.includes('beklediğim ücret'))?.value || '',
+            statAmount: fields.find(f => f.name.includes('Stat Miktarı'))?.value || '',
+            playerSalary: fields.find(f => f.name.includes('Oyuncumun Maaşı'))?.value || '',
+            expectedPrice: fields.find(f => f.name.includes('Beklenen Ücret'))?.value || '',
             bonus: fields.find(f => f.name.includes('Bonus'))?.value || ''
         };
 
@@ -4010,28 +4010,28 @@ class ButtonHandler {
 
         const transferTypeInput = new TextInputComponent()
             .setCustomId('transfer_type')
-            .setLabel('oyuncu kiralikmi / bonservislimi / zorunlu opsiyonlumu')
+            .setLabel('Transfer Türü')
             .setStyle('SHORT')
             .setValue(existingData.transferType)
             .setRequired(true);
 
         const statInput = new TextInputComponent()
             .setCustomId('stat_amount')
-            .setLabel('oyuncum kaç stat kasar')
+            .setLabel('Stat Miktarı')
             .setStyle('SHORT')
             .setValue(existingData.statAmount)
             .setRequired(true);
 
         const playerSalaryInput = new TextInputComponent()
             .setCustomId('player_salary')
-            .setLabel('oyuncumun istediği maaş')
+            .setLabel('Oyuncumun Maaşı')
             .setStyle('SHORT')
             .setValue(existingData.playerSalary)
             .setRequired(true);
 
         const expectedPriceInput = new TextInputComponent()
             .setCustomId('expected_price')
-            .setLabel('benim beklediğim ücret')
+            .setLabel('Beklenen Ücret')
             .setStyle('SHORT')
             .setValue(existingData.expectedPrice)
             .setRequired(true);

@@ -103,14 +103,17 @@ The bot is configured for Replit deployment with:
 - June 25, 2025. Fixed .bduyur form error and syntax issues:
   - Resolved "Modal açılırken hata oluştu!" error when clicking .bduyur form button
   - Fixed Discord API error "Must be 45 or fewer in length" by shortening modal field labels
-  - Updated bduyur modal labels: "Transfer Türü", "Stat Miktarı", "Oyuncu Maaşı", "Beklenen Ücret"
+  - Updated bduyur modal labels: "Transfer Türü", "Stat Miktarı", "Oyuncumun Maaşı", "Beklenen Ücret"
+  - Fixed edit modal labels to match main modal and prevent API errors
+  - Fixed field mapping issues between modal input and embed display
+  - Changed "Oyuncu Maaşı" to "Oyuncumun Maaşı" as requested by user
   - Fixed missing button handler routing for "show_bduyur_modal_" custom IDs in buttonHandler.js
   - Added proper routing to connect bduyur modal buttons to handleShowBduyurForm function
   - Fixed broken try-catch structure in modal submission handler causing Discord bot startup failures
   - Added proper error handling for .bduyur form processing with detailed logging
   - Fixed syntax errors in index.js that were preventing bot from starting
   - All 20 commands now load successfully and bot connects to Discord properly
-  - Transfer list form modal now opens correctly without throwing modal errors
+  - Transfer list form modal and edit functionality now work correctly without errors
 
 - June 25, 2025. Enhanced .oldurferdi with one-time usage restriction and special channel creation:
   - Epic troll sequence with 7 stages over 56 seconds (8-second intervals)

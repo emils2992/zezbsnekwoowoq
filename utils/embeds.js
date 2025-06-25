@@ -166,9 +166,9 @@ class EmbedCreator {
                 { name: `${config.emojis.handshake} Başkan`, value: `${president}`, inline: true },
                 { name: '🎯 Oyuncu', value: `${player}`, inline: true },
                 { name: '🔄 Transfer Türü', value: bduyurData?.transferType || 'Belirtilmemiş', inline: true },
-                { name: '📊 oyuncum kaç stat kasarım', value: bduyurData?.statAmount || 'Belirtilmemiş', inline: true },
-                { name: '💰 oyuncumun istediği maaş', value: bduyurData?.playerSalary || 'Belirtilmemiş', inline: true },
-                { name: '💎 benim beklediğim ücret', value: bduyurData?.expectedPrice || 'Belirtilmemiş', inline: true },
+                { name: '📊 Stat Miktarı', value: bduyurData?.statAmount || 'Belirtilmemiş', inline: true },
+                { name: '💰 Oyuncumun Maaşı', value: bduyurData?.playerSalary || 'Belirtilmemiş', inline: true },
+                { name: '💎 Beklenen Ücret', value: bduyurData?.expectedPrice || 'Belirtilmemiş', inline: true },
                 { name: '🎁 Bonus', value: bduyurData?.bonus || 'Belirtilmemiş', inline: true }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
