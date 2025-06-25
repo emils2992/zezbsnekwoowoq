@@ -962,6 +962,37 @@ class ButtonHandler {
                 global[acceptanceKey].wantedPlayer = true;
                 console.log(`✅ Wanted player ${wantedPlayer.user.username} accepted! Status:`, global[acceptanceKey]);
                 
+                // Disable reject button for this player who accepted
+                try {
+                    const currentButtons = interaction.message.components[0].components;
+                    const updatedButtons = currentButtons.map(button => {
+                        const buttonData = new MessageButton()
+                            .setCustomId(button.customId)
+                            .setLabel(button.label)
+                            .setStyle(button.style);
+                        
+                        if (button.emoji) {
+                            buttonData.setEmoji(button.emoji);
+                        }
+                        
+                        // Disable reject button for the player who just accepted
+                        if (button.customId.includes('reject') && !global[acceptanceKey].givenPlayer) {
+                            buttonData.setDisabled(true);
+                        } else {
+                            buttonData.setDisabled(button.disabled || false);
+                        }
+                        
+                        return buttonData;
+                    });
+                    
+                    await interaction.message.edit({
+                        embeds: interaction.message.embeds,
+                        components: [new MessageActionRow().addComponents(updatedButtons)]
+                    });
+                } catch (buttonError) {
+                    console.error('Button update error:', buttonError);
+                }
+                
                 // Send response without throwing on error
                 try {
                     await interaction.editReply({
@@ -983,6 +1014,37 @@ class ButtonHandler {
                 console.log('⭐ Regular given player accepting...');
                 global[acceptanceKey].givenPlayer = true;
                 console.log(`✅ Given player ${givenPlayer.user.username} accepted! Status:`, global[acceptanceKey]);
+                
+                // Disable reject button for this player who accepted
+                try {
+                    const currentButtons = interaction.message.components[0].components;
+                    const updatedButtons = currentButtons.map(button => {
+                        const buttonData = new MessageButton()
+                            .setCustomId(button.customId)
+                            .setLabel(button.label)
+                            .setStyle(button.style);
+                        
+                        if (button.emoji) {
+                            buttonData.setEmoji(button.emoji);
+                        }
+                        
+                        // Disable reject button for the player who just accepted
+                        if (button.customId.includes('reject') && !global[acceptanceKey].wantedPlayer) {
+                            buttonData.setDisabled(true);
+                        } else {
+                            buttonData.setDisabled(button.disabled || false);
+                        }
+                        
+                        return buttonData;
+                    });
+                    
+                    await interaction.message.edit({
+                        embeds: interaction.message.embeds,
+                        components: [new MessageActionRow().addComponents(updatedButtons)]
+                    });
+                } catch (buttonError) {
+                    console.error('Button update error:', buttonError);
+                }
                 
                 // Send response without throwing on error
                 try {
