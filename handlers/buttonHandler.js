@@ -2,7 +2,8 @@ const { MessageEmbed, MessageActionRow, MessageButton, Modal, TextInputComponent
 const config = require('../config');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
-const permissions = require('../utils/permissions');
+const PermissionManager = require('../utils/permissions');
+const permissions = new PermissionManager();
 
 class ButtonHandler {
     constructor() {

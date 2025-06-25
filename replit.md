@@ -100,14 +100,16 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 25, 2025. Fixed critical permissions import error and added comprehensive debugging system:
+- June 25, 2025. Fixed critical permissions import error and interaction handling issues:
   - Added missing PermissionManager require statements in index.js for both .btrelease and .trelease commands
   - Fixed ReferenceError that was preventing role management from working
   - Fixed PermissionManager constructor error by changing module export to class instead of instance
   - Fixed "permissions.isPlayer is not a function" error by updating imports in all release commands
-  - Updated btrelease, trelease, brelease, and release commands to properly instantiate PermissionManager class
+  - Fixed "permissions.getRoleData is not a function" error by updating buttonHandler.js imports
+  - Updated btrelease, trelease, brelease, release commands and buttonHandler to properly instantiate PermissionManager class
   - Added comprehensive debugging logs to permission checks and command execution
   - Enhanced isPlayer method to properly handle both futbolcu and serbest futbolcu roles
+  - Fixed interaction timeout errors with proper state checking and duplicate response prevention
   - Role management now properly instantiates permissions class before attempting role changes
   - Debugging system shows detailed console output for troubleshooting permission failures
 - June 25, 2025. Fixed role management errors with detailed debugging and permission checks:
