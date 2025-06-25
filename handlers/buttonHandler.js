@@ -3884,11 +3884,11 @@ class ButtonHandler {
             console.log('Embed fields for extraction:', fields.map(f => ({ name: f.name, value: f.value })));
             
             const bduyurData = {
-                amount: fields.find(f => f.name.includes('İstenen Ücret'))?.value || 'Belirtilmemiş',
-                reason: fields.find(f => f.name.includes('Transfer Nedeni'))?.value || 'Belirtilmemiş',
-                loan: fields.find(f => f.name.includes('Kiralık'))?.value || 'Hayır',
-                bonservis: fields.find(f => f.name.includes('Bonservis'))?.value || 'Hayır',
-                salary: fields.find(f => f.name.includes('Oyuncunun İstediği Maaş'))?.value || 'Belirtilmemiş'
+                transferType: fields.find(f => f.name.includes('Transfer Türü'))?.value || 'Belirtilmemiş',
+                statAmount: fields.find(f => f.name.includes('Stat Miktarı'))?.value || 'Belirtilmemiş',
+                playerSalary: fields.find(f => f.name.includes('Oyuncumun Maaşı'))?.value || 'Belirtilmemiş',
+                expectedPrice: fields.find(f => f.name.includes('Beklenen Ücret'))?.value || 'Belirtilmemiş',
+                bonus: fields.find(f => f.name.includes('Bonus'))?.value || 'Belirtilmemiş'
             };
             
             console.log('Extracted bduyur data:', bduyurData);
@@ -3972,6 +3972,12 @@ class ButtonHandler {
                     content: '❌ Bu butonu sadece transfer listesini oluşturan başkan kullanabilir!',
                     ephemeral: true
                 });
+            }
+
+            // Check if interaction is still valid before showing modal
+            if (interaction.replied || interaction.deferred) {
+                console.log('Cannot show edit modal - interaction already processed');
+                return;
             }
 
             await this.showEditBduyurModal(client, interaction, playerId, presidentId);
@@ -4119,11 +4125,11 @@ class ButtonHandler {
                 .setDescription(`${president.user} tarafından ${player.user} transfer listesine kondu:\n\n**.contract ${president.user}** komutuyla iletişime geçin`)
                 .addFields(
                     { name: '🎯 Oyuncu', value: `${player.user}`, inline: true },
-                    { name: `${config.emojis.money} İstenen Ücret`, value: bduyurData.amount || 'Belirtilmemiş', inline: true },
-                    { name: '🔄 Kiralık mı', value: bduyurData.loan || 'Hayır', inline: true },
-                    { name: '📝 Transfer Nedeni', value: bduyurData.reason || 'Belirtilmemiş', inline: false },
-                    { name: '📋 Bonservis mi', value: bduyurData.bonservis || 'Hayır', inline: true },
-                    { name: '💰 Oyuncunun İstediği Maaş', value: bduyurData.salary || 'Belirtilmemiş', inline: true }
+                    { name: '🔄 Transfer Türü', value: bduyurData.transferType || 'Belirtilmemiş', inline: true },
+                    { name: '📊 Stat Miktarı', value: bduyurData.statAmount || 'Belirtilmemiş', inline: true },
+                    { name: '💰 Oyuncumun Maaşı', value: bduyurData.playerSalary || 'Belirtilmemiş', inline: true },
+                    { name: '💎 Beklenen Ücret', value: bduyurData.expectedPrice || 'Belirtilmemiş', inline: true },
+                    { name: '🎁 Bonus', value: bduyurData.bonus || 'Belirtilmemiş', inline: true }
                 )
                 .setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()

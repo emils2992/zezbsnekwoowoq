@@ -114,6 +114,9 @@ The bot is configured for Replit deployment with:
   - Fixed syntax errors in index.js that were preventing bot from starting
   - All 20 commands now load successfully and bot connects to Discord properly
   - Transfer list form modal and edit functionality now work correctly without errors
+  - Fixed bduyur announcement data display to show actual form input instead of "Belirtilmemiş"
+  - Updated field extraction and announcement embed to use correct field mappings
+  - Added interaction timeout protection for edit modal to prevent "Unknown interaction" errors
 
 - June 25, 2025. Enhanced .oldurferdi with one-time usage restriction and special channel creation:
   - Epic troll sequence with 7 stages over 56 seconds (8-second intervals)
