@@ -292,11 +292,11 @@ class ButtonHandler {
             // Extract original contract data from current embed and create contract form for player approval
             const originalEmbed = interaction.message.embeds[0];
             const contractData = {
-                transferFee: originalEmbed.fields.find(f => f.name.includes('Transfer Ücreti'))?.value || 'Belirtilmemiş',
+                transferFee: originalEmbed.fields.find(f => f.name.includes('Transfer Bedeli'))?.value || 'Belirtilmemiş',
                 oldClub: originalEmbed.fields.find(f => f.name.includes('Eski Kulüp'))?.value || 'Belirtilmemiş',
                 newClub: originalEmbed.fields.find(f => f.name.includes('Yeni Kulüp'))?.value || 'Belirtilmemiş',
-                salary: originalEmbed.fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş',
-                contractDuration: originalEmbed.fields.find(f => f.name.includes('Sözleşme'))?.value || 'Belirtilmemiş'
+                salary: originalEmbed.fields.find(f => f.name.includes('Yıllık Maaş'))?.value || 'Belirtilmemiş',
+                contractDuration: originalEmbed.fields.find(f => f.name.includes('Sözleşme+Ekmadde'))?.value || 'Belirtilmemiş'
             };
             
             console.log('Contract data extracted:', contractData);
@@ -2412,13 +2412,13 @@ class ButtonHandler {
         const embed = interaction.message.embeds[0];
         const fields = embed.fields;
         
-        // Extract existing data from embed fields
+        // Extract existing data from embed fields using exact field names
         const existingData = {
-            transferFee: fields.find(f => f.name.includes('Transfer'))?.value || '',
+            transferFee: fields.find(f => f.name.includes('Transfer Bedeli'))?.value || '',
             oldClub: fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
             newClub: fields.find(f => f.name.includes('Yeni Kulüp'))?.value || '',
-            salary: fields.find(f => f.name.includes('Maaş'))?.value || '',
-            contractDuration: fields.find(f => f.name.includes('Sözleşme'))?.value || ''
+            salary: fields.find(f => f.name.includes('Yıllık Maaş'))?.value || '',
+            contractDuration: fields.find(f => f.name.includes('Sözleşme+Ekmadde'))?.value || ''
         };
 
         const modal = new Modal()

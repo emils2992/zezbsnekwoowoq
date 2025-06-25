@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed contract edit data transfer issue:
+  - Fixed field name matching in contract data extraction to use exact embed field names
+  - Updated field extraction to match "Transfer Bedeli", "Eski Kulüp", "Yeni Kulüp", "Yıllık Maaş", "Sözleşme+Ekmadde"
+  - Contract edits in president channel now properly transfer data to player approval channel
+  - Eliminated "Belirtilmemiş" display issue when editing contract forms
 - June 25, 2025. Implemented two-modal system for .bduyur command:
   - First modal: "oyuncu kiralikmi", "bonservislimi", "zorunlu", "opsiyonlu", "kiralikmi"
   - Second modal: "oyuncum kaç stat kasar" 
