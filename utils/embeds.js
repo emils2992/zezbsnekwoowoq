@@ -87,8 +87,8 @@ class EmbedCreator {
             .setTitle(`${config.emojis.hire} Kiralık Teklifi`)
             .setDescription(`**${fromPresident.displayName || fromPresident.username}** tarafından **${toPresident.displayName || toPresident.username}** için yapılan kiralık teklifi:`)
             .addFields(
-                { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
-                { name: '⚽ Futbolcu', value: `${player}`, inline: true },
+                { name: `${config.emojis.handshake} Teklif Yapan`, value: `<@${fromPresident.id}>`, inline: true },
+                { name: '⚽ Futbolcu', value: `<@${player.id}>`, inline: true },
                 { name: `${config.emojis.money} Kiralık Bedeli`, value: hireData?.loanFee || '2.000.000₺', inline: true },
                 { name: '🏆 Eski Kulüp', value: hireData?.oldClub || 'Belirtilmemiş', inline: true },
                 { name: '🎯 Yeni Kulüp', value: hireData?.newClub || 'Belirtilmemiş', inline: true },
