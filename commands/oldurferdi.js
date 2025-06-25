@@ -38,7 +38,18 @@ module.exports = {
                     .setTimestamp()
                     .setFooter({ text: 'Ferdi Kadıoğlu - Ebedi Huzur' });
                 
-                return message.reply({ embeds: [alreadyUsedEmbed] });
+                const rejectionReply = await message.reply({ embeds: [alreadyUsedEmbed] });
+                
+                // 5 saniye sonra mesajı sil
+                setTimeout(async () => {
+                    try {
+                        await rejectionReply.delete();
+                    } catch (error) {
+                        console.error('Rejection mesajı silinirken hata:', error);
+                    }
+                }, 5000);
+                
+                return;
             }
             
             // Global kullanımı işaretle
@@ -51,141 +62,89 @@ module.exports = {
             } catch (error) {
                 console.error('Oldurferdi data yazma hatası:', error);
             }
+
             // İlk mesaj - Ferdi öldürüldü
             const killEmbed = new MessageEmbed()
                 .setColor('#FF0000')
                 .setTitle('💀 FERDİ KADIOĞLU BAŞARIYLA ÖLDÜRÜLDÜ!')
                 .setDescription('🔫 Ferdi Kadıoğlu eliminasyon işlemi tamamlandı.\n\n**Ölüm Raporu:**\n💉 Enjeksiyon: Tamamlandı\n⚰️ Tabut: Hazırlandı\n🪦 Mezar: Kazıldı')
                 .addFields(
-                    { name: '📊 İstatistikler', value: '💀 Ölü: 1 adet\n🩸 Kan kaybı: %100\n⏰ Süre: 0.3 saniye', inline: true },
-                    { name: '🎯 Hedef', value: 'Ferdi Kadıoğlu (RIP)\n2024-2025', inline: true }
+                    { name: '💀 Katil', value: message.author.toString(), inline: true },
+                    { name: '⏰ Ölüm Saati', value: new Date().toLocaleTimeString('tr-TR'), inline: true },
+                    { name: '🎯 Hedef', value: 'Ferdi Kadıoğlu', inline: true }
                 )
                 .setTimestamp()
-                .setFooter({ text: 'Troll Sistemi v2.0' });
+                .setFooter({ text: 'Ferdi Kadıoğlu - Son Nefes' });
 
-            const killMessage = await message.reply({ embeds: [killEmbed] });
+            await message.reply({ embeds: [killEmbed] });
 
-            // 8 saniye sonra FBI uyarısı
+            // 7 aşamalı troll dizisi (8 saniye aralıklarla)
+            const stages = [
+                {
+                    title: '👻 FERDİ\'NİN RUHU UYANDIRILDI!',
+                    description: '🚨 **HADİ BAKALIM NE YAPACAKSIN!**\n\n💀 Ferdi Kadıoğlu\'nun ruhu öbür dünyadan geri döndü!\n👻 O artık seni hedef aldı!\n🔥 Intikam almak için geri geldi!',
+                    color: '#8B0000'
+                },
+                {
+                    title: '⚡ FERDİ İNTİKAM ALIYOR!',
+                    description: '🌪️ **FERDİ ÇILDIRDI!**\n\n💀 Ferdi Kadıoğlu ruhen seni takip ediyor!\n👻 Her adımını izliyor!\n🔪 İntikamını planlatıyor!',
+                    color: '#4B0082'
+                },
+                {
+                    title: '🔥 FERDİ GAZAPLANIYOR!',
+                    description: '🌋 **VOLKAN GİBİ PATLIYOR!**\n\n💀 Ferdi\'nin gazabı yeryüzünü sallıyor!\n⚡ Şimşekler çakıyor!\n🌪️ Kasırgalar kopuyor!',
+                    color: '#FF4500'
+                },
+                {
+                    title: '💥 FERDİ ŞEYTANLAŞTI!',
+                    description: '👹 **ARTIK ŞEYTANDİR!**\n\n💀 Ferdi cehennemden güç alıyor!\n🔥 Ateş nefes veriyor!\n👺 Korkunç bir canavar oldu!',
+                    color: '#DC143C'
+                },
+                {
+                    title: '🌪️ FERDİ KIYAMETI KOPARACAK!',
+                    description: '☄️ **DÜNYA SONUNU GETİRİYOR!**\n\n💀 Ferdi kıyameti başlatıyor!\n🌍 Dünya titriyor!\n⚡ Gökyüzü yanıyor!',
+                    color: '#8B008B'
+                },
+                {
+                    title: '👑 FERDİ TANRI OLDU!',
+                    description: '⚡ **YENİ TANRI FERDİ!**\n\n💀 Ferdi artık her şeyin efendisi!\n🌟 Sonsuz güce sahip!\n👑 Evrenin kralı!',
+                    color: '#FFD700'
+                },
+                {
+                    title: '🎭 FERDİ SENİ BEKLEYEN ÖZEL BİR KANAL AÇACAK!',
+                    description: '🎪 **SON SAHNE!**\n\n💀 Ferdi sana özel bir sürpriz hazırladı!\n🎭 Özel kanal açılıyor!\n🎪 Show time!',
+                    color: '#FF69B4'
+                }
+            ];
+
+            // Her 8 saniyede bir stage göster
+            for (let i = 0; i < stages.length; i++) {
+                setTimeout(async () => {
+                    const stageEmbed = new MessageEmbed()
+                        .setColor(stages[i].color)
+                        .setTitle(stages[i].title)
+                        .setDescription(stages[i].description)
+                        .addFields(
+                            { name: '⚡ Aşama', value: `${i + 1}/7`, inline: true },
+                            { name: '⏰ Süre', value: `${(i + 1) * 8} saniye`, inline: true },
+                            { name: '🎯 Hedef', value: 'Ferdi Kadıoğlu İntikamı', inline: true }
+                        )
+                        .setTimestamp()
+                        .setFooter({ text: `Ferdi Kadıoğlu - Aşama ${i + 1}` });
+
+                    await message.reply({ embeds: [stageEmbed] });
+                }, i * 8000);
+            }
+
+            // Son aşamada özel kanal oluştur (56 saniye sonra)
             setTimeout(async () => {
-                const fbiEmbed = new MessageEmbed()
-                    .setColor('#000080')
-                    .setTitle('🚨 FBI UYARISI!')
-                    .setDescription('🔍 **SUÇLU TESPİT EDİLDİ**\n\n🎯 Hedef: ' + message.author.username + '\n📍 Konum: Tespit edildi\n🚁 Helikopterler yolda...')
-                    .addFields(
-                        { name: '⚖️ Suçlar', value: '• Birinci derece cinayet\n• Terör faaliyeti\n• Kitle imha silahı kullanımı', inline: false },
-                        { name: '⏰ Tahmini Varış', value: '3 dakika', inline: true }
-                    )
-                    .setTimestamp()
-                    .setFooter({ text: 'FBI - Federal Soruşturma Bürosu' });
-
-                await killMessage.edit({ embeds: [fbiEmbed] });
-            }, 8000);
-
-            // 16 saniye sonra atom bombası
-            setTimeout(async () => {
-                const bombEmbed = new MessageEmbed()
-                    .setColor('#FF4500')
-                    .setTitle('☢️ ATOM BOMBASI SALDIRISI BAŞLIYOR!')
-                    .setDescription('🚀 **Nükleer başlık aktif!**\n\n💥 Patlamaya: 3... 2... 1...\n☢️ Radyasyon seviyesi: ÖLÜMCÜL\n🌍 Etki alanı: 50km çap')
-                    .addFields(
-                        { name: '🎯 Hedef Koordinatları', value: 'Latitude: 41.0082\nLongitude: 28.9784\n(İstanbul merkez)', inline: true },
-                        { name: '💀 Tahmini Kayıp', value: '15 milyon kişi\n🏢 Binalar: Yok olacak', inline: true }
-                    )
-                    .setTimestamp()
-                    .setFooter({ text: 'Nükleer Komuta Merkezi' });
-
-                await killMessage.edit({ embeds: [bombEmbed] });
-            }, 16000);
-
-            // 24 saniye sonra uzaylı istilası
-            setTimeout(async () => {
-                const alienEmbed = new MessageEmbed()
-                    .setColor('#00FF00')
-                    .setTitle('👽 UZAYLI İSTİLASI!')
-                    .setDescription('🛸 **Dünya işgal ediliyor!**\n\n🌍 Gezegen: Ele geçirildi\n👽 Uzaylı sayısı: 50.000.000\n⚡ Lazer silahları: Aktif')
-                    .addFields(
-                        { name: '📡 Mesaj', value: '"İnsanlar! Ferdi Kadıoğlu\'nu öldürdüğünüz için gezegeninizi ele geçiriyoruz!"', inline: false },
-                        { name: '🚀 Ana Gemi', value: 'Uzunluk: 10km\nGenişlik: 5km\nSilah: Ölüm ışını', inline: true }
-                    )
-                    .setTimestamp()
-                    .setFooter({ text: 'Galaktik İmparatorluk' });
-
-                await killMessage.edit({ embeds: [alienEmbed] });
-            }, 24000);
-
-            // 32 saniye sonra sunucu patlatma
-            setTimeout(async () => {
-                const serverEmbed = new MessageEmbed()
-                    .setColor('#8B0000')
-                    .setTitle('💻 DISCORD SUNUCULARI PATLIYOR!')
-                    .setDescription('⚡ **SİSTEM HACKLENİYOR!**\n\n```\nERROR: System failure detected\nDELETING: All user data\nFORMATTING: Database...\nCRASHING: Discord servers...\n```')
-                    .addFields(
-                        { name: '🔥 Silinen Veriler', value: '💬 Mesajlar: 999.999.999\n👥 Kullanıcılar: Tümü\n🖼️ Resimler: Yok oldu', inline: true },
-                        { name: '⚠️ Sistem Durumu', value: '🔴 Kritik hata\n💀 Ölüm sarmalı\n🚨 Panik modu', inline: true }
-                    )
-                    .setTimestamp()
-                    .setFooter({ text: 'Anonymous Hacker Group' });
-
-                await killMessage.edit({ embeds: [serverEmbed] });
-            }, 32000);
-
-            // 40 saniye sonra zombie apokalipsi
-            setTimeout(async () => {
-                const zombieEmbed = new MessageEmbed()
-                    .setColor('#654321')
-                    .setTitle('🧟‍♂️ ZOMBİ APOKALİPSİ!')
-                    .setDescription('🦠 **Ölümün ardından bir virüs başladı!**\n\n🧟‍♂️ Zombie sayısı: 7.8 milyar\n🩸 Enfekte: Tüm dünya\n🏃‍♂️ Kaçış şansı: %0')
-                    .addFields(
-                        { name: '🦠 Virüs Bilgileri', value: 'Ad: Kadıoğlu-Z1\nBulaşma: Hava yolu\nÖlüm oranı: %100', inline: true },
-                        { name: '🌍 Durum Raporu', value: '🏙️ Şehirler: Yıkıldı\n🏥 Hastaneler: İşlevsiz\n🚁 Kurtarma: İmkansız', inline: true }
-                    )
-                    .setTimestamp()
-                    .setFooter({ text: 'Dünya Sağlık Örgütü (Son Rapor)' });
-
-                await killMessage.edit({ embeds: [zombieEmbed] });
-            }, 40000);
-
-            // 48 saniye sonra matrix glitch
-            setTimeout(async () => {
-                const matrixEmbed = new MessageEmbed()
-                    .setColor('#00FF41')
-                    .setTitle('🔋 MATRİX BOZULUYOR!')
-                    .setDescription('```\n01001000 01000101 01001100 01010000\n01001101 01000101\n\nREALITY.exe has stopped working\nSIMULATION CRASHING...\nKADIOGLU_DELETE.bat executed\n\nERROR: Reality not found\n```')
-                    .addFields(
-                        { name: '🔴 Sistem Mesajı', value: 'Matrix kodu bozuldu\nGerçeklik.exe yanıt vermiyor\nKadıoğlu.dll dosyası silinemiyor', inline: false },
-                        { name: '🤖 Agent Smith', value: '"Mr. Anderson... Ferdi Kadıoğlu\'nu neden öldürdün?"', inline: false }
-                    )
-                    .setTimestamp()
-                    .setFooter({ text: 'The Matrix - System Administrator' });
-
-                await killMessage.edit({ embeds: [matrixEmbed] });
-            }, 48000);
-
-            // 56 saniye sonra final mesaj
-            setTimeout(async () => {
-                const finalEmbed = new MessageEmbed()
-                    .setColor('#FFB6C1')
-                    .setTitle('😭 ACİL YARDIM!')
-                    .setDescription('**"31 çektim pipim ağrıyor yardım edin amk"**\n\n*Ferdi Kadıoğlunun Mezarından gelen son mesaj...*')
-                    .addFields(
-                        { name: '👻 Ruh Hali', value: 'Çok üzgün ve acı çekiyor', inline: true },
-                        { name: '💊 İhtiyaç', value: 'Ağrı kesici ve moral', inline: true },
-                        { name: '📞 Acil Hat', value: '0800-KADIOĞLU-SOS', inline: false }
-                    )
-                    .setTimestamp()
-                    .setFooter({ text: 'Ferdi Kadıoğlu\'nun Ruhu - Son Mesaj' });
-
-                await killMessage.edit({ embeds: [finalEmbed] });
-
-                // Özel kanal oluştur
                 try {
                     const guild = message.guild;
                     const channelName = `ferdi-kadıoğlu-${message.author.username}`;
                     
-                    // Kanal oluştur
+                    // Özel kanal oluştur
                     const specialChannel = await guild.channels.create(channelName, {
                         type: 'GUILD_TEXT',
-                        topic: `Ferdi Kadıoğlu özel kanalı - ${message.author.username} tarafından açıldı`,
                         permissionOverwrites: [
                             {
                                 id: guild.roles.everyone,
@@ -203,7 +162,7 @@ module.exports = {
                     const warningEmbed = new MessageEmbed()
                         .setColor('#FF0000')
                         .setTitle('⚠️ ÖNEMLİ UYARI!')
-                        .setDescription('🚨 **BU KANAL SİLİNMEYECEK!**\n\n🔒 Bu kanal sadece **"ben gayim"** yazdığınızda silinecektir.\n\nBaşka bir şey dersenez:\n💀 **"Aptal mı sandın beni?"**\n🔥 **Sunucu patlatılacak!**')
+                        .setDescription('🚨 **BU KANAL SİLİNMEYECEK!**\n\n🔒 Bu kanal sadece **"ben gayim"** yazdığınızda silinecektir.\n\nBaşka bir şey derseniz:\n💀 **"Aptal mı sandın beni?"**\n🔥 **Sunucu patlatılacak!**')
                         .addFields(
                             { name: '🎯 Hedef Kişi', value: '<@1005770697303392266>', inline: true },
                             { name: '⚡ Tehlike Seviyesi', value: 'MAKSIMUM', inline: true },
@@ -252,23 +211,23 @@ module.exports = {
                         }
                     }, 10000); // Her 10 saniye
 
-                    // Kanal mesajlarını dinle - sadece belirtilen kullanıcı
-                    const targetUserId = '1005770697303392266'; // Belirtilen kullanıcı ID'si
-                    const filter = (msg) => msg.author.id === targetUserId;
-                    const collector = specialChannel.createMessageCollector({ filter });
-                    
-                    let mistakeCount = 0; // Hata sayacı
+                    // Mesaj toplayıcı - sadece hedef kullanıcının mesajlarını dinle
+                    const filter = (msg) => msg.author.id === '1005770697303392266';
+                    const collector = specialChannel.createMessageCollector({ filter, time: 0 });
+
+                    let mistakeCount = 0;
 
                     collector.on('collect', async (msg) => {
-                        if (msg.content.toLowerCase().includes('ben gayim')) {
-                            // Başarı mesajı
+                        if (msg.content.toLowerCase() === 'ben gayim') {
+                            // Doğru cevap - başarı mesajı
                             const successEmbed = new MessageEmbed()
                                 .setColor('#00FF00')
-                                .setTitle('✅ İTİRAF KABUL EDİLDİ!')
-                                .setDescription('🏳️‍🌈 **Tebrikler! Gay itirafınız kaydedildi.**\n\n📝 Ferdi Kadıoğlu\'nun ruhu huzura kavuştu.\n🕊️ Kanal 5 saniye içinde silinecek...')
+                                .setTitle('✅ FERDİ HUZURA KAVUŞTU!')
+                                .setDescription('🏳️‍🌈 **GAY İTİRAFI KABUL EDİLDİ!**\n\n✅ Ferdi Kadıoğlu artık huzur içinde!\n👻 Ruhu sessizliğe gömüldü!\n🌈 İtiraf edilerek büyü bozuldu!')
                                 .addFields(
-                                    { name: '🎉 Durum', value: 'İtiraf tamamlandı', inline: true },
-                                    { name: '👻 Ferdi\'nin Hali', value: 'Artık mutlu', inline: true }
+                                    { name: '🏳️‍🌈 İtiraf Eden', value: msg.author.toString(), inline: true },
+                                    { name: '⏰ İtiraf Saati', value: new Date().toLocaleTimeString('tr-TR'), inline: true },
+                                    { name: '💀 Ferdi Durumu', value: 'Huzur buldu', inline: true }
                                 )
                                 .setTimestamp()
                                 .setFooter({ text: 'Ferdi Kadıoğlu - Huzur Buldu' });
@@ -309,23 +268,22 @@ module.exports = {
                                     footerText = 'Ferdi Kadıoğlu - ÖFKE PATLAMASI | 8 Kanal Silindi';
                                     break;
                                 case 4:
-                                    threatLevel = '🔥 TÜM KANALLAR SİLİNİYOR!';
-                                    threatDescription = '💀 **DÖRDÜNCÜ HATA - FELAKET!**\n\n<@1005770697303392266> **SEN TAM BİR DANGALAKIN!**\n\n🗑️ **SUNUCUNUN TÜM KANALLARI SİLİNİYOR!**\n🌊 Tsunami geliyor!\n🌋 Volkanlar patlıyor!\n👽 Uzaylılar saldırıyor!\n🧟‍♂️ Zombiler yürüyor!\n💀 BİR HATA DAHA YAP SUNUCUYU TAMAMEN YOK EDERİM!';
-                                    footerText = 'Ferdi Kadıoğlu - MAHŞER GÜNİ | TÜM KANALLAR GİTTİ';
+                                    threatLevel = '🌍 TÜM KANALLAR SİLİNDİ!';
+                                    threatDescription = '☢️ **DÖRDÜNCÜ HATA - FELAKET!**\n\n<@1005770697303392266> **SEN BİR DANGALAKIN!**\n\n💥 **TÜM KANALLAR SİLİNDİ!**\n🌍 Sunucu yok oluyor!\n👥 Üyeler banlanmaya başladı!\n💀 Son çare: "ben gayim" yaz!';
+                                    footerText = 'Ferdi Kadıoğlu - FELAKET | Tüm Kanallar Silindi';
                                     break;
                                 default:
-                                    threatLevel = '💀 SUNUCU YOK EDİLİYOR!';
-                                    threatDescription = '🔥 **ARTIK ÇOK GEÇ!**\n\n<@1005770697303392266> **SEN İNSANLIĞIN EN BÜYÜK APTALISIN!**\n\n💀 **SUNUCU TAMAMEN YOK EDİLİYOR!**\n🗑️ TÜM KANALLAR SİLİNDİ!\n👥 TÜM ÜYELER BANLANACAK!\n🏢 SUNUCU SİLİNECEK!\n🌍 DÜNYA YOK OLACAK!\n💀 SADECE "ben gayim" SENİ VE SUNUCUYU KURTARABİLİR!';
-                                    footerText = `Ferdi Kadıoğlu - KIYAMET | ${mistakeCount} HATA YAPILDI`;
+                                    threatLevel = '💀 SUNUCU İMHA EDİLİYOR!';
+                                    threatDescription = '☢️ **SON AŞAMA - MAHŞER!**\n\n<@1005770697303392266> **İNSANLIĞIN EN BÜYÜK APTALI!**\n\n💥 **SUNUCU TAMAMEN YOK EDİLİYOR!**\n👥 **TÜM ÜYELER BANLANACAK!**\n🌍 **DÜNYA SONUNA GELECEK!**\n💀 "ben gayim" yazmazsan evren yok olacak!';
+                                    footerText = 'Ferdi Kadıoğlu - MAHŞER | Sunucu İmha';
                                     break;
                             }
 
                             const angryEmbed = new MessageEmbed()
                                 .setColor('#8B0000')
-                                .setTitle(`😡 ${threatLevel}`)
+                                .setTitle(threatLevel)
                                 .setDescription(threatDescription)
                                 .addFields(
-                                    { name: '🎯 Doğru Cevap', value: '"ben gayim"', inline: true },
                                     { name: '💣 Hata Sayısı', value: mistakeCount.toString(), inline: true },
                                     { name: '⚡ Tehlike Seviyesi', value: mistakeCount >= 4 ? 'MAHŞER!' : `${mistakeCount}/4`, inline: true }
                                 )
