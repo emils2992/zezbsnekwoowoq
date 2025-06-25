@@ -3771,9 +3771,12 @@ class ButtonHandler {
 
     async handleBduyurButton(client, interaction, params) {
         try {
-            await interaction.deferReply();
-            
             const [buttonType, playerId, presidentId] = params;
+            
+            // Only defer for accept/reject, not edit (edit shows modal)
+            if (buttonType !== 'edit') {
+                await interaction.deferReply();
+            }
             const guild = interaction.guild;
             const player = await guild.members.fetch(playerId);
             const president = await guild.members.fetch(presidentId);
@@ -3781,11 +3784,14 @@ class ButtonHandler {
             console.log('BDuyur button handling:', { buttonType, playerId, presidentId });
 
             if (buttonType === 'accept') {
-            // Only the player can accept being put on transfer list
-            const isAuthorized = interaction.user.id === playerId;
-            if (!isAuthorized) {
+            // Player or transfer authorities can accept
+            const permissions = require('../utils/permissions');
+            const isPlayer = interaction.user.id === playerId;
+            const isTransferAuthority = permissions.isTransferAuthority(interaction.member);
+            
+            if (!isPlayer && !isTransferAuthority) {
                 return interaction.editReply({
-                    content: '❌ Sadece transfer listesine konulan oyuncu kabul edebilir!'
+                    content: '❌ Sadece transfer listesine konulan oyuncu veya transfer yetkilileri kabul edebilir!'
                 });
             }
 
@@ -3874,8 +3880,9 @@ class ButtonHandler {
             // Only the president can edit their transfer list proposal
             const isAuthorized = interaction.user.id === presidentId;
             if (!isAuthorized) {
-                return interaction.editReply({
-                    content: '❌ Bu butonu sadece transfer listesini oluşturan başkan kullanabilir!'
+                return interaction.reply({
+                    content: '❌ Bu butonu sadece transfer listesini oluşturan başkan kullanabilir!',
+                    ephemeral: true
                 });
             }
 
@@ -3887,7 +3894,7 @@ class ButtonHandler {
             try {
                 if (!interaction.replied && !interaction.deferred) {
                     await interaction.reply({ content: '❌ Bir hata oluştu!', ephemeral: true });
-                } else {
+                } else if (interaction.deferred) {
                     await interaction.editReply({ content: '❌ Bir hata oluştu!' });
                 }
             } catch (replyError) {

@@ -100,6 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed .bduyur button interaction issues and authorization:
+  - Fixed "Unknown interaction" errors by properly handling edit button modal interactions
+  - Added transfer authority permission for accepting transfer list proposals
+  - Both players and transfer authorities can now accept bduyur proposals
+  - Fixed edit button to use direct reply instead of deferReply to prevent modal conflicts
+  - Enhanced error handling for different interaction states
 - June 25, 2025. Updated .bduyur transfer list system modal fields:
   - Changed "Zorunlu mu" field to "Bonservis mi" as requested by user
   - Modal now has fields: amount wanted, reason, loan availability, bonservis status, player salary
