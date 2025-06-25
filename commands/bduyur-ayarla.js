@@ -19,18 +19,22 @@ module.exports = {
                 return message.reply('❌ Lütfen bir kanal belirtin! Kullanım: `.bduyur-ayarla #kanal`');
             }
 
-            // Kanal mention'ını parse et
-            let targetChannel;
-            const channelMention = args[0];
+            // Önce mention edilen kanalı kontrol et
+            let targetChannel = message.mentions.channels.first();
             
-            if (channelMention.startsWith('<#') && channelMention.endsWith('>')) {
-                const channelId = channelMention.slice(2, -1);
-                targetChannel = message.guild.channels.cache.get(channelId);
-            } else {
-                // Kanal adı ile arama
-                targetChannel = message.guild.channels.cache.find(channel => 
-                    channel.name === channelMention.replace('#', '') && channel.type === 'GUILD_TEXT'
-                );
+            // Eğer mention yoksa, argümanı manuel olarak parse et
+            if (!targetChannel) {
+                const channelMention = args[0];
+                
+                if (channelMention.startsWith('<#') && channelMention.endsWith('>')) {
+                    const channelId = channelMention.slice(2, -1);
+                    targetChannel = message.guild.channels.cache.get(channelId);
+                } else {
+                    // Kanal adı ile arama
+                    targetChannel = message.guild.channels.cache.find(channel => 
+                        channel.name === channelMention.replace('#', '') && channel.type === 'GUILD_TEXT'
+                    );
+                }
             }
 
             if (!targetChannel) {
