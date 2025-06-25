@@ -1680,42 +1680,90 @@ async function handleModalSubmit(client, interaction) {
                     newTeam: interaction.fields.getTextInputValue('new_team') || 'Yok'
                 };
 
-                // Create negotiation channel
-                const channels = require('./utils/channels');
-                const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'trelease');
-                
-                if (!channel) {
-                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
-                }
+                // Check if we're in a negotiation channel (editing existing form)
+                const isNegotiationChannel = interaction.channel && interaction.channel.name && 
+                    (interaction.channel.name.includes("trelease") || interaction.channel.name.includes("fesih") || 
+                     interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("m-zakere"));
 
-                const embeds = require('./utils/embeds');
-                const releaseEmbed = embeds.createReleaseForm(president.user, player.user, 'tek_tarafli', releaseData);
-                
-                const buttons = new MessageActionRow()
-                    .addComponents(
-                        new MessageButton()
-                            .setCustomId(`trelease_accept_${playerId}_${presidentId}`)
-                            .setLabel('Kabul Et')
-                            .setStyle('SUCCESS')
-                            .setEmoji('✅'),
-                        new MessageButton()
-                            .setCustomId(`trelease_reject_${playerId}_${presidentId}`)
-                            .setLabel('Reddet')
-                            .setStyle('DANGER')
-                            .setEmoji('❌'),
-                        new MessageButton()
-                            .setCustomId(`trelease_edit_${playerId}_${presidentId}`)
-                            .setLabel('Düzenle')
-                            .setStyle('SECONDARY')
-                            .setEmoji('✏️')
+                if (isNegotiationChannel) {
+                    // Update existing embed in the same channel
+                    const embeds = require('./utils/embeds');
+                    const releaseEmbed = embeds.createReleaseForm(president.user, player.user, 'tek_tarafli', releaseData);
+                    
+                    const buttons = new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(`trelease_accept_${playerId}_${presidentId}`)
+                                .setLabel('Kabul Et')
+                                .setStyle('SUCCESS')
+                                .setEmoji('✅'),
+                            new MessageButton()
+                                .setCustomId(`trelease_reject_${playerId}_${presidentId}`)
+                                .setLabel('Reddet')
+                                .setStyle('DANGER')
+                                .setEmoji('❌'),
+                            new MessageButton()
+                                .setCustomId(`trelease_edit_${playerId}_${presidentId}`)
+                                .setLabel('Düzenle')
+                                .setStyle('SECONDARY')
+                                .setEmoji('✏️')
+                        );
+
+                    // Find and update the original message
+                    const messages = await interaction.channel.messages.fetch({ limit: 10 });
+                    const originalMessage = messages.find(msg => 
+                        msg.embeds.length > 0 && 
+                        msg.components.length > 0 &&
+                        msg.components[0].components.some(btn => btn.customId && btn.customId.includes('trelease_'))
                     );
 
-                await channel.send({
-                    embeds: [releaseEmbed],
-                    components: [buttons]
-                });
+                    if (originalMessage) {
+                        await originalMessage.edit({
+                            embeds: [releaseEmbed],
+                            components: [buttons]
+                        });
+                        await interaction.editReply({ content: `✅ Tek taraflı fesih formu güncellendi!` });
+                    } else {
+                        await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
+                    }
+                } else {
+                    // Create negotiation channel
+                    const channels = require('./utils/channels');
+                    const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'trelease');
+                    
+                    if (!channel) {
+                        return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                    }
 
-                await interaction.editReply({ content: `✅ Tek taraflı fesih müzakeresi ${channel} kanalında başlatıldı!` });
+                    const embeds = require('./utils/embeds');
+                    const releaseEmbed = embeds.createReleaseForm(president.user, player.user, 'tek_tarafli', releaseData);
+                    
+                    const buttons = new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(`trelease_accept_${playerId}_${presidentId}`)
+                                .setLabel('Kabul Et')
+                                .setStyle('SUCCESS')
+                                .setEmoji('✅'),
+                            new MessageButton()
+                                .setCustomId(`trelease_reject_${playerId}_${presidentId}`)
+                                .setLabel('Reddet')
+                                .setStyle('DANGER')
+                                .setEmoji('❌'),
+                            new MessageButton()
+                                .setCustomId(`trelease_edit_${playerId}_${presidentId}`)
+                                .setLabel('Düzenle')
+                                .setStyle('SECONDARY')
+                                .setEmoji('✏️')
+                        );
+
+                    await channel.send({
+                        embeds: [releaseEmbed],
+                        components: [buttons]
+                    });
+
+                    await interaction.editReply({ content: `✅ Tek taraflı fesih müzakeresi ${channel} kanalında başlatıldı!` });
+                }
             } catch (error) {
                 console.error('TRelease modal error:', error);
                 await interaction.editReply({ content: `❌ Fesih işlemi sırasında hata oluştu: ${error.message}` });
@@ -1743,42 +1791,90 @@ async function handleModalSubmit(client, interaction) {
                     newTeam: interaction.fields.getTextInputValue('new_team') || 'Yok'
                 };
 
-                // Create negotiation channel for player
-                const channels = require('./utils/channels');
-                const channel = await channels.createNegotiationChannel(interaction.guild, player.user, player.user, 'btrelease');
-                
-                if (!channel) {
-                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
-                }
+                // Check if we're in a negotiation channel (editing existing form)
+                const isNegotiationChannel = interaction.channel && interaction.channel.name && 
+                    (interaction.channel.name.includes("btrelease") || interaction.channel.name.includes("fesih") || 
+                     interaction.channel.name.includes("muzakere") || interaction.channel.name.includes("m-zakere"));
 
-                const embeds = require('./utils/embeds');
-                const releaseEmbed = embeds.createReleaseForm(player.user, player.user, 'tek_tarafli_oyuncu', releaseData);
-                
-                const buttons = new MessageActionRow()
-                    .addComponents(
-                        new MessageButton()
-                            .setCustomId(`btrelease_confirm_${playerId}`)
-                            .setLabel('Onayla')
-                            .setStyle('SUCCESS')
-                            .setEmoji('✅'),
-                        new MessageButton()
-                            .setCustomId(`btrelease_cancel_${playerId}`)
-                            .setLabel('İptal')
-                            .setStyle('DANGER')
-                            .setEmoji('❌'),
-                        new MessageButton()
-                            .setCustomId(`btrelease_edit_${playerId}`)
-                            .setLabel('Düzenle')
-                            .setStyle('SECONDARY')
-                            .setEmoji('✏️')
+                if (isNegotiationChannel) {
+                    // Update existing embed in the same channel
+                    const embeds = require('./utils/embeds');
+                    const releaseEmbed = embeds.createReleaseForm(player.user, player.user, 'tek_tarafli_oyuncu', releaseData);
+                    
+                    const buttons = new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(`btrelease_confirm_${playerId}`)
+                                .setLabel('Onayla')
+                                .setStyle('SUCCESS')
+                                .setEmoji('✅'),
+                            new MessageButton()
+                                .setCustomId(`btrelease_cancel_${playerId}`)
+                                .setLabel('İptal')
+                                .setStyle('DANGER')
+                                .setEmoji('❌'),
+                            new MessageButton()
+                                .setCustomId(`btrelease_edit_${playerId}`)
+                                .setLabel('Düzenle')
+                                .setStyle('SECONDARY')
+                                .setEmoji('✏️')
+                        );
+
+                    // Find and update the original message
+                    const messages = await interaction.channel.messages.fetch({ limit: 10 });
+                    const originalMessage = messages.find(msg => 
+                        msg.embeds.length > 0 && 
+                        msg.components.length > 0 &&
+                        msg.components[0].components.some(btn => btn.customId && btn.customId.includes('btrelease_'))
                     );
 
-                await channel.send({
-                    embeds: [releaseEmbed],
-                    components: [buttons]
-                });
+                    if (originalMessage) {
+                        await originalMessage.edit({
+                            embeds: [releaseEmbed],
+                            components: [buttons]
+                        });
+                        await interaction.editReply({ content: `✅ Tek taraflı fesih formu güncellendi!` });
+                    } else {
+                        await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
+                    }
+                } else {
+                    // Create negotiation channel for player
+                    const channels = require('./utils/channels');
+                    const channel = await channels.createNegotiationChannel(interaction.guild, player.user, player.user, 'btrelease');
+                    
+                    if (!channel) {
+                        return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                    }
 
-                await interaction.editReply({ content: `✅ Tek taraflı fesih formu ${channel} kanalında oluşturuldu!` });
+                    const embeds = require('./utils/embeds');
+                    const releaseEmbed = embeds.createReleaseForm(player.user, player.user, 'tek_tarafli_oyuncu', releaseData);
+                    
+                    const buttons = new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(`btrelease_confirm_${playerId}`)
+                                .setLabel('Onayla')
+                                .setStyle('SUCCESS')
+                                .setEmoji('✅'),
+                            new MessageButton()
+                                .setCustomId(`btrelease_cancel_${playerId}`)
+                                .setLabel('İptal')
+                                .setStyle('DANGER')
+                                .setEmoji('❌'),
+                            new MessageButton()
+                                .setCustomId(`btrelease_edit_${playerId}`)
+                                .setLabel('Düzenle')
+                                .setStyle('SECONDARY')
+                                .setEmoji('✏️')
+                        );
+
+                    await channel.send({
+                        embeds: [releaseEmbed],
+                        components: [buttons]
+                    });
+
+                    await interaction.editReply({ content: `✅ Tek taraflı fesih formu ${channel} kanalında oluşturuldu!` });
+                }
             } catch (error) {
                 console.error('BTRelease modal error:', error);
                 await interaction.editReply({ content: `❌ Fesih işlemi sırasında hata oluştu: ${error.message}` });

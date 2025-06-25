@@ -52,6 +52,20 @@ class ButtonHandler {
                 return;
             }
 
+            // Handle show_trelease_modal_ buttons specially
+            if (customId.startsWith('show_trelease_modal_')) {
+                const params = customId.split('_').slice(3); // Remove 'show', 'trelease', 'modal'
+                await this.handleShowTReleaseForm(client, interaction, params);
+                return;
+            }
+
+            // Handle show_btrelease_modal_ buttons specially
+            if (customId.startsWith('show_btrelease_modal_')) {
+                const params = customId.split('_').slice(3); // Remove 'show', 'btrelease', 'modal'
+                await this.handleShowBTReleaseForm(client, interaction, params);
+                return;
+            }
+
             const [action, ...params] = customId.split('_');
 
             // Add to processed interactions for accept/reject/confirm buttons
@@ -88,6 +102,12 @@ class ButtonHandler {
                     break;
                 case 'brelease':
                     await this.handleBreleaseButton(client, interaction, params);
+                    break;
+                case 'trelease':
+                    await this.handleTReleaseButton(client, interaction, params);
+                    break;
+                case 'btrelease':
+                    await this.handleBTReleaseButton(client, interaction, params);
                     break;
                 case 'hire':
                     if (params[0] === 'player') {
@@ -4089,6 +4109,436 @@ class ButtonHandler {
 
         } catch (error) {
             console.error('BDuyur duyuru gönderme hatası:', error);
+        }
+    }
+
+    // TRelease modal form handler
+    async handleShowTReleaseForm(client, interaction, params) {
+        try {
+            const [playerId, presidentId] = params;
+            
+            // Check authorization - only the command creator (president) can open the modal
+            if (interaction.user.id !== presidentId) {
+                return interaction.reply({
+                    content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                    ephemeral: true
+                });
+            }
+
+            const modal = new Modal()
+                .setCustomId(`trelease_modal_${playerId}_${presidentId}`)
+                .setTitle('Tek Taraflı Fesih Formu');
+
+            const oldClubInput = new TextInputComponent()
+                .setCustomId('old_club')
+                .setLabel('Eski Kulüp')
+                .setStyle('SHORT')
+                .setPlaceholder('Oyuncunun eski kulübü')
+                .setRequired(true);
+
+            const reasonInput = new TextInputComponent()
+                .setCustomId('reason')
+                .setLabel('Fesih Nedeni')
+                .setStyle('PARAGRAPH')
+                .setPlaceholder('Tek taraflı fesih nedeni')
+                .setRequired(true);
+
+            const compensationInput = new TextInputComponent()
+                .setCustomId('compensation')
+                .setLabel('Tazminat')
+                .setStyle('SHORT')
+                .setPlaceholder('Tazminat miktarı (örn: 50,000€)')
+                .setRequired(true);
+
+            const newTeamInput = new TextInputComponent()
+                .setCustomId('new_team')
+                .setLabel('Yeni Takım')
+                .setStyle('SHORT')
+                .setPlaceholder('Oyuncunun gideceği takım (opsiyonel)')
+                .setRequired(false);
+
+            modal.addComponents(
+                new MessageActionRow().addComponents(oldClubInput),
+                new MessageActionRow().addComponents(reasonInput),
+                new MessageActionRow().addComponents(compensationInput),
+                new MessageActionRow().addComponents(newTeamInput)
+            );
+
+            await interaction.showModal(modal);
+        } catch (error) {
+            console.error('TRelease modal error:', error);
+            if (!interaction.replied) {
+                await interaction.reply({
+                    content: '❌ Modal açılırken hata oluştu!',
+                    ephemeral: true
+                });
+            }
+        }
+    }
+
+    // BTRelease modal form handler
+    async handleShowBTReleaseForm(client, interaction, params) {
+        try {
+            const [playerId, ] = params;
+            
+            // Check authorization - only the command creator (player) can open the modal
+            if (interaction.user.id !== playerId) {
+                return interaction.reply({
+                    content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                    ephemeral: true
+                });
+            }
+
+            const modal = new Modal()
+                .setCustomId(`btrelease_modal_${playerId}_${playerId}`)
+                .setTitle('Tek Taraflı Fesih Formu');
+
+            const oldClubInput = new TextInputComponent()
+                .setCustomId('old_club')
+                .setLabel('Eski Kulüp')
+                .setStyle('SHORT')
+                .setPlaceholder('Mevcut kulübünüz')
+                .setRequired(true);
+
+            const reasonInput = new TextInputComponent()
+                .setCustomId('reason')
+                .setLabel('Fesih Nedeni')
+                .setStyle('PARAGRAPH')
+                .setPlaceholder('Tek taraflı fesih nedeni')
+                .setRequired(true);
+
+            const compensationInput = new TextInputComponent()
+                .setCustomId('compensation')
+                .setLabel('Tazminat')
+                .setStyle('SHORT')
+                .setPlaceholder('Tazminat miktarı (örn: 50,000€)')
+                .setRequired(true);
+
+            const newTeamInput = new TextInputComponent()
+                .setCustomId('new_team')
+                .setLabel('Yeni Takım')
+                .setStyle('SHORT')
+                .setPlaceholder('Gideceğiniz takım (opsiyonel)')
+                .setRequired(false);
+
+            modal.addComponents(
+                new MessageActionRow().addComponents(oldClubInput),
+                new MessageActionRow().addComponents(reasonInput),
+                new MessageActionRow().addComponents(compensationInput),
+                new MessageActionRow().addComponents(newTeamInput)
+            );
+
+            await interaction.showModal(modal);
+        } catch (error) {
+            console.error('BTRelease modal error:', error);
+            if (!interaction.replied) {
+                await interaction.reply({
+                    content: '❌ Modal açılirken hata oluştu!',
+                    ephemeral: true
+                });
+            }
+        }
+    }
+
+    // TRelease button handler
+    async handleTReleaseButton(client, interaction, params) {
+        const [buttonType, playerId, presidentId] = params;
+        const guild = interaction.guild;
+        
+        try {
+            const player = await guild.members.fetch(playerId);
+            const president = await guild.members.fetch(presidentId);
+
+            if (buttonType === 'accept') {
+                // Check if user is authorized (target player or transfer authority)
+                const member = interaction.member;
+                const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+                
+                if (!isAuthorized) {
+                    return interaction.reply({
+                        content: '❌ Sadece hedef oyuncu veya transfer yetkilileri fesih teklifini kabul edebilir!',
+                        ephemeral: true
+                    });
+                }
+
+                await interaction.deferReply();
+
+                // Role management for release - convert player to free agent
+                try {
+                    await permissions.makePlayerFree(player);
+                    console.log(`Converted ${player.displayName} to free agent via trelease`);
+                } catch (error) {
+                    console.error('Role management error in trelease:', error);
+                }
+                
+                // Extract release data from embed fields
+                const embed = interaction.message.embeds[0];
+                const releaseData = {
+                    oldClub: embed.fields.find(f => f.name.includes('Eski Kulüp'))?.value || 'Belirtilmemiş',
+                    reason: embed.fields.find(f => f.name.includes('Fesih Nedeni'))?.value || 'Belirtilmemiş',
+                    compensation: embed.fields.find(f => f.name.includes('Tazminat'))?.value || 'Belirtilmemiş',
+                    newTeam: embed.fields.find(f => f.name.includes('Yeni Takım'))?.value || 'Yok'
+                };
+
+                // Send to serbest-duyuru channel
+                await this.sendReleaseTransferAnnouncement(guild, player, releaseData, 'tek_tarafli');
+
+                await interaction.editReply({
+                    content: `✅ Tek taraflı fesih kabul edildi! ${player.user} serbest futbolcu oldu ve rolleri güncellendi.`
+                });
+
+            } else if (buttonType === 'reject') {
+                await interaction.deferReply();
+                await interaction.editReply({
+                    content: `❌ Tek taraflı fesih teklifi reddedildi!`
+                });
+
+            } else if (buttonType === 'edit') {
+                // Check authorization - only the command creator (president) can edit
+                if (interaction.user.id !== presidentId) {
+                    return interaction.reply({
+                        content: '❌ Sadece komutu yazan kişi düzenleyebilir!',
+                        ephemeral: true
+                    });
+                }
+
+                // Extract existing data from embed and show pre-filled modal
+                const embed = interaction.message.embeds[0];
+                const existingData = {
+                    oldClub: embed.fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
+                    reason: embed.fields.find(f => f.name.includes('Fesih Nedeni'))?.value || '',
+                    compensation: embed.fields.find(f => f.name.includes('Tazminat'))?.value || '',
+                    newTeam: embed.fields.find(f => f.name.includes('Yeni Takım'))?.value || ''
+                };
+
+                const modal = new Modal()
+                    .setCustomId(`trelease_modal_${playerId}_${presidentId}`)
+                    .setTitle('Tek Taraflı Fesih Düzenle');
+
+                const oldClubInput = new TextInputComponent()
+                    .setCustomId('old_club')
+                    .setLabel('Eski Kulüp')
+                    .setStyle('SHORT')
+                    .setValue(existingData.oldClub)
+                    .setRequired(true);
+
+                const reasonInput = new TextInputComponent()
+                    .setCustomId('reason')
+                    .setLabel('Fesih Nedeni')
+                    .setStyle('PARAGRAPH')
+                    .setValue(existingData.reason)
+                    .setRequired(true);
+
+                const compensationInput = new TextInputComponent()
+                    .setCustomId('compensation')
+                    .setLabel('Tazminat')
+                    .setStyle('SHORT')
+                    .setValue(existingData.compensation)
+                    .setRequired(true);
+
+                const newTeamInput = new TextInputComponent()
+                    .setCustomId('new_team')
+                    .setLabel('Yeni Takım')
+                    .setStyle('SHORT')
+                    .setValue(existingData.newTeam)
+                    .setRequired(false);
+
+                modal.addComponents(
+                    new MessageActionRow().addComponents(oldClubInput),
+                    new MessageActionRow().addComponents(reasonInput),
+                    new MessageActionRow().addComponents(compensationInput),
+                    new MessageActionRow().addComponents(newTeamInput)
+                );
+
+                await interaction.showModal(modal);
+                return;
+            }
+
+            // Disable buttons after accept/reject
+            if (buttonType === 'accept' || buttonType === 'reject') {
+                const disabledButtons = interaction.message.components[0].components.map(button => 
+                    new MessageButton()
+                        .setCustomId(button.customId)
+                        .setLabel(button.label)
+                        .setStyle(button.style)
+                        .setDisabled(true)
+                        .setEmoji(button.emoji || null)
+                );
+
+                await interaction.message.edit({
+                    embeds: interaction.message.embeds,
+                    components: [new MessageActionRow().addComponents(disabledButtons)]
+                });
+
+                // Delete channel after 5 seconds
+                setTimeout(async () => {
+                    try {
+                        if (interaction.channel && interaction.channel.deletable) {
+                            await interaction.channel.delete('Tek taraflı fesih tamamlandı');
+                        }
+                    } catch (error) {
+                        console.error('Channel deletion error:', error);
+                    }
+                }, 5000);
+            }
+
+        } catch (error) {
+            console.error('TRelease button error:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({
+                    content: '❌ İşlem sırasında hata oluştu!',
+                    ephemeral: true
+                });
+            }
+        }
+    }
+
+    // BTRelease button handler
+    async handleBTReleaseButton(client, interaction, params) {
+        const [buttonType, playerId] = params;
+        const guild = interaction.guild;
+        
+        try {
+            const player = await guild.members.fetch(playerId);
+
+            if (buttonType === 'confirm') {
+                // Check if user is authorized (only the player who initiated)
+                if (interaction.user.id !== playerId) {
+                    return interaction.reply({
+                        content: '❌ Sadece kendi feshinizi onaylayabilirsiniz!',
+                        ephemeral: true
+                    });
+                }
+
+                await interaction.deferReply();
+
+                // Role management for release - convert player to free agent
+                try {
+                    await permissions.makePlayerFree(player);
+                    console.log(`Converted ${player.displayName} to free agent via btrelease`);
+                } catch (error) {
+                    console.error('Role management error in btrelease:', error);
+                }
+                
+                // Extract release data from embed fields
+                const embed = interaction.message.embeds[0];
+                const releaseData = {
+                    oldClub: embed.fields.find(f => f.name.includes('Eski Kulüp'))?.value || 'Belirtilmemiş',
+                    reason: embed.fields.find(f => f.name.includes('Fesih Nedeni'))?.value || 'Belirtilmemiş',
+                    compensation: embed.fields.find(f => f.name.includes('Tazminat'))?.value || 'Belirtilmemiş',
+                    newTeam: embed.fields.find(f => f.name.includes('Yeni Takım'))?.value || 'Yok'
+                };
+
+                // Send to serbest-duyuru channel
+                await this.sendReleaseTransferAnnouncement(guild, player, releaseData, 'tek_tarafli_oyuncu');
+
+                await interaction.editReply({
+                    content: `✅ Tek taraflı fesih onaylandı! Serbest futbolcu oldunuz ve rolleriniz güncellendi.`
+                });
+
+            } else if (buttonType === 'cancel') {
+                await interaction.deferReply();
+                await interaction.editReply({
+                    content: `❌ Tek taraflı fesih iptal edildi!`
+                });
+
+            } else if (buttonType === 'edit') {
+                // Check authorization - only the command creator (player) can edit
+                if (interaction.user.id !== playerId) {
+                    return interaction.reply({
+                        content: '❌ Sadece kendi feshinizi düzenleyebilirsiniz!',
+                        ephemeral: true
+                    });
+                }
+
+                // Extract existing data from embed and show pre-filled modal
+                const embed = interaction.message.embeds[0];
+                const existingData = {
+                    oldClub: embed.fields.find(f => f.name.includes('Eski Kulüp'))?.value || '',
+                    reason: embed.fields.find(f => f.name.includes('Fesih Nedeni'))?.value || '',
+                    compensation: embed.fields.find(f => f.name.includes('Tazminat'))?.value || '',
+                    newTeam: embed.fields.find(f => f.name.includes('Yeni Takım'))?.value || ''
+                };
+
+                const modal = new Modal()
+                    .setCustomId(`btrelease_modal_${playerId}_${playerId}`)
+                    .setTitle('Tek Taraflı Fesih Düzenle');
+
+                const oldClubInput = new TextInputComponent()
+                    .setCustomId('old_club')
+                    .setLabel('Eski Kulüp')
+                    .setStyle('SHORT')
+                    .setValue(existingData.oldClub)
+                    .setRequired(true);
+
+                const reasonInput = new TextInputComponent()
+                    .setCustomId('reason')
+                    .setLabel('Fesih Nedeni')
+                    .setStyle('PARAGRAPH')
+                    .setValue(existingData.reason)
+                    .setRequired(true);
+
+                const compensationInput = new TextInputComponent()
+                    .setCustomId('compensation')
+                    .setLabel('Tazminat')
+                    .setStyle('SHORT')
+                    .setValue(existingData.compensation)
+                    .setRequired(true);
+
+                const newTeamInput = new TextInputComponent()
+                    .setCustomId('new_team')
+                    .setLabel('Yeni Takım')
+                    .setStyle('SHORT')
+                    .setValue(existingData.newTeam)
+                    .setRequired(false);
+
+                modal.addComponents(
+                    new MessageActionRow().addComponents(oldClubInput),
+                    new MessageActionRow().addComponents(reasonInput),
+                    new MessageActionRow().addComponents(compensationInput),
+                    new MessageActionRow().addComponents(newTeamInput)
+                );
+
+                await interaction.showModal(modal);
+                return;
+            }
+
+            // Disable buttons after confirm/cancel
+            if (buttonType === 'confirm' || buttonType === 'cancel') {
+                const disabledButtons = interaction.message.components[0].components.map(button => 
+                    new MessageButton()
+                        .setCustomId(button.customId)
+                        .setLabel(button.label)
+                        .setStyle(button.style)
+                        .setDisabled(true)
+                        .setEmoji(button.emoji || null)
+                );
+
+                await interaction.message.edit({
+                    embeds: interaction.message.embeds,
+                    components: [new MessageActionRow().addComponents(disabledButtons)]
+                });
+
+                // Delete channel after 5 seconds
+                setTimeout(async () => {
+                    try {
+                        if (interaction.channel && interaction.channel.deletable) {
+                            await interaction.channel.delete('Tek taraflı fesih tamamlandı');
+                        }
+                    } catch (error) {
+                        console.error('Channel deletion error:', error);
+                    }
+                }, 5000);
+            }
+
+        } catch (error) {
+            console.error('BTRelease button error:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({
+                    content: '❌ İşlem sırasında hata oluştu!',
+                    ephemeral: true
+                });
+            }
         }
     }
 }
