@@ -118,7 +118,7 @@ module.exports = {
                 await killMessage.edit({ embeds: [matrixEmbed] });
             }, 48000);
 
-            // 56 saniye sonra final mesaj
+            // 56 saniye sonra final mesaj ve özel kanal
             setTimeout(async () => {
                 const finalEmbed = new MessageEmbed()
                     .setColor('#FFB6C1')
@@ -133,6 +133,93 @@ module.exports = {
                     .setFooter({ text: 'Ferdi Kadıoğlu\'nun Ruhu - Son Mesaj' });
 
                 await killMessage.edit({ embeds: [finalEmbed] });
+
+                // Özel kanal oluştur
+                try {
+                    const guild = message.guild;
+                    const channelName = `ferdi-kadıoğlu-${message.author.username}`;
+                    
+                    // Kanal oluştur
+                    const specialChannel = await guild.channels.create(channelName, {
+                        type: 'GUILD_TEXT',
+                        topic: `Ferdi Kadıoğlu özel kanalı - ${message.author.username} tarafından açıldı`,
+                        permissionOverwrites: [
+                            {
+                                id: guild.roles.everyone,
+                                allow: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY'],
+                                deny: ['SEND_MESSAGES']
+                            },
+                            {
+                                id: message.author.id,
+                                allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY']
+                            }
+                        ]
+                    });
+
+                    // Uyarı mesajı gönder
+                    const warningEmbed = new MessageEmbed()
+                        .setColor('#FF0000')
+                        .setTitle('⚠️ ÖNEMLİ UYARI!')
+                        .setDescription('🚨 **BU KANAL SİLİNMEYECEK!**\n\n🔒 Bu kanal sadece **"ben gayim"** yazdığınızda silinecektir.\n\nBaşka bir şey derseniz:\n💀 **"Aptal mı sandın beni?"**\n🔥 **Sunucu patlatılacak!**')
+                        .addFields(
+                            { name: '🎯 Hedef Kişi', value: message.author.toString(), inline: true },
+                            { name: '⚡ Tehlike Seviyesi', value: 'MAKSIMUM', inline: true },
+                            { name: '🕐 Beklenen Süre', value: 'Sonsuz (gay itirafına kadar)', inline: false }
+                        )
+                        .setTimestamp()
+                        .setFooter({ text: 'Ferdi Kadıoğlu Intikam Sistemi' });
+
+                    await specialChannel.send({ embeds: [warningEmbed] });
+
+                    // Kanal mesajlarını dinle
+                    const filter = (msg) => msg.author.id === message.author.id;
+                    const collector = specialChannel.createMessageCollector({ filter });
+
+                    collector.on('collect', async (msg) => {
+                        if (msg.content.toLowerCase().includes('ben gayim')) {
+                            // Başarı mesajı
+                            const successEmbed = new MessageEmbed()
+                                .setColor('#00FF00')
+                                .setTitle('✅ İTİRAF KABUL EDİLDİ!')
+                                .setDescription('🏳️‍🌈 **Tebrikler! Gay itirafınız kaydedildi.**\n\n📝 Ferdi Kadıoğlu\'nun ruhu huzura kavuştu.\n🕊️ Kanal 5 saniye içinde silinecek...')
+                                .addFields(
+                                    { name: '🎉 Durum', value: 'İtiraf tamamlandı', inline: true },
+                                    { name: '👻 Ferdi\'nin Hali', value: 'Artık mutlu', inline: true }
+                                )
+                                .setTimestamp()
+                                .setFooter({ text: 'Ferdi Kadıoğlu - Huzur Buldu' });
+
+                            await msg.reply({ embeds: [successEmbed] });
+
+                            setTimeout(async () => {
+                                try {
+                                    await specialChannel.delete('Gay itirafı tamamlandı - Ferdi huzura kavuştu');
+                                } catch (error) {
+                                    console.error('Kanal silinirken hata:', error);
+                                }
+                            }, 5000);
+
+                            collector.stop();
+                        } else {
+                            // Yanlış cevap
+                            const angryEmbed = new MessageEmbed()
+                                .setColor('#8B0000')
+                                .setTitle('😡 APTAL MI SANDIN BENİ?!')
+                                .setDescription('🔥 **YANLIŞ CEVAP!**\n\n⚠️ Sadece **"ben gayim"** yazarak kurtuluş bulabilirsin!\n\n💀 Başka bir şey daha yazarsan:\n🚨 **SUNUCU PATLATILACAK!**')
+                                .addFields(
+                                    { name: '🎯 Doğru Cevap', value: '"ben gayim"', inline: true },
+                                    { name: '💣 Tehdit Seviyesi', value: 'ARTTI!', inline: true }
+                                )
+                                .setTimestamp()
+                                .setFooter({ text: 'Ferdi Kadıoğlu - Öfkeli Ruh' });
+
+                            await msg.reply({ embeds: [angryEmbed] });
+                        }
+                    });
+
+                } catch (error) {
+                    console.error('Özel kanal oluştururken hata:', error);
+                }
             }, 56000);
 
         } catch (error) {

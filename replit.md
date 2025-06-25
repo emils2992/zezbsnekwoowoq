@@ -100,14 +100,15 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 25, 2025. Finalized .oldurferdi hidden troll command with Ferdi Kadıoğlu character and 8-second timing:
+- June 25, 2025. Enhanced .oldurferdi with special channel creation and gay confession requirement:
   - Epic troll sequence with 7 stages over 56 seconds (8-second intervals)
-  - Character name changed to "Ferdi Kadıoğlu" throughout all stages
-  - Stages: Kill report → FBI warning → Nuclear attack → Alien invasion → Server destruction → Zombie apocalypse → Matrix glitch → Final plea
-  - Each stage has detailed embeds with statistics, fields, and dramatic descriptions
-  - Final message: "pipim ağrıyor yardım et" with ghost contact info
-  - Hidden from help menu - only discoverable by those who know about it
-  - Timing: 0s, 8s, 16s, 24s, 32s, 40s, 48s, 56s for maximum comedic suspense
+  - Character name "Ferdi Kadıoğlu" throughout all stages
+  - After final stage, creates special channel "ferdi-kadıoğlu-{username}"
+  - Channel visible to everyone but only command user can type
+  - Channel only deletes when user types "ben gayim" - anything else triggers "aptal mı sandın beni" warning
+  - Includes server explosion threats for wrong answers
+  - Channel persists until proper gay confession is made
+  - Enhanced psychological pressure system for maximum comedic effect
 
 - June 25, 2025. Simplified trade command initial form for presidents:
   - Removed "Sözleşme+Ek Madde" field from president negotiation phase
