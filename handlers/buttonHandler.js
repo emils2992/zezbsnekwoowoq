@@ -3988,25 +3988,31 @@ class ButtonHandler {
             const fs = require('fs');
             const path = require('path');
             
+            console.log('BDuyur announcement starting for guild:', guild.id);
+            
             // Get bduyur channel from roles.json
             const rolesFilePath = path.join(__dirname, '../data/roles.json');
             let bduyurChannelId = null;
             
             if (fs.existsSync(rolesFilePath)) {
                 const rolesData = JSON.parse(fs.readFileSync(rolesFilePath, 'utf8'));
+                console.log('Roles data:', JSON.stringify(rolesData, null, 2));
                 bduyurChannelId = rolesData[guild.id]?.bduyurChannelId;
+                console.log('BDuyur channel ID from roles.json:', bduyurChannelId);
             }
 
             if (!bduyurChannelId) {
-                console.log('BDuyur kanalı ayarlanmamış');
+                console.log('BDuyur kanalı ayarlanmamış - .bduyur-ayarla komutu kullanın');
                 return;
             }
 
             const bduyurChannel = guild.channels.cache.get(bduyurChannelId);
             if (!bduyurChannel) {
-                console.log('BDuyur kanalı bulunamadı');
+                console.log('BDuyur kanalı bulunamadı, ID:', bduyurChannelId);
                 return;
             }
+            
+            console.log('BDuyur channel found:', bduyurChannel.name);
 
             // Get bduyur ping role
             const rolesData = JSON.parse(fs.readFileSync(rolesFilePath, 'utf8'));
@@ -4022,7 +4028,7 @@ class ButtonHandler {
 
             const config = require('../config');
             const { MessageEmbed } = require('discord.js');
-            const embed = new MessageEmbed()
+            const bduyurEmbed = new MessageEmbed()
                 .setColor('#FFD700')
                 .setTitle(`${config.emojis.football} Transfer Listesi`)
                 .setDescription(`**${president.username}** tarafından **${player.username}** transfer listesine kondu:\n\n**.contract ${president}** komutuyla iletişime geçin`)
@@ -4038,10 +4044,14 @@ class ButtonHandler {
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Listesi Sistemi' });
 
+            console.log('Sending bduyur announcement...');
+            
             await bduyurChannel.send({
-                content: pingText,
-                embeds: [embed]
+                content: mention,
+                embeds: [bduyurEmbed]
             });
+
+            console.log('BDuyur duyurusu başarıyla gönderildi');
 
         } catch (error) {
             console.error('BDuyur duyuru gönderme hatası:', error);
