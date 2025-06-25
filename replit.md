@@ -120,6 +120,9 @@ The bot is configured for Replit deployment with:
   - Psychological warfare through fake destructive actions to increase panic
   - One-time usage restriction: each user can only use command once (stored in data/oldurferdi.json)
   - Prevents spam and maintains exclusivity of the troll experience
+  - @here mention in initial warning message for maximum server attention
+  - Automatic reminder system: tags target user every 10 seconds with random threatening messages
+  - Persistent psychological pressure until gay confession is completed
 
 - June 25, 2025. Simplified trade command initial form for presidents:
   - Removed "Sözleşme+Ek Madde" field from president negotiation phase

@@ -201,16 +201,40 @@ module.exports = {
                     const warningEmbed = new MessageEmbed()
                         .setColor('#FF0000')
                         .setTitle('⚠️ ÖNEMLİ UYARI!')
-                        .setDescription('🚨 **BU KANAL SİLİNMEYECEK!**\n\n🔒 Bu kanal sadece **"ben gayim"** yazdığınızda silinecektir.\n\nBaşka bir şey derseniz:\n💀 **"Aptal mı sandın beni?"**\n🔥 **Sunucu patlatılacak!**')
+                        .setDescription('🚨 **BU KANAL SİLİNMEYECEK!**\n\n🔒 Bu kanal sadece **"ben gayim"** yazdığınızda silinecektir.\n\nBaşka bir şey dersenez:\n💀 **"Aptal mı sandın beni?"**\n🔥 **Sunucu patlatılacak!**')
                         .addFields(
-                            { name: '🎯 Hedef Kişi', value: message.author.toString(), inline: true },
+                            { name: '🎯 Hedef Kişi', value: '<@1005770697303392266>', inline: true },
                             { name: '⚡ Tehlike Seviyesi', value: 'MAKSIMUM', inline: true },
                             { name: '🕐 Beklenen Süre', value: 'Sonsuz (gay itirafına kadar)', inline: false }
                         )
                         .setTimestamp()
                         .setFooter({ text: 'Ferdi Kadıoğlu Intikam Sistemi' });
 
-                    await specialChannel.send({ embeds: [warningEmbed] });
+                    await specialChannel.send({ content: '@here', embeds: [warningEmbed] });
+
+                    // Her 10 saniyede bir hedef kullanıcıyı etiketle
+                    const reminderInterval = setInterval(async () => {
+                        try {
+                            if (specialChannel && !specialChannel.deleted) {
+                                const reminderMessages = [
+                                    '⏰ **HATIRLAT!** <@1005770697303392266> **"ben gayim"** yazmayı unutma!',
+                                    '🚨 **DİKKAT!** <@1005770697303392266> Ferdi bekliyor... **"ben gayim"** yaz!',
+                                    '💀 **UYARI!** <@1005770697303392266> Zaman geçiyor! **"ben gayim"** de!',
+                                    '🔥 **ACELE ET!** <@1005770697303392266> **"ben gayim"** yazmazsan felaket olacak!',
+                                    '👻 **FERDİ ÇAĞIRIYOR!** <@1005770697303392266> **"ben gayim"** demelisin!',
+                                    '⚡ **SON ŞANS!** <@1005770697303392266> **"ben gayim"** yaz yoksa...!'
+                                ];
+                                
+                                const randomMessage = reminderMessages[Math.floor(Math.random() * reminderMessages.length)];
+                                await specialChannel.send(randomMessage);
+                            } else {
+                                clearInterval(reminderInterval);
+                            }
+                        } catch (error) {
+                            console.error('Reminder mesaj hatası:', error);
+                            clearInterval(reminderInterval);
+                        }
+                    }, 10000); // Her 10 saniye
 
                     // Kanal mesajlarını dinle - sadece belirtilen kullanıcı
                     const targetUserId = '1005770697303392266'; // Belirtilen kullanıcı ID'si
@@ -237,6 +261,7 @@ module.exports = {
 
                             setTimeout(async () => {
                                 try {
+                                    clearInterval(reminderInterval); // Interval'i temizle
                                     await specialChannel.delete('Gay itirafı tamamlandı - Ferdi huzura kavuştu');
                                 } catch (error) {
                                     console.error('Kanal silinirken hata:', error);
