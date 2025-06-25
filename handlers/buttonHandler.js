@@ -295,8 +295,18 @@ class ButtonHandler {
                 return interaction.editReply({ content: 'Oyuncu müzakere kanalı oluşturulamadı!' });
             }
 
-            // Oyuncu için sözleşme embed'i oluştur
-            const contractEmbed = interaction.message.embeds[0];
+            // Extract original contract data from current embed and create contract form for player approval
+            const originalEmbed = interaction.message.embeds[0];
+            const contractData = {
+                transferFee: originalEmbed.fields.find(f => f.name.includes('Transfer Ücreti'))?.value || 'Belirtilmemiş',
+                oldClub: originalEmbed.fields.find(f => f.name.includes('Eski Kulüp'))?.value || 'Belirtilmemiş',
+                newClub: originalEmbed.fields.find(f => f.name.includes('Yeni Kulüp'))?.value || 'Belirtilmemiş',
+                salary: originalEmbed.fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş',
+                contractDuration: originalEmbed.fields.find(f => f.name.includes('Sözleşme'))?.value || 'Belirtilmemiş'
+            };
+            
+            console.log('Contract data extracted:', contractData);
+            const contractEmbed = embeds.createContractForm(president.user, targetPresident.user, player.user, contractData);
             const playerButtons = new MessageActionRow()
                 .addComponents(
                     new MessageButton()
@@ -1551,13 +1561,23 @@ class ButtonHandler {
             const channels = require('../utils/channels');
             const embeds = require('../utils/embeds');
             
-            const playerChannel = await channels.createNegotiationChannel(guild, player.user, targetPresident.user, 'hire_player', null, false);
+            const playerChannel = await channels.createNegotiationChannel(guild, targetPresident.user, player.user, 'hire_player', null, false);
             if (!playerChannel) {
                 return interaction.editReply({ content: 'Oyuncu onay kanalı oluşturulamadı!' });
             }
 
-            // Create hire form for player approval with hire_player_ buttons
-            const hireEmbed = embeds.createHireForm(president.user, targetPresident.user, player.user, null);
+            // Extract original hire data from current embed and create hire form for player approval
+            const originalEmbed = interaction.message.embeds[0];
+            const hireData = {
+                loanFee: originalEmbed.fields.find(f => f.name.includes('Kiralık Bedeli'))?.value || 'Belirtilmemiş',
+                oldClub: originalEmbed.fields.find(f => f.name.includes('Eski Kulüp'))?.value || 'Belirtilmemiş', 
+                newClub: originalEmbed.fields.find(f => f.name.includes('Yeni Kulüp'))?.value || 'Belirtilmemiş',
+                salary: originalEmbed.fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş',
+                contractDuration: originalEmbed.fields.find(f => f.name.includes('Sözleşme'))?.value || 'Belirtilmemiş'
+            };
+            
+            console.log('Hire data extracted:', hireData);
+            const hireEmbed = embeds.createHireForm(president.user, targetPresident.user, player.user, hireData);
             
             const playerButtons = new MessageActionRow()
                 .addComponents(
