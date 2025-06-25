@@ -3818,7 +3818,9 @@ class ButtonHandler {
             };
 
             // Send to bduyur channel
+            console.log('BDuyur accept button - calling sendBduyurAnnouncement...');
             await this.sendBduyurAnnouncement(guild, player, president, bduyurData);
+            console.log('BDuyur accept button - sendBduyurAnnouncement completed');
 
             await interaction.editReply(`✅ ${player.user} transfer listesi kabul edildi ve duyuruldu!`);
 
@@ -4017,13 +4019,20 @@ class ButtonHandler {
             // Get bduyur ping role
             const rolesData = JSON.parse(fs.readFileSync(rolesFilePath, 'utf8'));
             const bduyurPingRoleId = rolesData[guild.id]?.bduyurPingRole;
-            let pingText = '';
+            let mention = '';
+            
+            console.log('BDuyur ping role ID:', bduyurPingRoleId);
             
             if (bduyurPingRoleId) {
                 const pingRole = guild.roles.cache.get(bduyurPingRoleId);
                 if (pingRole) {
-                    pingText = `${pingRole} `;
+                    mention = `<@&${bduyurPingRoleId}> `;
+                    console.log('BDuyur ping role found:', pingRole.name);
+                } else {
+                    console.log('BDuyur ping role not found in cache');
                 }
+            } else {
+                console.log('BDuyur ping role not configured - .rol komutuyla ayarlayın');
             }
 
             const config = require('../config');
