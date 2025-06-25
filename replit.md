@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed "undefined" display issue in brelease and btrelease commands:
+  - Added fallback logic for displayName properties to prevent "undefined" values in announcements
+  - Enhanced user data handling across all transfer commands with proper username fallbacks
+  - Fixed avatar URL handling in free agent announcements to prevent display issues
+  - BRelease and BTRelease commands now properly display player names in all messages
 - June 25, 2025. Updated trade player rejection to immediately cancel entire trade when one player rejects:
   - Trade player rejection now cancels entire transfer immediately instead of waiting for both players
   - Clear messaging shows "Tüm transfer iptal oldu" when rejection occurs

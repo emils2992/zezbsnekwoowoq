@@ -3408,7 +3408,7 @@ class ButtonHandler {
                 const channels = require('../utils/channels');
                 await channels.createFreeAgentAnnouncement(guild, player.user, 'Tek taraflı fesih');
 
-                await interaction.editReply(`✅ **${player.displayName}** sözleşmesini tek taraflı feshetti ve serbest futbolcu oldu! Roller güncellendi.`);
+                await interaction.editReply(`✅ **${player.displayName || player.user.username}** sözleşmesini tek taraflı feshetti ve serbest futbolcu oldu! Roller güncellendi.`);
             } catch (error) {
                 console.error('BTRelease onaylama hatası:', error);
                 await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
@@ -3532,7 +3532,7 @@ class ButtonHandler {
                 const channels = require('../utils/channels');
                 await channels.createFreeAgentAnnouncement(guild, playerToRelease.user, releaseData.reason, releaseData);
 
-                await interaction.editReply(`✅ **${playerToRelease.displayName}** ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu ve roller güncellendi.`);
+                await interaction.editReply(`✅ **${playerToRelease.displayName || playerToRelease.user.username}** ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu ve roller güncellendi.`);
             } catch (error) {
                 console.error('BRelease kabul hatası:', error);
                 await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
@@ -3551,7 +3551,7 @@ class ButtonHandler {
         } else if (buttonType === 'reject') {
             // For brelease: playerId is the president who is rejecting, presidentId is the player who requested
             const playerWhoRequested = await guild.members.fetch(presidentId);
-            await interaction.editReply(`❌ **${president.displayName}** **${playerWhoRequested.displayName}**'nin fesih teklifini reddetti.`);
+            await interaction.editReply(`❌ **${president.displayName || president.user.username}** **${playerWhoRequested.displayName || playerWhoRequested.user.username}**'nin fesih teklifini reddetti.`);
             
             setTimeout(async () => {
                 try {
