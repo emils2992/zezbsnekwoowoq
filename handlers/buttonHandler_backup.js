@@ -3,9 +3,11 @@ const config = require('../config');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
 const api = require('../utils/api');
-const permissions = require('../utils/permissions');
+const PermissionManager = require('../utils/permissions');
 const fs = require('fs');
 const path = require('path');
+
+const permissions = new PermissionManager();
 
 class ButtonHandler {
     async handleButton(client, interaction) {

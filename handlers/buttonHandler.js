@@ -3871,7 +3871,8 @@ class ButtonHandler {
 
             if (buttonType === 'accept') {
             // Player or transfer authorities can accept
-            const permissions = require('../utils/permissions');
+            const PermissionManager = require('../utils/permissions');
+            const permissions = new PermissionManager();
             const isPlayer = interaction.user.id === playerId;
             const isTransferAuthority = permissions.isTransferAuthority(interaction.member);
             

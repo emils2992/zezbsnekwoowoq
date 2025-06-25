@@ -1,6 +1,8 @@
 const { MessageEmbed } = require('discord.js');
 const config = require('../config');
-const permissions = require('../utils/permissions');
+const PermissionManager = require('../utils/permissions');
+
+const permissions = new PermissionManager();
 const api = require('../utils/api');
 
 module.exports = {

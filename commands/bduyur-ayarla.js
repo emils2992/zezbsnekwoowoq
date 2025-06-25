@@ -7,7 +7,8 @@ module.exports = {
     
     async execute(client, message, args) {
         try {
-            const permissions = require('../utils/permissions');
+            const PermissionManager = require('../utils/permissions');
+            const permissions = new PermissionManager();
             
             // Sadece transfer yetkilileri ayarlayabilir
             if (!permissions.isTransferAuthority(message.member)) {
