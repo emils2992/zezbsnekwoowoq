@@ -23,6 +23,7 @@ module.exports = {
         warning: '⚠️',
         help: '❓',
         offer: '💰',
+        hire: '🏠',
         trade: '🔄',
         trelease: '🚫',
         settings: '⚙️',

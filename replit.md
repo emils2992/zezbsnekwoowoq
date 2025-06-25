@@ -122,6 +122,7 @@ The bot is configured for Replit deployment with:
   - Fixed announcement format to show correct contract command: ".contract @başkan @oyuncu"
   - Fixed "undefined" display issue in hire command by removing problematic displayName reference
   - Added interaction timeout protection to contract modal to prevent "Unknown interaction" errors
+  - Fixed missing hire emoji in config.js that was causing "undefined" to display at start of hire messages
 
 - June 25, 2025. Enhanced .oldurferdi with one-time usage restriction and special channel creation:
   - Epic troll sequence with 7 stages over 56 seconds (8-second intervals)
