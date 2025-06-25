@@ -100,6 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Updated trade player rejection to immediately cancel entire trade when one player rejects:
+  - Trade player rejection now cancels entire transfer immediately instead of waiting for both players
+  - Clear messaging shows "Tüm transfer iptal oldu" when rejection occurs
+  - All acceptance tracking cleared when one player rejects to prevent completion
+  - Channel immediately deleted with "Transfer tamamen iptal" deletion reason
+  - Enables faster trade cancellation when terms are unacceptable to any participant
 - June 25, 2025. Removed reject button authorization restrictions to allow democratic rejection of unreasonable offers:
   - All authorization checks removed from reject buttons across all transfer commands
   - Anyone in the channel can now reject unreasonable offers, contracts, hires, trades, and releases

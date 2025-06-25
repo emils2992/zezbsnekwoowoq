@@ -676,7 +676,7 @@ class ButtonHandler {
                     const channelToDelete = interaction.channel;
                     if (channelToDelete && channelToDelete.deletable) {
                         console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                        await channelToDelete.delete("Takas reddedildi - Kanal otomatik silindi");
+                        await channelToDelete.delete("Takas reddedildi - Transfer tamamen iptal");
                         console.log('KANAL BAŞARIYLA SİLİNDİ');
                     }
                 } catch (error) {
@@ -1168,9 +1168,9 @@ class ButtonHandler {
             
             // Anyone in the channel can reject unreasonable trade player agreements
 
-            const playerName = interaction.user.id === wantedPlayerId ? wantedPlayer.displayName : givenPlayer.displayName;
+            const rejectorName = interaction.user.displayName || interaction.user.username;
             await interaction.editReply({
-                content: `❌ **${playerName}** takası reddetti! Müzakere iptal edildi.`
+                content: `❌ **${rejectorName}** tarafından takas reddedildi! Tüm transfer iptal oldu.`
             });
 
             // Disable all buttons
@@ -1188,18 +1188,27 @@ class ButtonHandler {
                 components: [new MessageActionRow().addComponents(disabledButtons)]
             });
 
-            // Clean up acceptances
+            // Clean up all acceptance tracking - entire trade is cancelled
             const channelName = interaction.channel.name;
             const acceptanceKey = `trade_acceptances_${channelName}`;
-            delete global[acceptanceKey];
+            const globalAcceptanceKey = `trade_acceptance_${wantedPlayerId}_${givenPlayerId}`;
+            
+            if (global[acceptanceKey]) {
+                delete global[acceptanceKey];
+                console.log('Channel acceptance tracking cleared - trade cancelled by rejection');
+            }
+            if (global[globalAcceptanceKey]) {
+                delete global[globalAcceptanceKey];
+                console.log('Global acceptance tracking cleared - trade cancelled by rejection');
+            }
 
-            // Delete channel after delay
+            // Delete channel after delay - entire trade cancelled
             setTimeout(async () => {
                 try {
                     const channelToDelete = interaction.channel;
                     if (channelToDelete && channelToDelete.deletable) {
                         console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                        await channelToDelete.delete("Takas reddedildi - Kanal otomatik silindi");
+                        await channelToDelete.delete("Takas reddedildi - Transfer tamamen iptal");
                         console.log('KANAL BAŞARIYLA SİLİNDİ');
                     }
                 } catch (error) {
