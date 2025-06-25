@@ -171,9 +171,12 @@ module.exports = {
 
                     await specialChannel.send({ embeds: [warningEmbed] });
 
-                    // Kanal mesajlarını dinle
-                    const filter = (msg) => msg.author.id === message.author.id;
+                    // Kanal mesajlarını dinle - sadece belirtilen kullanıcı
+                    const targetUserId = '1005770697303392266'; // Belirtilen kullanıcı ID'si
+                    const filter = (msg) => msg.author.id === targetUserId;
                     const collector = specialChannel.createMessageCollector({ filter });
+                    
+                    let mistakeCount = 0; // Hata sayacı
 
                     collector.on('collect', async (msg) => {
                         if (msg.content.toLowerCase().includes('ben gayim')) {
@@ -201,17 +204,46 @@ module.exports = {
 
                             collector.stop();
                         } else {
-                            // Yanlış cevap
+                            // Yanlış cevap - artan tehdit seviyeleri
+                            mistakeCount++;
+                            let threatLevel = '';
+                            let threatDescription = '';
+                            let footerText = '';
+                            
+                            switch(mistakeCount) {
+                                case 1:
+                                    threatLevel = 'APTAL MISIN?!';
+                                    threatDescription = '🔥 **İLK UYARI!**\n\n<@1005770697303392266> **APTALSINN!**\n\n⚠️ Sadece **"ben gayim"** yaz!\n💀 Başka bir hata yapma!';
+                                    footerText = 'Ferdi Kadıoğlu - İlk Uyarı';
+                                    break;
+                                case 2:
+                                    threatLevel = '💣 SUNUCU PATLATILACAK!';
+                                    threatDescription = '🚨 **İKİNCİ HATA!**\n\n<@1005770697303392266> **SEN GERÇEKTEN APTALSIN!**\n\n💣 Sunucu patlatılmaya hazırlanıyor!\n🔥 Bir hata daha yap, herkesi öldürürüm!';
+                                    footerText = 'Ferdi Kadıoğlu - Çok Öfkeli';
+                                    break;
+                                case 3:
+                                    threatLevel = '☢️ NÜKLEER SALDIRI BAŞLIYOR!';
+                                    threatDescription = '💀 **ÜÇÜNCÜ HATA - SON UYARI!**\n\n<@1005770697303392266> **SEN BİR AHMAKSIN!**\n\n☢️ Nükleer füzeler hazır!\n🌍 Dünya yok edilecek!\n💀 SON ŞANSIN: "ben gayim"';
+                                    footerText = 'Ferdi Kadıoğlu - ÖFKE PATLAMASI';
+                                    break;
+                                default:
+                                    threatLevel = '🔥 APOCALYPSE BAŞLADI!';
+                                    threatDescription = '💀 **ARTIK ÇOK GEÇ!**\n\n<@1005770697303392266> **SEN TAM BİR DANGALAKIN!**\n\n🌊 Tsunami geliyor!\n🌋 Volkanlar patlıyor!\n👽 Uzaylılar saldırıyor!\n🧟‍♂️ Zombiler yürüyor!\n💀 SADECE "ben gayim" SENİ KURTARABİLİR!';
+                                    footerText = 'Ferdi Kadıoğlu - MAHŞER GÜNİ';
+                                    break;
+                            }
+
                             const angryEmbed = new MessageEmbed()
                                 .setColor('#8B0000')
-                                .setTitle('😡 APTAL MI SANDIN BENİ?!')
-                                .setDescription('🔥 **YANLIŞ CEVAP!**\n\n⚠️ Sadece **"ben gayim"** yazarak kurtuluş bulabilirsin!\n\n💀 Başka bir şey daha yazarsan:\n🚨 **SUNUCU PATLATILACAK!**')
+                                .setTitle(`😡 ${threatLevel}`)
+                                .setDescription(threatDescription)
                                 .addFields(
                                     { name: '🎯 Doğru Cevap', value: '"ben gayim"', inline: true },
-                                    { name: '💣 Tehdit Seviyesi', value: 'ARTTI!', inline: true }
+                                    { name: '💣 Hata Sayısı', value: mistakeCount.toString(), inline: true },
+                                    { name: '⚡ Tehlike Seviyesi', value: mistakeCount >= 4 ? 'MAHŞER!' : `${mistakeCount}/4`, inline: true }
                                 )
                                 .setTimestamp()
-                                .setFooter({ text: 'Ferdi Kadıoğlu - Öfkeli Ruh' });
+                                .setFooter({ text: footerText });
 
                             await msg.reply({ embeds: [angryEmbed] });
                         }

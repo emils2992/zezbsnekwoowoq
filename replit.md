@@ -109,6 +109,9 @@ The bot is configured for Replit deployment with:
   - Includes server explosion threats for wrong answers
   - Channel persists until proper gay confession is made
   - Enhanced psychological pressure system for maximum comedic effect
+  - Targeted user system: specifically monitors user ID 1005770697303392266
+  - Escalating insult system: "APTALSINN!" → "APTALSIN!" → "AHMAKSIN!" → "DANGALAKIN!"
+  - Progressive threat escalation: warnings → server explosion → nuclear attack → apocalypse scenarios
 
 - June 25, 2025. Simplified trade command initial form for presidents:
   - Removed "Sözleşme+Ek Madde" field from president negotiation phase
