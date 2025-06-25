@@ -204,16 +204,7 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'reject') {
-            // Check if user is authorized (target player or transfer authority)
-            const member = interaction.member;
-            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
-            
-            if (!isAuthorized) {
-                return interaction.reply({
-                    content: '❌ Sadece hedef oyuncu veya transfer yetkilileri teklifi reddedebilir!',
-                    ephemeral: true
-                });
-            }
+            // Anyone in the channel can reject unreasonable offers
 
             await interaction.deferReply();
             
@@ -351,16 +342,7 @@ class ButtonHandler {
             }, 3000);
 
         } else if (buttonType === 'reject') {
-            // Check if user is authorized (target president or transfer authority)
-            const member = interaction.member;
-            const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
-            
-            if (!isAuthorized) {
-                return interaction.reply({
-                    content: '❌ Sadece hedef başkan veya transfer yetkilileri sözleşme teklifini reddedebilir!',
-                    ephemeral: true
-                });
-            }
+            // Anyone in the channel can reject unreasonable contract offers
 
             await interaction.deferReply();
             
@@ -486,16 +468,7 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'reject') {
-            // Check if user is authorized (target player or transfer authority)
-            const member = interaction.member;
-            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
-            
-            if (!isAuthorized) {
-                return interaction.reply({
-                    content: '❌ Sadece hedef oyuncu veya transfer yetkilileri sözleşme teklifini reddedebilir!',
-                    ephemeral: true
-                });
-            }
+            // Anyone in the channel can reject unreasonable contract agreements
 
             await interaction.deferReply();
             
@@ -676,15 +649,7 @@ class ButtonHandler {
                 await interaction.deferReply();
             }
             
-            // Check if user is authorized (target president only)
-            const member = interaction.member;
-            const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
-            
-            if (!isAuthorized) {
-                return interaction.editReply({
-                    content: '❌ Sadece hedef başkan veya transfer yetkilileri takas teklifini reddedebilir!'
-                });
-            }
+            // Anyone in the channel can reject unreasonable trade offers
             
             await interaction.editReply({
                 content: `❌ Takas teklifi reddedildi!`
@@ -1201,16 +1166,7 @@ class ButtonHandler {
             // Defer immediately to prevent timeout
             await interaction.deferReply();
             
-            // Check if user is one of the players
-            const member = interaction.member;
-            const isAuthorizedPlayer = interaction.user.id === wantedPlayerId || interaction.user.id === givenPlayerId;
-            const isTransferAuthority = permissions.isTransferAuthority(member);
-            
-            if (!isAuthorizedPlayer && !isTransferAuthority) {
-                return interaction.editReply({
-                    content: '❌ Sadece takas edilen oyuncular veya transfer yetkilileri reddedebilir!'
-                });
-            }
+            // Anyone in the channel can reject unreasonable trade player agreements
 
             const playerName = interaction.user.id === wantedPlayerId ? wantedPlayer.displayName : givenPlayer.displayName;
             await interaction.editReply({
@@ -1634,16 +1590,7 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'reject') {
-            // Check if user is authorized (target president or transfer authority)  
-            const member = interaction.member;
-            const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
-            
-            if (!isAuthorized) {
-                return interaction.reply({
-                    content: '❌ Sadece hedef başkan veya transfer yetkilileri kiralık teklifini reddedebilir!',
-                    ephemeral: true
-                });
-            }
+            // Anyone in the channel can reject unreasonable hire offers
 
             await interaction.deferReply();
             
@@ -1760,16 +1707,7 @@ class ButtonHandler {
             }, 1500);
 
         } else if (buttonType === 'reject') {
-            // Check if user is authorized (player or transfer authority)
-            const member = interaction.member;
-            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
-            
-            if (!isAuthorized) {
-                return interaction.reply({
-                    content: '❌ Sadece hedef oyuncu veya transfer yetkilileri kiralık anlaşmasını reddedebilir!',
-                    ephemeral: true
-                });
-            }
+            // Anyone in the channel can reject unreasonable hire agreements
 
             await interaction.deferReply();
             

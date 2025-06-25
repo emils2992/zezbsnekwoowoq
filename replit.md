@@ -100,12 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 25, 2025. Fixed critical reject button authorization vulnerability across all transfer commands:
-  - Contract command reject buttons now properly check targetPresidentId instead of playerId for authorization
-  - Hire command reject buttons correctly verify targetPresidentId authorization instead of wrong user IDs
-  - All reject buttons now restricted to authorized users (target presidents/players) + transfer authorities only
-  - Eliminated security vulnerability where any user could reject transfer offers intended for others
-  - Authorization checks now consistent across offer, contract, hire, trade, and release command reject buttons
+- June 25, 2025. Removed reject button authorization restrictions to allow democratic rejection of unreasonable offers:
+  - All authorization checks removed from reject buttons across all transfer commands
+  - Anyone in the channel can now reject unreasonable offers, contracts, hires, trades, and releases
+  - Enables community-based moderation of unfair transfer negotiations
+  - Applied to all transfer commands: offer, contract, hire, trade, release, and player approval stages
+  - Participants can collectively reject unreasonable proposals without waiting for specific authorized users
 - June 25, 2025. Fixed hire/contract command modal data corruption and channel visibility issues:
   - Fixed modal data not transferring to player channels - now extracts original form data from embed fields
   - Fixed wrong user tagging - now properly mentions command creator (president) along with player in approval channels
