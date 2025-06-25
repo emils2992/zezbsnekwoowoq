@@ -2053,7 +2053,7 @@ class ButtonHandler {
         const releaseEmbed = new MessageEmbed()
             .setColor(config.colors.warning)
             .setTitle(`${config.emojis.release} Oyuncu Serbest Kaldı`)
-            .setDescription(`**${player.username}** serbest futbolcu oldu!`)
+            .setDescription(`${player} serbest futbolcu oldu!`)
             .addFields(
                 { name: '🏆 Eski Kulüp', value: releaseData.oldClub || 'Belirtilmemiş', inline: true },
                 { name: '📋 Sebep', value: releaseData.reason || 'Belirtilmemiş', inline: false },
@@ -3405,7 +3405,7 @@ class ButtonHandler {
                 await permissions.makePlayerFree(player);
 
                 const channels = require('../utils/channels');
-                await channels.createFreeAgentAnnouncement(guild, player.user, 'Tek taraflı fesih');
+                await channels.createFreeAgentAnnouncement(guild, player, 'Tek taraflı fesih');
 
                 await interaction.editReply(`✅ ${player.user} sözleşmesini tek taraflı feshetti ve serbest futbolcu oldu! Roller güncellendi.`);
             } catch (error) {
@@ -3529,7 +3529,7 @@ class ButtonHandler {
                 };
 
                 const channels = require('../utils/channels');
-                await channels.createFreeAgentAnnouncement(guild, playerToRelease.user, releaseData.reason, releaseData);
+                await channels.createFreeAgentAnnouncement(guild, playerToRelease, releaseData.reason, releaseData);
 
                 await interaction.editReply(`✅ ${playerToRelease.user} ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu ve roller güncellendi.`);
             } catch (error) {

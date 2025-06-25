@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed release and trelease announcements to properly mention players:
+  - Fixed sendReleaseTransferAnnouncement to use player mentions instead of usernames in descriptions
+  - Fixed trelease command embed to use player mentions instead of usernames
+  - Fixed createFreeAgentAnnouncement calls to pass player objects correctly for mentions
+  - Release announcements now properly tag players with @ mentions for better notifications
 - June 25, 2025. Updated channel deletion timing to 5 seconds:
   - Changed all channel deletion delays from 1.5 seconds to 5 seconds across all transfer commands
   - Updated countdown messages to match new 5-second timing (3 seconds, 1 second warnings)

@@ -33,7 +33,7 @@ module.exports = {
             const releaseEmbed = new MessageEmbed()
                 .setColor(config.colors.error)
                 .setTitle(`${config.emojis.release} Tek Taraflı Fesih`)
-                .setDescription(`**${message.author.username}** tarafından **${player.user.username}** için tek taraflı fesih talebi:`)
+                .setDescription(`${message.author} tarafından ${player} için tek taraflı fesih talebi:`)
                 .addFields(
                     { name: '👑 Başkan', value: `${message.author}`, inline: true },
                     { name: '⚽ Oyuncu', value: `${player}`, inline: true },
