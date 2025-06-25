@@ -1730,6 +1730,8 @@ async function handleModalSubmit(client, interaction) {
                     // Role management for release - convert player to free agent
                     try {
                         console.log(`TRelease: Converting ${player.displayName} to free agent and cleaning up roles...`);
+                        const PermissionManager = require('./utils/permissions');
+                        const permissions = new PermissionManager();
                         const result = await permissions.makePlayerFree(player);
                         console.log(`TRelease role management result: ${result}`);
                         
@@ -1831,6 +1833,8 @@ async function handleModalSubmit(client, interaction) {
                     // Role management for release - convert player to free agent and remove unilateral termination role
                     try {
                         console.log(`BTRelease: Converting ${player.displayName} to free agent and cleaning up roles...`);
+                        const PermissionManager = require('./utils/permissions');
+                        const permissions = new PermissionManager();
                         const result = await permissions.makePlayerFree(player);
                         console.log(`BTRelease role management result: ${result}`);
                         

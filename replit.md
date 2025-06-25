@@ -100,6 +100,10 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed critical permissions import error causing "permissions is not defined":
+  - Added missing PermissionManager require statements in index.js for both .btrelease and .trelease commands
+  - Fixed ReferenceError that was preventing role management from working
+  - Role management now properly instantiates permissions class before attempting role changes
 - June 25, 2025. Fixed role management errors with detailed debugging and permission checks:
   - Enhanced makePlayerFree function with detailed logging for each role operation
   - Added automatic removal of "Tek Taraflı Fesih" role after .btrelease usage
