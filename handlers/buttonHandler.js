@@ -1298,17 +1298,19 @@ class ButtonHandler {
             const president = await guild.members.fetch(presidentId);
 
             // Role management for trelease - convert player to free agent
-            if (releaseType === 'unilateral') {
-                try {
-                    await permissions.makePlayerFree(player);
-                    console.log(`Converted ${player.displayName} to free agent via trelease`);
-                } catch (error) {
-                    console.error('Role management error in trelease:', error);
+            try {
+                console.log(`TRelease button: Converting ${player.displayName} to free agent and cleaning up roles...`);
+                const result = await permissions.makePlayerFree(player);
+                console.log(`TRelease button role management result: ${result}`);
+                
+                if (result) {
+                    console.log(`✅ TRelease button: Successfully updated roles for ${player.displayName}`);
+                } else {
+                    console.log(`❌ TRelease button: Failed to update roles for ${player.displayName}`);
                 }
+            } catch (error) {
+                console.error('Role management error in trelease button:', error);
             }
-
-            // Make player free agent
-            await permissions.makePlayerFree(player);
 
             // Extract data from embed for announcement
             const embed = interaction.message.embeds[0];
@@ -3440,10 +3442,16 @@ class ButtonHandler {
                 const PermissionManager = require('../utils/permissions');
                 const permissions = new PermissionManager();
                 
-                // Automatic role management: Remove futbolcu role, add serbest futbolcu role
-                console.log(`BTRelease: Converting ${player.displayName} to free agent...`);
+                // Automatic role management: Remove futbolcu role, add serbest futbolcu role, remove unilateral termination role
+                console.log(`BTRelease: Converting ${player.displayName} to free agent and cleaning up roles...`);
                 const result = await permissions.makePlayerFree(player);
                 console.log(`BTRelease role management result: ${result}`);
+                
+                if (result) {
+                    console.log(`✅ BTRelease: Successfully updated roles for ${player.displayName}`);
+                } else {
+                    console.log(`❌ BTRelease: Failed to update roles for ${player.displayName}`);
+                }
 
                 const channels = require('../utils/channels');
                 await channels.createFreeAgentAnnouncement(guild, player, 'Tek taraflı fesih');
@@ -3561,6 +3569,12 @@ class ButtonHandler {
                 console.log(`BRelease: Converting ${playerToRelease.displayName} to free agent...`);
                 const result = await permissions.makePlayerFree(playerToRelease);
                 console.log(`BRelease role management result: ${result}`);
+                
+                if (result) {
+                    console.log(`✅ BRelease: Successfully updated roles for ${playerToRelease.displayName}`);
+                } else {
+                    console.log(`❌ BRelease: Failed to update roles for ${playerToRelease.displayName}`);
+                }
 
                 // Extract form data from embed to use in announcement
                 const embed = interaction.message.embeds[0];

@@ -141,12 +141,16 @@ class PermissionManager {
             const guildId = member.guild.id;
             const roleData = this.getRoleData(guildId);
             
+            console.log(`Role management for ${member.displayName}:`, roleData);
+            
             // Check bot permissions first
             const botMember = member.guild.members.cache.get(member.guild.client.user.id);
             if (!botMember.permissions.has('MANAGE_ROLES')) {
                 console.log('Bot does not have MANAGE_ROLES permission');
                 return false;
             }
+            
+            let rolesChanged = false;
             
             // Remove player role if exists
             if (roleData.player) {
@@ -155,10 +159,27 @@ class PermissionManager {
                     // Check if bot can manage this role (bot's highest role must be higher)
                     if (botMember.roles.highest.position > playerRole.position) {
                         await member.roles.remove(playerRole);
-                        console.log(`Removed player role from ${member.displayName}`);
+                        console.log(`✅ Removed player role (${playerRole.name}) from ${member.displayName}`);
+                        rolesChanged = true;
                     } else {
-                        console.log(`Cannot remove player role - bot role position too low`);
+                        console.log(`❌ Cannot remove player role - bot role position too low`);
                         return false;
+                    }
+                } else {
+                    console.log(`Player role not found or user doesn't have it`);
+                }
+            } else {
+                console.log(`No player role configured for guild ${guildId}`);
+            }
+            
+            // Remove unilateral termination role if exists (for btrelease cleanup)
+            if (roleData.unilateralTermination) {
+                const unilateralRole = member.guild.roles.cache.get(roleData.unilateralTermination);
+                if (unilateralRole && member.roles.cache.has(roleData.unilateralTermination)) {
+                    if (botMember.roles.highest.position > unilateralRole.position) {
+                        await member.roles.remove(unilateralRole);
+                        console.log(`✅ Removed unilateral termination role (${unilateralRole.name}) from ${member.displayName}`);
+                        rolesChanged = true;
                     }
                 }
             }
@@ -170,14 +191,22 @@ class PermissionManager {
                     // Check if bot can manage this role
                     if (botMember.roles.highest.position > freeAgentRole.position) {
                         await member.roles.add(freeAgentRole);
-                        console.log(`Added free agent role to ${member.displayName}`);
+                        console.log(`✅ Added free agent role (${freeAgentRole.name}) to ${member.displayName}`);
+                        rolesChanged = true;
                     } else {
-                        console.log(`Cannot add free agent role - bot role position too low`);
+                        console.log(`❌ Cannot add free agent role - bot role position too low`);
                     }
+                } else if (member.roles.cache.has(roleData.freeAgent)) {
+                    console.log(`User already has free agent role`);
+                } else {
+                    console.log(`Free agent role not found`);
                 }
+            } else {
+                console.log(`No free agent role configured for guild ${guildId}`);
             }
             
-            return true;
+            console.log(`Role management completed. Roles changed: ${rolesChanged}`);
+            return rolesChanged;
         } catch (error) {
             console.error('Serbest futbolcu yapma hatası:', error);
             return false;

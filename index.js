@@ -1729,9 +1729,15 @@ async function handleModalSubmit(client, interaction) {
                 } else {
                     // Role management for release - convert player to free agent
                     try {
-                        console.log(`TRelease: Converting ${player.displayName} to free agent...`);
+                        console.log(`TRelease: Converting ${player.displayName} to free agent and cleaning up roles...`);
                         const result = await permissions.makePlayerFree(player);
                         console.log(`TRelease role management result: ${result}`);
+                        
+                        if (result) {
+                            console.log(`✅ TRelease: Successfully updated roles for ${player.displayName}`);
+                        } else {
+                            console.log(`❌ TRelease: Failed to update roles for ${player.displayName}`);
+                        }
                     } catch (error) {
                         console.error('Role management error in trelease:', error);
                     }
@@ -1817,11 +1823,17 @@ async function handleModalSubmit(client, interaction) {
                         await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
                     }
                 } else {
-                    // Role management for release - convert player to free agent
+                    // Role management for release - convert player to free agent and remove unilateral termination role
                     try {
-                        console.log(`BTRelease: Converting ${player.displayName} to free agent...`);
+                        console.log(`BTRelease: Converting ${player.displayName} to free agent and cleaning up roles...`);
                         const result = await permissions.makePlayerFree(player);
                         console.log(`BTRelease role management result: ${result}`);
+                        
+                        if (result) {
+                            console.log(`✅ BTRelease: Successfully updated roles for ${player.displayName}`);
+                        } else {
+                            console.log(`❌ BTRelease: Failed to update roles for ${player.displayName}`);
+                        }
                     } catch (error) {
                         console.error('Role management error in btrelease:', error);
                     }

@@ -100,6 +100,15 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Enhanced role management system with comprehensive logging and unilateral termination cleanup:
+  - Enhanced makePlayerFree function with detailed logging for each role operation
+  - Added automatic removal of "Tek Taraflı Fesih" role after .btrelease usage
+  - Applied comprehensive role management to .trelease command as well
+  - Improved error handling and role position checking for bot permissions
+  - Added success/failure feedback for each role management operation
+  - Both futbolcu → serbest futbolcu conversion and role cleanup now work properly
+  - Comprehensive console logging shows exactly which roles are being added/removed
+  - All three commands (.btrelease, .trelease, .brelease) now have enhanced role management
 - June 25, 2025. Fixed role management in .brelease and .trelease commands:
   - Fixed broken require statements that were preventing role management from working
   - Updated permissions instantiation to use proper PermissionManager class
