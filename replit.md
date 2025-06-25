@@ -118,8 +118,8 @@ The bot is configured for Replit deployment with:
     * 4th mistake: Claims all channels are being deleted
     * 5th+ mistakes: Claims entire server destruction with member bans
   - Psychological warfare through fake destructive actions to increase panic
-  - One-time usage restriction: each user can only use command once (stored in data/oldurferdi.json)
-  - Prevents spam and maintains exclusivity of the troll experience
+  - Global one-time usage restriction: only one person total can ever use the command (stored in data/oldurferdi.json)
+  - Prevents spam and maintains ultimate exclusivity of the troll experience
   - @here mention in initial warning message for maximum server attention
   - Automatic reminder system: tags target user every 10 seconds with random threatening messages
   - Persistent psychological pressure until gay confession is completed

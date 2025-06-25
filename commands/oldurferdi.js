@@ -12,7 +12,7 @@ module.exports = {
         try {
             // Kullanım verilerini kontrol et
             const dataPath = path.join(__dirname, '..', 'data', 'oldurferdi.json');
-            let usageData = { usedUsers: [] };
+            let usageData = { globalUsed: false, usedBy: null };
             
             // JSON dosyasını oku
             try {
@@ -24,15 +24,16 @@ module.exports = {
                 console.error('Oldurferdi data okuma hatası:', error);
             }
             
-            // Kullanıcı daha önce kullandı mı kontrol et
-            if (usageData.usedUsers.includes(message.author.id)) {
+            // Global olarak kullanıldı mı kontrol et
+            if (usageData.globalUsed) {
                 const alreadyUsedEmbed = new MessageEmbed()
                     .setColor('#FF0000')
-                    .setTitle('⛔ ZATEN KULLANILDI!')
-                    .setDescription(`${message.author} **Bu komutu zaten kullandın!**\n\n🚫 Ferdi Kadıoğlu sadece bir kez öldürülebilir!\n👻 Ruhu artık sessiz...`)
+                    .setTitle('⛔ FERDİ ZATEN ÖLDÜRÜLDÜ!')
+                    .setDescription(`**Bu komut zaten kullanıldı!**\n\n🚫 Ferdi Kadıoğlu sadece bir kez öldürülebilir!\n👻 Ruhu artık sessiz...\n\n💀 **Katil:** <@${usageData.usedBy}>`)
                     .addFields(
                         { name: '💀 Durum', value: 'Ferdi zaten ölü', inline: true },
-                        { name: '🔒 Kısıtlama', value: 'Tek kullanım', inline: true }
+                        { name: '🔒 Kısıtlama', value: 'Global tek kullanım', inline: true },
+                        { name: '⚰️ Son Sözler', value: 'Ferdi artık huzur içinde...', inline: false }
                     )
                     .setTimestamp()
                     .setFooter({ text: 'Ferdi Kadıoğlu - Ebedi Huzur' });
@@ -40,8 +41,9 @@ module.exports = {
                 return message.reply({ embeds: [alreadyUsedEmbed] });
             }
             
-            // Kullanıcıyı kullanılan listesine ekle
-            usageData.usedUsers.push(message.author.id);
+            // Global kullanımı işaretle
+            usageData.globalUsed = true;
+            usageData.usedBy = message.author.id;
             
             // JSON dosyasını güncelle
             try {
@@ -222,7 +224,21 @@ module.exports = {
                                     '💀 **UYARI!** <@1005770697303392266> Zaman geçiyor! **"ben gayim"** de!',
                                     '🔥 **ACELE ET!** <@1005770697303392266> **"ben gayim"** yazmazsan felaket olacak!',
                                     '👻 **FERDİ ÇAĞIRIYOR!** <@1005770697303392266> **"ben gayim"** demelisin!',
-                                    '⚡ **SON ŞANS!** <@1005770697303392266> **"ben gayim"** yaz yoksa...!'
+                                    '⚡ **SON ŞANS!** <@1005770697303392266> **"ben gayim"** yaz yoksa...!',
+                                    '🌋 **VOLKAN PATLAYACAK!** <@1005770697303392266> Çabuk **"ben gayim"** de!',
+                                    '💥 **NÜKLEER ALARM!** <@1005770697303392266> **"ben gayim"** yazana kadar durmayacağım!',
+                                    '🌪️ **KASIRGA GELİYOR!** <@1005770697303392266> **"ben gayim"** diye bağır!',
+                                    '🔮 **KIYAMET YAKLAŞIYOR!** <@1005770697303392266> **"ben gayim"** yazmazsan dünya yok olacak!',
+                                    '⚡ **ŞIMŞEK ÇARPACAK!** <@1005770697303392266> **"ben gayim"** de yoksa Zeus seni bulacak!',
+                                    '🦖 **DİNOZORLAR CANLIYOR!** <@1005770697303392266> **"ben gayim"** yazarak onları durdur!',
+                                    '🛸 **UZAYLILAR SALDIRIYOR!** <@1005770697303392266> **"ben gayim"** de ki dünyayı kurtarasın!',
+                                    '🐉 **EJDER UYANACAK!** <@1005770697303392266> **"ben gayim"** diyerek büyüyü boz!',
+                                    '⚰️ **ZOMBILER YAKLAŞIYOR!** <@1005770697303392266> **"ben gayim"** de ki güvende kalasın!',
+                                    '🌊 **TSUNAMI GELİYOR!** <@1005770697303392266> **"ben gayim"** yazarak tsunamiyi durdur!',
+                                    '🔥 **CEHENNEM AÇILIYOR!** <@1005770697303392266> **"ben gayim"** de ki kapıları kapatsın!',
+                                    '💀 **ÖLÜM MELEĞI YAKLAŞIYOR!** <@1005770697303392266> **"ben gayim"** yazarak canını kurtar!',
+                                    '🌑 **GÜNEŞ SÖNECEK!** <@1005770697303392266> **"ben gayim"** de ki ışık geri gelsin!',
+                                    '❄️ **BUZ ÇAĞI BAŞLAYACAK!** <@1005770697303392266> **"ben gayim"** yazarak ısınmayı sağla!'
                                 ];
                                 
                                 const randomMessage = reminderMessages[Math.floor(Math.random() * reminderMessages.length)];
