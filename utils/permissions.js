@@ -277,4 +277,4 @@ class PermissionManager {
     }
 }
 
-module.exports = new PermissionManager();
+module.exports = PermissionManager;
