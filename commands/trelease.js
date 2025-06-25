@@ -29,39 +29,32 @@ module.exports = {
                 return message.reply('❌ Etiketlenen kişi bir oyuncu değil!');
             }
 
-            // Tek taraflı fesih embed'i oluştur
-            const releaseEmbed = new MessageEmbed()
-                .setColor(config.colors.error)
-                .setTitle(`${config.emojis.release} Tek Taraflı Fesih`)
-                .setDescription(`${message.author} tarafından ${player} için tek taraflı fesih talebi:`)
+            // Modal form embed'i oluştur
+            const formEmbed = new MessageEmbed()
+                .setColor(config.colors.info)
+                .setTitle(`${config.emojis.release} Tek Taraflı Fesih Formu`)
+                .setDescription(`${player} için tek taraflı fesih detaylarını girin:`)
                 .addFields(
                     { name: '👑 Başkan', value: `${message.author}`, inline: true },
                     { name: '⚽ Oyuncu', value: `${player}`, inline: true },
                     { name: '📋 Fesih Türü', value: 'Tek Taraflı', inline: true },
-                    { name: '⚠️ Uyarı', value: 'Bu işlem geri alınamaz! Oyuncu otomatik olarak serbest futbolcu statüsüne geçer.', inline: false }
+                    { name: '📝 Gerekli Bilgiler', value: 'Formu doldurmak için aşağıdaki butona tıklayın', inline: false }
                 )
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
 
-            // Butonları oluştur
+            // Form butonu oluştur
             const row = new MessageActionRow()
                 .addComponents(
                     new MessageButton()
-                        .setCustomId(`release_confirm_${player.id}_${message.author.id}_unilateral`)
-                        .setLabel('Onayla')
-                        .setStyle('DANGER')
-                        .setEmoji(config.emojis.check),
-                    new MessageButton()
-                        .setCustomId(`release_cancel_${player.id}_${message.author.id}`)
-                        .setLabel('İptal Et')
-                        .setStyle('SECONDARY')
-                        .setEmoji(config.emojis.cross)
+                        .setCustomId(`show_trelease_modal_${player.id}_${message.author.id}`)
+                        .setLabel('Tek Taraflı Fesih Formu Aç')
+                        .setStyle('PRIMARY')
+                        .setEmoji('📝')
                 );
 
-            // Mesajı gönder
             await message.reply({
-                content: `${config.emojis.warning} **Tek Taraflı Fesih Talebi**`,
-                embeds: [releaseEmbed],
+                embeds: [formEmbed],
                 components: [row]
             });
 

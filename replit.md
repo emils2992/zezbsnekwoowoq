@@ -100,17 +100,14 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 25, 2025. Fixed modal form empty field handling, interaction errors, channel visibility, and added role-based .trelease restrictions:
-  - Updated all embed creation functions to use "Yok" fallback instead of empty strings
-  - Fixed Discord API error when modal fields are left empty (non-empty string requirement)
-  - Modal forms now show "Yok" for unfilled fields instead of causing embed field value errors
-  - Fixed trade player button interaction acknowledgment errors with proper state checking
-  - Updated all channel deletion timeouts to 5 seconds for consistent user experience
-  - Fixed contract and hire player approval channel visibility to include command creator (original president)
-  - Player approval channels now visible to both player and command creator for proper oversight
-  - Added role-based restriction for .trelease command - requires specific "unilateralTermination" role
-  - Added "Tek Taraflı Fesih" role type to .rol command system for controlling .trelease access
-  - Applied to all commands: offer, contract, trade, hire, release, bduyur, duyur, trelease
+- June 25, 2025. Added modal forms to .trelease and .btrelease commands with old club and compensation fields:
+  - Updated .trelease and .btrelease commands to use modal forms instead of simple confirm/cancel buttons
+  - Added "Eski Kulüp" and "Tazminat" fields to both commands for detailed release information
+  - Modal submissions create embeds showing all form data before final confirmation
+  - Free agent announcements now display old club and compensation information from modal forms
+  - Enhanced release button handlers to extract and pass form data to serbest-duyuru announcements
+  - Maintains role-based restriction for .trelease command requiring "unilateralTermination" role
+  - Both commands now provide complete release documentation matching user requirements
 - June 25, 2025. Fixed contract edit data transfer issue:
   - Fixed field name matching in contract data extraction to use exact embed field names
   - Updated field extraction to match "Transfer Bedeli", "Eski Kulüp", "Yeni Kulüp", "Yıllık Maaş", "Sözleşme+Ekmadde"
