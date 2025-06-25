@@ -100,6 +100,13 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Fixed critical PermissionManager instantiation errors across all transfer commands:
+  - Fixed .contract, .trade, .hire commands by properly instantiating PermissionManager class instead of requiring module directly
+  - Fixed .ac and .kapa commands with correct PermissionManager imports for transfer period control
+  - All transfer commands now properly access permission methods (isPresident, isPlayer, isTransferPeriodOpen, etc.)
+  - Bot successfully connects to Discord and all 19 commands load without errors
+  - Transfer period control system (.ac/.kapa) and all transfer commands (.contract/.trade/.hire) are now fully functional
+
 - June 25, 2025. Fixed critical permissions import error and interaction handling issues:
   - Added missing PermissionManager require statements in index.js for both .btrelease and .trelease commands
   - Fixed ReferenceError that was preventing role management from working
