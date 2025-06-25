@@ -1212,7 +1212,8 @@ async function handleModalSubmit(client, interaction) {
                 .setFooter({ text: 'Transfer Sistemi' });
 
             // Ping rolü kontrolü - duyuru için announcementPingRole kullan
-            const permissions = require('./utils/permissions');
+            const PermissionManager = require('./utils/permissions');
+            const permissions = new PermissionManager();
             const roleData = permissions.getRoleData(interaction.guild.id);
             let mention = '';
             
