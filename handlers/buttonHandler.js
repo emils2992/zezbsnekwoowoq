@@ -1077,7 +1077,7 @@ class ButtonHandler {
                         } catch (error) {
                             console.log('Countdown message error:', error);
                         }
-                    }, 2000);
+                    }, 5000);
                     
                     setTimeout(async () => {
                         try {
@@ -1169,8 +1169,10 @@ class ButtonHandler {
             }
 
         } else if (buttonType === 'reject') {
-            // Defer immediately to prevent timeout
-            await interaction.deferReply();
+            // Check if interaction is already replied or deferred
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.deferReply();
+            }
             
             // Anyone in the channel can reject unreasonable trade player agreements
 
@@ -3866,7 +3868,7 @@ class ButtonHandler {
             setTimeout(async () => {
                 try {
                     await interaction.followUp('⏱️ Kanal 3 saniye sonra silinecek...');
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    await new Promise(resolve => setTimeout(resolve, 5000));
                     await interaction.followUp('⏱️ Kanal 1 saniye sonra silinecek...');
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     
@@ -3899,7 +3901,7 @@ class ButtonHandler {
             setTimeout(async () => {
                 try {
                     await interaction.followUp('⏱️ Kanal 3 saniye sonra silinecek...');
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    await new Promise(resolve => setTimeout(resolve, 5000));
                     await interaction.followUp('⏱️ Kanal 1 saniye sonra silinecek...');
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     

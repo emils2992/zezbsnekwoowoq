@@ -100,12 +100,13 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 25, 2025. Fixed modal form empty field handling to show "Yok" instead of causing errors:
+- June 25, 2025. Fixed modal form empty field handling and interaction errors:
   - Updated all embed creation functions to use "Yok" fallback instead of empty strings
   - Fixed Discord API error when modal fields are left empty (non-empty string requirement)
   - Modal forms now show "Yok" for unfilled fields instead of causing embed field value errors
+  - Fixed trade player button interaction acknowledgment errors with proper state checking
+  - Updated all channel deletion timeouts to 5 seconds for consistent user experience
   - Applied to all commands: offer, contract, trade, hire, release, bduyur, duyur
-  - Enhanced modal interaction error handling with proper state checking
 - June 25, 2025. Fixed contract edit data transfer issue:
   - Fixed field name matching in contract data extraction to use exact embed field names
   - Updated field extraction to match "Transfer Bedeli", "Eski Kulüp", "Yeni Kulüp", "Yıllık Maaş", "Sözleşme+Ekmadde"
