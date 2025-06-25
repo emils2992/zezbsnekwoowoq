@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Updated .eyardım help command with bduyur system:
+  - Added comprehensive transfer list system documentation
+  - Updated description to highlight new bduyur features
+  - Added step-by-step workflow explanation for transfer lists
+  - Updated footer to reflect system v2.0 with transfer list capabilities
 - June 25, 2025. Fixed .bduyur-ayarla command channel configuration:
   - Fixed command to properly save bduyur channel as bduyurChannelId instead of transferChannel
   - Updated permissions system to handle channel ID storage correctly

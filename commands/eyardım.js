@@ -11,24 +11,16 @@ module.exports = {
             const helpEmbed = new MessageEmbed()
                 .setColor(config.colors.primary)
                 .setTitle(`${config.emojis.help || '❓'} Transfer Sistemi Komutları`)
-                .setDescription('🏈 **Futbol Transfer Sistemi** - Tüm transfer işlemlerinizi kolayca yönetin!')
+                .setDescription('🏈 **Futbol Transfer Bot Rehberi**\n\nTüm transfer işlemlerinizi kolayca yönetin! Bot interaktif formlar ve butonlarla çalışır.\n\n**YENİ:** Transfer listesi sistemi ile oyuncularınızı duyurun!')
                 .addFields(
-                    { name: `${config.emojis.offer || '💰'} .offer @başkan @futbolcu`, value: 'Bir futbolcu için transfer teklifi gönder', inline: false },
-                    { name: `${config.emojis.contract || '📋'} .contract @başkan @futbolcu`, value: 'Sözleşme transfer işlemi başlat', inline: false },
-                    { name: `${config.emojis.contract || '📋'} .hire @başkan @futbolcu`, value: 'Kiralık transfer işlemi başlat', inline: false },
-                    { name: `${config.emojis.trade || '🔄'} .trade @başkan @futbolcu`, value: 'Takas transfer işlemi başlat', inline: false },
-                    { name: `${config.emojis.release || '❌'} .release @futbolcu`, value: 'Futbolcu ile karşılıklı fesih yap', inline: false },
-                    { name: `${config.emojis.trelease || '🚫'} .trelease @futbolcu`, value: 'Futbolcuyu tek taraflı fesih et', inline: false },
-                    { name: `${config.emojis.release || '❌'} .brelease @başkan`, value: 'Oyuncunun kendi sözleşmesini karşılıklı feshetmesi', inline: false },
-                    { name: `${config.emojis.trelease || '🚫'} .btrelease`, value: 'Oyuncunun kendi sözleşmesini tek taraflı feshetmesi', inline: false },
-                    { name: `${config.emojis.settings || '⚙️'} .rol`, value: 'Sistem rollerini ayarla ve görüntüle', inline: false },
-                    { name: `${config.emojis.announcement || '📢'} .duyur @futbolcu`, value: 'Manuel transfer duyurusu yap', inline: false },
-                    { name: `${config.emojis.settings || '⚙️'} .duyur-ayarla #kanal`, value: 'Otomatik duyuru kanalını ayarla', inline: false },
-                    { name: `${config.emojis.settings || '⚙️'} .serbest-ayarla #kanal`, value: 'Serbest oyuncu duyuru kanalını ayarla', inline: false },
-                    { name: `${config.emojis.transfer || '📊'} .transfer-duyuru`, value: 'Transfer geçmişi ve istatistikleri', inline: false }
+                    { name: '⚽ Transfer Komutları', value: '`.offer @oyuncu` - Serbest oyuncuya teklif\n`.contract @başkan @oyuncu` - Sözleşme transferi\n`.trade @başkan @istenen @verilen` - Takas\n`.hire @başkan @oyuncu` - Kiralık transfer\n`.release @oyuncu` - Karşılıklı fesih\n`.trelease @oyuncu` - Tek taraflı fesih\n`.brelease` - Oyuncunun fesih talebi\n`.btrelease` - Oyuncunun tek taraflı fesih', inline: false },
+                    { name: '📋 Transfer Listesi', value: '`.bduyur @oyuncu` - Oyuncuyu transfer listesine koy\n`.bduyur-ayarla` - Transfer listesi kanalı ayarla\n\n**Nasıl Çalışır:**\n• Başkan oyuncuyu listeye koyar\n• Oyuncu kabul/red/düzenle yapabilir\n• Kabul edilen duyurulur\n• Diğer başkanlar `.contract` ile iletişim kurar', inline: false },
+                    { name: '📢 Duyuru Sistemi', value: '`.duyur` - Serbest oyuncu duyurusu\n`.transfer-duyuru` - Transfer duyuru kanalı ayarla\n`.serbest-ayarla` - Serbest duyuru kanalı ayarla\n`.duyur-ayarla` - Manuel duyuru kanalı ayarla', inline: false },
+                    { name: '🎭 Rol Yönetimi', value: '`.rol` - Rol yönetim menüsü\n\n**Rol Türleri:**\n• Başkan - Transfer yapabilir\n• Futbolcu - Transfer edilebilir\n• Serbest Futbolcu - Teklif alabilir\n• Transfer Yetkili - Transfer onaylayabilir\n• Ping Rolleri - Duyuru bildirimleri', inline: false },
+                    { name: '🔧 Diğer', value: '`.cleanup` - Eski kanalları temizle\n`.eyardım` - Bu yardım menüsü', inline: false }
                 )
                 .setThumbnail(message.guild.iconURL({ dynamic: true }))
-                .setFooter({ text: 'Transfer Sistemi v2.0 | Otomatik duyuru sistemi aktif' })
+                .setFooter({ text: 'Transfer sistemi v2.0 - Transfer listesi sistemi dahil!' })
                 .setTimestamp();
 
             // Bilgi butonları ekle
