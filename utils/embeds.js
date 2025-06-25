@@ -156,6 +156,26 @@ class EmbedCreator {
             .setDescription(description)
             .setTimestamp();
     }
+
+    createBduyurForm(president, player, bduyurData = null) {
+        const embed = new MessageEmbed()
+            .setColor('#FFD700') // Altın rengi transfer listesi için
+            .setTitle(`${config.emojis.football} Transfer Listesi`)
+            .setDescription(`**${president.username}** tarafından **${player.username}** transfer listesine kondu:`)
+            .addFields(
+                { name: `${config.emojis.handshake} Başkan`, value: `${president}`, inline: true },
+                { name: '🎯 Oyuncu', value: `${player}`, inline: true },
+                { name: `${config.emojis.money} İstenen Ücret`, value: bduyurData?.amount || '10.000.000₺', inline: true },
+                { name: '📝 Transfer Nedeni', value: bduyurData?.reason || 'Belirtilmemiş', inline: false },
+                { name: '🔄 Kiralık mı', value: bduyurData?.loan || 'Hayır', inline: true },
+                { name: '⚠️ Zorunlu mu', value: bduyurData?.mandatory || 'Hayır', inline: true },
+                { name: '💰 Oyuncunun İstediği Maaş', value: bduyurData?.salary || '5.000.000₺/yıl', inline: true }
+            ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
+            .setTimestamp()
+            .setFooter({ text: 'Transfer Listesi Sistemi' });
+
+        return embed;
+    }
 }
 
 module.exports = new EmbedCreator();

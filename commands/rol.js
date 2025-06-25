@@ -197,12 +197,14 @@ module.exports = {
                 'ping_serbest': 'serbestPingRole',
                 'serbest_ping': 'serbestPingRole',
                 'ping_duyur': 'duyurPingRole',
-                'duyur_ping': 'duyurPingRole'
+                'duyur_ping': 'duyurPingRole',
+                'ping_bduyur': 'bduyurPingRole',
+                'bduyur_ping': 'bduyurPingRole'
             };
             
             const mappedRoleType = roleMapping[roleType];
             if (!mappedRoleType) {
-                return responseMessage.reply('❌ Geçersiz rol türü! Kullanılabilir türler: başkan, futbolcu, serbest, yetkili, ping_tf, ping_serbest, ping_duyur');
+                return responseMessage.reply('❌ Geçersiz rol türü! Kullanılabilir türler: başkan, futbolcu, serbest, yetkili, ping_tf, ping_serbest, ping_duyur, ping_bduyur');
             }
             
             // Rol bulma

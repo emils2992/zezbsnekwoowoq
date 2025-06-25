@@ -100,6 +100,15 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Created .bduyur transfer list system for presidents:
+  - Added .bduyur @futbolcu command for presidents to put players on transfer list
+  - Added .bduyur-ayarla command to configure transfer list announcement channel
+  - Modal form with 5 fields: amount wanted, reason, loan availability, mandatory status, player salary
+  - Player approval system: accept/reject/edit buttons in negotiation channel
+  - Accepted transfers posted to bduyur channel with .contract command reference
+  - Added ping_bduyur role type for transfer list notifications
+  - Only presidents can use .bduyur, only futbolcu (not serbest) can be listed
+  - Transfer list announcements include contact instruction for other presidents
 - June 25, 2025. Removed "Eski Kulüp" field from offer command for free agents:
   - Removed "Eski Kulüp" field from offer modal forms since free agents don't have previous clubs
   - Updated createOfferForm embed to exclude old club field for cleaner display

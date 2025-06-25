@@ -2180,6 +2180,11 @@ class ButtonHandler {
                     await this.handleShowBreleaseForm(client, interaction, additionalParams.slice(1));
                 }
                 break;
+            case 'bduyur':
+                if (additionalParams[0] === 'modal') {
+                    await this.handleShowBduyurForm(client, interaction, additionalParams.slice(1));
+                }
+                break;
             default:
                 await interaction.reply({
                     content: `❌ Bilinmeyen form türü: ${type}`,
@@ -3693,6 +3698,298 @@ class ButtonHandler {
         );
 
         await interaction.showModal(modal);
+    }
+
+    async handleShowBduyurForm(client, interaction, params) {
+        const [playerId, presidentId] = params;
+        
+        const modal = new Modal()
+            .setCustomId(`bduyur_form_${playerId}_${presidentId}`)
+            .setTitle('Transfer Listesi Duyuru Formu');
+
+        const amountInput = new TextInputComponent()
+            .setCustomId('amount')
+            .setLabel('Ne Kadar İsterim')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 15.000.000₺')
+            .setRequired(true);
+
+        const reasonInput = new TextInputComponent()
+            .setCustomId('reason')
+            .setLabel('Neden Transfer Listesine Koyuyorum')
+            .setStyle('PARAGRAPH')
+            .setPlaceholder('Örn: Kadro dışı, mali durumlar, vs.')
+            .setRequired(true);
+
+        const loanInput = new TextInputComponent()
+            .setCustomId('loan')
+            .setLabel('Kiralık mı')
+            .setStyle('SHORT')
+            .setPlaceholder('Evet/Hayır')
+            .setRequired(true);
+
+        const mandatoryInput = new TextInputComponent()
+            .setCustomId('mandatory')
+            .setLabel('Zorunlu mu')
+            .setStyle('SHORT')
+            .setPlaceholder('Evet/Hayır - Transfer zorunlu mu?')
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Oyuncumun İstediği Maaş')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 8.000.000₺/yıl')
+            .setRequired(true);
+
+        modal.addComponents(
+            new MessageActionRow().addComponents(amountInput),
+            new MessageActionRow().addComponents(reasonInput),
+            new MessageActionRow().addComponents(loanInput),
+            new MessageActionRow().addComponents(mandatoryInput),
+            new MessageActionRow().addComponents(salaryInput)
+        );
+
+        await interaction.showModal(modal);
+    }
+
+    async handleBduyurButton(client, interaction, params) {
+        await interaction.deferReply();
+        
+        const [buttonType, playerId, presidentId] = params;
+        const guild = interaction.guild;
+        const player = await guild.members.fetch(playerId);
+        const president = await guild.members.fetch(presidentId);
+
+        if (buttonType === 'accept') {
+            // Only the player can accept being put on transfer list
+            const isAuthorized = interaction.user.id === playerId;
+            if (!isAuthorized) {
+                return interaction.editReply({
+                    content: '❌ Sadece transfer listesine konulan oyuncu kabul edebilir!'
+                });
+            }
+
+            // Extract bduyur data from embed fields for announcement
+            const embed = interaction.message.embeds[0];
+            const fields = embed.fields;
+            
+            const bduyurData = {
+                amount: fields.find(f => f.name.includes('İstenen Ücret'))?.value || 'Belirtilmemiş',
+                reason: fields.find(f => f.name.includes('Transfer Nedeni'))?.value || 'Belirtilmemiş',
+                loan: fields.find(f => f.name.includes('Kiralık'))?.value || 'Hayır',
+                mandatory: fields.find(f => f.name.includes('Zorunlu'))?.value || 'Hayır',
+                salary: fields.find(f => f.name.includes('Oyuncunun İstediği Maaş'))?.value || 'Belirtilmemiş'
+            };
+
+            // Send to bduyur channel
+            await this.sendBduyurAnnouncement(guild, player, president, bduyurData);
+
+            await interaction.editReply(`✅ ${player.user} transfer listesi kabul edildi ve duyuruldu!`);
+
+            // Disable buttons
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            // Delete channel after 5 seconds
+            setTimeout(async () => {
+                try {
+                    await interaction.followUp('⏱️ Kanal 3 saniye sonra silinecek...');
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    await interaction.followUp('⏱️ Kanal 1 saniye sonra silinecek...');
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    if (interaction.channel.deletable) {
+                        await interaction.channel.delete('Transfer listesi kabul edildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silme hatası:', error);
+                }
+            }, 5000);
+
+        } else if (buttonType === 'reject') {
+            await interaction.editReply(`❌ Transfer listesi talebi reddedildi.`);
+
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
+
+            // Delete channel after 5 seconds
+            setTimeout(async () => {
+                try {
+                    await interaction.followUp('⏱️ Kanal 3 saniye sonra silinecek...');
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    await interaction.followUp('⏱️ Kanal 1 saniye sonra silinecek...');
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    if (interaction.channel.deletable) {
+                        await interaction.channel.delete('Transfer listesi reddedildi');
+                    }
+                } catch (error) {
+                    console.error('Kanal silme hatası:', error);
+                }
+            }, 5000);
+
+        } else if (buttonType === 'edit') {
+            // Only the president can edit their transfer list proposal
+            const isAuthorized = interaction.user.id === presidentId;
+            if (!isAuthorized) {
+                return interaction.editReply({
+                    content: '❌ Bu butonu sadece transfer listesini oluşturan başkan kullanabilir!'
+                });
+            }
+
+            await this.showEditBduyurModal(client, interaction, playerId, presidentId);
+        }
+    }
+
+    async showEditBduyurModal(client, interaction, playerId, presidentId) {
+        const embed = interaction.message.embeds[0];
+        const fields = embed.fields;
+        
+        // Extract existing data from embed fields
+        const existingData = {
+            amount: fields.find(f => f.name.includes('İstenen Ücret'))?.value || '',
+            reason: fields.find(f => f.name.includes('Transfer Nedeni'))?.value || '',
+            loan: fields.find(f => f.name.includes('Kiralık'))?.value || '',
+            mandatory: fields.find(f => f.name.includes('Zorunlu'))?.value || '',
+            salary: fields.find(f => f.name.includes('Oyuncunun İstediği Maaş'))?.value || ''
+        };
+
+        const modal = new Modal()
+            .setCustomId(`bduyur_form_${playerId}_${presidentId}`)
+            .setTitle('Transfer Listesi Düzenle');
+
+        const amountInput = new TextInputComponent()
+            .setCustomId('amount')
+            .setLabel('Ne Kadar İsterim')
+            .setStyle('SHORT')
+            .setValue(existingData.amount)
+            .setRequired(true);
+
+        const reasonInput = new TextInputComponent()
+            .setCustomId('reason')
+            .setLabel('Neden Transfer Listesine Koyuyorum')
+            .setStyle('PARAGRAPH')
+            .setValue(existingData.reason)
+            .setRequired(true);
+
+        const loanInput = new TextInputComponent()
+            .setCustomId('loan')
+            .setLabel('Kiralık mı')
+            .setStyle('SHORT')
+            .setValue(existingData.loan)
+            .setRequired(true);
+
+        const mandatoryInput = new TextInputComponent()
+            .setCustomId('mandatory')
+            .setLabel('Zorunlu mu')
+            .setStyle('SHORT')
+            .setValue(existingData.mandatory)
+            .setRequired(true);
+
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Oyuncumun İstediği Maaş')
+            .setStyle('SHORT')
+            .setValue(existingData.salary)
+            .setRequired(true);
+
+        modal.addComponents(
+            new MessageActionRow().addComponents(amountInput),
+            new MessageActionRow().addComponents(reasonInput),
+            new MessageActionRow().addComponents(loanInput),
+            new MessageActionRow().addComponents(mandatoryInput),
+            new MessageActionRow().addComponents(salaryInput)
+        );
+
+        await interaction.showModal(modal);
+    }
+
+    async sendBduyurAnnouncement(guild, player, president, bduyurData) {
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Get bduyur channel from roles.json
+            const rolesFilePath = path.join(__dirname, '../data/roles.json');
+            let bduyurChannelId = null;
+            
+            if (fs.existsSync(rolesFilePath)) {
+                const rolesData = JSON.parse(fs.readFileSync(rolesFilePath, 'utf8'));
+                bduyurChannelId = rolesData[guild.id]?.bduyurChannelId;
+            }
+
+            if (!bduyurChannelId) {
+                console.log('BDuyur kanalı ayarlanmamış');
+                return;
+            }
+
+            const bduyurChannel = guild.channels.cache.get(bduyurChannelId);
+            if (!bduyurChannel) {
+                console.log('BDuyur kanalı bulunamadı');
+                return;
+            }
+
+            // Get bduyur ping role
+            const rolesData = JSON.parse(fs.readFileSync(rolesFilePath, 'utf8'));
+            const bduyurPingRoleId = rolesData[guild.id]?.bduyurPingRole;
+            let pingText = '';
+            
+            if (bduyurPingRoleId) {
+                const pingRole = guild.roles.cache.get(bduyurPingRoleId);
+                if (pingRole) {
+                    pingText = `${pingRole} `;
+                }
+            }
+
+            const config = require('../config');
+            const { MessageEmbed } = require('discord.js');
+            const embed = new MessageEmbed()
+                .setColor('#FFD700')
+                .setTitle(`${config.emojis.football} Transfer Listesi`)
+                .setDescription(`**${president.username}** tarafından **${player.username}** transfer listesine kondu:\n\n**.contract ${president}** komutuyla iletişime geçin`)
+                .addFields(
+                    { name: '🎯 Oyuncu', value: `${player}`, inline: true },
+                    { name: `${config.emojis.money} İstenen Ücret`, value: bduyurData.amount, inline: true },
+                    { name: '🔄 Kiralık mı', value: bduyurData.loan, inline: true },
+                    { name: '📝 Transfer Nedeni', value: bduyurData.reason, inline: false },
+                    { name: '⚠️ Zorunlu mu', value: bduyurData.mandatory, inline: true },
+                    { name: '💰 Oyuncunun İstediği Maaş', value: bduyurData.salary, inline: true }
+                )
+                .setThumbnail(player.displayAvatarURL({ dynamic: true }))
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Listesi Sistemi' });
+
+            await bduyurChannel.send({
+                content: pingText,
+                embeds: [embed]
+            });
+
+        } catch (error) {
+            console.error('BDuyur duyuru gönderme hatası:', error);
+        }
     }
 }
 
