@@ -7,8 +7,8 @@ class ChannelManager {
             // Get display names from guild members
             const member1 = guild.members.cache.get(user1.id);
             const member2 = guild.members.cache.get(user2.id);
-            const displayName1 = member1 ? member1.displayName : user1.username;
-            const displayName2 = member2 ? member2.displayName : user2.username;
+            const displayName1 = user1.username;
+            const displayName2 = user2.username;
             
             console.log(`[CHANNEL] Creating ${type} channel for ${displayName1} and ${displayName2}`);
             // Kanal adını oluştur

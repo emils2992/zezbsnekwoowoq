@@ -869,7 +869,7 @@ class ButtonHandler {
                     // Send response without throwing on error
                     try {
                         await interaction.editReply({
-                            content: `✅ **${wantedPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
+                            content: `✅ ${wantedPlayer.user} (Yetkili tarafından onaylandı) takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                         });
                         console.log('✅ Authority response sent for wanted player - SUCCESS');
                     } catch (error) {
@@ -892,7 +892,7 @@ class ButtonHandler {
                     // Send response without throwing on error
                     try {
                         await interaction.editReply({
-                            content: `✅ **${givenPlayer.displayName} (Yetkili tarafından onaylandı)** takası kabul etti! Her iki oyuncu da kabul etti!`
+                            content: `✅ ${givenPlayer.user} (Yetkili tarafından onaylandı) takası kabul etti! Her iki oyuncu da kabul etti!`
                         });
                         console.log('✅ Authority response sent for given player - SUCCESS');
                     } catch (error) {
@@ -922,12 +922,12 @@ class ButtonHandler {
             } else if (userId === wantedId) {
                 console.log('⭐ Regular wanted player accepting...');
                 global[acceptanceKey].wantedPlayer = true;
-                console.log(`✅ Wanted player ${wantedPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
+                console.log(`✅ Wanted player ${wantedPlayer.user.username} accepted! Status:`, global[acceptanceKey]);
                 
                 // Send response without throwing on error
                 try {
                     await interaction.editReply({
-                        content: `✅ **${wantedPlayer.displayName}** takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
+                        content: `✅ ${wantedPlayer.user} takası kabul etti! ${global[acceptanceKey].givenPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                     });
                     console.log('✅ Wanted player response sent - SUCCESS');
                 } catch (error) {
@@ -944,12 +944,12 @@ class ButtonHandler {
             } else if (userId === givenId) {
                 console.log('⭐ Regular given player accepting...');
                 global[acceptanceKey].givenPlayer = true;
-                console.log(`✅ Given player ${givenPlayer.displayName} accepted! Status:`, global[acceptanceKey]);
+                console.log(`✅ Given player ${givenPlayer.user.username} accepted! Status:`, global[acceptanceKey]);
                 
                 // Send response without throwing on error
                 try {
                     await interaction.editReply({
-                        content: `✅ **${givenPlayer.displayName}** takası kabul etti! ${global[acceptanceKey].wantedPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
+                        content: `✅ ${givenPlayer.user} takası kabul etti! ${global[acceptanceKey].wantedPlayer ? 'Her iki oyuncu da kabul etti!' : 'Diğer oyuncunun kararı bekleniyor...'}`
                     });
                     console.log('✅ Given player response sent - SUCCESS');
                 } catch (error) {
@@ -1168,9 +1168,8 @@ class ButtonHandler {
             
             // Anyone in the channel can reject unreasonable trade player agreements
 
-            const rejectorName = interaction.user.displayName || interaction.user.username;
             await interaction.editReply({
-                content: `❌ **${rejectorName}** tarafından takas reddedildi! Tüm transfer iptal oldu.`
+                content: `❌ ${interaction.user} tarafından takas reddedildi! Tüm transfer iptal oldu.`
             });
 
             // Disable all buttons
@@ -1854,7 +1853,7 @@ class ButtonHandler {
                 .addFields(
                     { name: '📈 İstenen Oyuncu', value: `${wantedPlayer.user}`, inline: true },
                     { name: '📉 Verilecek Oyuncu', value: `${givenPlayer.user}`, inline: true },
-                    { name: '🏟️ Kulüpler', value: `${targetPresident.displayName}'nin takımı ↔ ${president.displayName}'nin takımı`, inline: false }
+                    { name: '🏟️ Kulüpler', value: `${targetPresident.user}'nin takımı ↔ ${president.user}'nin takımı`, inline: false }
                 );
 
             // Add salary and contract details if available from tradeData
@@ -1897,7 +1896,7 @@ class ButtonHandler {
             const bonusField = embedFields.find(f => f.name.includes('İmza Bonusu'));
             
             const newTeam = newTeamField ? newTeamField.value : 'Bilinmiyor';
-            const playerName = playerNameField ? playerNameField.value : player.displayName;
+            const playerName = playerNameField ? playerNameField.value : `${player.user}`;
             const salary = salaryField ? salaryField.value : 'Bilinmiyor';
             const duration = durationField ? durationField.value : 'Bilinmiyor';
             const bonus = bonusField ? bonusField.value : 'Bilinmiyor';
@@ -1982,7 +1981,7 @@ class ButtonHandler {
             
             const salary = salaryField ? salaryField.value : 'Belirtilmemiş';
             const duration = durationField ? durationField.value : 'Belirtilmemiş';
-            const team = teamField ? teamField.value : president.displayName;
+            const team = teamField ? teamField.value : `${president.user}`;
             
             announcementEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
@@ -3339,9 +3338,9 @@ class ButtonHandler {
             const embed = new MessageEmbed()
                 .setColor(config.colors.success)
                 .setTitle(`${config.emojis.trade} Takas Tamamlandı`)
-                .setDescription(`**${wantedPlayer.displayName}** ↔ **${givenPlayer.displayName}**`)
+                .setDescription(`${wantedPlayer.user} ↔ ${givenPlayer.user}`)
                 .addFields(
-                    { name: '🏟️ Kulüpler', value: `${targetPresident.displayName}'nin takımı ↔ ${president.displayName}'nin takımı`, inline: false },
+                    { name: '🏟️ Kulüpler', value: `${targetPresident.user}'nin takımı ↔ ${president.user}'nin takımı`, inline: false },
                     { name: '📅 Tarih', value: new Date().toLocaleString('tr-TR'), inline: true }
                 )
                 .setImage(wantedPlayer.user.displayAvatarURL({ dynamic: true, size: 256 }))
@@ -3408,7 +3407,7 @@ class ButtonHandler {
                 const channels = require('../utils/channels');
                 await channels.createFreeAgentAnnouncement(guild, player.user, 'Tek taraflı fesih');
 
-                await interaction.editReply(`✅ **${player.displayName || player.user.username}** sözleşmesini tek taraflı feshetti ve serbest futbolcu oldu! Roller güncellendi.`);
+                await interaction.editReply(`✅ ${player.user} sözleşmesini tek taraflı feshetti ve serbest futbolcu oldu! Roller güncellendi.`);
             } catch (error) {
                 console.error('BTRelease onaylama hatası:', error);
                 await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
@@ -3532,7 +3531,7 @@ class ButtonHandler {
                 const channels = require('../utils/channels');
                 await channels.createFreeAgentAnnouncement(guild, playerToRelease.user, releaseData.reason, releaseData);
 
-                await interaction.editReply(`✅ **${playerToRelease.displayName || playerToRelease.user.username}** ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu ve roller güncellendi.`);
+                await interaction.editReply(`✅ ${playerToRelease.user} ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu ve roller güncellendi.`);
             } catch (error) {
                 console.error('BRelease kabul hatası:', error);
                 await interaction.editReply('❌ Fesih işlemi tamamlanırken bir hata oluştu!');
@@ -3551,7 +3550,7 @@ class ButtonHandler {
         } else if (buttonType === 'reject') {
             // For brelease: playerId is the president who is rejecting, presidentId is the player who requested
             const playerWhoRequested = await guild.members.fetch(presidentId);
-            await interaction.editReply(`❌ **${president.displayName || president.user.username}** **${playerWhoRequested.displayName || playerWhoRequested.user.username}**'nin fesih teklifini reddetti.`);
+            await interaction.editReply(`❌ ${president.user} ${playerWhoRequested.user}'nin fesih teklifini reddetti.`);
             
             setTimeout(async () => {
                 try {

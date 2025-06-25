@@ -1275,10 +1275,10 @@ async function handleModalSubmit(client, interaction) {
                 const president = await guild.members.fetch(presidentId);
 
                 console.log('Found users:', {
-                    targetPresident: targetPresident.displayName,
-                    wantedPlayer: wantedPlayer.displayName,
-                    givenPlayer: givenPlayer.displayName,
-                    president: president.displayName
+                    targetPresident: targetPresident.user.username,
+                    wantedPlayer: wantedPlayer.user.username,
+                    givenPlayer: givenPlayer.user.username,
+                    president: president.user.username
                 });
 
                 if (!targetPresident || !wantedPlayer || !givenPlayer || !president) {

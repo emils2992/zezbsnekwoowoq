@@ -100,6 +100,13 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Updated bot to use player mentions (@player) instead of display names in all messages and announcements:
+  - Replaced all displayName usage with user mentions (user.user) for consistent player tagging
+  - Updated channel creation to use usernames instead of display names for cleaner channel names
+  - Updated all transfer announcement systems to mention players instead of showing text names
+  - Enhanced trade acceptance messages to use player mentions for better notifications
+  - Updated embed descriptions and form messages to use user mentions throughout
+  - Improved user notification system with proper Discord mentions in all transfer workflows
 - June 25, 2025. Fixed "undefined" display issue in brelease and btrelease commands:
   - Added fallback logic for displayName properties to prevent "undefined" values in announcements
   - Enhanced user data handling across all transfer commands with proper username fallbacks
