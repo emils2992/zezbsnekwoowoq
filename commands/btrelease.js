@@ -10,14 +10,23 @@ module.exports = {
 
     async execute(client, message, args) {
         try {
+            console.log('BTRelease command started, checking permissions...');
+            console.log('User ID:', message.author.id);
+            console.log('Member roles:', message.member.roles.cache.map(r => r.name));
+            
             // Yetki kontrolü - sadece tek taraflı fesih yetkisi olan futbolcular kullanabilir
             if (!permissions.isPlayer(message.member)) {
+                console.log('User is not a player');
                 return message.reply('❌ Bu komutu sadece futbolcular kullanabilir!');
             }
             
+            console.log('Player check passed, checking unilateral termination permission...');
             if (!permissions.canUseUnilateralTermination(message.member)) {
+                console.log('User does not have unilateral termination permission');
                 return message.reply('❌ Bu komutu kullanabilmek için tek taraflı fesih yetkisine sahip olmanız gerekiyor! Yetkililer `.rol` komutuyla bu yetkiyi ayarlayabilir.');
             }
+            
+            console.log('All permission checks passed');
 
             const player = message.author; // Komutu kullanan oyuncu
             const playerMember = message.member;

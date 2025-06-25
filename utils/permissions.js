@@ -16,6 +16,7 @@ class PermissionManager {
     getRoleData(guildId) {
         try {
             const data = JSON.parse(fs.readFileSync(this.rolesPath, 'utf8'));
+            console.log(`Role data for guild ${guildId}:`, data[guildId]);
             return data[guildId] || {};
         } catch (error) {
             console.error('Rol verisi okuma hatası:', error);
@@ -53,17 +54,29 @@ class PermissionManager {
     isPresident(member) {
         const roleData = this.getRoleData(member.guild.id);
         const presidentRoleId = roleData.president;
+        console.log('President role data:', presidentRoleId);
         
-        if (!presidentRoleId) return false;
-        return member.roles.cache.has(presidentRoleId);
+        if (!presidentRoleId) {
+            console.log('No president role configured');
+            return false;
+        }
+        const hasRole = member.roles.cache.has(presidentRoleId);
+        console.log('Has president role:', hasRole);
+        return hasRole;
     }
 
     isPlayer(member) {
         const roleData = this.getRoleData(member.guild.id);
         const playerRoleId = roleData.player;
+        const freeAgentRoleId = roleData.freeAgent;
+        console.log('Player role data:', playerRoleId, 'Free agent role data:', freeAgentRoleId);
         
-        if (!playerRoleId) return false;
-        return member.roles.cache.has(playerRoleId);
+        // Oyuncu ya da serbest futbolcu olması yeterli
+        const isPlayerRole = playerRoleId && member.roles.cache.has(playerRoleId);
+        const isFreeAgent = freeAgentRoleId && member.roles.cache.has(freeAgentRoleId);
+        console.log('Has player role:', isPlayerRole, 'Has free agent role:', isFreeAgent);
+        
+        return isPlayerRole || isFreeAgent;
     }
 
     isFreeAgent(member) {
@@ -85,9 +98,15 @@ class PermissionManager {
     canUseUnilateralTermination(member) {
         const roleData = this.getRoleData(member.guild.id);
         const unilateralTerminationRoleId = roleData.unilateralTermination;
+        console.log('Unilateral termination role data:', unilateralTerminationRoleId);
         
-        if (!unilateralTerminationRoleId) return false;
-        return member.roles.cache.has(unilateralTerminationRoleId);
+        if (!unilateralTerminationRoleId) {
+            console.log('No unilateral termination role configured');
+            return false;
+        }
+        const hasRole = member.roles.cache.has(unilateralTerminationRoleId);
+        console.log('Has unilateral termination role:', hasRole);
+        return hasRole;
     }
 
     setTransferPeriod(guildId, isOpen) {

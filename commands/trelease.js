@@ -8,10 +8,17 @@ module.exports = {
     description: 'Tek taraflı fesih işlemi başlat',
     async execute(client, message, args) {
         try {
+            console.log('TRelease command started, checking permissions...');
+            console.log('User ID:', message.author.id);
+            console.log('Member roles:', message.member.roles.cache.map(r => r.name));
+            
             // Yetki kontrolü - sadece başkanlar kullanabilir
             if (!permissions.isPresident(message.member)) {
+                console.log('User is not a president');
                 return message.reply('❌ Bu komutu sadece takım başkanları kullanabilir!');
             }
+            
+            console.log('President check passed');
 
             // Oyuncu belirtildi mi?
             const playerUser = message.mentions.users.first();
