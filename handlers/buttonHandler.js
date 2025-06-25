@@ -3728,11 +3728,11 @@ class ButtonHandler {
             .setPlaceholder('Evet/Hayır')
             .setRequired(true);
 
-        const mandatoryInput = new TextInputComponent()
-            .setCustomId('mandatory')
-            .setLabel('Zorunlu mu')
+        const bonservisInput = new TextInputComponent()
+            .setCustomId('bonservis')
+            .setLabel('Bonservis mi')
             .setStyle('SHORT')
-            .setPlaceholder('Evet/Hayır - Transfer zorunlu mu?')
+            .setPlaceholder('Evet/Hayır - Bonservis ile mi?')
             .setRequired(true);
 
         const salaryInput = new TextInputComponent()
@@ -3746,7 +3746,7 @@ class ButtonHandler {
             new MessageActionRow().addComponents(amountInput),
             new MessageActionRow().addComponents(reasonInput),
             new MessageActionRow().addComponents(loanInput),
-            new MessageActionRow().addComponents(mandatoryInput),
+            new MessageActionRow().addComponents(bonservisInput),
             new MessageActionRow().addComponents(salaryInput)
         );
 
@@ -3778,7 +3778,7 @@ class ButtonHandler {
                 amount: fields.find(f => f.name.includes('İstenen Ücret'))?.value || 'Belirtilmemiş',
                 reason: fields.find(f => f.name.includes('Transfer Nedeni'))?.value || 'Belirtilmemiş',
                 loan: fields.find(f => f.name.includes('Kiralık'))?.value || 'Hayır',
-                mandatory: fields.find(f => f.name.includes('Zorunlu'))?.value || 'Hayır',
+                bonservis: fields.find(f => f.name.includes('Bonservis'))?.value || 'Hayır',
                 salary: fields.find(f => f.name.includes('Oyuncunun İstediği Maaş'))?.value || 'Belirtilmemiş'
             };
 
@@ -3873,7 +3873,7 @@ class ButtonHandler {
             amount: fields.find(f => f.name.includes('İstenen Ücret'))?.value || '',
             reason: fields.find(f => f.name.includes('Transfer Nedeni'))?.value || '',
             loan: fields.find(f => f.name.includes('Kiralık'))?.value || '',
-            mandatory: fields.find(f => f.name.includes('Zorunlu'))?.value || '',
+            bonservis: fields.find(f => f.name.includes('Bonservis'))?.value || '',
             salary: fields.find(f => f.name.includes('Oyuncunun İstediği Maaş'))?.value || ''
         };
 
@@ -3902,11 +3902,11 @@ class ButtonHandler {
             .setValue(existingData.loan)
             .setRequired(true);
 
-        const mandatoryInput = new TextInputComponent()
-            .setCustomId('mandatory')
-            .setLabel('Zorunlu mu')
+        const bonservisInput = new TextInputComponent()
+            .setCustomId('bonservis')
+            .setLabel('Bonservis mi')
             .setStyle('SHORT')
-            .setValue(existingData.mandatory)
+            .setValue(existingData.bonservis)
             .setRequired(true);
 
         const salaryInput = new TextInputComponent()
@@ -3920,7 +3920,7 @@ class ButtonHandler {
             new MessageActionRow().addComponents(amountInput),
             new MessageActionRow().addComponents(reasonInput),
             new MessageActionRow().addComponents(loanInput),
-            new MessageActionRow().addComponents(mandatoryInput),
+            new MessageActionRow().addComponents(bonservisInput),
             new MessageActionRow().addComponents(salaryInput)
         );
 
@@ -3975,7 +3975,7 @@ class ButtonHandler {
                     { name: `${config.emojis.money} İstenen Ücret`, value: bduyurData.amount, inline: true },
                     { name: '🔄 Kiralık mı', value: bduyurData.loan, inline: true },
                     { name: '📝 Transfer Nedeni', value: bduyurData.reason, inline: false },
-                    { name: '⚠️ Zorunlu mu', value: bduyurData.mandatory, inline: true },
+                    { name: '📋 Bonservis mi', value: bduyurData.bonservis, inline: true },
                     { name: '💰 Oyuncunun İstediği Maaş', value: bduyurData.salary, inline: true }
                 )
                 .setThumbnail(player.displayAvatarURL({ dynamic: true }))

@@ -100,10 +100,15 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Updated .bduyur transfer list system modal fields:
+  - Changed "Zorunlu mu" field to "Bonservis mi" as requested by user
+  - Modal now has fields: amount wanted, reason, loan availability, bonservis status, player salary
+  - Fixed channel creation issue by adding proper modal handler to index.js
+  - Added debugging logs to track bduyur form submission and channel creation process
+  - Complete .bduyur system: presidents list players → player approval → announcement to bduyur channel
 - June 25, 2025. Created .bduyur transfer list system for presidents:
   - Added .bduyur @futbolcu command for presidents to put players on transfer list
   - Added .bduyur-ayarla command to configure transfer list announcement channel
-  - Modal form with 5 fields: amount wanted, reason, loan availability, mandatory status, player salary
   - Player approval system: accept/reject/edit buttons in negotiation channel
   - Accepted transfers posted to bduyur channel with .contract command reference
   - Added ping_bduyur role type for transfer list notifications

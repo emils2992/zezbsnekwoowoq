@@ -549,6 +549,126 @@ async function handleModalSubmit(client, interaction) {
             }
         }
 
+        // BDuyur form modali
+        if (customId.startsWith('bduyur_form_')) {
+            console.log('BDuyur form submission received:', customId);
+            const [, , playerId, presidentId] = customId.split('_');
+            const player = interaction.guild.members.cache.get(playerId);
+            const president = interaction.guild.members.cache.get(presidentId);
+
+            if (!player || !president) {
+                console.log('BDuyur: Users not found');
+                return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
+            }
+
+            const bduyurData = {
+                amount: interaction.fields.getTextInputValue('amount') || '10.000.000₺',
+                reason: interaction.fields.getTextInputValue('reason') || 'Belirtilmemiş',
+                loan: interaction.fields.getTextInputValue('loan') || 'Hayır',
+                bonservis: interaction.fields.getTextInputValue('bonservis') || 'Hayır',
+                salary: interaction.fields.getTextInputValue('salary') || '5.000.000₺/yıl'
+            };
+
+            console.log('BDuyur data:', bduyurData);
+
+            // Check if we're already in a negotiation channel
+            const isNegotiationChannel = interaction.channel.name && 
+                (interaction.channel.name.includes('bduyur-') || 
+                 interaction.channel.name.includes('transfer-listesi-'));
+
+            if (isNegotiationChannel) {
+                console.log('BDuyur: Updating existing embed in channel');
+                // Update existing embed in same channel
+                const embeds = require('./utils/embeds');
+                const updatedEmbed = embeds.createBduyurForm(president.user, player.user, bduyurData);
+
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`bduyur_accept_${playerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`bduyur_reject_${playerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`bduyur_edit_${playerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                // Find and update the original message
+                const messages = await interaction.channel.messages.fetch({ limit: 50 });
+                const originalMessage = messages.find(msg => 
+                    msg.embeds?.[0]?.title?.includes('Transfer Listesi') && 
+                    msg.components?.length > 0
+                );
+
+                if (originalMessage) {
+                    await originalMessage.edit({
+                        embeds: [updatedEmbed],
+                        components: [buttons]
+                    });
+                    await interaction.editReply('✅ Transfer listesi formu güncellendi!');
+                } else {
+                    await interaction.editReply('❌ Güncellenecek form bulunamadı!');
+                }
+            } else {
+                console.log('BDuyur: Creating new negotiation channel');
+                // Create new negotiation channel
+                const embeds = require('./utils/embeds');
+                const embed = embeds.createBduyurForm(president.user, player.user, bduyurData);
+
+                const buttons = new MessageActionRow()
+                    .addComponents(
+                        new MessageButton()
+                            .setCustomId(`bduyur_accept_${playerId}_${presidentId}`)
+                            .setLabel('Kabul Et')
+                            .setStyle('SUCCESS')
+                            .setEmoji('✅'),
+                        new MessageButton()
+                            .setCustomId(`bduyur_reject_${playerId}_${presidentId}`)
+                            .setLabel('Reddet')
+                            .setStyle('DANGER')
+                            .setEmoji('❌'),
+                        new MessageButton()
+                            .setCustomId(`bduyur_edit_${playerId}_${presidentId}`)
+                            .setLabel('Düzenle')
+                            .setStyle('SECONDARY')
+                            .setEmoji('✏️')
+                    );
+
+                const channels = require('./utils/channels');
+                const channel = await channels.createNegotiationChannel(
+                    interaction.guild, 
+                    president.user, 
+                    player.user, 
+                    'bduyur',
+                    player.user,
+                    false
+                );
+
+                if (channel) {
+                    console.log('BDuyur: Channel created successfully:', channel.name);
+                    await channel.send({
+                        content: `${player.user} ${president.user}`,
+                        embeds: [embed],
+                        components: [buttons]
+                    });
+
+                    await interaction.editReply(`✅ Transfer listesi duyurusu ${channel} kanalında oluşturuldu!`);
+                } else {
+                    console.log('BDuyur: Failed to create channel');
+                    await interaction.editReply('❌ Kanal oluşturulurken bir hata oluştu!');
+                }
+            }
+            return;
+        }
+
         // Contract form modali
         else if (customId.startsWith('contract_form_')) {
             const parts = customId.split('_');

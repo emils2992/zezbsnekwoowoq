@@ -168,7 +168,7 @@ class EmbedCreator {
                 { name: `${config.emojis.money} İstenen Ücret`, value: bduyurData?.amount || '10.000.000₺', inline: true },
                 { name: '📝 Transfer Nedeni', value: bduyurData?.reason || 'Belirtilmemiş', inline: false },
                 { name: '🔄 Kiralık mı', value: bduyurData?.loan || 'Hayır', inline: true },
-                { name: '⚠️ Zorunlu mu', value: bduyurData?.mandatory || 'Hayır', inline: true },
+                { name: '📋 Bonservis mi', value: bduyurData?.bonservis || 'Hayır', inline: true },
                 { name: '💰 Oyuncunun İstediği Maaş', value: bduyurData?.salary || '5.000.000₺/yıl', inline: true }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
