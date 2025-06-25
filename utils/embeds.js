@@ -9,10 +9,10 @@ class EmbedCreator {
             .setDescription(`**${president.username}** tarafından **${player.username}** için yapılan teklif:`)
             .addFields(
                 { name: `${config.emojis.handshake} Başkan`, value: `${president}`, inline: true },
-                { name: '🎯 Yeni Kulüp', value: offerData?.newTeam || '', inline: true },
-                { name: `${config.emojis.money} Önerilen Maaş`, value: offerData?.salary || '', inline: true },
-                { name: '📅 Sözleşme+Ek Madde', value: offerData?.contractDuration || '', inline: true },
-                { name: '🎯 İmza Bonusu', value: offerData?.bonus || '', inline: true }
+                { name: '🎯 Yeni Kulüp', value: offerData?.newTeam || 'Yok', inline: true },
+                { name: `${config.emojis.money} Önerilen Maaş`, value: offerData?.salary || 'Yok', inline: true },
+                { name: '📅 Sözleşme+Ek Madde', value: offerData?.contractDuration || 'Yok', inline: true },
+                { name: '🎯 İmza Bonusu', value: offerData?.bonus || 'Yok', inline: true }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
@@ -27,12 +27,12 @@ class EmbedCreator {
             .setDescription(`${fromPresident} tarafından ${toPresident} için yapılan sözleşme teklifi:\n\n*Bu teklifin onaylanması için önce başkan onayı, sonra oyuncu onayı gereklidir.*`)
             .addFields(
                 { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
-                { name: '🏠 Eski Kulüp', value: contractData?.oldClub || '', inline: true },
-                { name: '🏆 Yeni Kulüp', value: contractData?.newClub || '', inline: true },
+                { name: '🏠 Eski Kulüp', value: contractData?.oldClub || 'Yok', inline: true },
+                { name: '🏆 Yeni Kulüp', value: contractData?.newClub || 'Yok', inline: true },
                 { name: '⚽ Futbolcu', value: `${player}`, inline: true },
-                { name: `${config.emojis.money} Transfer Bedeli`, value: contractData?.transferFee || '', inline: true },
-                { name: '💰 Yıllık Maaş', value: contractData?.salary || '', inline: true },
-                { name: '📅 Sözleşme+Ekmadde', value: contractData?.contractDuration || '', inline: true }
+                { name: `${config.emojis.money} Transfer Bedeli`, value: contractData?.transferFee || 'Yok', inline: true },
+                { name: '💰 Yıllık Maaş', value: contractData?.salary || 'Yok', inline: true },
+                { name: '📅 Sözleşme+Ekmadde', value: contractData?.contractDuration || 'Yok', inline: true }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
@@ -49,8 +49,8 @@ class EmbedCreator {
                 { name: `${config.emojis.handshake} Teklif Yapan`, value: `${fromPresident}`, inline: true },
                 { name: '🎯 Hedef Başkan', value: `${toPresident}`, inline: true },
                 { name: '📈 İstenen Oyuncu', value: `${wantedPlayer}`, inline: true },
-                { name: `${config.emojis.money} Ek Miktar`, value: tradeData?.additionalAmount || '', inline: true },
-                { name: '📋 Bonus/Notlar', value: tradeData?.bonus || '', inline: true }
+                { name: `${config.emojis.money} Ek Miktar`, value: tradeData?.additionalAmount || 'Yok', inline: true },
+                { name: '📋 Bonus/Notlar', value: tradeData?.bonus || 'Yok', inline: true }
             ).setThumbnail(wantedPlayer.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi' });
@@ -68,11 +68,11 @@ class EmbedCreator {
                 { name: '🎯 Başkan 2', value: `${toPresident}`, inline: true },
                 { name: '📈 İstenen Oyuncu', value: `${wantedPlayer}`, inline: true },
                 { name: '🔄 Verilecek Oyuncu', value: `${givenPlayer}`, inline: true },
-                { name: `${config.emojis.money} Ek Miktar`, value: tradeData?.additionalAmount || '', inline: true },
-                { name: '💰 İstenen Oyuncu Maaşı', value: tradeData?.wantedPlayerSalary || '', inline: true },
-                { name: '💰 Verilecek Oyuncu Maaşı', value: tradeData?.givenPlayerSalary || '', inline: true },
-                { name: '📅 İstenen Oyuncu Sözleşme', value: tradeData?.wantedPlayerContract || '', inline: true },
-                { name: '📅 Verilecek Oyuncu Sözleşme', value: tradeData?.givenPlayerContract || '', inline: true }
+                { name: `${config.emojis.money} Ek Miktar`, value: tradeData?.additionalAmount || 'Yok', inline: true },
+                { name: '💰 İstenen Oyuncu Maaşı', value: tradeData?.wantedPlayerSalary || 'Yok', inline: true },
+                { name: '💰 Verilecek Oyuncu Maaşı', value: tradeData?.givenPlayerSalary || 'Yok', inline: true },
+                { name: '📅 İstenen Oyuncu Sözleşme', value: tradeData?.wantedPlayerContract || 'Yok', inline: true },
+                { name: '📅 Verilecek Oyuncu Sözleşme', value: tradeData?.givenPlayerContract || 'Yok', inline: true }
             ).setThumbnail(wantedPlayer.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Sistemi - Oyuncu Onayı' });
@@ -88,11 +88,11 @@ class EmbedCreator {
             .addFields(
                 { name: `${config.emojis.handshake} Teklif Yapan`, value: `<@${fromPresident.id}>`, inline: true },
                 { name: '⚽ Futbolcu', value: `<@${player.id}>`, inline: true },
-                { name: `${config.emojis.money} Kiralık Bedeli`, value: hireData?.loanFee || '', inline: true },
-                { name: '🏆 Eski Kulüp', value: hireData?.oldClub || '', inline: true },
-                { name: '🎯 Yeni Kulüp', value: hireData?.newClub || '', inline: true },
-                { name: '💰 Yıllık Maaş', value: hireData?.salary || '', inline: true },
-                { name: '📅 Sözleşme+Ek Madde', value: hireData?.contractDuration || '', inline: true }
+                { name: `${config.emojis.money} Kiralık Bedeli`, value: hireData?.loanFee || 'Yok', inline: true },
+                { name: '🏆 Eski Kulüp', value: hireData?.oldClub || 'Yok', inline: true },
+                { name: '🎯 Yeni Kulüp', value: hireData?.newClub || 'Yok', inline: true },
+                { name: '💰 Yıllık Maaş', value: hireData?.salary || 'Yok', inline: true },
+                { name: '📅 Sözleşme+Ek Madde', value: hireData?.contractDuration || 'Yok', inline: true }
             );
 
         return embed
@@ -165,12 +165,12 @@ class EmbedCreator {
             .addFields(
                 { name: `${config.emojis.handshake} Başkan`, value: `${president}`, inline: true },
                 { name: '🎯 Oyuncu', value: `${player}`, inline: true },
-                { name: '🔄 oyuncu kiralikmi', value: bduyurData?.playerLoan || 'Hayır', inline: true },
-                { name: '📋 bonservislimi', value: bduyurData?.bonservis || 'Hayır', inline: true },
-                { name: '⚠️ zorunlu', value: bduyurData?.mandatory || 'Hayır', inline: true },
-                { name: '🔧 opsiyonlu', value: bduyurData?.optional || 'Hayır', inline: true },
-                { name: '🏠 kiralikmi', value: bduyurData?.loan || 'Hayır', inline: true },
-                { name: '📊 oyuncum kaç stat kasar', value: bduyurData?.statFarming || 'Belirtilmemiş', inline: false }
+                { name: '🔄 oyuncu kiralikmi', value: bduyurData?.playerLoan || 'Yok', inline: true },
+                { name: '📋 bonservislimi', value: bduyurData?.bonservis || 'Yok', inline: true },
+                { name: '⚠️ zorunlu', value: bduyurData?.mandatory || 'Yok', inline: true },
+                { name: '🔧 opsiyonlu', value: bduyurData?.optional || 'Yok', inline: true },
+                { name: '🏠 kiralikmi', value: bduyurData?.loan || 'Yok', inline: true },
+                { name: '📊 oyuncum kaç stat kasar', value: bduyurData?.statFarming || 'Yok', inline: false }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Listesi Sistemi' });

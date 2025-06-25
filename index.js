@@ -351,10 +351,10 @@ async function handleModalSubmit(client, interaction) {
             }
 
             const offerData = {
-                newTeam: interaction.fields.getTextInputValue('new_team') || '',
-                salary: interaction.fields.getTextInputValue('salary') || '',
-                contractDuration: interaction.fields.getTextInputValue('contract_duration') || '',
-                bonus: interaction.fields.getTextInputValue('bonus') || ''
+                newTeam: interaction.fields.getTextInputValue('new_team') || 'Yok',
+                salary: interaction.fields.getTextInputValue('salary') || 'Yok',
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || 'Yok',
+                bonus: interaction.fields.getTextInputValue('bonus') || 'Yok'
             };
 
             // Check if we're already in a negotiation channel
@@ -460,10 +460,10 @@ async function handleModalSubmit(client, interaction) {
             }
 
             const releaseData = {
-                oldClub: interaction.fields.getTextInputValue('old_club') || '',
-                reason: interaction.fields.getTextInputValue('reason') || '',
-                compensation: interaction.fields.getTextInputValue('compensation') || '',
-                newTeam: interaction.fields.getTextInputValue('new_team') || ''
+                oldClub: interaction.fields.getTextInputValue('old_club') || 'Yok',
+                reason: interaction.fields.getTextInputValue('reason') || 'Yok',
+                compensation: interaction.fields.getTextInputValue('compensation') || 'Yok',
+                newTeam: interaction.fields.getTextInputValue('new_team') || 'Yok'
             };
 
             // Check if we're in a negotiation channel (editing existing form)
@@ -558,11 +558,11 @@ async function handleModalSubmit(client, interaction) {
             
             // Store first modal data temporarily
             const formData1 = {
-                playerLoan: interaction.fields.getTextInputValue('player_loan') || '',
-                bonservis: interaction.fields.getTextInputValue('bonservis') || '',
-                mandatory: interaction.fields.getTextInputValue('mandatory') || '',
-                optional: interaction.fields.getTextInputValue('optional') || '',
-                loan: interaction.fields.getTextInputValue('loan') || ''
+                playerLoan: interaction.fields.getTextInputValue('player_loan') || 'Yok',
+                bonservis: interaction.fields.getTextInputValue('bonservis') || 'Yok',
+                mandatory: interaction.fields.getTextInputValue('mandatory') || 'Yok',
+                optional: interaction.fields.getTextInputValue('optional') || 'Yok',
+                loan: interaction.fields.getTextInputValue('loan') || 'Yok'
             };
             
             // Store data globally for second modal
@@ -606,12 +606,12 @@ async function handleModalSubmit(client, interaction) {
             delete global[`bduyur_temp_${playerId}_${presidentId}`]; // Clean up
 
             const bduyurData = {
-                playerLoan: formData1.playerLoan || '',
-                bonservis: formData1.bonservis || '', 
-                mandatory: formData1.mandatory || '',
-                optional: formData1.optional || '',
-                loan: formData1.loan || '',
-                statFarming: interaction.fields.getTextInputValue('stat_farming') || ''
+                playerLoan: formData1.playerLoan || 'Yok',
+                bonservis: formData1.bonservis || 'Yok', 
+                mandatory: formData1.mandatory || 'Yok',
+                optional: formData1.optional || 'Yok',
+                loan: formData1.loan || 'Yok',
+                statFarming: interaction.fields.getTextInputValue('stat_farming') || 'Yok'
             };
 
             console.log('BDuyur data:', bduyurData);
@@ -746,11 +746,11 @@ async function handleModalSubmit(client, interaction) {
             }
 
             const contractData = {
-                transferFee: interaction.fields.getTextInputValue('transfer_fee') || '',
-                oldClub: interaction.fields.getTextInputValue('old_club') || '',
-                newClub: interaction.fields.getTextInputValue('new_club') || '',
-                salary: interaction.fields.getTextInputValue('salary') || '',
-                contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
+                transferFee: interaction.fields.getTextInputValue('transfer_fee') || 'Yok',
+                oldClub: interaction.fields.getTextInputValue('old_club') || 'Yok',
+                newClub: interaction.fields.getTextInputValue('new_club') || 'Yok',
+                salary: interaction.fields.getTextInputValue('salary') || 'Yok',
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || 'Yok'
             };
 
             // Check if we're in a negotiation channel (editing existing form)
@@ -899,7 +899,7 @@ async function handleModalSubmit(client, interaction) {
             const tradeData = {
                 additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '',
                 bonus: interaction.fields.getTextInputValue('bonus') || '',
-                contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || 'Yok'
             };
 
             // Check if we're in a negotiation channel (editing existing form)
@@ -1029,11 +1029,11 @@ async function handleModalSubmit(client, interaction) {
             }
 
             const hireData = {
-                loanFee: interaction.fields.getTextInputValue('loan_fee') || '',
-                oldClub: interaction.fields.getTextInputValue('old_club') || '',
-                newClub: interaction.fields.getTextInputValue('new_club') || '',
-                salary: interaction.fields.getTextInputValue('salary') || '',
-                contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
+                loanFee: interaction.fields.getTextInputValue('loan_fee') || 'Yok',
+                oldClub: interaction.fields.getTextInputValue('old_club') || 'Yok',
+                newClub: interaction.fields.getTextInputValue('new_club') || 'Yok',
+                salary: interaction.fields.getTextInputValue('salary') || 'Yok',
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || 'Yok'
             };
 
             // Always check if we're in a negotiation channel first (editing existing form)
@@ -1164,11 +1164,11 @@ async function handleModalSubmit(client, interaction) {
             }
 
             const announcementData = {
-                desire: interaction.fields.getTextInputValue('desire') || '',
-                teamRole: interaction.fields.getTextInputValue('team_role') || '',
-                salary: interaction.fields.getTextInputValue('salary') || '',
-                contract: interaction.fields.getTextInputValue('contract') || '',
-                bonus: interaction.fields.getTextInputValue('bonus') || ''
+                desire: interaction.fields.getTextInputValue('desire') || 'Yok',
+                teamRole: interaction.fields.getTextInputValue('team_role') || 'Yok',
+                salary: interaction.fields.getTextInputValue('salary') || 'Yok',
+                contract: interaction.fields.getTextInputValue('contract') || 'Yok',
+                bonus: interaction.fields.getTextInputValue('bonus') || 'Yok'
             };
 
             // Duyuru kanalını bul
@@ -1254,7 +1254,7 @@ async function handleModalSubmit(client, interaction) {
                     oldClub: interaction.fields.getTextInputValue('old_club') || '',
                     reason: interaction.fields.getTextInputValue('reason') || '',
                     compensation: interaction.fields.getTextInputValue('compensation') || '',
-                    newTeam: interaction.fields.getTextInputValue('new_team') || ''
+                    newTeam: interaction.fields.getTextInputValue('new_team') || 'Yok'
                 };
                 console.log('BRelease form data:', releaseData);
 
@@ -1455,7 +1455,7 @@ async function handleModalSubmit(client, interaction) {
             const tradeData = {
                 additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '',
                 bonus: interaction.fields.getTextInputValue('bonus') || '',
-                contractDuration: interaction.fields.getTextInputValue('contract_duration') || ''
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || 'Yok'
             };
 
             // Check if we're in a negotiation channel (editing existing form)
@@ -1567,7 +1567,7 @@ async function handleModalSubmit(client, interaction) {
                 wantedPlayerSalary: interaction.fields.getTextInputValue('wanted_player_salary') || '',
                 givenPlayerSalary: interaction.fields.getTextInputValue('given_player_salary') || '',
                 wantedPlayerContract: interaction.fields.getTextInputValue('wanted_player_contract') || '',
-                givenPlayerContract: interaction.fields.getTextInputValue('given_player_contract') || ''
+                givenPlayerContract: interaction.fields.getTextInputValue('given_player_contract') || 'Yok'
             };
 
             // Güncel kanalda embed'i güncelle

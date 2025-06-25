@@ -100,11 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 25, 2025. Removed all default/fallback values from modal forms:
-  - Removed default values from all embed creation functions (offer, contract, trade, hire, release, bduyur)
-  - Modal forms now show empty fields instead of placeholder values like "3.000.000₺" for signing bonus
-  - Updated all transfer command forms to only display user-entered data without fallback text
+- June 25, 2025. Fixed modal form empty field handling to show "Yok" instead of causing errors:
+  - Updated all embed creation functions to use "Yok" fallback instead of empty strings
+  - Fixed Discord API error when modal fields are left empty (non-empty string requirement)
+  - Modal forms now show "Yok" for unfilled fields instead of causing embed field value errors
   - Applied to all commands: offer, contract, trade, hire, release, bduyur, duyur
+  - Enhanced modal interaction error handling with proper state checking
 - June 25, 2025. Fixed contract edit data transfer issue:
   - Fixed field name matching in contract data extraction to use exact embed field names
   - Updated field extraction to match "Transfer Bedeli", "Eski Kulüp", "Yeni Kulüp", "Yıllık Maaş", "Sözleşme+Ekmadde"
