@@ -201,7 +201,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable offers
@@ -241,7 +241,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'edit') {
             if (interaction.user.id !== presidentId) {
@@ -339,7 +339,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 3000);
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable contract offers
@@ -379,7 +379,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'edit') {
             // Check if user is authorized (president who made contract or transfer authority)
@@ -465,7 +465,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable contract agreements
@@ -503,7 +503,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
         } else if (buttonType === 'edit') {
             // Check if user is authorized (target player, president, or transfer authority)
             const member = interaction.member;
@@ -641,7 +641,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Defer immediately to prevent timeout
@@ -682,7 +682,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Check if user is authorized (target president or transfer authority)
@@ -731,7 +731,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'edit') {
             // Check if user is authorized (president who made trade or target president)
@@ -1067,11 +1067,11 @@ class ButtonHandler {
                     console.log('⏰ Starting channel deletion countdown...');
                     setTimeout(async () => {
                         try {
-                            await interaction.channel.send('⏰ **2 saniye sonra kanal silinecek...**');
+                            await interaction.channel.send('⏰ **3 saniye sonra kanal silinecek...**');
                         } catch (error) {
                             console.log('Countdown message error:', error);
                         }
-                    }, 1000);
+                    }, 2000);
                     
                     setTimeout(async () => {
                         try {
@@ -1079,7 +1079,7 @@ class ButtonHandler {
                         } catch (error) {
                             console.log('Countdown message error:', error);
                         }
-                    }, 2000);
+                    }, 4000);
                     
                     setTimeout(async () => {
                         try {
@@ -1094,7 +1094,7 @@ class ButtonHandler {
                         } catch (error) {
                             console.error('❌ CHANNEL DELETION ERROR:', error);
                         }
-                    }, 3000);
+                    }, 5000);
                     
                 } catch (error) {
                     console.error('❌ ERROR in trade completion process:', error);
@@ -1119,7 +1119,7 @@ class ButtonHandler {
                         } catch (deleteError) {
                             console.error('❌ FORCE DELETE FAILED:', deleteError);
                         }
-                    }, 2000);
+                    }, 5000);
                     
                     // Clean up acceptances
                     delete global[acceptanceKey];
@@ -1139,7 +1139,7 @@ class ButtonHandler {
                         console.log('⚡ TIMEOUT FORCING TRADE COMPLETION...');
                         try {
                             await interaction.channel.send({
-                                content: `🎉 **TAKAS TAMAMLANDI!** Her iki oyuncu da kabul etti! Kanal 2 saniye sonra silinecek.`
+                                content: `🎉 **TAKAS TAMAMLANDI!** Her iki oyuncu da kabul etti! Kanal 5 saniye sonra silinecek.`
                             });
                             
                             setTimeout(async () => {
@@ -1152,13 +1152,13 @@ class ButtonHandler {
                                 } catch (error) {
                                     console.error('Force completion error:', error);
                                 }
-                            }, 2000);
+                            }, 5000);
                             
                             delete global[acceptanceKey];
                         } catch (error) {
                             console.error('Force completion error:', error);
                         }
-                    }, 1000);
+                    }, 5000);
                 }
             }
 
@@ -1213,7 +1213,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
         } else if (buttonType === 'edit') {
             // Both presidents can edit the salary details for players
             const member = interaction.member;
@@ -1428,7 +1428,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Check if user is authorized (target player or transfer authority)
@@ -1477,7 +1477,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'edit') {
             // Check if user is authorized (president who made release or transfer authority)
@@ -1595,7 +1595,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable hire offers
@@ -1635,7 +1635,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'edit') {
             // Sadece komutu kullanan kişi (başkan) düzenleyebilir
@@ -1712,7 +1712,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable hire agreements
@@ -1750,7 +1750,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('KANAL SİLME HATASI:', error);
                 }
-            }, 1500);
+            }, 5000);
 
         } else if (buttonType === 'edit') {
             // Check if user is authorized (player, president, or transfer authority)
@@ -3309,7 +3309,7 @@ class ButtonHandler {
                 } catch (deleteError) {
                     console.error('❌ Channel deletion error:', deleteError);
                 }
-            }, 3000);
+            }, 5000);
 
             // Cleanup acceptance tracking
             const channelName = interaction.channel.name;
@@ -3545,7 +3545,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('Kanal silme hatası:', error);
                 }
-            }, 2000);
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // For brelease: playerId is the president who is rejecting, presidentId is the player who requested
@@ -3560,7 +3560,7 @@ class ButtonHandler {
                 } catch (error) {
                     console.error('Kanal silme hatası:', error);
                 }
-            }, 2000);
+            }, 5000);
 
         } else if (buttonType === 'edit') {
             // Authorization already checked above, just show modal

@@ -100,6 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Updated channel deletion timing to 5 seconds:
+  - Changed all channel deletion delays from 1.5 seconds to 5 seconds across all transfer commands
+  - Updated countdown messages to match new 5-second timing (3 seconds, 1 second warnings)
+  - Applied to all transfer workflows: offer, contract, trade, hire, release, brelease, btrelease, trelease
+  - Provides users more time to read completion messages before channels are automatically deleted
 - June 25, 2025. Updated bot to use player mentions (@player) instead of display names in all messages and announcements:
   - Replaced all displayName usage with user mentions (user.user) for consistent player tagging
   - Updated channel creation to use usernames instead of display names for cleaner channel names
