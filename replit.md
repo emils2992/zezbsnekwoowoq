@@ -166,6 +166,16 @@ The bot is configured for Replit deployment with:
   - Presidents negotiate basic trade terms, players handle contract specifics
   - Edit button in president channels also uses simplified form without contract fields
 
+- June 25, 2025. Fixed critical trade modal interaction timeout issues:
+  - Added comprehensive interaction state validation before showing trade modals
+  - Implemented timeout protection with 2.5-2.8 second safety margins to prevent "Unknown interaction" errors
+  - Enhanced error handling for expired interactions in trade system
+  - Added interaction age checking to skip modals that would timeout
+  - Fixed "Interaction has already been acknowledged" errors with proper state validation
+  - Trade system now handles Discord API timeouts gracefully without crashing bot
+  - Eliminated "Kullanıcılar getirilirken hata oluştu!" errors in trade modal workflows
+  - Bot continues running when individual trade interactions fail or expire
+
 - June 25, 2025. Fixed critical PermissionManager instantiation errors across ALL commands and handlers:
   - Updated ALL 19 command files with proper PermissionManager class instantiation
   - Fixed command files: .contract, .trade, .hire, .ac, .kapa, .rol, .bduyur-ayarla, .cleanup, .transfer-duyuru, .serbest-ayarla, .duyur-ayarla, .bduyur

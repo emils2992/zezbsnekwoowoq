@@ -2277,9 +2277,18 @@ class ButtonHandler {
             case 'trade':
                 if (additionalParams[0] === 'modal') {
                     try {
-                        // Check if interaction is still valid
+                        // Check if interaction is still valid with timeout protection
                         if (interaction.deferred || interaction.replied) {
                             console.log('Trade interaction already handled, cannot show modal');
+                            return;
+                        }
+                        
+                        // Add timeout check before showing modal
+                        const now = Date.now();
+                        const interactionAge = now - interaction.createdTimestamp;
+                        
+                        if (interactionAge > 2500) { // 2.5 second safety margin
+                            console.log(`Trade interaction too old: ${interactionAge}ms, skipping modal`);
                             return;
                         }
                         
@@ -3203,6 +3212,22 @@ class ButtonHandler {
         const [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] = params;
         
         try {
+            // Check if interaction is still valid before proceeding
+            if (interaction.replied || interaction.deferred) {
+                console.log('Trade interaction already handled, cannot show modal');
+                return;
+            }
+            
+            // Validate interaction is still within time limit
+            const now = Date.now();
+            const interactionTime = interaction.createdTimestamp;
+            const timeDiff = now - interactionTime;
+            
+            if (timeDiff > 2800) { // 2.8 seconds safety margin
+                console.log(`Trade interaction expired: ${timeDiff}ms old`);
+                return;
+            }
+            
             const modal = new Modal()
                 .setCustomId(`trade_form_${targetPresidentId}_${wantedPlayerId}_${givenPlayerId}_${presidentId}`)
                 .setTitle('Takas Teklifi Formu');
@@ -3219,7 +3244,7 @@ class ButtonHandler {
                 .setLabel('İstenen Oyuncu Özellikleri')
                 .setStyle('SHORT')
                 .setPlaceholder('Örn: Mevki, yaş, özellikler')
-                .setRequired(false);
+                .setRequired(true);
 
             const row1 = new MessageActionRow().addComponents(additionalAmountInput);
             const row2 = new MessageActionRow().addComponents(bonusInput);
@@ -3229,11 +3254,22 @@ class ButtonHandler {
             await interaction.showModal(modal);
         } catch (error) {
             console.error('Error showing trade modal:', error);
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({
-                    content: '❌ Modal açılırken hata oluştu!',
-                    ephemeral: true
-                });
+            console.error('Trade modal gösterme hatası:', error);
+            
+            // Better error handling for interaction state
+            try {
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({
+                        content: '❌ Modal açılırken hata oluştu!',
+                        ephemeral: true
+                    });
+                } else if (interaction.deferred) {
+                    await interaction.editReply({
+                        content: '❌ Modal açılırken hata oluştu!'
+                    });
+                }
+            } catch (replyError) {
+                console.error('Trade reply error:', replyError);
             }
         }
     }
