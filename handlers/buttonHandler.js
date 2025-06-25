@@ -327,7 +327,7 @@ class ButtonHandler {
                 );
 
             await playerChannel.send({
-                content: `${player.user} sözleşme anlaşmasını onaylamanız bekleniyor.\n\n${targetPresident.user} başkan anlaşmayı onayladı.\n\n*Not: Bu kanal sadece size özeldir, başkanlar göremez.*`,
+                content: `${player.user} ${president.user} sözleşme anlaşmasını onaylamanız bekleniyor.\n\n${targetPresident.user} başkan anlaşmayı onayladı.\n\n*Not: Bu kanal sadece size özeldir, başkanlar göremez.*`,
                 embeds: [contractEmbed],
                 components: [playerButtons]
             });
@@ -1599,7 +1599,7 @@ class ButtonHandler {
                 );
 
             await playerChannel.send({
-                content: `${player.user} kiralık anlaşmasını onaylamanız bekleniyor.\n\n${targetPresident.user} başkan anlaşmayı onayladı.\n\n*Not: Bu kanal sadece size özeldir, başkanlar göremez.*`,
+                content: `${player.user} ${president.user} kiralık anlaşmasını onaylamanız bekleniyor.\n\n${targetPresident.user} başkan anlaşmayı onayladı.\n\n*Not: Bu kanal sadece size özeldir, başkanlar göremez.*`,
                 embeds: [hireEmbed],
                 components: [playerButtons]
             });

@@ -92,10 +92,14 @@ class ChannelManager {
             // For player approval channels, control president visibility
             if (type.includes('_player')) {
                 if (!allowPresidentsInPlayerChannel && (type === 'hire_player' || type === 'contract_player')) {
-                    // For hire and contract player channels, don't allow original president to see
-                    console.log(`[CHANNEL] Creating ${type} channel without original president visibility`);
-                    // Remove the original president's permission from user1 or user2 if they are the president
-                    // We need to identify which user is the president and remove their permission
+                    // For hire and contract player channels, only player should see
+                    console.log(`[CHANNEL] Creating ${type} channel - player only visibility`);
+                    // Override permissions to only allow the player (user2) to see
+                    permissionOverwrites.length = 1; // Keep only @everyone deny
+                    permissionOverwrites.push({
+                        id: user2.id, // Only the player
+                        allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'READ_MESSAGE_HISTORY']
+                    });
                 } else if (type === 'trade_player' && allowPresidentsInPlayerChannel) {
                     // For trade player channels, allow presidents to see by adding them
                     console.log(`[CHANNEL] Creating ${type} channel with president visibility`);
