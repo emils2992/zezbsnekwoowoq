@@ -100,11 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 25, 2025. Added .oldurferdi hidden troll command:
-  - Fun easter egg command that shows staged messages over 1 minute
-  - Displays kill message, atom bomb attack, server destruction, then final plea
+- June 25, 2025. Enhanced .oldurferdi hidden troll command with epic sequence:
+  - Epic troll sequence with 7 stages over 30 seconds
+  - Stages: Kill report → FBI warning → Nuclear attack → Alien invasion → Server destruction → Zombie apocalypse → Matrix glitch → Final plea
+  - Each stage has detailed embeds with statistics, fields, and dramatic descriptions
   - Hidden from help menu - only discoverable by those who know about it
-  - Command works with embedded messages that update automatically
+  - Faster pacing (30s total) with more engaging content throughout
 
 - June 25, 2025. Simplified trade command initial form for presidents:
   - Removed "Sözleşme+Ek Madde" field from president negotiation phase
