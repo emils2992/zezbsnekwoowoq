@@ -1563,7 +1563,7 @@ class ButtonHandler {
         } else if (buttonType === 'reject') {
             // Check if user is authorized (target president or transfer authority)
             const member = interaction.member;
-            const isAuthorized = interaction.user.id === playerId || permissions.isTransferAuthority(member);
+            const isAuthorized = interaction.user.id === targetPresidentId || permissions.isTransferAuthority(member);
             
             if (!isAuthorized) {
                 return interaction.reply({
@@ -1619,7 +1619,7 @@ class ButtonHandler {
             }
 
             // Extract existing data from embed and show pre-filled modal
-            await this.showEditHireModal(client, interaction, playerId, presidentId);
+            await this.showEditHireModal(client, interaction, targetPresidentId, playerId, presidentId);
         }
     }
 
@@ -1945,8 +1945,11 @@ class ButtonHandler {
         } else if (type === 'trade') {
             // For trade: [modal, targetPresidentId, wantedPlayerId, givenPlayerId, presidentId] - presidentId is at index 4
             commandCreatorId = additionalParams[4];
+        } else if (type === 'hire') {
+            // For hire: [modal, targetPresidentId, playerId, presidentId] - presidentId is at index 3
+            commandCreatorId = additionalParams[3];
         } else {
-            // For offer, hire: [modal, targetId, presidentId] - presidentId is at index 2
+            // For offer: [modal, targetId, presidentId] - presidentId is at index 2
             commandCreatorId = additionalParams[2];
         }
         
@@ -2387,25 +2390,19 @@ class ButtonHandler {
             .setValue(existingData.salary)
             .setRequired(true);
 
-        const loanDurationInput = new TextInputComponent()
-            .setCustomId('loan_duration')
-            .setLabel('Kiralık Süresi')
+        const contractInput = new TextInputComponent()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme+Ek Madde')
             .setStyle('SHORT')
-            .setValue(existingData.loanDuration)
+            .setValue(existingData.contractDuration)
             .setRequired(true);
-
-        const optionToBuyInput = new TextInputComponent()
-            .setCustomId('option_to_buy')
-            .setLabel('Satın Alma Opsiyonu')
-            .setStyle('SHORT')
-            .setValue(existingData.optionToBuy || '')
-            .setRequired(false);
 
         modal.addComponents(
             new MessageActionRow().addComponents(loanFeeInput),
+            new MessageActionRow().addComponents(oldClubInput),
+            new MessageActionRow().addComponents(newClubInput),
             new MessageActionRow().addComponents(salaryInput),
-            new MessageActionRow().addComponents(loanDurationInput),
-            new MessageActionRow().addComponents(optionToBuyInput)
+            new MessageActionRow().addComponents(contractInput)
         );
 
         await interaction.showModal(modal);
@@ -2622,6 +2619,8 @@ class ButtonHandler {
 
     async handleShowHireForm(client, interaction, params) {
         const [targetPresidentId, playerId, presidentId] = params;
+        console.log('HandleShowHireForm received params:', params);
+        console.log('Parsed hire params:', { targetPresidentId, playerId, presidentId });
         
         const modal = new Modal()
             .setCustomId(`hire_form_${targetPresidentId}_${playerId}_${presidentId}`)
