@@ -1471,8 +1471,7 @@ async function handleModalSubmit(client, interaction) {
 
             const tradeData = {
                 additionalAmount: interaction.fields.getTextInputValue('additional_amount') || '',
-                bonus: interaction.fields.getTextInputValue('bonus') || '',
-                contractDuration: interaction.fields.getTextInputValue('contract_duration') || 'Yok'
+                bonus: interaction.fields.getTextInputValue('bonus') || ''
             };
 
             // Check if we're in a negotiation channel (editing existing form)

@@ -100,6 +100,13 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 25, 2025. Simplified trade command initial form for presidents:
+  - Removed "Sözleşme+Ek Madde" field from president negotiation phase
+  - Trade modal now only shows "Ek Miktar" and "İstenen Oyuncu Özellikleri" fields
+  - Contract/salary details remain available in player approval stage
+  - Presidents negotiate basic trade terms, players handle contract specifics
+  - Edit button in president channels also uses simplified form without contract fields
+
 - June 25, 2025. Fixed critical PermissionManager instantiation errors across ALL commands and handlers:
   - Updated ALL 19 command files with proper PermissionManager class instantiation
   - Fixed command files: .contract, .trade, .hire, .ac, .kapa, .rol, .bduyur-ayarla, .cleanup, .transfer-duyuru, .serbest-ayarla, .duyur-ayarla, .bduyur

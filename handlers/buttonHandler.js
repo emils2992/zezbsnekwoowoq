@@ -3101,18 +3101,10 @@ class ButtonHandler {
                 .setPlaceholder('Örn: Mevki, yaş, özellikler')
                 .setRequired(false);
 
-            const contractInput = new TextInputComponent()
-                .setCustomId('contract_duration')
-                .setLabel('Sözleşme+Ek Madde')
-                .setStyle('SHORT')
-                .setPlaceholder('Örn: 2 yıl + performans bonusu')
-                .setRequired(true);
-
             const row1 = new MessageActionRow().addComponents(additionalAmountInput);
             const row2 = new MessageActionRow().addComponents(bonusInput);
-            const row3 = new MessageActionRow().addComponents(contractInput);
 
-            modal.addComponents(row1, row2, row3);
+            modal.addComponents(row1, row2);
 
             await interaction.showModal(modal);
         } catch (error) {
