@@ -124,6 +124,9 @@ class ButtonHandler {
                     if (customId.startsWith('show_announcement_modal_')) {
                         const params = customId.split('_').slice(3); // Remove 'show', 'announcement', 'modal'
                         await this.handleShowAnnouncementForm(client, interaction, params);
+                    } else if (customId.startsWith('show_offer_modal_')) {
+                        const params = customId.split('_').slice(3); // Remove 'show', 'offer', 'modal'
+                        await this.handleShowOfferForm(client, interaction, params);
                     } else {
                         await this.handleShowButton(client, interaction, params);
                     }

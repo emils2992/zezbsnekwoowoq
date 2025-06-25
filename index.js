@@ -408,42 +408,49 @@ async function handleModalSubmit(client, interaction) {
                     await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
                 }
             } else {
-
-
                 // Create new negotiation channel only if not in a negotiation channel
-                const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'offer');
-                if (!channel) {
-                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                try {
+                    const channels = require('./utils/channels');
+                    const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'offer');
+                    
+                    if (!channel) {
+                        throw new Error('Channel creation failed');
+                    }
+
+                    // Teklif embed'i oluştur
+                    const embeds = require('./utils/embeds');
+                    const offerEmbed = embeds.createOfferForm(president.user, player.user, offerData);
+                    
+                    const buttons = new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(`offer_accept_${playerId}_${presidentId}`)
+                                .setLabel('Kabul Et')
+                                .setStyle('SUCCESS')
+                                .setEmoji('✅'),
+                            new MessageButton()
+                                .setCustomId(`offer_reject_${playerId}_${presidentId}`)
+                                .setLabel('Reddet')
+                                .setStyle('DANGER')
+                                .setEmoji('❌'),
+                            new MessageButton()
+                                .setCustomId(`offer_edit_${playerId}_${presidentId}`)
+                                .setLabel('Düzenle')
+                                .setStyle('SECONDARY')
+                                .setEmoji('✏️')
+                        );
+
+                    await channel.send({
+                        content: `${player.user} ${president.user}`,
+                        embeds: [offerEmbed],
+                        components: [buttons]
+                    });
+
+                    await interaction.editReply({ content: `✅ Teklif müzakeresi ${channel} kanalında başlatıldı!` });
+                } catch (error) {
+                    console.error('Offer channel creation error:', error);
+                    await interaction.editReply({ content: '❌ Teklif gönderilirken bir hata oluştu! ' + error.message });
                 }
-
-                // Teklif embed'i oluştur
-                const offerEmbed = embeds.createOfferForm(president.user, player.user, offerData);
-                
-                const buttons = new MessageActionRow()
-                    .addComponents(
-                        new MessageButton()
-                            .setCustomId(`offer_accept_${playerId}_${presidentId}`)
-                            .setLabel('Kabul Et')
-                            .setStyle('SUCCESS')
-                            .setEmoji('✅'),
-                        new MessageButton()
-                            .setCustomId(`offer_reject_${playerId}_${presidentId}`)
-                            .setLabel('Reddet')
-                            .setStyle('DANGER')
-                            .setEmoji('❌'),
-                        new MessageButton()
-                            .setCustomId(`offer_edit_${playerId}_${presidentId}`)
-                            .setLabel('Düzenle')
-                            .setStyle('SECONDARY')
-                            .setEmoji('✏️')
-                    );
-
-                await channel.send({
-                    embeds: [offerEmbed],
-                    components: [buttons]
-                });
-
-                await interaction.editReply({ content: `✅ Teklif müzakeresi ${channel} kanalında başlatıldı!` });
             }
         }
 

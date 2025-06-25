@@ -116,6 +116,8 @@ The bot is configured for Replit deployment with:
   - Resolved syntax errors in modal submission handlers with complete try-catch blocks
   - Updated channel creation utilities to use proper PermissionManager instantiation
   - Fixed .duyur command permissions import and added missing button handler for announcement modals
+  - Fixed .offer command permissions import and added missing button handler for offer modals
+  - Enhanced error handling across all transfer commands with detailed error messages
   - Resolved all remaining permission-related errors across the entire codebase
 - June 25, 2025. Fixed role management errors with detailed debugging and permission checks:
   - Enhanced makePlayerFree function with detailed logging for each role operation

@@ -1,6 +1,7 @@
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const config = require('../config');
-const permissions = require('../utils/permissions');
+const PermissionManager = require('../utils/permissions');
+const permissions = new PermissionManager();
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
 
