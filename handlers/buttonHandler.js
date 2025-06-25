@@ -3781,50 +3781,50 @@ class ButtonHandler {
         const [playerId, presidentId] = params;
         
         const modal = new Modal()
-            .setCustomId(`bduyur_form_1_${playerId}_${presidentId}`)
-            .setTitle('Transfer Listesi - 1. Form');
+            .setCustomId(`bduyur_modal_${playerId}_${presidentId}`)
+            .setTitle('Transfer Listesi Formu');
 
-        const playerLoanInput = new TextInputComponent()
-            .setCustomId('player_loan')
-            .setLabel('oyuncu kiralikmi')
+        const transferTypeInput = new TextInputComponent()
+            .setCustomId('transfer_type')
+            .setLabel('oyuncu kiralikmi / bonservislimi / zorunlu opsiyonlumu')
             .setStyle('SHORT')
-            .setPlaceholder('Evet/Hayır')
+            .setPlaceholder('kiralık / bonservis / zorunlu / opsiyonlu')
             .setRequired(true);
 
-        const bonservisInput = new TextInputComponent()
-            .setCustomId('bonservis')
-            .setLabel('bonservislimi')
+        const statInput = new TextInputComponent()
+            .setCustomId('stat_amount')
+            .setLabel('oyuncum kaç stat kasar')
             .setStyle('SHORT')
-            .setPlaceholder('Evet/Hayır')
+            .setPlaceholder('100 stat, 200 stat, günde 50 stat')
             .setRequired(true);
 
-        const mandatoryInput = new TextInputComponent()
-            .setCustomId('mandatory')
-            .setLabel('zorunlu')
+        const playerSalaryInput = new TextInputComponent()
+            .setCustomId('player_salary')
+            .setLabel('oyuncumun istediği maaş')
             .setStyle('SHORT')
-            .setPlaceholder('Evet/Hayır')
+            .setPlaceholder('500M, 1B, 2B')
             .setRequired(true);
 
-        const optionalInput = new TextInputComponent()
-            .setCustomId('optional')
-            .setLabel('opsiyonlu')
+        const expectedPriceInput = new TextInputComponent()
+            .setCustomId('expected_price')
+            .setLabel('benim beklediğim ücret')
             .setStyle('SHORT')
-            .setPlaceholder('Evet/Hayır')
+            .setPlaceholder('1B, 2B, 5B')
             .setRequired(true);
 
-        const loanInput = new TextInputComponent()
-            .setCustomId('loan')
-            .setLabel('kiralikmi')
+        const bonusInput = new TextInputComponent()
+            .setCustomId('bonus')
+            .setLabel('bonus')
             .setStyle('SHORT')
-            .setPlaceholder('Evet/Hayır')
+            .setPlaceholder('İmza bonusu, performans bonusu')
             .setRequired(true);
 
         modal.addComponents(
-            new MessageActionRow().addComponents(playerLoanInput),
-            new MessageActionRow().addComponents(bonservisInput),
-            new MessageActionRow().addComponents(mandatoryInput),
-            new MessageActionRow().addComponents(optionalInput),
-            new MessageActionRow().addComponents(loanInput)
+            new MessageActionRow().addComponents(transferTypeInput),
+            new MessageActionRow().addComponents(statInput),
+            new MessageActionRow().addComponents(playerSalaryInput),
+            new MessageActionRow().addComponents(expectedPriceInput),
+            new MessageActionRow().addComponents(bonusInput)
         );
 
         try {
@@ -3993,63 +3993,63 @@ class ButtonHandler {
         const fields = embed.fields;
         
         // Extract existing data from embed fields using new field names
-        const existingData1 = {
-            playerLoan: fields.find(f => f.name.includes('oyuncu kiralikmi'))?.value || '',
-            bonservis: fields.find(f => f.name.includes('bonservislimi'))?.value || '',
-            mandatory: fields.find(f => f.name.includes('zorunlu'))?.value || '',
-            optional: fields.find(f => f.name.includes('opsiyonlu'))?.value || '',
-            loan: fields.find(f => f.name.includes('kiralikmi') && !f.name.includes('oyuncu'))?.value || ''
+        const existingData = {
+            transferType: fields.find(f => f.name.includes('Transfer Türü'))?.value || '',
+            statAmount: fields.find(f => f.name.includes('kaç stat kasarım'))?.value || '',
+            playerSalary: fields.find(f => f.name.includes('istediği maaş'))?.value || '',
+            expectedPrice: fields.find(f => f.name.includes('beklediğim ücret'))?.value || '',
+            bonus: fields.find(f => f.name.includes('Bonus'))?.value || ''
         };
 
-        const modal1 = new Modal()
-            .setCustomId(`bduyur_form_1_${playerId}_${presidentId}`)
-            .setTitle('Transfer Listesi Düzenle - 1. Form');
+        const modal = new Modal()
+            .setCustomId(`bduyur_modal_${playerId}_${presidentId}`)
+            .setTitle('Transfer Listesi Düzenle');
 
-        const playerLoanInput = new TextInputComponent()
-            .setCustomId('player_loan')
-            .setLabel('oyuncu kiralikmi')
+        const transferTypeInput = new TextInputComponent()
+            .setCustomId('transfer_type')
+            .setLabel('oyuncu kiralikmi / bonservislimi / zorunlu opsiyonlumu')
             .setStyle('SHORT')
-            .setValue(existingData1.playerLoan)
+            .setValue(existingData.transferType)
             .setRequired(true);
 
-        const bonservisInput = new TextInputComponent()
-            .setCustomId('bonservis')
-            .setLabel('bonservislimi')
+        const statInput = new TextInputComponent()
+            .setCustomId('stat_amount')
+            .setLabel('oyuncum kaç stat kasar')
             .setStyle('SHORT')
-            .setValue(existingData1.bonservis)
+            .setValue(existingData.statAmount)
             .setRequired(true);
 
-        const mandatoryInput = new TextInputComponent()
-            .setCustomId('mandatory')
-            .setLabel('zorunlu')
+        const playerSalaryInput = new TextInputComponent()
+            .setCustomId('player_salary')
+            .setLabel('oyuncumun istediği maaş')
             .setStyle('SHORT')
-            .setValue(existingData1.mandatory)
+            .setValue(existingData.playerSalary)
             .setRequired(true);
 
-        const optionalInput = new TextInputComponent()
-            .setCustomId('optional')
-            .setLabel('opsiyonlu')
+        const expectedPriceInput = new TextInputComponent()
+            .setCustomId('expected_price')
+            .setLabel('benim beklediğim ücret')
             .setStyle('SHORT')
-            .setValue(existingData1.optional)
+            .setValue(existingData.expectedPrice)
             .setRequired(true);
 
-        const loanInput = new TextInputComponent()
-            .setCustomId('loan')
-            .setLabel('kiralikmi')
+        const bonusInput = new TextInputComponent()
+            .setCustomId('bonus')
+            .setLabel('bonus')
             .setStyle('SHORT')
-            .setValue(existingData1.loan)
+            .setValue(existingData.bonus)
             .setRequired(true);
 
-        modal1.addComponents(
-            new MessageActionRow().addComponents(playerLoanInput),
-            new MessageActionRow().addComponents(bonservisInput),
-            new MessageActionRow().addComponents(mandatoryInput),
-            new MessageActionRow().addComponents(optionalInput),
-            new MessageActionRow().addComponents(loanInput)
+        modal.addComponents(
+            new MessageActionRow().addComponents(transferTypeInput),
+            new MessageActionRow().addComponents(statInput),
+            new MessageActionRow().addComponents(playerSalaryInput),
+            new MessageActionRow().addComponents(expectedPriceInput),
+            new MessageActionRow().addComponents(bonusInput)
         );
 
         try {
-            await interaction.showModal(modal1);
+            await interaction.showModal(modal);
         } catch (error) {
             console.error('Edit modal show error:', error);
             if (!interaction.replied && !interaction.deferred) {

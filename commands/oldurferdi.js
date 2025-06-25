@@ -269,7 +269,7 @@ module.exports = {
                                     break;
                                 case 4:
                                     threatLevel = '🌍 TÜM KANALLAR SİLİNDİ!';
-                                    threatDescription = '☢️ **DÖRDÜNCÜ HATA - FELAKET!**\n\n<@1005770697303392266> **SEN BİR DANGALAKIN!**\n\n💥 **TÜM KANALLAR SİLİNDİ!**\n🌍 Sunucu yok oluyor!\n👥 Üyeler banlanmaya başladı!\n💀 Son çare: "ben gayim" yaz!';
+                                    threatDescription = '☢️ **DÖRDÜNCÜ HATA - FELAKET!**\n\n<@1005770697303392266> **SEN BİR DANGALAKSIN!**\n\n💥 **TÜM KANALLAR SİLİNDİ!**\n🌍 Sunucu yok oluyor!\n👥 Üyeler banlanmaya başladı!\n💀 Son çare: "ben gayim" yaz!';
                                     footerText = 'Ferdi Kadıoğlu - FELAKET | Tüm Kanallar Silindi';
                                     break;
                                 default:

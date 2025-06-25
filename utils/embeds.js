@@ -165,12 +165,11 @@ class EmbedCreator {
             .addFields(
                 { name: `${config.emojis.handshake} Başkan`, value: `${president}`, inline: true },
                 { name: '🎯 Oyuncu', value: `${player}`, inline: true },
-                { name: '🔄 oyuncu kiralikmi', value: bduyurData?.playerLoan || 'Yok', inline: true },
-                { name: '📋 bonservislimi', value: bduyurData?.bonservis || 'Yok', inline: true },
-                { name: '⚠️ zorunlu', value: bduyurData?.mandatory || 'Yok', inline: true },
-                { name: '🔧 opsiyonlu', value: bduyurData?.optional || 'Yok', inline: true },
-                { name: '🏠 kiralikmi', value: bduyurData?.loan || 'Yok', inline: true },
-                { name: '📊 oyuncum kaç stat kasar', value: bduyurData?.statFarming || 'Yok', inline: false }
+                { name: '🔄 Transfer Türü', value: bduyurData?.transferType || 'Belirtilmemiş', inline: true },
+                { name: '📊 oyuncum kaç stat kasarım', value: bduyurData?.statAmount || 'Belirtilmemiş', inline: true },
+                { name: '💰 oyuncumun istediği maaş', value: bduyurData?.playerSalary || 'Belirtilmemiş', inline: true },
+                { name: '💎 benim beklediğim ücret', value: bduyurData?.expectedPrice || 'Belirtilmemiş', inline: true },
+                { name: '🎁 Bonus', value: bduyurData?.bonus || 'Belirtilmemiş', inline: true }
             ).setThumbnail(player.displayAvatarURL({ dynamic: true }))
             .setTimestamp()
             .setFooter({ text: 'Transfer Listesi Sistemi' });

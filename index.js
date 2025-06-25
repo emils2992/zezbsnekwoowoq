@@ -567,48 +567,10 @@ async function handleModalSubmit(client, interaction) {
             }
         }
 
-        // BDuyur form modali - 1. form (transfer details)
-        if (customId.startsWith('bduyur_form_1_')) {
-            console.log('BDuyur form 1 submission received:', customId);
-            const [, , , playerId, presidentId] = customId.split('_');
-            
-            // Store first modal data temporarily
-            const formData1 = {
-                playerLoan: interaction.fields.getTextInputValue('player_loan') || 'Yok',
-                bonservis: interaction.fields.getTextInputValue('bonservis') || 'Yok',
-                mandatory: interaction.fields.getTextInputValue('mandatory') || 'Yok',
-                optional: interaction.fields.getTextInputValue('optional') || 'Yok',
-                loan: interaction.fields.getTextInputValue('loan') || 'Yok'
-            };
-            
-            // Store data globally for second modal
-            global[`bduyur_temp_${playerId}_${presidentId}`] = formData1;
-            
-            // Show second modal for stat farming
-            const { Modal, TextInputComponent, MessageActionRow } = require('discord.js');
-            const modal2 = new Modal()
-                .setCustomId(`bduyur_form_2_${playerId}_${presidentId}`)
-                .setTitle('Transfer Listesi - 2. Form');
-
-            const statInput = new TextInputComponent()
-                .setCustomId('stat_farming')
-                .setLabel('oyuncum kaç stat kasar')
-                .setStyle('SHORT')
-                .setPlaceholder('Örn: günde 100 stat, haftalık 500 stat')
-                .setRequired(true);
-
-            modal2.addComponents(
-                new MessageActionRow().addComponents(statInput)
-            );
-
-            await interaction.showModal(modal2);
-            return;
-        }
-
-        // BDuyur form modali - 2. form (stat farming)
-        if (customId.startsWith('bduyur_form_2_')) {
-            console.log('BDuyur form 2 submission received:', customId);
-            const [, , , playerId, presidentId] = customId.split('_');
+        // BDuyur form modali - tek form (5 alan)
+        if (customId.startsWith('bduyur_modal_')) {
+            console.log('BDuyur modal submission received:', customId);
+            const [, , playerId, presidentId] = customId.split('_');
             const player = interaction.guild.members.cache.get(playerId);
             const president = interaction.guild.members.cache.get(presidentId);
 
@@ -617,17 +579,12 @@ async function handleModalSubmit(client, interaction) {
                 return interaction.editReply({ content: 'Kullanıcılar bulunamadı!' });
             }
 
-            // Get stored data from first modal
-            const formData1 = global[`bduyur_temp_${playerId}_${presidentId}`] || {};
-            delete global[`bduyur_temp_${playerId}_${presidentId}`]; // Clean up
-
             const bduyurData = {
-                playerLoan: formData1.playerLoan || 'Yok',
-                bonservis: formData1.bonservis || 'Yok', 
-                mandatory: formData1.mandatory || 'Yok',
-                optional: formData1.optional || 'Yok',
-                loan: formData1.loan || 'Yok',
-                statFarming: interaction.fields.getTextInputValue('stat_farming') || 'Yok'
+                transferType: interaction.fields.getTextInputValue('transfer_type') || 'Belirtilmemiş',
+                statAmount: interaction.fields.getTextInputValue('stat_amount') || 'Belirtilmemiş',
+                playerSalary: interaction.fields.getTextInputValue('player_salary') || 'Belirtilmemiş',
+                expectedPrice: interaction.fields.getTextInputValue('expected_price') || 'Belirtilmemiş',
+                bonus: interaction.fields.getTextInputValue('bonus') || 'Belirtilmemiş'
             };
 
             console.log('BDuyur data:', bduyurData);

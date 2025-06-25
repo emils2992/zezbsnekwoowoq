@@ -223,12 +223,12 @@ The bot is configured for Replit deployment with:
   - Updated field extraction to match "Transfer Bedeli", "Eski Kulüp", "Yeni Kulüp", "Yıllık Maaş", "Sözleşme+Ekmadde"
   - Contract edits in president channel now properly transfer data to player approval channel
   - Eliminated "Belirtilmemiş" display issue when editing contract forms
-- June 25, 2025. Implemented two-modal system for .bduyur command:
-  - First modal: "oyuncu kiralikmi", "bonservislimi", "zorunlu", "opsiyonlu", "kiralikmi"
-  - Second modal: "oyuncum kaç stat kasar" 
-  - Updated embed display to show all new fields from both modals
-  - Updated edit modal to support new two-modal field structure
-  - Form data flows from first modal through global storage to second modal completion
+- June 25, 2025. Updated .bduyur command to single 5-field modal system:
+  - Single modal with 5 fields: "oyuncu kiralikmi / bonservislimi / zorunlu opsiyonlumu", "oyuncum kaç stat kasar", "oyuncumun istediği maaş", "benim beklediğim ücret", "bonus"
+  - Simplified from two-modal to single-modal workflow for better user experience
+  - Updated embed display to show all 5 fields in organized format
+  - Edit functionality works with pre-filled values from existing embed data
+  - Streamlined transfer list creation process
 - June 25, 2025. Updated .duyur command field from role to stat farming:
   - Changed "Takımdaki Rolüm" field to "kaç stat kasarım" in modal form
   - Updated placeholder text to show stat examples (100 stat, 200 stat, günde 50 stat)
