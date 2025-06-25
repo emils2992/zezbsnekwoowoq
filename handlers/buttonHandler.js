@@ -2840,10 +2840,26 @@ class ButtonHandler {
             .setPlaceholder('Örn: Cristiano Ronaldo')
             .setRequired(true);
 
+        const salaryInput = new TextInputComponent()
+            .setCustomId('salary')
+            .setLabel('Maaş (Yıllık)')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 10.000.000₺/yıl')
+            .setRequired(true);
+
+        const contractInput = new TextInputComponent()
+            .setCustomId('contract_duration')
+            .setLabel('Sözleşme+Ekmadde')
+            .setStyle('SHORT')
+            .setPlaceholder('Örn: 2 yıl')
+            .setRequired(true);
+
         const row1 = new MessageActionRow().addComponents(additionalAmountInput);
         const row2 = new MessageActionRow().addComponents(wantedPlayerInput);
+        const row3 = new MessageActionRow().addComponents(salaryInput);
+        const row4 = new MessageActionRow().addComponents(contractInput);
 
-        modal.addComponents(row1, row2);
+        modal.addComponents(row1, row2, row3, row4);
 
         await interaction.showModal(modal);
     }
@@ -3060,10 +3076,19 @@ class ButtonHandler {
                 .setValue(currentBonus === 'Belirtilmedi' ? '' : currentBonus)
                 .setRequired(false);
 
+            const contractInput = new TextInputComponent()
+                .setCustomId('contract_duration')
+                .setLabel('Sözleşme+Ek Madde')
+                .setStyle('SHORT')
+                .setPlaceholder('Örn: 2 yıl + performans bonusu')
+                .setValue(currentContract === 'Belirtilecek' ? '' : currentContract)
+                .setRequired(true);
+
             const row1 = new MessageActionRow().addComponents(additionalAmountInput);
             const row2 = new MessageActionRow().addComponents(bonusInput);
+            const row3 = new MessageActionRow().addComponents(contractInput);
 
-            modal.addComponents(row1, row2);
+            modal.addComponents(row1, row2, row3);
 
             await interaction.showModal(modal);
         } catch (error) {
