@@ -351,10 +351,10 @@ async function handleModalSubmit(client, interaction) {
             }
 
             const offerData = {
-                newTeam: interaction.fields.getTextInputValue('new_team') || 'Belirtilmemiş',
-                salary: interaction.fields.getTextInputValue('salary') || '6.000.000₺/yıl',
-                contractDuration: interaction.fields.getTextInputValue('contract_duration') || '2 yıl + bonuslar',
-                bonus: interaction.fields.getTextInputValue('bonus') || '3.000.000₺'
+                newTeam: interaction.fields.getTextInputValue('new_team') || '',
+                salary: interaction.fields.getTextInputValue('salary') || '',
+                contractDuration: interaction.fields.getTextInputValue('contract_duration') || '',
+                bonus: interaction.fields.getTextInputValue('bonus') || ''
             };
 
             // Check if we're already in a negotiation channel
@@ -558,11 +558,11 @@ async function handleModalSubmit(client, interaction) {
             
             // Store first modal data temporarily
             const formData1 = {
-                playerLoan: interaction.fields.getTextInputValue('player_loan') || 'Hayır',
-                bonservis: interaction.fields.getTextInputValue('bonservis') || 'Hayır',
-                mandatory: interaction.fields.getTextInputValue('mandatory') || 'Hayır',
-                optional: interaction.fields.getTextInputValue('optional') || 'Hayır',
-                loan: interaction.fields.getTextInputValue('loan') || 'Hayır'
+                playerLoan: interaction.fields.getTextInputValue('player_loan') || '',
+                bonservis: interaction.fields.getTextInputValue('bonservis') || '',
+                mandatory: interaction.fields.getTextInputValue('mandatory') || '',
+                optional: interaction.fields.getTextInputValue('optional') || '',
+                loan: interaction.fields.getTextInputValue('loan') || ''
             };
             
             // Store data globally for second modal
@@ -606,12 +606,12 @@ async function handleModalSubmit(client, interaction) {
             delete global[`bduyur_temp_${playerId}_${presidentId}`]; // Clean up
 
             const bduyurData = {
-                playerLoan: formData1.playerLoan || 'Hayır',
-                bonservis: formData1.bonservis || 'Hayır', 
-                mandatory: formData1.mandatory || 'Hayır',
-                optional: formData1.optional || 'Hayır',
-                loan: formData1.loan || 'Hayır',
-                statFarming: interaction.fields.getTextInputValue('stat_farming') || 'Belirtilmemiş'
+                playerLoan: formData1.playerLoan || '',
+                bonservis: formData1.bonservis || '', 
+                mandatory: formData1.mandatory || '',
+                optional: formData1.optional || '',
+                loan: formData1.loan || '',
+                statFarming: interaction.fields.getTextInputValue('stat_farming') || ''
             };
 
             console.log('BDuyur data:', bduyurData);
