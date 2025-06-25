@@ -117,7 +117,8 @@ class ChannelManager {
             }
 
             // Transfer yetkililerine erişim ver
-            const permissions = require('./permissions');
+            const PermissionManager = require('./permissions');
+            const permissions = new PermissionManager();
             const transferAuthorities = permissions.getTransferAuthorities(guild);
             for (const authorityRole of transferAuthorities) {
                 permissionOverwrites.push({

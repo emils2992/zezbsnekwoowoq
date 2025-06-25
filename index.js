@@ -514,42 +514,49 @@ async function handleModalSubmit(client, interaction) {
                     await interaction.editReply({ content: `❌ Güncellenecek mesaj bulunamadı!` });
                 }
             } else {
-
-
                 // Create new negotiation channel only if not in a negotiation channel
-                const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'release');
-                if (!channel) {
-                    return interaction.editReply({ content: 'Müzakere kanalı oluşturulamadı!' });
+                try {
+                    const channels = require('./utils/channels');
+                    const channel = await channels.createNegotiationChannel(interaction.guild, president.user, player.user, 'release');
+                    
+                    if (!channel) {
+                        throw new Error('Channel creation failed');
+                    }
+
+                    // Fesih embed'i oluştur
+                    const embeds = require('./utils/embeds');
+                    const releaseEmbed = embeds.createReleaseForm(president.user, player.user, releaseType, releaseData);
+                    
+                    const buttons = new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(`release_accept_${playerId}_${presidentId}_${releaseType}`)
+                                .setLabel('Kabul Et')
+                                .setStyle('SUCCESS')
+                                .setEmoji('✅'),
+                            new MessageButton()
+                                .setCustomId(`release_reject_${playerId}_${presidentId}_${releaseType}`)
+                                .setLabel('Reddet')
+                                .setStyle('DANGER')
+                                .setEmoji('❌'),
+                            new MessageButton()
+                                .setCustomId(`release_edit_${playerId}_${presidentId}_${releaseType}`)
+                                .setLabel('Düzenle')
+                                .setStyle('SECONDARY')
+                                .setEmoji('✏️')
+                        );
+
+                    await channel.send({
+                        content: `${player.user} ${president.user}`,
+                        embeds: [releaseEmbed],
+                        components: [buttons]
+                    });
+
+                    await interaction.editReply({ content: `✅ Fesih müzakeresi ${channel} kanalında başlatıldı!` });
+                } catch (error) {
+                    console.error('Release channel creation error:', error);
+                    await interaction.editReply({ content: '❌ Müzakere kanalı oluşturulamadı! ' + error.message });
                 }
-
-                // Fesih embed'i oluştur
-                const releaseEmbed = embeds.createReleaseForm(president.user, player.user, releaseType, releaseData);
-                
-                const buttons = new MessageActionRow()
-                    .addComponents(
-                        new MessageButton()
-                            .setCustomId(`release_accept_${playerId}_${presidentId}_${releaseType}`)
-                            .setLabel('Kabul Et')
-                            .setStyle('SUCCESS')
-                            .setEmoji('✅'),
-                        new MessageButton()
-                            .setCustomId(`release_reject_${playerId}_${presidentId}_${releaseType}`)
-                            .setLabel('Reddet')
-                            .setStyle('DANGER')
-                            .setEmoji('❌'),
-                        new MessageButton()
-                            .setCustomId(`release_edit_${playerId}_${presidentId}_${releaseType}`)
-                            .setLabel('Düzenle')
-                            .setStyle('SECONDARY')
-                            .setEmoji('✏️')
-                    );
-
-                await channel.send({
-                    embeds: [releaseEmbed],
-                    components: [buttons]
-                });
-
-                await interaction.editReply({ content: `✅ Fesih müzakeresi ${channel} kanalında başlatıldı!` });
             }
         }
 
