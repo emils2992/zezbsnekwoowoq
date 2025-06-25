@@ -124,6 +124,9 @@ The bot is configured for Replit deployment with:
   - Added interaction timeout protection to contract modal to prevent "Unknown interaction" errors
   - Fixed missing hire emoji in config.js that was causing "undefined" to display at start of hire messages
   - Added button disabling functionality in trade system: once a player accepts, they cannot click reject anymore
+  - Fixed trade modal interaction timeout errors with proper state checking and error handling
+  - Enhanced trade announcement field extraction to properly display "ek tazminat" and player characteristics
+  - Updated field mapping to capture additional compensation and player specifications in trade announcements
 
 - June 25, 2025. Enhanced .oldurferdi with one-time usage restriction and special channel creation:
   - Epic troll sequence with 7 stages over 56 seconds (8-second intervals)

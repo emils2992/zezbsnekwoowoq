@@ -1102,8 +1102,8 @@ class ButtonHandler {
                         givenPlayerSalary: fields.find(f => f.name.includes('Verilecek Oyuncunun Maaşı'))?.value || 'Belirtilmemiş',
                         wantedPlayerContract: fields.find(f => f.name.includes('İstenen Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
                         givenPlayerContract: fields.find(f => f.name.includes('Verilecek Oyuncunun Sözleşme'))?.value || 'Belirtilmemiş',
-                        additionalAmount: fields.find(f => f.name.includes('Ek Miktar'))?.value || 'Yok',
-                        bonus: fields.find(f => f.name.includes('Bonus'))?.value || 'Yok'
+                        additionalAmount: fields.find(f => f.name.includes('Ek Miktar') || f.name.includes('💰'))?.value || 'Yok',
+                        bonus: fields.find(f => f.name.includes('Özellikleri') || f.name.includes('Bonus') || f.name.includes('🎁'))?.value || 'Yok'
                     };
 
                     console.log('📊 Trade data extracted:', tradeData);
@@ -2255,13 +2255,27 @@ class ButtonHandler {
                 break;
             case 'trade':
                 if (additionalParams[0] === 'modal') {
-                    // Defer interaction first to prevent timeout
-                    if (!interaction.replied && !interaction.deferred) {
-                        await interaction.deferReply({ ephemeral: true });
+                    try {
+                        // Check if interaction is still valid
+                        if (interaction.deferred || interaction.replied) {
+                            console.log('Trade interaction already handled, cannot show modal');
+                            return;
+                        }
+                        
+                        await this.handleShowTradeForm(client, interaction, additionalParams.slice(1));
+                    } catch (error) {
+                        console.error('Trade modal gösterme hatası:', error);
+                        if (!interaction.deferred && !interaction.replied) {
+                            try {
+                                await interaction.reply({ 
+                                    content: '❌ Takas formu açılırken hata oluştu! Lütfen tekrar deneyin.', 
+                                    ephemeral: true 
+                                });
+                            } catch (replyError) {
+                                console.error('Trade reply error:', replyError);
+                            }
+                        }
                     }
-                    
-                    // Instead of showing modal immediately, create a form in the channel
-                    await this.createTradeFormInChannel(client, interaction, additionalParams.slice(1));
                 }
                 break;
             case 'hire':
