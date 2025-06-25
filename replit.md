@@ -102,6 +102,8 @@ The bot is configured for Replit deployment with:
 
 - June 25, 2025. Fixed .bduyur form error and syntax issues:
   - Resolved "Modal açılırken hata oluştu!" error when clicking .bduyur form button
+  - Fixed Discord API error "Must be 45 or fewer in length" by shortening modal field labels
+  - Updated bduyur modal labels: "Transfer Türü", "Stat Miktarı", "Oyuncu Maaşı", "Beklenen Ücret"
   - Fixed missing button handler routing for "show_bduyur_modal_" custom IDs in buttonHandler.js
   - Added proper routing to connect bduyur modal buttons to handleShowBduyurForm function
   - Fixed broken try-catch structure in modal submission handler causing Discord bot startup failures

@@ -3789,28 +3789,28 @@ class ButtonHandler {
 
         const transferTypeInput = new TextInputComponent()
             .setCustomId('transfer_type')
-            .setLabel('oyuncu kiralikmi / bonservislimi / zorunlu opsiyonlumu')
+            .setLabel('Transfer Türü')
             .setStyle('SHORT')
             .setPlaceholder('kiralık / bonservis / zorunlu / opsiyonlu')
             .setRequired(true);
 
         const statInput = new TextInputComponent()
             .setCustomId('stat_amount')
-            .setLabel('oyuncum kaç stat kasar')
+            .setLabel('Stat Miktarı')
             .setStyle('SHORT')
             .setPlaceholder('100 stat, 200 stat, günde 50 stat')
             .setRequired(true);
 
         const playerSalaryInput = new TextInputComponent()
             .setCustomId('player_salary')
-            .setLabel('oyuncumun istediği maaş')
+            .setLabel('Oyuncu Maaşı')
             .setStyle('SHORT')
             .setPlaceholder('500M, 1B, 2B')
             .setRequired(true);
 
         const expectedPriceInput = new TextInputComponent()
             .setCustomId('expected_price')
-            .setLabel('benim beklediğim ücret')
+            .setLabel('Beklenen Ücret')
             .setStyle('SHORT')
             .setPlaceholder('1B, 2B, 5B')
             .setRequired(true);
