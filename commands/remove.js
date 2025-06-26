@@ -22,12 +22,34 @@ module.exports = {
             return message.reply({ embeds: [embed] });
         }
 
+        // "all" komutu kontrolü - herkesi sıfırla
+        if (args[0] === 'all') {
+            // Tüm ekonomi verisini sıfırla
+            economy.saveEconomyData(message.guild.id, {});
+            
+            const embed = new MessageEmbed()
+                .setColor('#FF0000')
+                .setTitle('🧹 Ekonomi Sıfırlandı')
+                .setDescription('**Tüm kullanıcıların parası sıfırlandı!**\n\nTüm ekonomi verisi temizlendi.')
+                .setTimestamp();
+
+            await message.reply({ embeds: [embed] });
+
+            // Ekonomi loguna kaydet
+            await logger.logTransaction(client, message.guild.id, {
+                type: 'reset_all',
+                admin: message.author.id,
+                message: 'Tüm ekonomi verisi sıfırlandı'
+            });
+            return;
+        }
+
         // Kullanıcı ve miktar kontrolü
         if (args.length < 2) {
             const embed = new MessageEmbed()
                 .setColor('#FF0000')
                 .setTitle('❌ Hata')
-                .setDescription('Kullanım: `.remove @kullanıcı miktar`\nÖrnek: `.remove @john 5k`');
+                .setDescription('Kullanım: `.remove @kullanıcı miktar` veya `.remove all`\nÖrnek: `.remove @john 5k`\nTümünü sıfırla: `.remove all`');
             return message.reply({ embeds: [embed] });
         }
 
