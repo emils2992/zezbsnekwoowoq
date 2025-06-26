@@ -102,15 +102,16 @@ The bot is configured for Replit deployment with:
 
 - June 26, 2025. Added comprehensive transfer tracking system with .tf, .tfreset, and .yt commands:
   - Created .tf command for paginated transfer history viewing (10 transfers per page with navigation buttons)
-  - Added .tfreset command for transfer authorities to clear transfer records
+  - Added .tfreset command that archives transfer data instead of deleting it (saves to transfers_archive.json)
   - Implemented .yt command for authorities to view recent transfers with detailed information
   - Automatic transfer recording system integrated into all announcement functions
   - Transfer records include: player mentions, team names from actual forms, transfer types, dates, and amounts
-  - Special handling for different transfer types: offers show no old club, trades show exchange format
+  - Special handling for different transfer types: offers show no old club, trades show "X'nin takımı" format
   - Pagination system with left/right buttons for navigating through transfer history
   - Authority-only commands (.yt, .tfreset) restricted to transfer authorities for moderation
   - Transfer data stored in transfers.json with guild-specific organization
   - Enhanced team name extraction from actual transfer forms instead of usernames
+  - Archive system preserves all transfer history with metadata (date, guild name, reset performer)
 
 - June 26, 2025. Implemented global logging system for cross-server announcement tracking:
   - Enhanced existing .log command to allow single-channel configuration (unchangeable once set)

@@ -41,18 +41,22 @@ module.exports = {
 
             currentTransfers.forEach((transfer, index) => {
                 const transferIndex = startIndex + index + 1;
-                let transferText = `**${transferIndex}.** ${transfer.player}`;
+                let transferText = `**${transferIndex}.** ${transfer.playerMention || transfer.player}`;
                 
                 if (transfer.type === 'offer') {
                     // Serbest transfer - eski kulüp gösterme
                     transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
+                    if (transfer.salary) transferText += `\n💰 Maaş: ${transfer.salary}`;
                 } else if (transfer.type === 'trade') {
-                    // Takas - özel format
+                    // Takas - başkanların takımları formatı
                     transferText += `\n🔄 ${transfer.fromTeam} ↔ ${transfer.toTeam}`;
+                    if (transfer.salary) transferText += `\n💰 Maaşlar: ${transfer.salary}`;
                 } else {
-                    // Diğer transferler - tam bilgi
-                    transferText += `\n📤 Eski Kulüp: ${transfer.fromTeam}`;
-                    transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
+                    // Contract, hire vb. - tam bilgi
+                    if (transfer.fromTeam) transferText += `\n📤 Eski Kulüp: ${transfer.fromTeam}`;
+                    if (transfer.toTeam) transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
+                    if (transfer.amount) transferText += `\n💰 Ücret: ${transfer.amount}`;
+                    if (transfer.salary) transferText += `\n💵 Maaş: ${transfer.salary}`;
                 }
                 
                 transferText += `\n📅 ${transfer.date}`;

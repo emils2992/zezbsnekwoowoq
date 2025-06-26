@@ -1950,16 +1950,19 @@ class ButtonHandler {
                 let transferText = `**${transferIndex}.** ${transfer.playerMention || transfer.player}`;
                 
                 if (transfer.type === 'offer') {
+                    // Serbest transfer - eski kulüp gösterme
                     transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
+                    if (transfer.salary) transferText += `\n💰 Maaş: ${transfer.salary}`;
                 } else if (transfer.type === 'trade') {
-                    if (transfer.tradeDetails) {
-                        transferText += `\n🔄 ${transfer.tradeDetails}`;
-                    } else {
-                        transferText += `\n🔄 ${transfer.fromTeam} ↔ ${transfer.toTeam}`;
-                    }
+                    // Takas - başkanların takımları formatı
+                    transferText += `\n🔄 ${transfer.fromTeam} ↔ ${transfer.toTeam}`;
+                    if (transfer.salary) transferText += `\n💰 Maaşlar: ${transfer.salary}`;
                 } else {
-                    transferText += `\n📤 Eski Kulüp: ${transfer.fromTeam}`;
-                    transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
+                    // Contract, hire vb. - tam bilgi
+                    if (transfer.fromTeam) transferText += `\n📤 Eski Kulüp: ${transfer.fromTeam}`;
+                    if (transfer.toTeam) transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
+                    if (transfer.amount) transferText += `\n💰 Ücret: ${transfer.amount}`;
+                    if (transfer.salary) transferText += `\n💵 Maaş: ${transfer.salary}`;
                 }
                 
                 transferText += `\n📅 ${transfer.date}`;
@@ -4512,24 +4515,38 @@ class ButtonHandler {
                 transfersData[guild.id] = [];
             }
 
-            // Create transfer record
+            // Create transfer record with proper team name formatting
             const transferRecord = {
                 player: logData.player,
                 playerMention: transferData.player ? transferData.player.user.toString() : null,
                 type: transferData.type,
-                fromTeam: logData.fromTeam,
-                toTeam: logData.toTeam,
-                amount: logData.amount,
-                salary: logData.salary,
-                duration: logData.duration,
-                reason: logData.reason,
                 date: new Date().toLocaleString('tr-TR'),
                 timestamp: Date.now()
             };
 
-            // Add special handling for trade
+            // Handle different transfer types with proper team name formatting
             if (transferData.type === 'trade') {
+                // Trade: Use president usernames with "nin takımı" format
+                transferRecord.player = `${transferData.wantedPlayer?.user.username} ↔ ${transferData.givenPlayer?.user.username}`;
+                transferRecord.fromTeam = `${transferData.targetPresident?.user.username}nin takımı`;
+                transferRecord.toTeam = `${transferData.president?.user.username}nin takımı`;
                 transferRecord.tradeDetails = `${transferData.wantedPlayer?.user.username} ↔ ${transferData.givenPlayer?.user.username}`;
+                if (logData.salary) transferRecord.salary = logData.salary;
+                if (logData.amount) transferRecord.amount = logData.amount;
+            } else if (transferData.type === 'offer') {
+                // Offer: No old club for free agents, only new club
+                transferRecord.fromTeam = null; // Don't show old club for offers
+                transferRecord.toTeam = logData.toTeam;
+                transferRecord.salary = logData.salary;
+                transferRecord.duration = logData.duration;
+            } else {
+                // Contract, hire, etc: Show both old and new clubs
+                transferRecord.fromTeam = logData.fromTeam;
+                transferRecord.toTeam = logData.toTeam;
+                transferRecord.amount = logData.amount;
+                transferRecord.salary = logData.salary;
+                transferRecord.duration = logData.duration;
+                transferRecord.reason = logData.reason;
             }
 
             // Add to guild transfers
