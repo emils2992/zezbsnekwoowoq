@@ -43,56 +43,17 @@ module.exports = {
             false
         );
 
-        // Envanter eşyaları - kategorilere ayır
+        // Envanter eşyaları
         if (inventoryEntries.length === 0) {
             embed.addField('📦 Eşyalar', 'Envanterinde hiç eşya yok!', false);
         } else {
-            const categories = {
-                evler: [],
-                illegal: [],
-                normal: []
-            };
-
+            let inventoryText = '';
             inventoryEntries.forEach(([item, data]) => {
-                const category = data.category || 'normal';
-                if (!categories[category]) {
-                    categories[category] = [];
-                }
-                categories[category].push([item, data]);
+                const count = data.count || 1;
+                const emoji = data.emoji || '📦';
+                inventoryText += `${emoji} **${item}** x${count}\n`;
             });
-
-            // Evler
-            if (categories.evler.length > 0) {
-                let housesText = '';
-                categories.evler.forEach(([item, data]) => {
-                    const emoji = data.emoji || '🏡';
-                    housesText += `${emoji} **${item}**\n`;
-                });
-                embed.addField('🏠 Evler', housesText, true);
-            }
-
-            // Yasadışı hizmetler
-            if (categories.illegal.length > 0) {
-                let illegalText = '';
-                categories.illegal.forEach(([item, data]) => {
-                    const count = data.count || 1;
-                    const emoji = data.emoji || '🕴️';
-                    const displayName = item.replace('illegal_', '').charAt(0).toUpperCase() + item.replace('illegal_', '').slice(1);
-                    illegalText += `${emoji} **${displayName}** x${count}\n`;
-                });
-                embed.addField('🕴️ Yasadışı Hizmetler', illegalText, true);
-            }
-
-            // Normal eşyalar
-            if (categories.normal.length > 0) {
-                let normalText = '';
-                categories.normal.forEach(([item, data]) => {
-                    const count = data.count || 1;
-                    const emoji = data.emoji || '📦';
-                    normalText += `${emoji} **${item}** x${count}\n`;
-                });
-                embed.addField('📦 Eşyalar', normalText, true);
-            }
+            embed.addField('📦 Eşyalar', inventoryText, false);
         }
 
         await message.reply({ embeds: [embed] });

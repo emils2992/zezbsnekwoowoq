@@ -228,12 +228,11 @@ class EconomyManager {
     }
 
     // Shop işlemleri
-    addShopItem(guildId, itemName, price, emoji = '📦', category = 'normal') {
+    addShopItem(guildId, itemName, price, emoji = '📦') {
         const shopData = this.getShopData(guildId);
         shopData[itemName] = {
             price: price,
-            emoji: emoji,
-            category: category
+            emoji: emoji
         };
         this.saveShopData(guildId, shopData);
     }
@@ -261,24 +260,6 @@ class EconomyManager {
         const itemData = shopData[itemName];
         const price = typeof itemData === 'object' ? itemData.price : itemData;
         const emoji = typeof itemData === 'object' ? itemData.emoji : '📦';
-        const category = typeof itemData === 'object' ? itemData.category : 'normal';
-
-        // Ev kategorisi kontrolü - sadece 1 ev alınabilir
-        if (category === 'evler') {
-            if (!userData.inventory) {
-                userData.inventory = {};
-            }
-            
-            // Kullanıcının zaten evi var mı kontrol et
-            const hasHouse = Object.keys(userData.inventory).some(item => {
-                const shopItem = shopData[item];
-                return shopItem && shopItem.category === 'evler';
-            });
-            
-            if (hasHouse) {
-                return { success: false, message: 'Zaten bir eviniz var! Sadece bir ev sahibi olabilirsiniz.' };
-            }
-        }
 
         if (userData.cash < price) {
             return { success: false, message: 'Yetersiz bakiye!' };
@@ -292,12 +273,11 @@ class EconomyManager {
         }
         
         if (!userData.inventory[itemName]) {
-            userData.inventory[itemName] = { count: 0, emoji: emoji, category: category };
+            userData.inventory[itemName] = { count: 0, emoji: emoji };
         }
         
         userData.inventory[itemName].count += 1;
         userData.inventory[itemName].emoji = emoji;
-        userData.inventory[itemName].category = category;
         
         this.setUserData(guildId, userId, userData);
 
@@ -305,8 +285,7 @@ class EconomyManager {
             success: true, 
             item: itemName, 
             price: price, 
-            newBalance: userData.cash,
-            category: category
+            newBalance: userData.cash 
         };
     }
 

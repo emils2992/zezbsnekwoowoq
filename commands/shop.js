@@ -28,14 +28,13 @@ module.exports = {
                 const embed = new MessageEmbed()
                     .setColor('#FF0000')
                     .setTitle('❌ Hata')
-                    .setDescription('Kullanım: `.shop add emoji ürün_adı fiyat [kategori]`\nÖrnek: `.shop add 🚗 Bugatti 50k`\nEv için: `.shop add 🏡 Emilswdnin_Villasi 10M evler`');
+                    .setDescription('Kullanım: `.shop add emoji ürün_adı fiyat`\nÖrnek: `.shop add 🚗 Bugatti 50k`');
                 return message.reply({ embeds: [embed] });
             }
 
             const emoji = args[1];
             const itemName = args[2];
             const price = economy.parseAmount(args[3]);
-            const category = args[4] || 'normal';
 
             if (!price || price <= 0) {
                 const embed = new MessageEmbed()
@@ -45,7 +44,7 @@ module.exports = {
                 return message.reply({ embeds: [embed] });
             }
 
-            economy.addShopItem(message.guild.id, itemName, price, emoji, category);
+            economy.addShopItem(message.guild.id, itemName, price, emoji);
 
             const embed = new MessageEmbed()
                 .setColor('#00FF00')
@@ -129,54 +128,18 @@ module.exports = {
             return message.reply({ embeds: [embed] });
         }
 
-        // Kategorilere ayır
-        const categories = {
-            'normal': [],
-            'evler': []
-        };
-
-        itemEntries.forEach(([name, data]) => {
-            const category = data.category || 'normal';
-            if (!categories[category]) {
-                categories[category] = [];
-            }
-            categories[category].push([name, data]);
-        });
-
         const embed = new MessageEmbed()
             .setColor('#0099FF')
             .setTitle('🛍️ Mağaza')
             .setDescription('Ürün satın almak için: `.buy ürün_adı`')
             .setTimestamp();
 
-        // Normal kategorideki ürünleri göster
-        if (categories.normal.length > 0) {
-            categories.normal.forEach(([item, data]) => {
-                const price = typeof data === 'object' ? data.price : data;
-                const emoji = typeof data === 'object' ? data.emoji : '📦';
-                const displayName = `${emoji} ${item}`;
-                embed.addField(displayName, `💰 ${economy.formatAmount(price)}`, true);
-            });
-        }
-
-        // Evler kategorisini en alta ekle
-        if (categories.evler.length > 0) {
-            embed.addField('\u200B', '\u200B', false); // Boş satır
-            embed.addField('🏠 **Evler**', 'Sadece bir ev sahibi olabilirsiniz!', false);
-            
-            categories.evler.forEach(([item, data]) => {
-                const price = typeof data === 'object' ? data.price : data;
-                const emoji = typeof data === 'object' ? data.emoji : '🏡';
-                const displayName = `${emoji} ${item}`;
-                
-                // Villa fotoğrafı ekle
-                if (item.toLowerCase().includes('villa')) {
-                    embed.setImage('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
-                }
-                
-                embed.addField(displayName, `💰 ${economy.formatAmount(price)}`, true);
-            });
-        }
+        itemEntries.forEach(([item, data]) => {
+            const price = typeof data === 'object' ? data.price : data;
+            const emoji = typeof data === 'object' ? data.emoji : '📦';
+            const displayName = `${emoji} ${item}`;
+            embed.addField(displayName, `💰 ${economy.formatAmount(price)}`, true);
+        });
 
         await message.reply({ embeds: [embed] });
     }
