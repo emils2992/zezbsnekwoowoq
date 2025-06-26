@@ -38,49 +38,23 @@ module.exports = {
                 return message.reply('❌ Silinecek transfer kaydı yok!');
             }
 
-            // Transfer kayıtlarını arşivle (silmek yerine)
-            const archivePath = path.join(__dirname, '..', 'data', 'transfers_archive.json');
-            let archiveData = {};
-            
-            if (fs.existsSync(archivePath)) {
-                archiveData = JSON.parse(fs.readFileSync(archivePath, 'utf8'));
+            // transfers.json dosyasını tamamen sil
+            if (fs.existsSync(transfersPath)) {
+                fs.unlinkSync(transfersPath);
             }
-
-            // Arşiv verilerini hazırla
-            if (!archiveData[message.guild.id]) {
-                archiveData[message.guild.id] = [];
-            }
-
-            // Mevcut transferleri arşive ekle
-            const archiveEntry = {
-                transfers: guildTransfers,
-                archivedAt: new Date().toISOString(),
-                archivedBy: message.author.id,
-                guildName: message.guild.name,
-                resetDate: new Date().toLocaleString('tr-TR')
-            };
-
-            archiveData[message.guild.id].push(archiveEntry);
-
-            // Bu sunucunun aktif transfer kayıtlarını temizle
-            transfersData[message.guild.id] = [];
-            
-            // Her iki dosyayı da kaydet
-            fs.writeFileSync(transfersPath, JSON.stringify(transfersData, null, 2));
-            fs.writeFileSync(archivePath, JSON.stringify(archiveData, null, 2));
 
             const successEmbed = new MessageEmbed()
                 .setColor(config.colors.success)
-                .setTitle('✅ Transfer Kayıtları Arşivlendi')
-                .setDescription(`${transferCount} transfer kaydı arşivlendi ve aktif liste temizlendi!`)
+                .setTitle('✅ Transfer Kayıtları Silindi')
+                .setDescription(`${transferCount} transfer kaydı tamamen silindi!`)
                 .addFields(
-                    { name: '👤 Arşivleyen', value: message.author.toString(), inline: true },
+                    { name: '👤 Silen', value: message.author.toString(), inline: true },
                     { name: '📅 Tarih', value: new Date().toLocaleString('tr-TR'), inline: true },
                     { name: '🏢 Sunucu', value: message.guild.name, inline: true },
-                    { name: '📦 Arşiv Bilgi', value: 'Kayıtlar kalıcı olarak transfers_archive.json dosyasında saklandı', inline: false }
+                    { name: '🗑️ Dosya Durumu', value: 'transfers.json dosyası tamamen silindi', inline: false }
                 )
                 .setTimestamp()
-                .setFooter({ text: 'Transfer Takip Sistemi - Arşivleme' });
+                .setFooter({ text: 'Transfer Takip Sistemi - Silme' });
 
             await message.reply({ embeds: [successEmbed] });
 
