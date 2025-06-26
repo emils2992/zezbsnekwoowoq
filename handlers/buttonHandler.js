@@ -11,6 +11,19 @@ class ButtonHandler {
         this.processedInteractions = new Set();
     }
 
+    extractTransferAmount(embed) {
+        // Extract amount from different embed fields
+        if (!embed || !embed.fields) return 'Belirtilmemiş';
+        
+        for (const field of embed.fields) {
+            if (field.name.includes('Transfer Bedeli') || field.name.includes('Kiralık Bedeli') || 
+                field.name.includes('Maaş') || field.name.includes('Ücret') || field.name.includes('Yıllık Maaş')) {
+                return field.value.replace('💰 ', '').replace('₺ ', '');
+            }
+        }
+        return 'Belirtilmemiş';
+    }
+
     async handleButton(client, interaction) {
         try {
             // Prevent multiple clicks on the same button
@@ -190,34 +203,48 @@ class ButtonHandler {
                 });
             }
 
-            console.log('OFFER ACCEPTED - Sending transfer announcement');
-            await this.sendTransferAnnouncement(guild, {
-                type: 'offer',
-                player: player,
-                president: president,
-                embed: interaction.message.embeds[0]
-            });
-            console.log('TRANSFER ANNOUNCEMENT SENT');
-
-            // Role management - remove free agent role and add player role
-            // permissions already imported at top
-            try {
-                // Remove free agent role
-                await permissions.signPlayer(player);
-                console.log(`Removed free agent role and added player role for ${player.displayName}`);
-            } catch (error) {
-                console.error('Role management error:', error);
-            }
-
             await interaction.deferReply();
             
+            // Store pending payment info for this channel
+            const pendingPayments = global.pendingPayments || new Map();
+            global.pendingPayments = pendingPayments;
+            
+            // Extract transfer data from embed
+            const embed = interaction.message.embeds[0];
+            const transferAmount = this.extractTransferAmount(embed);
+            
+            // Store payment requirement
+            pendingPayments.set(interaction.channel.id, {
+                payerId: presidentId,
+                receiverId: playerId,
+                amount: transferAmount,
+                channelId: interaction.channel.id,
+                type: 'offer',
+                playerUser: player,
+                presidentUser: president,
+                embed: embed
+            });
+
             if (!interaction.replied) {
                 await interaction.editReply({
-                    content: `✅ Transfer kabul edildi! Roller güncellendi (serbest futbolcu → futbolcu).`
+                    content: `✅ ${player} teklifini kabul etti!`
                 });
             }
 
-            // Disable all buttons immediately
+            // Send payment instruction
+            const paymentEmbed = new MessageEmbed()
+                .setColor('#FFD700')
+                .setTitle('💰 Ödeme Gerekli')
+                .setDescription(`${president} **Karşıdaki Kişi Kabul Etti!** Sen parayı atmayana kadar bu kanal silinmeyecek.`)
+                .addField('Ödeme Yapılacak Kişi', `${player}`, true)
+                .addField('Ödenecek Miktar', `💰 ${transferAmount}`, true)
+                .addField('Ödeme Komutu', `\`.pay ${player} ${transferAmount}\``, false)
+                .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
+                .setTimestamp();
+
+            await interaction.channel.send({ embeds: [paymentEmbed] });
+
+            // Disable all buttons
             const disabledButtons = interaction.message.components[0].components.map(button => 
                 new MessageButton()
                     .setCustomId(button.customId)
@@ -231,22 +258,6 @@ class ButtonHandler {
                 embeds: interaction.message.embeds,
                 components: [new MessageActionRow().addComponents(disabledButtons)]
             });
-
-            // Force channel deletion
-            setTimeout(async () => {
-                try {
-                    const channelToDelete = interaction.channel;
-                    if (channelToDelete && channelToDelete.deletable) {
-                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                        await channelToDelete.delete("İşlem tamamlandı - Kanal otomatik silindi");
-                        console.log('KANAL BAŞARIYLA SİLİNDİ');
-                    } else {
-                        console.log('Kanal silinemez veya bulunamadı');
-                    }
-                } catch (error) {
-                    console.error('KANAL SİLME HATASI:', error);
-                }
-            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable offers
@@ -469,19 +480,44 @@ class ButtonHandler {
                 });
             }
 
-            // Final contract acceptance - send announcement
-            await this.sendTransferAnnouncement(guild, {
-                type: 'contract',
-                player: player,
-                president: president,
-                embed: interaction.message.embeds[0]
-            });
-
             await interaction.deferReply();
             
-            await interaction.editReply({
-                content: `✅ Sözleşme kabul edildi! Transfer tamamlandı.`
+            // Store pending payment info for this channel
+            const pendingPayments = global.pendingPayments || new Map();
+            global.pendingPayments = pendingPayments;
+            
+            // Extract transfer data from embed
+            const embed = interaction.message.embeds[0];
+            const transferAmount = this.extractTransferAmount(embed);
+            
+            // Store payment requirement
+            pendingPayments.set(interaction.channel.id, {
+                payerId: presidentId,
+                receiverId: playerId,
+                amount: transferAmount,
+                channelId: interaction.channel.id,
+                type: 'contract',
+                playerUser: player,
+                presidentUser: president,
+                embed: embed
             });
+
+            await interaction.editReply({
+                content: `✅ ${player} sözleşmeyi kabul etti!`
+            });
+
+            // Send payment instruction
+            const paymentEmbed = new MessageEmbed()
+                .setColor('#FFD700')
+                .setTitle('💰 Ödeme Gerekli')
+                .setDescription(`${president} **Karşıdaki Kişi Kabul Etti!** Sen parayı atmayana kadar bu kanal silinmeyecek.`)
+                .addField('Ödeme Yapılacak Kişi', `${player}`, true)
+                .addField('Ödenecek Miktar', `💰 ${transferAmount}`, true)
+                .addField('Ödeme Komutu', `\`.pay ${player} ${transferAmount}\``, false)
+                .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
+                .setTimestamp();
+
+            await interaction.channel.send({ embeds: [paymentEmbed] });
 
             // Disable all buttons
             const disabledButtons = interaction.message.components[0].components.map(button => 
@@ -497,20 +533,6 @@ class ButtonHandler {
                 embeds: interaction.message.embeds,
                 components: [new MessageActionRow().addComponents(disabledButtons)]
             });
-
-            // Delete channel after announcement
-            setTimeout(async () => {
-                try {
-                    const channelToDelete = interaction.channel;
-                    if (channelToDelete && channelToDelete.deletable) {
-                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                        await channelToDelete.delete("Transfer tamamlandı");
-                        console.log('KANAL BAŞARIYLA SİLİNDİ');
-                    }
-                } catch (error) {
-                    console.error('KANAL SİLME HATASI:', error);
-                }
-            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable contract agreements
@@ -1096,11 +1118,14 @@ class ButtonHandler {
             console.log(`🔍 Condition check: both exist? ${global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer}`);
             
             if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer === true && global[acceptanceKey].givenPlayer === true) {
-                console.log('🎉🎉🎉 BOTH PLAYERS ACCEPTED! Starting completion process...');
-                console.log('🚀 EXECUTION POINT REACHED - FORCING COMPLETION NOW!');
+                console.log('🎉🎉🎉 BOTH PLAYERS ACCEPTED! Starting payment verification process...');
                 
                 try {
-                    // Extract trade data from embed for complete announcement
+                    // Store pending payment info for trade completion
+                    const pendingPayments = global.pendingPayments || new Map();
+                    global.pendingPayments = pendingPayments;
+                    
+                    // Extract trade data from embed
                     const embed = interaction.message.embeds[0];
                     const fields = embed.fields;
                     
@@ -1113,162 +1138,51 @@ class ButtonHandler {
                         bonus: fields.find(f => f.name.includes('Bonus'))?.value || 'Yok'
                     };
 
-                    console.log('📊 Trade data extracted:', tradeData);
+                    // Store payment requirements for both presidents
+                    pendingPayments.set(interaction.channel.id, {
+                        payerId1: presidentId,
+                        receiverId1: givenPlayerId,
+                        amount1: tradeData.givenPlayerSalary,
+                        payerId2: targetPresidentId,
+                        receiverId2: wantedPlayerId,
+                        amount2: tradeData.wantedPlayerSalary,
+                        channelId: interaction.channel.id,
+                        type: 'trade',
+                        wantedPlayerUser: wantedPlayer,
+                        givenPlayerUser: givenPlayer,
+                        targetPresidentUser: targetPresident,
+                        presidentUser: president,
+                        embed: embed,
+                        tradeData: tradeData,
+                        payments: { president: false, targetPresident: false }
+                    });
 
-                    console.log('📢 Sending transfer announcement...');
-                    try {
-                        await this.sendTransferAnnouncement(guild, {
-                            type: 'trade',
-                            wantedPlayer: wantedPlayer,
-                            givenPlayer: givenPlayer,
-                            targetPresident: targetPresident,
-                            president: president,
-                            embed: interaction.message.embeds[0],
-                            tradeData: tradeData
-                        });
-                        console.log('✅ Transfer announcement sent successfully!');
-                    } catch (announcementError) {
-                        console.error('❌ Error sending announcement:', announcementError);
-                        // Continue with channel deletion even if announcement fails
-                    }
+                    // Send payment instructions to both presidents
+                    const paymentEmbed = new MessageEmbed()
+                        .setColor('#FFD700')
+                        .setTitle('💰 Ödeme Gerekli - Takas')
+                        .setDescription('**Her iki oyuncu da kabul etti!** Her iki başkanın da ödeme yapması gerekiyor.')
+                        .addField(`${president} Ödeyecek`, `${givenPlayer} - ${tradeData.givenPlayerSalary}`, true)
+                        .addField(`${targetPresident} Ödeyecek`, `${wantedPlayer} - ${tradeData.wantedPlayerSalary}`, true)
+                        .addField('Ödeme Komutları', 
+                            `${president}: \`.pay ${givenPlayer} ${tradeData.givenPlayerSalary}\`\n` +
+                            `${targetPresident}: \`.pay ${wantedPlayer} ${tradeData.wantedPlayerSalary}\``, false)
+                        .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
+                        .setTimestamp();
 
-                    // Send completion message to channel - use channel.send instead of interaction reply
-                    console.log('📨 Sending completion message...');
-                    try {
-                        await interaction.channel.send({
-                            content: `🎉 **HER İKİ OYUNCU DA KABUL ETTİ!** Takas tamamlandı ve otomatik duyuru gönderildi!\n\n${targetPresident.user} ${president.user}\n\n⏰ Kanal 3 saniye sonra otomatik olarak silinecek...`
-                        });
-                        console.log('✅ Completion message sent!');
-                    } catch (msgError) {
-                        console.error('❌ Error sending completion message:', msgError);
-                        // Continue with the process even if message fails
-                    }
+                    await interaction.channel.send({ embeds: [paymentEmbed] });
 
-                    // Disable all buttons
-                    console.log('🔒 Disabling all buttons...');
-                    try {
-                        const disabledButtons = interaction.message.components[0].components.map(button => 
-                            new MessageButton()
-                                .setCustomId(button.customId)
-                                .setLabel(button.label)
-                                .setStyle(button.style)
-                                .setDisabled(true)
-                                .setEmoji(button.emoji || null)
-                        );
-
-                        await interaction.message.edit({
-                            embeds: interaction.message.embeds,
-                            components: [new MessageActionRow().addComponents(disabledButtons)]
-                        });
-                        console.log('✅ Buttons disabled!');
-                    } catch (buttonError) {
-                        console.error('❌ Error disabling buttons:', buttonError);
-                        // Continue with the process even if button disabling fails
-                    }
-
-                    // Clean up acceptances FIRST to prevent re-execution
+                    // Clear acceptance tracking
                     delete global[acceptanceKey];
-                    console.log('🧹 Acceptance tracking cleaned up FIRST');
-
-                    // Delete channel after delay with countdown
-                    console.log('⏰ Starting channel deletion countdown...');
-                    setTimeout(async () => {
-                        try {
-                            await interaction.channel.send('⏰ **3 saniye sonra kanal silinecek...**');
-                        } catch (error) {
-                            console.log('Countdown message error:', error);
-                        }
-                    }, 5000);
                     
-                    setTimeout(async () => {
-                        try {
-                            await interaction.channel.send('⏰ **1 saniye sonra kanal silinecek...**');
-                        } catch (error) {
-                            console.log('Countdown message error:', error);
-                        }
-                    }, 4000);
-                    
-                    setTimeout(async () => {
-                        try {
-                            const channelToDelete = interaction.channel;
-                            if (channelToDelete && channelToDelete.deletable) {
-                                console.log(`🗑️ TRADE COMPLETED - DELETING CHANNEL: ${channelToDelete.name}`);
-                                await channelToDelete.delete("✅ Takas başarıyla tamamlandı - Kanal otomatik silindi");
-                                console.log('✅ TRADE CHANNEL SUCCESSFULLY DELETED');
-                            } else {
-                                console.log('❌ Channel not deletable or not found');
-                            }
-                        } catch (error) {
-                            console.error('❌ CHANNEL DELETION ERROR:', error);
-                        }
-                    }, 5000);
-                    
+                    console.log('✅ Trade payment verification setup completed');
                 } catch (error) {
-                    console.error('❌ ERROR in trade completion process:', error);
-                    try {
-                        await interaction.channel.send({
-                            content: `❌ Takas tamamlanırken bir hata oluştu ama kanal silinecek: ${error.message}`
-                        });
-                    } catch (fallbackError) {
-                        console.error('❌ Even fallback message failed:', fallbackError);
-                    }
-                    
-                    // Force channel deletion even on error
-                    console.log('🔥 FORCING CHANNEL DELETION DUE TO ERROR...');
-                    setTimeout(async () => {
-                        try {
-                            const channelToDelete = interaction.channel;
-                            if (channelToDelete && channelToDelete.deletable) {
-                                console.log(`🗑️ FORCING DELETION: ${channelToDelete.name}`);
-                                await channelToDelete.delete("Hata nedeniyle zorla silindi");
-                                console.log('✅ CHANNEL FORCE DELETED');
-                            }
-                        } catch (deleteError) {
-                            console.error('❌ FORCE DELETE FAILED:', deleteError);
-                        }
-                    }, 5000);
-                    
-                    // Clean up acceptances
-                    delete global[acceptanceKey];
-                    console.log('🧹 Acceptance tracking cleaned up after error');
-                }
-            } else {
-                console.log('❌ NOT BOTH ACCEPTED YET - Waiting for more acceptances...');
-                console.log(`Current state: wanted=${global[acceptanceKey].wantedPlayer}, given=${global[acceptanceKey].givenPlayer}`);
-                
-                // FORCE CHECK: If both are actually true but condition failed
-                if (global[acceptanceKey] && global[acceptanceKey].wantedPlayer && global[acceptanceKey].givenPlayer) {
-                    console.log('🔥 FORCING COMPLETION - Both are true but condition check failed!');
-                    console.log('Values:', global[acceptanceKey]);
-                    
-                    // Force execution by setting a timeout
-                    setTimeout(async () => {
-                        console.log('⚡ TIMEOUT FORCING TRADE COMPLETION...');
-                        try {
-                            await interaction.channel.send({
-                                content: `🎉 **TAKAS TAMAMLANDI!** Her iki oyuncu da kabul etti! Kanal 5 saniye sonra silinecek.`
-                            });
-                            
-                            setTimeout(async () => {
-                                try {
-                                    const channelToDelete = interaction.channel;
-                                    if (channelToDelete && channelToDelete.deletable) {
-                                        await channelToDelete.delete("Takas tamamlandı - Zorla silindi");
-                                        console.log('✅ FORCE COMPLETED TRADE');
-                                    }
-                                } catch (error) {
-                                    console.error('Force completion error:', error);
-                                }
-                            }, 5000);
-                            
-                            delete global[acceptanceKey];
-                        } catch (error) {
-                            console.error('Force completion error:', error);
-                        }
-                    }, 5000);
+                    console.error('❌ Trade payment setup error:', error);
+                    await interaction.editReply({
+                        content: `❌ Ödeme sistemi kurulurken hata oluştu: ${error.message}`
+                    });
                 }
             }
-
         } else if (buttonType === 'reject') {
             // Check if interaction is already replied or deferred
             if (!interaction.replied && !interaction.deferred) {
@@ -1783,18 +1697,43 @@ class ButtonHandler {
 
             await interaction.deferReply();
             
-            // Send transfer announcement
-            await this.sendTransferAnnouncement(guild, {
+            // Store pending payment info for this channel
+            const pendingPayments = global.pendingPayments || new Map();
+            global.pendingPayments = pendingPayments;
+            
+            // Extract transfer data from embed
+            const embed = interaction.message.embeds[0];
+            const transferAmount = this.extractTransferAmount(embed);
+            
+            // Store payment requirement
+            pendingPayments.set(interaction.channel.id, {
+                payerId: presidentId,
+                receiverId: playerId,
+                amount: transferAmount,
+                channelId: interaction.channel.id,
                 type: 'hire',
-                player: player,
-                president: president,
-                targetPresident: targetPresident,
-                embed: interaction.message.embeds[0]
+                playerUser: player,
+                presidentUser: president,
+                targetPresidentUser: targetPresident,
+                embed: embed
             });
 
             await interaction.editReply({
-                content: `✅ Kiralık anlaşması oyuncu tarafından kabul edildi! Transfer tamamlandı.`
+                content: `✅ ${player} kiralık anlaşmasını kabul etti!`
             });
+
+            // Send payment instruction
+            const paymentEmbed = new MessageEmbed()
+                .setColor('#FFD700')
+                .setTitle('💰 Ödeme Gerekli')
+                .setDescription(`${president} **Karşıdaki Kişi Kabul Etti!** Sen parayı atmayana kadar bu kanal silinmeyecek.`)
+                .addField('Ödeme Yapılacak Kişi', `${player}`, true)
+                .addField('Ödenecek Miktar', `💰 ${transferAmount}`, true)
+                .addField('Ödeme Komutu', `\`.pay ${player} ${transferAmount}\``, false)
+                .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
+                .setTimestamp();
+
+            await interaction.channel.send({ embeds: [paymentEmbed] });
 
             // Disable all buttons
             const disabledButtons = interaction.message.components[0].components.map(button => 
@@ -1810,20 +1749,6 @@ class ButtonHandler {
                 embeds: interaction.message.embeds,
                 components: [new MessageActionRow().addComponents(disabledButtons)]
             });
-
-            // Delete channel
-            setTimeout(async () => {
-                try {
-                    const channelToDelete = interaction.channel;
-                    if (channelToDelete && channelToDelete.deletable) {
-                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                        await channelToDelete.delete("Kiralık anlaşması tamamlandı");
-                        console.log('KANAL BAŞARIYLA SİLİNDİ');
-                    }
-                } catch (error) {
-                    console.error('KANAL SİLME HATASI:', error);
-                }
-            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable hire agreements

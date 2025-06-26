@@ -57,6 +57,25 @@
       "timestamp": 1750936231314,
       "fromTeam": null,
       "toTeam": "svsb"
+    },
+    {
+      "player": "frozydebate",
+      "playerMention": "<@1173735298329493675>",
+      "type": "offer",
+      "date": "26.06.2025 11:58:04",
+      "timestamp": 1750939084199,
+      "fromTeam": null,
+      "toTeam": "hhhh"
+    },
+    {
+      "player": "frozydebate",
+      "playerMention": "<@1173735298329493675>",
+      "type": "contract",
+      "date": "26.06.2025 12:01:49",
+      "timestamp": 1750939309062,
+      "fromTeam": "sghs",
+      "toTeam": "eysh",
+      "reason": null
     }
   ]
 }

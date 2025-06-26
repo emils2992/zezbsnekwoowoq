@@ -100,6 +100,18 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 26, 2025. Enhanced transfer system with comprehensive payment verification and dual payment support:
+  - Implemented payment verification system for hire commands preventing auto-deletion until payment confirmed
+  - Created dual payment system for trade commands requiring both presidents to pay before completion
+  - Enhanced .pay command to handle trade dual payments with proper tracking and completion logic
+  - Added payment instruction embeds with clear commands and 5-hour mute warnings for incorrect amounts
+  - Trade channels now remain open until both presidents complete their payments to respective players
+  - Payment verification prevents channel deletion and ensures all transfers are financially completed
+  - System monitors .pay commands and automatically completes transfers upon correct payment confirmation
+  - Wrong payment amounts trigger 5-hour mute penalty with option for correction
+  - Payment tracking system integrated with existing transfer workflow for seamless operation
+  - All transfer commands (.offer, .contract, .hire, .trade) now include payment verification stage
+
 - June 26, 2025. Implemented complete economy system with comprehensive money management and shopping features:
   - Created .pay command for transferring money between users with flexible amount parsing (5k, 5e3, 5K formats)
   - Added .work command with 1-minute cooldown earning 200 currency per use
