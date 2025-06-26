@@ -100,6 +100,20 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 26, 2025. Implemented house system and illegal activities integration with economy:
+  - Enhanced shop system with categorized display - houses appear at bottom with "evler" category
+  - Added one-house-per-user limitation - players can only own one house maximum
+  - Created .illegal command with 6 illegal services: escort, hitman, drugs, weapons, money_laundry, casino
+  - Most illegal services require house ownership (except escort which anyone can use)
+  - Added villa photo display in shop when "villa" items are shown
+  - Integrated house checking with illegal services - validates house ownership before allowing purchases
+  - Enhanced CV command to display houses, illegal services, and normal items in separate categories
+  - Added bonus rewards for some illegal services (para aklama +25k, kumarhane +50k)
+  - Updated help system to document illegal activities with house requirements and pricing
+  - Enhanced button handler system to process illegal service confirmations and payments
+  - Added economy logging for all illegal service transactions
+  - Services stored in user inventory with "illegal_" prefix and special category for tracking
+
 - June 26, 2025. Implemented comprehensive transfer tracking system to prevent multiple transfers per player per period:
   - Created TransferTracker utility class with JSON-based persistent storage in data/transferred_players.json
   - Added transfer validation to .offer, .contract, and .trade commands - players can only be transferred once per period

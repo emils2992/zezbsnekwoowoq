@@ -98,6 +98,15 @@
       "presidentMention": "<@794205713533894696>'nin",
       "targetPresidentMention": "<@1385545181595435068>'nin",
       "tradeDetails": "frozydebate ↔ Marpel"
+    },
+    {
+      "player": "frozydebate",
+      "playerMention": "<@1173735298329493675>",
+      "type": "offer",
+      "date": "26.06.2025 20:22:03",
+      "timestamp": 1750969323202,
+      "fromTeam": null,
+      "toTeam": "s"
     }
   ]
 }
