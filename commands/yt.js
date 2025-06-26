@@ -47,34 +47,13 @@ module.exports = {
                 if (transfer.type === 'offer') {
                     // Serbest transfer - eski kulüp gösterme
                     transferText += `\n📥 **Yeni Kulüp:** ${transfer.toTeam}`;
-                    if (transfer.salary && transfer.salary !== 'Belirtilmemiş') {
-                        transferText += `\n💰 **Maaş:** ${transfer.salary}`;
-                    }
-                    if (transfer.duration && transfer.duration !== 'Belirtilmemiş') {
-                        transferText += `\n📅 **Sözleşme:** ${transfer.duration}`;
-                    }
                 } else if (transfer.type === 'trade') {
-                    // Takas - başkanların takımları formatı
-                    transferText += `\n🔄 **Takas:** ${transfer.fromTeam} ↔ ${transfer.toTeam}`;
-                    if (transfer.salary && transfer.salary !== 'Belirtilmemiş') {
-                        transferText += `\n💰 **Maaşlar:** ${transfer.salary}`;
-                    }
-                    if (transfer.amount && transfer.amount !== 'Belirtilmemiş') {
-                        transferText += `\n💵 **Ek Miktar:** ${transfer.amount}`;
-                    }
+                    // Takas - başkanları etiketleyerek göster
+                    transferText += `\n🔄 **Takas:** ${transfer.presidentMention || transfer.fromTeam} ↔ ${transfer.targetPresidentMention || transfer.toTeam}`;
                 } else {
-                    // Contract, hire vb. - tam detay
+                    // Contract, hire vb. - sadece kulüp bilgileri
                     if (transfer.fromTeam) transferText += `\n📤 **Eski Kulüp:** ${transfer.fromTeam}`;
                     if (transfer.toTeam) transferText += `\n📥 **Yeni Kulüp:** ${transfer.toTeam}`;
-                    if (transfer.amount && transfer.amount !== 'Belirtilmemiş') {
-                        transferText += `\n💰 **Ücret:** ${transfer.amount}`;
-                    }
-                    if (transfer.salary && transfer.salary !== 'Belirtilmemiş') {
-                        transferText += `\n💵 **Maaş:** ${transfer.salary}`;
-                    }
-                    if (transfer.duration && transfer.duration !== 'Belirtilmemiş') {
-                        transferText += `\n📋 **Sözleşme:** ${transfer.duration}`;
-                    }
                 }
                 
                 transferText += `\n📅 **Tarih:** ${transfer.date}`;

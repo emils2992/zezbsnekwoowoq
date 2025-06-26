@@ -46,17 +46,13 @@ module.exports = {
                 if (transfer.type === 'offer') {
                     // Serbest transfer - eski kulüp gösterme
                     transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
-                    if (transfer.salary) transferText += `\n💰 Maaş: ${transfer.salary}`;
                 } else if (transfer.type === 'trade') {
-                    // Takas - başkanların takımları formatı
-                    transferText += `\n🔄 ${transfer.fromTeam} ↔ ${transfer.toTeam}`;
-                    if (transfer.salary) transferText += `\n💰 Maaşlar: ${transfer.salary}`;
+                    // Takas - başkanları etiketleyerek göster
+                    transferText += `\n🔄 ${transfer.presidentMention || transfer.fromTeam} ↔ ${transfer.targetPresidentMention || transfer.toTeam}`;
                 } else {
-                    // Contract, hire vb. - tam bilgi
+                    // Contract, hire vb. - sadece kulüp bilgileri
                     if (transfer.fromTeam) transferText += `\n📤 Eski Kulüp: ${transfer.fromTeam}`;
                     if (transfer.toTeam) transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
-                    if (transfer.amount) transferText += `\n💰 Ücret: ${transfer.amount}`;
-                    if (transfer.salary) transferText += `\n💵 Maaş: ${transfer.salary}`;
                 }
                 
                 transferText += `\n📅 ${transfer.date}`;

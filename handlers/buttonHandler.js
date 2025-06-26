@@ -1952,17 +1952,13 @@ class ButtonHandler {
                 if (transfer.type === 'offer') {
                     // Serbest transfer - eski kulüp gösterme
                     transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
-                    if (transfer.salary) transferText += `\n💰 Maaş: ${transfer.salary}`;
                 } else if (transfer.type === 'trade') {
-                    // Takas - başkanların takımları formatı
-                    transferText += `\n🔄 ${transfer.fromTeam} ↔ ${transfer.toTeam}`;
-                    if (transfer.salary) transferText += `\n💰 Maaşlar: ${transfer.salary}`;
+                    // Takas - başkanları etiketleyerek göster
+                    transferText += `\n🔄 ${transfer.presidentMention || transfer.fromTeam} ↔ ${transfer.targetPresidentMention || transfer.toTeam}`;
                 } else {
-                    // Contract, hire vb. - tam bilgi
+                    // Contract, hire vb. - sadece kulüp bilgileri
                     if (transfer.fromTeam) transferText += `\n📤 Eski Kulüp: ${transfer.fromTeam}`;
                     if (transfer.toTeam) transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
-                    if (transfer.amount) transferText += `\n💰 Ücret: ${transfer.amount}`;
-                    if (transfer.salary) transferText += `\n💵 Maaş: ${transfer.salary}`;
                 }
                 
                 transferText += `\n📅 ${transfer.date}`;
@@ -4526,26 +4522,21 @@ class ButtonHandler {
 
             // Handle different transfer types with proper team name formatting
             if (transferData.type === 'trade') {
-                // Trade: Use president usernames with "nin takımı" format
+                // Trade: Use president mentions with "nin takımı" format
                 transferRecord.player = `${transferData.wantedPlayer?.user.username} ↔ ${transferData.givenPlayer?.user.username}`;
                 transferRecord.fromTeam = `${transferData.targetPresident?.user.username}nin takımı`;
                 transferRecord.toTeam = `${transferData.president?.user.username}nin takımı`;
+                transferRecord.presidentMention = transferData.president?.user.toString() + "'nin";
+                transferRecord.targetPresidentMention = transferData.targetPresident?.user.toString() + "'nin";
                 transferRecord.tradeDetails = `${transferData.wantedPlayer?.user.username} ↔ ${transferData.givenPlayer?.user.username}`;
-                if (logData.salary) transferRecord.salary = logData.salary;
-                if (logData.amount) transferRecord.amount = logData.amount;
             } else if (transferData.type === 'offer') {
                 // Offer: No old club for free agents, only new club
                 transferRecord.fromTeam = null; // Don't show old club for offers
                 transferRecord.toTeam = logData.toTeam;
-                transferRecord.salary = logData.salary;
-                transferRecord.duration = logData.duration;
             } else {
                 // Contract, hire, etc: Show both old and new clubs
                 transferRecord.fromTeam = logData.fromTeam;
                 transferRecord.toTeam = logData.toTeam;
-                transferRecord.amount = logData.amount;
-                transferRecord.salary = logData.salary;
-                transferRecord.duration = logData.duration;
                 transferRecord.reason = logData.reason;
             }
 
