@@ -100,12 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 26, 2025. Implemented compensation payment system for release commands with automatic role management:
-  - Added compensation payment system to .release and .brelease commands
-  - When "Ek Tazminat" field contains amount (like 500m), accepting user must pay compensation to released player
-  - If compensation field is empty or "yok", release completes immediately without payment requirement
-  - Payment instructions appear automatically with .pay command format and 5-hour mute warning
-  - Channel remains open until compensation payment is verified through .pay command
+- June 26, 2025. Fixed compensation payment channel deletion bug and completed system:
+  - Fixed critical bug where release channels were being deleted even when compensation payment was required
+  - Channels now remain open when "Ek Tazminat" field contains amount, preventing premature deletion
+  - Added early return logic to prevent button disabling and channel deletion when payment is pending
+  - Applied fix to both .release and .brelease commands for consistent behavior
+  - Payment verification works correctly through .pay command before allowing channel deletion
   - Enhanced .pay command to handle release_compensation payment type with automatic announcement posting
   - Fixed all 4 release commands (.release, .brelease, .btrelease, .trelease) to properly manage roles when accepted
   - Players automatically lose "futbolcu" role and gain "serbest futbolcu" role when releases are confirmed

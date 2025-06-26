@@ -1518,6 +1518,10 @@ class ButtonHandler {
                     .setTimestamp();
 
                 await interaction.channel.send({ embeds: [paymentEmbed] });
+                
+                // Don't disable buttons or delete channel when compensation is required
+                console.log('Tazminat ödemesi gerekli - kanal açık kalıyor, butonlar aktif');
+                return; // Exit early to prevent button disabling and channel deletion
 
             } else {
                 // No compensation required - complete release immediately
@@ -1525,6 +1529,21 @@ class ButtonHandler {
                 
                 await interaction.editReply({
                     content: `✅ Fesih kabul edildi! **${player.displayName}** artık serbest oyuncu ve roller güncellendi.`
+                });
+                
+                // Disable all buttons immediately for no-compensation case
+                const disabledButtons = interaction.message.components[0].components.map(button => 
+                    new MessageButton()
+                        .setCustomId(button.customId)
+                        .setLabel(button.label)
+                        .setStyle(button.style)
+                        .setDisabled(true)
+                        .setEmoji(button.emoji || null)
+                );
+
+                await interaction.message.edit({
+                    embeds: interaction.message.embeds,
+                    components: [new MessageActionRow().addComponents(disabledButtons)]
                 });
                 
                 // Complete release immediately with channel deletion
@@ -1541,37 +1560,6 @@ class ButtonHandler {
                     }
                 }, 5000);
             }
-
-            // Disable all buttons immediately
-            const disabledButtons = interaction.message.components[0].components.map(button => 
-                new MessageButton()
-                    .setCustomId(button.customId)
-                    .setLabel(button.label)
-                    .setStyle(button.style)
-                    .setDisabled(true)
-                    .setEmoji(button.emoji || null)
-            );
-
-            await interaction.message.edit({
-                embeds: interaction.message.embeds,
-                components: [new MessageActionRow().addComponents(disabledButtons)]
-            });
-
-            // Force channel deletion
-            setTimeout(async () => {
-                try {
-                    const channelToDelete = interaction.channel;
-                    if (channelToDelete && channelToDelete.deletable) {
-                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                        await channelToDelete.delete("İşlem tamamlandı - Kanal otomatik silindi");
-                        console.log('KANAL BAŞARIYLA SİLİNDİ');
-                    } else {
-                        console.log('Kanal silinemez veya bulunamadı');
-                    }
-                } catch (error) {
-                    console.error('KANAL SİLME HATASI:', error);
-                }
-            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Check if user is authorized (target player or transfer authority)
@@ -3948,6 +3936,10 @@ class ButtonHandler {
                         .setTimestamp();
 
                     await interaction.channel.send({ embeds: [paymentEmbed] });
+                    
+                    // Don't disable buttons or delete channel when compensation is required
+                    console.log('Tazminat ödemesi gerekli - BRelease kanalı açık kalıyor, butonlar aktif');
+                    return; // Exit early to prevent button disabling and channel deletion
 
                 } else {
                     // No compensation required - complete release immediately
@@ -3976,16 +3968,6 @@ class ButtonHandler {
                     console.error('❌ Could not send error reply:', replyError);
                 }
             }
-
-            setTimeout(async () => {
-                try {
-                    if (interaction.channel && interaction.channel.deletable) {
-                        await interaction.channel.delete('Karşılıklı fesih tamamlandı');
-                    }
-                } catch (error) {
-                    console.error('Kanal silme hatası:', error);
-                }
-            }, 5000);
 
         } else if (buttonType === 'reject') {
             // For brelease: playerId is the president who is rejecting, presidentId is the player who requested
