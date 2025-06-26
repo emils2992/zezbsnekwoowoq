@@ -2015,13 +2015,13 @@ class ButtonHandler {
             // Add salary and contract details if available from tradeData
             if (tradeData) {
                 if (tradeData.wantedPlayerSalary && tradeData.wantedPlayerSalary !== 'Belirtilmemiş') {
-                    announcementEmbed.addFields({ name: '💰 İstenen Oyuncunun Maaşı', value: tradeData.wantedPlayerSalary, inline: true });
+                    announcementEmbed.addFields({ name: '💰 İstenen Oyuncunun Maaşı', value: `${tradeData.wantedPlayerSalary}€`, inline: true });
                 }
                 if (tradeData.givenPlayerSalary && tradeData.givenPlayerSalary !== 'Belirtilmemiş') {
-                    announcementEmbed.addFields({ name: '💸 Verilecek Oyuncunun Maaşı', value: tradeData.givenPlayerSalary, inline: true });
+                    announcementEmbed.addFields({ name: '💸 Verilecek Oyuncunun Maaşı', value: `${tradeData.givenPlayerSalary}€`, inline: true });
                 }
                 if (tradeData.additionalAmount && tradeData.additionalAmount !== 'Yok' && tradeData.additionalAmount !== 'Belirtilmemiş' && tradeData.additionalAmount.trim() !== '') {
-                    announcementEmbed.addFields({ name: '💵 Ek Tazminat', value: tradeData.additionalAmount, inline: true });
+                    announcementEmbed.addFields({ name: '💵 Ek Tazminat', value: `${tradeData.additionalAmount}€`, inline: true });
                 }
                 if (tradeData.bonus && tradeData.bonus !== 'Yok' && tradeData.bonus !== 'Belirtilmemiş' && tradeData.bonus.trim() !== '') {
                     announcementEmbed.addFields({ name: '🎁 İstenen Oyuncu Özellikleri', value: tradeData.bonus, inline: true });
@@ -2064,9 +2064,9 @@ class ButtonHandler {
                 .addFields(
                     { name: '⚽ Oyuncu', value: `${player.user}`, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: newTeam, inline: true },
-                    { name: '💰 Maaş', value: salary, inline: true },
+                    { name: '💰 Maaş', value: `${salary}€`, inline: true },
                     { name: '📅 Sözleşme+Ek Madde', value: duration, inline: true },
-                    { name: '🎯 İmza Bonusu', value: bonus, inline: true }
+                    { name: '🎯 İmza Bonusu', value: `${bonus}€`, inline: true }
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
                 .setFooter({ text: 'Transfer Sistemi' });
@@ -2093,8 +2093,8 @@ class ButtonHandler {
                     { name: '⚽ Oyuncu', value: `${player.user}`, inline: true },
                     { name: '🏆 Eski Kulüp', value: oldClub, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: newClub, inline: true },
-                    { name: '💰 Transfer Bedeli', value: transferFee, inline: true },
-                    { name: '💸 Yıllık Maaş', value: salary, inline: true },
+                    { name: '💰 Transfer Bedeli', value: `${transferFee}€`, inline: true },
+                    { name: '💸 Yıllık Maaş', value: `${salary}€`, inline: true },
                     { name: '📅 Sözleşme+Ek Madde', value: duration, inline: true }
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
@@ -2122,8 +2122,8 @@ class ButtonHandler {
                     { name: '⚽ Oyuncu', value: `${player.user}`, inline: true },
                     { name: '🏆 Eski Kulüp', value: oldClub, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: newClub, inline: true },
-                    { name: '💰 Kiralık Ücreti', value: loanFee, inline: true },
-                    { name: '💸 Yıllık Maaş', value: salary, inline: true },
+                    { name: '💰 Kiralık Ücreti', value: `${loanFee}€`, inline: true },
+                    { name: '💸 Yıllık Maaş', value: `${salary}€`, inline: true },
                     { name: '📅 Sözleşme+Ek Madde', value: duration, inline: true }
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()
@@ -2145,7 +2145,7 @@ class ButtonHandler {
                 .addFields(
                     { name: '⚽ Oyuncu', value: `${player.user}`, inline: true },
                     { name: '🏟️ Yeni Kulüp', value: team, inline: true },
-                    { name: '💰 Maaş', value: salary, inline: true },
+                    { name: '💰 Maaş', value: `${salary}€`, inline: true },
                     { name: '📅 Süre', value: duration, inline: true }
                 ).setThumbnail(player.user.displayAvatarURL({ dynamic: true }))
                 .setTimestamp()

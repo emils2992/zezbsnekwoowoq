@@ -106,6 +106,7 @@ The bot is configured for Replit deployment with:
   - Enhanced user experience by matching modal placeholders with server's economy system notation
   - All monetary input fields now display realistic Turkish Lira amounts instead of long numerical values
   - Improved form accessibility with clear, economy-appropriate placeholder examples
+  - Added € symbol to all transfer announcement monetary amounts for proper currency display
 
 - June 26, 2025. Enhanced transfer system with comprehensive payment verification and dual payment support:
   - Implemented dual payment system for contract commands: president pays transfer fee, player pays salary
