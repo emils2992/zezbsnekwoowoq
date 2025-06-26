@@ -47,5 +47,16 @@
       "date": "26.06.2025 10:30",
       "timestamp": 1719390000000
     }
+  ],
+  "1352647377395122208": [
+    {
+      "player": "frozydebate",
+      "playerMention": "<@1173735298329493675>",
+      "type": "offer",
+      "date": "26.06.2025 11:10:31",
+      "timestamp": 1750936231314,
+      "fromTeam": null,
+      "toTeam": "svsb"
+    }
   ]
 }
