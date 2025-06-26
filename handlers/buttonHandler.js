@@ -144,6 +144,9 @@ class ButtonHandler {
                         await this.handleTransferFeaturesHelp(client, interaction);
                     }
                     break;
+                case 'tf':
+                    await this.handleTfPagination(client, interaction, params);
+                    break;
                 default:
                     await interaction.reply({ 
                         content: '❌ Bilinmeyen buton etkileşimi!', 
@@ -1898,6 +1901,106 @@ class ButtonHandler {
         await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
     }
 
+    async handleTfPagination(client, interaction, params) {
+        try {
+            await interaction.deferReply();
+            
+            const [direction, pageNum] = params;
+            const currentPage = parseInt(pageNum);
+            
+            const fs = require('fs');
+            const path = require('path');
+            const transfersPath = path.join(__dirname, '..', 'data', 'transfers.json');
+            
+            if (!fs.existsSync(transfersPath)) {
+                return interaction.editReply('❌ Henüz hiç transfer kaydı yok!');
+            }
+
+            const transfersData = JSON.parse(fs.readFileSync(transfersPath, 'utf8'));
+            const guildTransfers = transfersData[interaction.guild.id] || [];
+
+            if (guildTransfers.length === 0) {
+                return interaction.editReply('❌ Bu sunucuda henüz hiç transfer kaydı yok!');
+            }
+
+            // Sayfalama
+            const transfersPerPage = 10;
+            const totalPages = Math.ceil(guildTransfers.length / transfersPerPage);
+            
+            if (currentPage < 1 || currentPage > totalPages) {
+                return interaction.editReply('❌ Geçersiz sayfa numarası!');
+            }
+
+            const startIndex = (currentPage - 1) * transfersPerPage;
+            const endIndex = startIndex + transfersPerPage;
+            const currentTransfers = guildTransfers.slice(startIndex, endIndex);
+
+            const config = require('../config');
+            const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+            
+            const embed = new MessageEmbed()
+                .setColor(config.colors.primary)
+                .setTitle(`📋 Transfer Listesi - Sayfa ${currentPage}/${totalPages}`)
+                .setDescription(`Toplam ${guildTransfers.length} transfer kaydı`)
+                .setTimestamp()
+                .setFooter({ text: 'Transfer Takip Sistemi' });
+
+            currentTransfers.forEach((transfer, index) => {
+                const transferIndex = startIndex + index + 1;
+                let transferText = `**${transferIndex}.** ${transfer.playerMention || transfer.player}`;
+                
+                if (transfer.type === 'offer') {
+                    transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
+                } else if (transfer.type === 'trade') {
+                    if (transfer.tradeDetails) {
+                        transferText += `\n🔄 ${transfer.tradeDetails}`;
+                    } else {
+                        transferText += `\n🔄 ${transfer.fromTeam} ↔ ${transfer.toTeam}`;
+                    }
+                } else {
+                    transferText += `\n📤 Eski Kulüp: ${transfer.fromTeam}`;
+                    transferText += `\n📥 Yeni Kulüp: ${transfer.toTeam}`;
+                }
+                
+                transferText += `\n📅 ${transfer.date}`;
+                
+                embed.addFields({ name: `${config.emojis.football || '⚽'} ${transfer.type.toUpperCase()}`, value: transferText, inline: false });
+            });
+
+            // Sayfa butonları
+            const buttons = new MessageActionRow();
+            
+            if (currentPage > 1) {
+                buttons.addComponents(
+                    new MessageButton()
+                        .setCustomId(`tf_prev_${currentPage - 1}`)
+                        .setLabel('◀ Önceki')
+                        .setStyle('SECONDARY')
+                );
+            }
+
+            if (currentPage < totalPages) {
+                buttons.addComponents(
+                    new MessageButton()
+                        .setCustomId(`tf_next_${currentPage + 1}`)
+                        .setLabel('Sonraki ▶')
+                        .setStyle('SECONDARY')
+                );
+            }
+
+            const messageData = { embeds: [embed] };
+            if (buttons.components.length > 0) {
+                messageData.components = [buttons];
+            }
+
+            await interaction.editReply(messageData);
+
+        } catch (error) {
+            console.error('TF pagination error:', error);
+            await interaction.editReply('❌ Transfer listesi gösterilirken bir hata oluştu!');
+        }
+    }
+
     async handleTransferFeaturesHelp(client, interaction) {
         const helpEmbed = new MessageEmbed()
             .setColor(config.colors.primary)
@@ -2196,6 +2299,9 @@ class ButtonHandler {
                     guild.name, 
                     logData
                 );
+
+                // Save transfer to local tracking system
+                this.saveTransferRecord(guild, transferData, logData);
             } catch (error) {
                 console.error('❌ Error sending announcement:', error);
                 throw error;
@@ -4382,6 +4488,62 @@ class ButtonHandler {
     }
 
     // BTRelease modal form handler
+    // Save transfer record to local tracking system
+    saveTransferRecord(guild, transferData, logData) {
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const transfersPath = path.join(__dirname, '..', 'data', 'transfers.json');
+            
+            // Create data directory if it doesn't exist
+            const dataDir = path.join(__dirname, '..', 'data');
+            if (!fs.existsSync(dataDir)) {
+                fs.mkdirSync(dataDir, { recursive: true });
+            }
+
+            // Load existing transfers
+            let transfersData = {};
+            if (fs.existsSync(transfersPath)) {
+                transfersData = JSON.parse(fs.readFileSync(transfersPath, 'utf8'));
+            }
+
+            // Initialize guild transfers if not exists
+            if (!transfersData[guild.id]) {
+                transfersData[guild.id] = [];
+            }
+
+            // Create transfer record
+            const transferRecord = {
+                player: logData.player,
+                playerMention: transferData.player ? transferData.player.user.toString() : null,
+                type: transferData.type,
+                fromTeam: logData.fromTeam,
+                toTeam: logData.toTeam,
+                amount: logData.amount,
+                salary: logData.salary,
+                duration: logData.duration,
+                reason: logData.reason,
+                date: new Date().toLocaleString('tr-TR'),
+                timestamp: Date.now()
+            };
+
+            // Add special handling for trade
+            if (transferData.type === 'trade') {
+                transferRecord.tradeDetails = `${transferData.wantedPlayer?.user.username} ↔ ${transferData.givenPlayer?.user.username}`;
+            }
+
+            // Add to guild transfers
+            transfersData[guild.id].push(transferRecord);
+
+            // Save to file
+            fs.writeFileSync(transfersPath, JSON.stringify(transfersData, null, 2));
+            
+            console.log('Transfer kaydedildi:', transferRecord);
+        } catch (error) {
+            console.error('Transfer kaydetme hatası:', error);
+        }
+    }
+
     async handleShowBTReleaseForm(client, interaction, params) {
         try {
             const [playerId, ] = params;
