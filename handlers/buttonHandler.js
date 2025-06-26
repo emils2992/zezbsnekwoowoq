@@ -1443,10 +1443,17 @@ class ButtonHandler {
 
             // Role management for release - convert player to free agent
             try {
-                await permissions.makePlayerFree(player);
-                console.log(`Converted ${player.displayName} to free agent via release`);
+                console.log(`🔄 Release: Starting role management for ${player.displayName}...`);
+                const result = await permissions.makePlayerFree(player);
+                console.log(`🔄 Release role management result: ${result}`);
+                
+                if (result) {
+                    console.log(`✅ Release: Successfully updated roles for ${player.displayName}`);
+                } else {
+                    console.log(`❌ Release: Failed to update roles for ${player.displayName}`);
+                }
             } catch (error) {
-                console.error('Role management error in release:', error);
+                console.error('❌ Role management error in release:', error);
             }
             
             // Extract release data from embed fields
@@ -3696,9 +3703,6 @@ class ButtonHandler {
             }
 
             try {
-                const PermissionManager = require('../utils/permissions');
-                const permissions = new PermissionManager();
-                
                 // Automatic role management: Remove futbolcu role, add serbest futbolcu role, remove unilateral termination role
                 console.log(`BTRelease: Converting ${player.displayName} to free agent and cleaning up roles...`);
                 const result = await permissions.makePlayerFree(player);
@@ -3817,9 +3821,6 @@ class ButtonHandler {
 
         if (buttonType === 'accept') {
             try {
-                const PermissionManager = require('../utils/permissions');
-                const permissions = new PermissionManager();
-                
                 // For brelease: player is the one who gets released (presidentId is actually the player)
                 const playerToRelease = await guild.members.fetch(presidentId);
                 
@@ -4635,10 +4636,17 @@ class ButtonHandler {
 
                 // Role management for release - convert player to free agent
                 try {
-                    await permissions.makePlayerFree(player);
-                    console.log(`Converted ${player.displayName} to free agent via trelease`);
+                    console.log(`🔄 TRelease: Starting role management for ${player.displayName}...`);
+                    const result = await permissions.makePlayerFree(player);
+                    console.log(`🔄 TRelease role management result: ${result}`);
+                    
+                    if (result) {
+                        console.log(`✅ TRelease: Successfully updated roles for ${player.displayName}`);
+                    } else {
+                        console.log(`❌ TRelease: Failed to update roles for ${player.displayName}`);
+                    }
                 } catch (error) {
-                    console.error('Role management error in trelease:', error);
+                    console.error('❌ Role management error in trelease:', error);
                 }
                 
                 // Extract release data from embed fields
