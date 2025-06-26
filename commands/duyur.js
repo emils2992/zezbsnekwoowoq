@@ -10,10 +10,29 @@ module.exports = {
     
     async execute(client, message, args) {
         try {
+            const CooldownManager = require('../utils/cooldowns');
+            const cooldowns = new CooldownManager();
+            
             // Serbest futbolcu rolü kontrolü
             if (!permissions.isFreeAgent(message.member)) {
                 return message.reply('❌ Bu komutu sadece serbest futbolcular kullanabilir!');
             }
+
+            // 24 saat cooldown kontrolü
+            const cooldownCheck = cooldowns.canUseCommand(message.guild.id, message.author.id, 'duyur');
+            if (!cooldownCheck.canUse) {
+                const remainingTime = cooldowns.formatRemainingTime(cooldownCheck.remainingTime);
+                const embed = new MessageEmbed()
+                    .setColor('#FF0000')
+                    .setTitle('⏰ Komut Bekleme Süresi')
+                    .setDescription(`Bu komutu tekrar kullanabilmek için **${remainingTime}** beklemelisin!`)
+                    .addField('Son Kullanım', 'Bu komutu 24 saatte bir kullanabilirsin', false)
+                    .setTimestamp();
+                return message.reply({ embeds: [embed] });
+            }
+
+            // Set cooldown for this command
+            cooldowns.setCooldown(message.guild.id, message.author.id, 'duyur');
 
             // Modal formu butonunu göster
             await message.reply({

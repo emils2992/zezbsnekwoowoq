@@ -9,10 +9,25 @@ module.exports = {
         try {
             const PermissionManager = require('../utils/permissions');
             const permissions = new PermissionManager();
+            const CooldownManager = require('../utils/cooldowns');
+            const cooldowns = new CooldownManager();
             
             // Sadece başkanlar kullanabilir
             if (!permissions.isPresident(message.member)) {
                 return message.reply('❌ Bu komutu sadece başkanlar kullanabilir!');
+            }
+
+            // 24 saat cooldown kontrolü
+            const cooldownCheck = cooldowns.canUseCommand(message.guild.id, message.author.id, 'bduyur');
+            if (!cooldownCheck.canUse) {
+                const remainingTime = cooldowns.formatRemainingTime(cooldownCheck.remainingTime);
+                const embed = new MessageEmbed()
+                    .setColor('#FF0000')
+                    .setTitle('⏰ Komut Bekleme Süresi')
+                    .setDescription(`Bu komutu tekrar kullanabilmek için **${remainingTime}** beklemelisin!`)
+                    .addField('Son Kullanım', 'Bu komutu 24 saatte bir kullanabilirsin', false)
+                    .setTimestamp();
+                return message.reply({ embeds: [embed] });
             }
 
             if (args.length < 1) {
@@ -43,6 +58,9 @@ module.exports = {
             if (targetUser.id === message.author.id) {
                 return message.reply('❌ Kendi kendinizi transfer listesine koyamazsınız!');
             }
+
+            // Set cooldown for this command
+            cooldowns.setCooldown(message.guild.id, message.author.id, 'bduyur');
 
             // Modal formu butonunu göster
             await message.reply({

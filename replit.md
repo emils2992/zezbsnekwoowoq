@@ -100,7 +100,14 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 26, 2025. Fixed compensation payment channel deletion bug and completed system:
+- June 26, 2025. Implemented 24-hour cooldown system for announcement commands:
+  - Added 24-hour cooldown system to prevent spam for .bduyur and .duyur commands
+  - Created CooldownManager utility class to track command usage with persistent JSON storage
+  - Users can only use .bduyur command once per 24 hours (per user, per server)
+  - Users can only use .duyur command once per 24 hours (per user, per server)
+  - Cooldown displays remaining time in human-readable format (X saat Y dakika)
+  - Different players can still be targeted with .bduyur without triggering cooldown
+  - System prevents announcement spam while allowing legitimate usage
   - Fixed critical bug where release channels were being deleted even when compensation payment was required
   - Channels now remain open when "Ek Tazminat" field contains amount, preventing premature deletion
   - Added early return logic to prevent button disabling and channel deletion when payment is pending
