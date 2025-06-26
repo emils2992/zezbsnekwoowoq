@@ -63,80 +63,67 @@ module.exports = {
                 console.error('Oldurferdi data yazma hatası:', error);
             }
 
-            // İlk mesaj - Ferdi öldürüldü
+            // İlk mesaj - Ferdi öldürüldü (Bu mesaj güncellenecek)
             const killEmbed = new MessageEmbed()
                 .setColor('#FF0000')
-                .setTitle('💀 FERDİ KADIOĞLU BAŞARIYLA ÖLDÜRÜLDÜ!')
-                .setDescription('🔫 Ferdi Kadıoğlu eliminasyon işlemi tamamlandı.\n\n**Ölüm Raporu:**\n💉 Enjeksiyon: Tamamlandı\n⚰️ Tabut: Hazırlandı\n🪦 Mezar: Kazıldı')
+                .setTitle('💀 FERDİ KADIOĞLU ÖLDÜRÜLDÜ!')
+                .setDescription('⚰️ Ferdi Kadıoğlu eliminasyon işlemi tamamlandı!')
                 .addFields(
                     { name: '💀 Katil', value: message.author.toString(), inline: true },
                     { name: '⏰ Ölüm Saati', value: new Date().toLocaleTimeString('tr-TR'), inline: true },
-                    { name: '🎯 Hedef', value: 'Ferdi Kadıoğlu', inline: true }
+                    { name: '📡 Event', value: '1/3', inline: true }
                 )
                 .setTimestamp()
-                .setFooter({ text: 'Ferdi Kadıoğlu - Son Nefes' });
+                .setFooter({ text: 'Ferdi Kadıoğlu Event Sistemi' });
 
-            await message.reply({ embeds: [killEmbed] });
+            const eventMessage = await message.reply({ embeds: [killEmbed] });
 
-            // 7 aşamalı troll dizisi (8 saniye aralıklarla)
-            const stages = [
+            // 3 Event sistemi (8 saniye aralıklarla tek mesajı güncelle)
+            const events = [
                 {
-                    title: '👻 FERDİ\'NİN RUHU UYANDIRILDI!',
-                    description: '🚨 **HADİ BAKALIM NE YAPACAKSIN!**\n\n💀 Ferdi Kadıoğlu\'nun ruhu öbür dünyadan geri döndü!\n👻 O artık seni hedef aldı!\n🔥 Intikam almak için geri geldi!',
-                    color: '#8B0000'
+                    title: '👽 UZAYLILAR DÜNYAYI ELE GEÇİRDİ!',
+                    description: '🛸 **FERDİ KADIOĞLU ÖLDÜRÜLDÜ, UZAYLILAR DÜNYAYI ELE GEÇİRDİ!**\n\n👽 Ferdi\'nin ölümünden sonra uzaylılar saldırıya geçti!\n🌍 Dünya artık uzaylıların kontrolünde!\n⚡ İnsanlık yok oluyor!',
+                    color: '#00FF00',
+                    event: '2/3'
                 },
                 {
-                    title: '⚡ FERDİ İNTİKAM ALIYOR!',
-                    description: '🌪️ **FERDİ ÇILDIRDI!**\n\n💀 Ferdi Kadıoğlu ruhen seni takip ediyor!\n👻 Her adımını izliyor!\n🔪 İntikamını planlatıyor!',
-                    color: '#4B0082'
+                    title: '💥 DISCORD SUNUCULARI PATLATILIYOR!',
+                    description: '🔥 **DISCORD SUNUCULARI PATLATILIYOR!**\n\n💻 Tüm Discord sunucuları çöküyor!\n💥 Sistem aşırı yüklendi!\n🌐 İnternet altyapısı çöküyor!',
+                    color: '#FF4500',
+                    event: '3/3'
                 },
                 {
-                    title: '🔥 FERDİ GAZAPLANIYOR!',
-                    description: '🌋 **VOLKAN GİBİ PATLIYOR!**\n\n💀 Ferdi\'nin gazabı yeryüzünü sallıyor!\n⚡ Şimşekler çakıyor!\n🌪️ Kasırgalar kopuyor!',
-                    color: '#FF4500'
-                },
-                {
-                    title: '💥 FERDİ ŞEYTANLAŞTI!',
-                    description: '👹 **ARTIK ŞEYTANDİR!**\n\n💀 Ferdi cehennemden güç alıyor!\n🔥 Ateş nefes veriyor!\n👺 Korkunç bir canavar oldu!',
-                    color: '#DC143C'
-                },
-                {
-                    title: '🌪️ FERDİ KIYAMETI KOPARACAK!',
-                    description: '☄️ **DÜNYA SONUNU GETİRİYOR!**\n\n💀 Ferdi kıyameti başlatıyor!\n🌍 Dünya titriyor!\n⚡ Gökyüzü yanıyor!',
-                    color: '#8B008B'
-                },
-                {
-                    title: '👑 FERDİ TANRI OLDU!',
-                    description: '⚡ **YENİ TANRI FERDİ!**\n\n💀 Ferdi artık her şeyin efendisi!\n🌟 Sonsuz güce sahip!\n👑 Evrenin kralı!',
-                    color: '#FFD700'
-                },
-                {
-                    title: '🎭 FERDİ SENİ BEKLEYEN ÖZEL BİR KANAL AÇACAK!',
-                    description: '🎪 **SON SAHNE!**\n\n💀 Ferdi sana özel bir sürpriz hazırladı!\n🎭 Özel kanal açılıyor!\n🎪 Show time!',
-                    color: '#FF69B4'
+                    title: '⚰️ FERDİNİN MEZARINDAN GELEN SON MESAJ!',
+                    description: '👻 **FERDİNİN MEZARINDAN GELEN SON MESAJ:**\n\n💀 **"PİPİM AĞRIYOR YARDIM EDİN AMK!"**\n\n⚰️ Bu Ferdi\'nin son sözleri...\n👻 Artık ebedi huzura kavuştu (pipisi hariç)',
+                    color: '#8B008B',
+                    event: 'SON'
                 }
             ];
 
-            // Her 8 saniyede bir stage göster
-            for (let i = 0; i < stages.length; i++) {
+            // Her 8 saniyede bir aynı mesajı güncelle
+            for (let i = 0; i < events.length; i++) {
                 setTimeout(async () => {
-                    const stageEmbed = new MessageEmbed()
-                        .setColor(stages[i].color)
-                        .setTitle(stages[i].title)
-                        .setDescription(stages[i].description)
-                        .addFields(
-                            { name: '⚡ Aşama', value: `${i + 1}/7`, inline: true },
-                            { name: '⏰ Süre', value: `${(i + 1) * 8} saniye`, inline: true },
-                            { name: '🎯 Hedef', value: 'Ferdi Kadıoğlu İntikamı', inline: true }
-                        )
-                        .setTimestamp()
-                        .setFooter({ text: `Ferdi Kadıoğlu - Aşama ${i + 1}` });
+                    try {
+                        const eventEmbed = new MessageEmbed()
+                            .setColor(events[i].color)
+                            .setTitle(events[i].title)
+                            .setDescription(events[i].description)
+                            .addFields(
+                                { name: '💀 Katil', value: message.author.toString(), inline: true },
+                                { name: '⏰ Event Zamanı', value: new Date().toLocaleTimeString('tr-TR'), inline: true },
+                                { name: '📡 Event', value: events[i].event, inline: true }
+                            )
+                            .setTimestamp()
+                            .setFooter({ text: `Ferdi Kadıoğlu Event Sistemi - ${events[i].event}` });
 
-                    await message.reply({ embeds: [stageEmbed] });
-                }, i * 8000);
+                        await eventMessage.edit({ embeds: [eventEmbed] });
+                    } catch (error) {
+                        console.error('Event mesajı güncellenirken hata:', error);
+                    }
+                }, (i + 1) * 8000);
             }
 
-            // Son aşamada özel kanal oluştur (56 saniye sonra)
+            // Son eventten sonra özel kanal oluştur (32 saniye sonra - 4*8=32)
             setTimeout(async () => {
                 try {
                     const guild = message.guild;

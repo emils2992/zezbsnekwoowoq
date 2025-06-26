@@ -100,7 +100,11 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 26, 2025. Implemented 24-hour cooldown system for announcement commands:
+- June 26, 2025. Simplified .oldurferdi command and added 24-hour cooldown system:
+  - Redesigned .oldurferdi to use single message updates instead of multiple messages to reduce spam
+  - Now shows 3 events updating every 8 seconds: "Ferdi öldürüldü" → "Uzaylılar dünyayı ele geçirdi" → "Discord sunucuları patlatılıyor" → "Ferdi'nin mezarından gelen son mesaj: Pipim ağrıyor yardım edin amk!"
+  - Eliminated message pollution while maintaining comedic timing and story progression
+  - Channel creation still occurs after final event for continuation of troll sequence
   - Added 24-hour cooldown system to prevent spam for .bduyur and .duyur commands
   - Created CooldownManager utility class to track command usage with persistent JSON storage
   - Users can only use .bduyur command once per 24 hours (per user, per server)
