@@ -1,0 +1,61 @@
+{
+  "1234567890": [
+    {
+      "player": "Messi ↔ Ronaldo",
+      "playerMention": "<@123456789> ↔ <@987654321>",
+      "type": "trade",
+      "fromTeam": "Ahmet'nin takımı",
+      "toTeam": "Mehmet'nin takımı",
+      "salary": "500K + 300K",
+      "amount": "100K ek",
+      "date": "26.06.2025 14:30",
+      "timestamp": 1719404400000
+    },
+    {
+      "player": "Neymar",
+      "playerMention": "<@555666777>",
+      "type": "offer",
+      "fromTeam": null,
+      "toTeam": "Barcelona FC",
+      "salary": "800K/yıl",
+      "duration": "3 yıl + bonus",
+      "date": "26.06.2025 13:15",
+      "timestamp": 1719399900000
+    },
+    {
+      "player": "Mbappe",
+      "playerMention": "<@888999000>",
+      "type": "contract",
+      "fromTeam": "PSG",
+      "toTeam": "Real Madrid",
+      "amount": "200M",
+      "salary": "1.2M/yıl",
+      "duration": "5 yıl",
+      "date": "26.06.2025 12:00",
+      "timestamp": 1719395400000
+    },
+    {
+      "player": "Haaland",
+      "playerMention": "<@111222333>",
+      "type": "hire",
+      "fromTeam": "Borussia Dortmund",
+      "toTeam": "Manchester City",
+      "amount": "75M kiralık",
+      "salary": "900K/yıl",
+      "duration": "1 yıl kiralık",
+      "date": "26.06.2025 11:45",
+      "timestamp": 1719394500000
+    },
+    {
+      "player": "Benzema",
+      "playerMention": "<@444555666>",
+      "type": "release",
+      "fromTeam": "Real Madrid",
+      "toTeam": "Serbest",
+      "reason": "Karşılıklı fesih",
+      "amount": "50M tazminat",
+      "date": "26.06.2025 10:30",
+      "timestamp": 1719390000000
+    }
+  ]
+}
