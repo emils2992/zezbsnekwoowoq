@@ -4,6 +4,7 @@ const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
 const PermissionManager = require('../utils/permissions');
 const permissions = new PermissionManager();
+const globalLogger = require('../utils/globalLogger');
 
 class ButtonHandler {
     constructor() {
@@ -2137,6 +2138,54 @@ class ButtonHandler {
                     embeds: [announcementEmbed]
                 });
                 console.log('✅ Announcement sent successfully to', channelToUse.name);
+                
+                // Send to global log
+                const logData = {
+                    player: transferData.player ? transferData.player.user.username : 'Bilinmiyor',
+                    fromTeam: null,
+                    toTeam: null,
+                    amount: null,
+                    salary: null,
+                    duration: null,
+                    reason: null
+                };
+
+                // Extract data based on transfer type
+                if (transferData.type === 'trade') {
+                    logData.player = `${transferData.wantedPlayer.user.username} ↔ ${transferData.givenPlayer.user.username}`;
+                    logData.fromTeam = transferData.targetPresident.user.username;
+                    logData.toTeam = transferData.president.user.username;
+                    if (transferData.tradeData) {
+                        logData.amount = transferData.tradeData.additionalAmount;
+                        logData.salary = `${transferData.tradeData.wantedPlayerSalary} / ${transferData.tradeData.givenPlayerSalary}`;
+                    }
+                } else if (transferData.type === 'offer') {
+                    const embedFields = announcementEmbed.fields;
+                    logData.toTeam = embedFields.find(f => f.name.includes('Yeni Kulüp'))?.value || 'Bilinmiyor';
+                    logData.salary = embedFields.find(f => f.name.includes('Maaş'))?.value || 'Bilinmiyor';
+                    logData.duration = embedFields.find(f => f.name.includes('Sözleşme'))?.value || 'Bilinmiyor';
+                } else if (transferData.type === 'contract' || transferData.type === 'hire') {
+                    const embedFields = announcementEmbed.fields;
+                    logData.fromTeam = embedFields.find(f => f.name.includes('Eski Kulüp'))?.value || 'Bilinmiyor';
+                    logData.toTeam = embedFields.find(f => f.name.includes('Yeni Kulüp'))?.value || 'Bilinmiyor';
+                    logData.amount = embedFields.find(f => f.name.includes('Transfer Bedeli') || f.name.includes('Kiralık'))?.value || 'Bilinmiyor';
+                    logData.salary = embedFields.find(f => f.name.includes('Maaş'))?.value || 'Bilinmiyor';
+                    logData.duration = embedFields.find(f => f.name.includes('Sözleşme'))?.value || 'Bilinmiyor';
+                }
+
+                const transferTypeMap = {
+                    'offer': 'Serbest Transfer',
+                    'contract': 'Sözleşme Transferi',
+                    'trade': 'Takas',
+                    'hire': 'Kiralık Transfer'
+                };
+
+                await globalLogger.logTransfer(
+                    channelToUse.client, 
+                    transferTypeMap[transferData.type] || 'Transfer',
+                    guild.name, 
+                    logData
+                );
             } catch (error) {
                 console.error('❌ Error sending announcement:', error);
                 throw error;
@@ -2199,6 +2248,18 @@ class ButtonHandler {
                 embeds: [releaseEmbed]
             });
         }
+
+        // Send to global log
+        await globalLogger.logFreeAgent(
+            freeAgentChannel.client,
+            guild.name,
+            {
+                player: player.username,
+                oldClub: releaseData.oldClub || 'Belirtilmemiş',
+                reason: releaseData.reason || 'Belirtilmemiş',
+                compensation: releaseData.compensation || 'Yok'
+            }
+        );
     }
 
     async handleShowButton(client, interaction, params) {

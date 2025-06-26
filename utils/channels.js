@@ -358,6 +358,20 @@ class ChannelManager {
             });
 
             console.log('Serbest duyuru sent with ping:', mentionText);
+            
+            // Send to global log
+            const globalLogger = require('./globalLogger');
+            await globalLogger.logFreeAgent(
+                freeAgentChannel.client,
+                guild.name,
+                {
+                    player: player.username || player.user?.username || 'Bilinmiyor',
+                    oldClub: releaseData?.oldClub || 'Belirtilmemiş',
+                    reason: releaseData?.reason || reason,
+                    compensation: releaseData?.compensation || 'Yok'
+                }
+            );
+            
             return message;
 
         } catch (error) {
