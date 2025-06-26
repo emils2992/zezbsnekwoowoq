@@ -100,6 +100,15 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 26, 2025. Fixed payment direction in contract and hire commands for correct transfer fee flow:
+  - Corrected payment system: target president (2nd tagged person) now pays transfer fee to president (1st person)
+  - Updated both contract and hire dual payment systems to reflect proper payment direction
+  - Target president pays transfer/loan fee to initiating president, player pays salary to initiating president
+  - Fixed payment instruction embeds to display correct payer and receiver for transfer fees
+  - Both contract (.contract @targetPresident @player) and hire (.hire @targetPresident @player) now work with corrected payment flow
+  - Enhanced .remove command with "all" functionality to reset entire server economy with .remove all command
+  - Only transfer authorities can use .remove all to clear all user balances and reset economy data to empty state
+
 - June 26, 2025. Updated all modal form placeholders to use Turkish Lira format for better economy integration:
   - Standardized all salary, transfer fee, bonus, and compensation placeholders to use "500k, 1M, 2B" format
   - Updated offer, contract, hire, trade, release, bduyur, and announcement modal forms with consistent TL formatting

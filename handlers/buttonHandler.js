@@ -513,10 +513,10 @@ class ButtonHandler {
             const transferFee = fields.find(f => f.name.includes('Transfer Bedeli'))?.value || 'Belirtilmemiş';
             const playerSalary = fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş';
             
-            // Store DUAL payment requirement - both president and player must pay
+            // Store DUAL payment requirement - both target president and player must pay
             pendingPayments.set(interaction.channel.id, {
-                payerId1: presidentId,        // President pays transfer fee
-                receiverId1: targetPresidentId, // To target president
+                payerId1: targetPresidentId,  // Target president pays transfer fee
+                receiverId1: presidentId,     // To president (1st tagged person)
                 amount1: transferFee,
                 payerId2: playerId,           // Player pays salary
                 receiverId2: presidentId,     // To president
@@ -538,11 +538,11 @@ class ButtonHandler {
             const paymentEmbed = new MessageEmbed()
                 .setColor('#FFD700')
                 .setTitle('💰 Çift Ödeme Gerekli - Sözleşme')
-                .setDescription('**Oyuncu kabul etti!** Hem başkan hem oyuncu ödeme yapmalı.')
-                .addField(`${president} Ödeyecek`, `${targetPresident} - ${transferFee} (Transfer Bedeli)`, true)
+                .setDescription('**Oyuncu kabul etti!** Hem hedef başkan hem oyuncu ödeme yapmalı.')
+                .addField(`${targetPresident} Ödeyecek`, `${president} - ${transferFee} (Transfer Bedeli)`, true)
                 .addField(`${player} Ödeyecek`, `${president} - ${playerSalary} (Maaş)`, true)
                 .addField('Ödeme Komutları', 
-                    `${president}: \`.pay ${targetPresident} ${transferFee}\`\n` +
+                    `${targetPresident}: \`.pay ${president} ${transferFee}\`\n` +
                     `${player}: \`.pay ${president} ${playerSalary}\``, false)
                 .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
                 .setTimestamp();
@@ -1739,10 +1739,10 @@ class ButtonHandler {
             const loanFee = fields.find(f => f.name.includes('Kiralık Bedeli'))?.value || 'Belirtilmemiş';
             const playerSalary = fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş';
             
-            // Store DUAL payment requirement - both president and player must pay
+            // Store DUAL payment requirement - both target president and player must pay
             pendingPayments.set(interaction.channel.id, {
-                payerId1: presidentId,        // President pays loan fee
-                receiverId1: targetPresidentId, // To target president
+                payerId1: targetPresidentId,  // Target president pays loan fee
+                receiverId1: presidentId,     // To president (1st tagged person)
                 amount1: loanFee,
                 payerId2: playerId,           // Player pays salary
                 receiverId2: presidentId,     // To president
@@ -1764,11 +1764,11 @@ class ButtonHandler {
             const paymentEmbed = new MessageEmbed()
                 .setColor('#FFD700')
                 .setTitle('💰 Çift Ödeme Gerekli - Kiralık')
-                .setDescription('**Oyuncu kabul etti!** Hem başkan hem oyuncu ödeme yapmalı.')
-                .addField(`${president} Ödeyecek`, `${targetPresident} - ${loanFee} (Kiralık Bedeli)`, true)
+                .setDescription('**Oyuncu kabul etti!** Hem hedef başkan hem oyuncu ödeme yapmalı.')
+                .addField(`${targetPresident} Ödeyecek`, `${president} - ${loanFee} (Kiralık Bedeli)`, true)
                 .addField(`${player} Ödeyecek`, `${president} - ${playerSalary} (Maaş)`, true)
                 .addField('Ödeme Komutları', 
-                    `${president}: \`.pay ${targetPresident} ${loanFee}\`\n` +
+                    `${targetPresident}: \`.pay ${president} ${loanFee}\`\n` +
                     `${player}: \`.pay ${president} ${playerSalary}\``, false)
                 .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
                 .setTimestamp();
