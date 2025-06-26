@@ -7,8 +7,13 @@ class CommandHandler {
             const args = message.content.slice(config.prefix.length).trim().split(/ +/);
             const commandName = args.shift().toLowerCase();
 
-            // Komutu bul
-            const command = client.commands.get(commandName);
+            // Komutu bul (önce direkt isim, sonra alias kontrolü)
+            let command = client.commands.get(commandName);
+            
+            if (!command) {
+                // Alias kontrolü
+                command = client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+            }
             
             if (!command) {
                 // Bilinmeyen komut - sessizce geç
