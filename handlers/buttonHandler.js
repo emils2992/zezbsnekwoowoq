@@ -205,6 +205,21 @@ class ButtonHandler {
 
             await interaction.deferReply();
             
+            // Role management for offer - convert free agent to player
+            try {
+                console.log(`🔄 Offer: Starting role management for ${player.displayName}...`);
+                const result = await permissions.signPlayer(player);
+                console.log(`🔄 Offer role management result: ${result}`);
+                
+                if (result) {
+                    console.log(`✅ Offer: Successfully updated roles for ${player.displayName}`);
+                } else {
+                    console.log(`❌ Offer: Failed to update roles for ${player.displayName}`);
+                }
+            } catch (error) {
+                console.error('❌ Role management error in offer:', error);
+            }
+            
             // Store pending payment info for this channel
             const pendingPayments = global.pendingPayments || new Map();
             global.pendingPayments = pendingPayments;
@@ -227,7 +242,7 @@ class ButtonHandler {
 
             if (!interaction.replied) {
                 await interaction.editReply({
-                    content: `✅ ${player} teklifini kabul etti!`
+                    content: `✅ ${player} teklifini kabul etti ve artık futbolcu rolüne sahip!`
                 });
             }
 

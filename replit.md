@@ -100,6 +100,15 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 26, 2025. Fixed role management in all transfer commands for automatic role updates:
+  - Fixed all 4 release commands (.release, .brelease, .btrelease, .trelease) to properly manage roles when accepted
+  - Players automatically lose "futbolcu" role and gain "serbest futbolcu" role when releases are confirmed
+  - Fixed .offer command to automatically convert free agents to players when offers are accepted
+  - Free agents lose "serbest futbolcu" role and gain "futbolcu" role when accepting offers
+  - Added comprehensive debug logging to track role management success/failure across all commands
+  - Eliminated duplicate PermissionManager instantiations that were causing role management failures
+  - All transfer workflows now include automatic role transitions without manual intervention
+
 - June 26, 2025. Fixed payment direction in contract and hire commands - command user pays both amounts:
   - Corrected payment system: command user (president who initiated) pays both transfer fee AND salary
   - Contract system: command user pays transfer fee to target president, salary to player
