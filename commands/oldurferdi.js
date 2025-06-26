@@ -173,6 +173,23 @@ module.exports = {
 
                     await specialChannel.send({ content: '@here', embeds: [warningEmbed] });
 
+                    // Matrix hack mesajı - Ferdi'yi etiketle
+                    setTimeout(async () => {
+                        const matrixEmbed = new MessageEmbed()
+                            .setColor('#00FF00')
+                            .setTitle('🔴 SYSTEM BREACH DETECTED')
+                            .setDescription(`⚠️ **MATRIX HACKED!**\n\n💀 <@1005770697303392266> Ferdi Kadıoğlu\'nun ruhu sisteme sızdı!\n🖥️ Matrix kodları bozuldu!\n👹 **ARTIK ŞEYTANDİR!**\n\n💀 Ferdi cehennemden güç alıyor!\n🔥 Ateş nefes veriyor!\n👺 Korkunç bir canavar oldu!\n\n⚡ Sistem kontrolden çıktı!\n🌐 Sanal gerçeklik çöküyor!`)
+                            .addFields(
+                                { name: '🚨 ALERT LEVEL', value: 'MAXIMUM', inline: true },
+                                { name: '💀 TARGET', value: '<@1005770697303392266>', inline: true },
+                                { name: '🔥 THREAT', value: 'DEVIL FERDI', inline: true }
+                            )
+                            .setTimestamp()
+                            .setFooter({ text: 'Matrix Security System - COMPROMISED' });
+
+                        await specialChannel.send({ content: '<@1005770697303392266>', embeds: [matrixEmbed] });
+                    }, 2000);
+
                     // Her 10 saniyede bir hedef kullanıcıyı etiketle
                     const reminderInterval = setInterval(async () => {
                         try {

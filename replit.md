@@ -100,6 +100,14 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 26, 2025. Enhanced .oldurferdi command with Matrix-style hack message:
+  - Added Matrix breach notification in the special channel after creation
+  - Matrix message appears 2 seconds after initial warning, tagging Ferdi directly
+  - Includes devil transformation theme: "ARTIK ŞEYTANDİR!" with system breach styling
+  - Uses Matrix green color (#00FF00) and hacker-style formatting for authentic effect
+  - Enhanced psychological pressure with virtual reality collapse narrative
+  - Ferdi now gets tagged in channel instead of main chat for the devil transformation message
+
 - June 25, 2025. Fixed .bduyur form error and syntax issues:
   - Resolved "Modal açılırken hata oluştu!" error when clicking .bduyur form button
   - Fixed Discord API error "Must be 45 or fewer in length" by shortening modal field labels
