@@ -76,6 +76,16 @@
       "fromTeam": "sghs",
       "toTeam": "eysh",
       "reason": null
+    },
+    {
+      "player": "frozydebate",
+      "playerMention": "<@1173735298329493675>",
+      "type": "contract",
+      "date": "26.06.2025 13:28:57",
+      "timestamp": 1750944537525,
+      "fromTeam": "fbd",
+      "toTeam": "dbbs",
+      "reason": null
     }
   ]
 }
