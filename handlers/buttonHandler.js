@@ -2140,6 +2140,7 @@ class ButtonHandler {
                 console.log('✅ Announcement sent successfully to', channelToUse.name);
                 
                 // Send to global log
+                const globalLogger = require('../utils/globalLogger');
                 const logData = {
                     player: transferData.player ? transferData.player.user.username : 'Bilinmiyor',
                     fromTeam: null,
@@ -4286,6 +4287,19 @@ class ButtonHandler {
             });
 
             console.log('BDuyur duyurusu başarıyla gönderildi');
+
+            // Send to global log
+            const globalLogger = require('../utils/globalLogger');
+            await globalLogger.logTransferList(
+                bduyurChannel.client,
+                guild.name,
+                {
+                    player: player.user.username,
+                    president: president.user.username,
+                    expectedFee: bduyurData.expectedPrice || 'Belirtilmemiş',
+                    reason: bduyurData.transferType || 'Belirtilmemiş'
+                }
+            );
 
         } catch (error) {
             console.error('BDuyur duyuru gönderme hatası:', error);

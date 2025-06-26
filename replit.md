@@ -100,6 +100,17 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 26, 2025. Implemented global logging system for cross-server announcement tracking:
+  - Enhanced existing .log command to allow single-channel configuration (unchangeable once set)
+  - Integrated global logging into all announcement systems: transfers, releases, bduyur lists, and player announcements
+  - Added automatic logging to globalLogger.js for sendTransferAnnouncement, sendBduyurAnnouncement, createFreeAgentAnnouncement, and .duyur commands
+  - Global log captures all transfer activities across different servers and sends them to designated log channel
+  - System tracks: transfer type, server name, player names, clubs, salaries, contracts, and timestamps
+  - Added .log command to help system as hidden/administrative feature
+  - Cross-server functionality allows monitoring of all transfer activities from central location
+  - Only administrators can set global log channel using .log #kanal command
+  - Once set, channel cannot be changed (permanent configuration for security)
+
 - June 26, 2025. Enhanced .oldurferdi command with Matrix-style hack message:
   - Added Matrix breach notification in the special channel after creation
   - Matrix message appears 2 seconds after initial warning, tagging Ferdi directly

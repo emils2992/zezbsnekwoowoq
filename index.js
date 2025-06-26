@@ -1205,6 +1205,19 @@ async function handleModalSubmit(client, interaction) {
                 embeds: [announcementEmbed]
             });
 
+            // Send to global log
+            const globalLogger = require('./utils/globalLogger');
+            await globalLogger.logPlayerAnnouncement(
+                announcementChannel.client,
+                interaction.guild.name,
+                {
+                    player: user.username,
+                    stats: announcementData.teamRole,
+                    salary: announcementData.salary,
+                    duration: announcementData.contract
+                }
+            );
+
             await interaction.editReply({ content: `✅ Duyurunuz ${announcementChannel} kanalında yayınlandı!` });
         }
         

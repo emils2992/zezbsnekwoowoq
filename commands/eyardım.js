@@ -18,7 +18,7 @@ module.exports = {
                     { name: '⚙️ Transfer Dönemi', value: '`.ac` - Transfer dönemini aç (Yönetici)\n`.kapa` - Transfer dönemini kapat (Yönetici)\n\n*Transfer kapalıyken .hire, .contract, .trade çalışmaz*', inline: false },
                     { name: '📢 Duyuru Sistemi', value: '`.duyur` - Serbest oyuncu duyurusu\n`.transfer-duyuru` - Transfer duyuru kanalı ayarla\n`.serbest-ayarla` - Serbest duyuru kanalı ayarla\n`.duyur-ayarla` - Manuel duyuru kanalı ayarla', inline: false },
                     { name: '🎭 Rol Yönetimi', value: '`.rol` - Rol yönetim menüsü\n\n**Rol Türleri:**\n• Başkan - Transfer yapabilir\n• Futbolcu - Transfer edilebilir\n• Serbest Futbolcu - Teklif alabilir\n• Transfer Yetkili - Transfer onaylayabilir\n• Ping Rolleri - Duyuru bildirimleri', inline: false },
-                    { name: '🔧 Diğer', value: '`.cleanup` - Eski kanalları temizle\n`.eyardım` - Bu yardım menüsü', inline: false }
+                    { name: '🔧 Diğer', value: '`.cleanup` - Eski kanalları temizle\n`.log #kanal` - Global log kanalı ayarla (Gizli)\n`.eyardım` - Bu yardım menüsü', inline: false }
                 )
                 .setThumbnail(message.guild.iconURL({ dynamic: true }))
                 .setFooter({ text: 'Transfer sistemi v2.0 - Transfer listesi sistemi dahil!' })
