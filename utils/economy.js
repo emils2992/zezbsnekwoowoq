@@ -67,7 +67,8 @@ class EconomyManager {
     parseAmount(amountStr) {
         if (!amountStr) return null;
         
-        const str = amountStr.toString().toLowerCase();
+        // Clean the string: remove spaces, € symbols, and convert to lowercase
+        let str = amountStr.toString().toLowerCase().trim().replace(/€/g, '').replace(/\s/g, '');
         
         // e3, e6 gibi scientific notation
         if (str.includes('e')) {
@@ -75,7 +76,7 @@ class EconomyManager {
             return parseFloat(base) * Math.pow(10, parseInt(exp));
         }
         
-        // k, m, b gibi kısaltmalar
+        // k, m, b gibi kısaltmalar (case insensitive)
         if (str.endsWith('k')) {
             return parseFloat(str.slice(0, -1)) * 1000;
         }
@@ -87,7 +88,8 @@ class EconomyManager {
         }
         
         // Normal sayı
-        return parseInt(str);
+        const parsed = parseInt(str);
+        return isNaN(parsed) ? 0 : parsed;
     }
 
     // Para formatını göster (5000 -> 5K)

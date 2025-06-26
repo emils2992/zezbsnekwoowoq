@@ -336,66 +336,68 @@ class ButtonHandler {
 
             await interaction.deferReply();
             
-            // İkinci aşama: Oyuncu ile müzakere kanalı oluştur (komutu kullanan başkan da görebilir)
-            const playerChannel = await channels.createNegotiationChannel(guild, president.user, player.user, 'contract_player', null, true);
-            if (!playerChannel) {
-                return interaction.editReply({ content: 'Oyuncu müzakere kanalı oluşturulamadı!' });
-            }
-
-            // Extract original contract data from current embed and create contract form for player approval
-            const originalEmbed = interaction.message.embeds[0];
-            const contractData = {
-                transferFee: originalEmbed.fields.find(f => f.name.includes('Transfer Bedeli'))?.value || 'Belirtilmemiş',
-                oldClub: originalEmbed.fields.find(f => f.name.includes('Eski Kulüp'))?.value || 'Belirtilmemiş',
-                newClub: originalEmbed.fields.find(f => f.name.includes('Yeni Kulüp'))?.value || 'Belirtilmemiş',
-                salary: originalEmbed.fields.find(f => f.name.includes('Yıllık Maaş'))?.value || 'Belirtilmemiş',
-                contractDuration: originalEmbed.fields.find(f => f.name.includes('Sözleşme+Ekmadde'))?.value || 'Belirtilmemiş'
-            };
+            // Store pending payment info for this channel - DUAL PAYMENT SYSTEM
+            const pendingPayments = global.pendingPayments || new Map();
+            global.pendingPayments = pendingPayments;
             
-            console.log('Contract data extracted:', contractData);
-            const contractEmbed = embeds.createContractForm(president.user, targetPresident.user, player.user, contractData);
-            const playerButtons = new MessageActionRow()
-                .addComponents(
-                    new MessageButton()
-                        .setCustomId(`contract_player_accept_${targetPresidentId}_${playerId}_${presidentId}`)
-                        .setLabel('Kabul Et')
-                        .setStyle('SUCCESS')
-                        .setEmoji('✅'),
-                    new MessageButton()
-                        .setCustomId(`contract_player_reject_${targetPresidentId}_${playerId}_${presidentId}`)
-                        .setLabel('Reddet')
-                        .setStyle('DANGER')
-                        .setEmoji('❌'),
-                    new MessageButton()
-                        .setCustomId(`contract_player_edit_${targetPresidentId}_${playerId}_${presidentId}`)
-                        .setLabel('Düzenle')
-                        .setStyle('SECONDARY')
-                        .setEmoji('✏️')
-                );
-
-            await playerChannel.send({
-                content: `${player.user} ${president.user} sözleşme anlaşmasını onaylamanız bekleniyor.\n\n${targetPresident.user} başkan anlaşmayı onayladı.\n\n*Not: ${president.user} başkan da bu kanalı görebilir.*`,
-                embeds: [contractEmbed],
-                components: [playerButtons]
+            // Extract transfer data from embed
+            const embed = interaction.message.embeds[0];
+            const fields = embed.fields;
+            
+            // Extract both payment amounts from form
+            const transferFee = fields.find(f => f.name.includes('Transfer Bedeli'))?.value || 'Belirtilmemiş';
+            const playerSalary = fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş';
+            
+            // Store DUAL payment requirement - both president and player must pay
+            pendingPayments.set(interaction.channel.id, {
+                payerId1: presidentId,        // President pays transfer fee
+                receiverId1: targetPresidentId, // To target president
+                amount1: transferFee,
+                payerId2: playerId,           // Player pays salary
+                receiverId2: presidentId,     // To president
+                amount2: playerSalary,
+                channelId: interaction.channel.id,
+                type: 'contract',
+                playerUser: player,
+                presidentUser: president,
+                targetPresidentUser: targetPresident,
+                embed: embed,
+                payments: { president: false, player: false }
             });
 
             await interaction.editReply({
-                content: `✅ Başkan onayı tamamlandı! Oyuncu onayı için ${playerChannel} kanalı oluşturuldu.`
+                content: `✅ ${targetPresident.user} sözleşmeyi kabul etti! Her iki tarafın da ödeme yapması gerekiyor.`
             });
 
-            // Bu kanalı kapat
-            setTimeout(async () => {
-                try {
-                    const channelToDelete = interaction.channel;
-                    if (channelToDelete && channelToDelete.deletable) {
-                        console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
-                        await channelToDelete.delete("Başkan onayı tamamlandı");
-                        console.log('KANAL BAŞARIYLA SİLİNDİ');
-                    }
-                } catch (error) {
-                    console.error('KANAL SİLME HATASI:', error);
-                }
-            }, 5000);
+            // Send DUAL payment instructions
+            const paymentEmbed = new MessageEmbed()
+                .setColor('#FFD700')
+                .setTitle('💰 Çift Ödeme Gerekli - Sözleşme')
+                .setDescription('**Başkan kabul etti!** Hem başkan hem oyuncu ödeme yapmalı.')
+                .addField(`${president.user} Ödeyecek`, `${targetPresident.user} - ${transferFee} (Transfer Bedeli)`, true)
+                .addField(`${player.user} Ödeyecek`, `${president.user} - ${playerSalary} (Maaş)`, true)
+                .addField('Ödeme Komutları', 
+                    `${president.user}: \`.pay ${targetPresident.user} ${transferFee}\`\n` +
+                    `${player.user}: \`.pay ${president.user} ${playerSalary}\``, false)
+                .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
+                .setTimestamp();
+
+            await interaction.channel.send({ embeds: [paymentEmbed] });
+
+            // Disable all buttons
+            const disabledButtons = interaction.message.components[0].components.map(button => 
+                new MessageButton()
+                    .setCustomId(button.customId)
+                    .setLabel(button.label)
+                    .setStyle(button.style)
+                    .setDisabled(true)
+                    .setEmoji(button.emoji || null)
+            );
+
+            await interaction.message.edit({
+                embeds: interaction.message.embeds,
+                components: [new MessageActionRow().addComponents(disabledButtons)]
+            });
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable contract offers
