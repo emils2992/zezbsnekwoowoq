@@ -1,13 +1,33 @@
 {
   "1352647377395122208": {
     "794205713533894696": {
-      "cash": 9982797200,
+      "cash": 9972297200,
       "bank": 5000000,
       "lastWork": 1750937654499,
       "inventory": {
         "Bugatysi": {
           "count": 2,
           "emoji": "<:teknikdirektor:1385548384017846272>"
+        },
+        "Emilswdnin_Villasi": {
+          "count": 1,
+          "emoji": "🏡",
+          "category": "evler"
+        },
+        "illegal_escort": {
+          "count": 1,
+          "emoji": "💃",
+          "category": "illegal"
+        },
+        "illegal_hitman": {
+          "count": 1,
+          "emoji": "🔫",
+          "category": "illegal"
+        },
+        "illegal_casino": {
+          "count": 1,
+          "emoji": "🎰",
+          "category": "illegal"
         }
       }
     },
