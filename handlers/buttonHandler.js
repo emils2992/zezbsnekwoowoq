@@ -147,6 +147,9 @@ class ButtonHandler {
                 case 'tf':
                     await this.handleTfPagination(client, interaction, params);
                     break;
+                case 'lb':
+                    await this.handleLeaderboardPagination(client, interaction, params);
+                    break;
                 default:
                     await interaction.reply({ 
                         content: '❌ Bilinmeyen buton etkileşimi!', 
@@ -4911,6 +4914,97 @@ class ButtonHandler {
             if (!interaction.replied && !interaction.deferred) {
                 await interaction.reply({
                     content: '❌ İşlem sırasında hata oluştu!',
+                    ephemeral: true
+                });
+            }
+        }
+    }
+
+    async handleLeaderboardPagination(client, interaction, params) {
+        try {
+            const [direction, page] = params;
+            const newPage = parseInt(page);
+            
+            await interaction.deferUpdate();
+            
+            const EconomyManager = require('../utils/economy');
+            const economy = new EconomyManager();
+            
+            const leaderboard = economy.getLeaderboard(interaction.guild.id, newPage, 10);
+            
+            if (leaderboard.users.length === 0) {
+                const embed = new MessageEmbed()
+                    .setColor('#FF6600')
+                    .setTitle('💰 Zenginlik Sıralaması')
+                    .setDescription('Bu sayfada hiç kullanıcı yok!')
+                    .setTimestamp();
+                return interaction.editReply({ embeds: [embed], components: [] });
+            }
+
+            const embed = new MessageEmbed()
+                .setColor('#FFD700')
+                .setTitle('💰 Zenginlik Sıralaması')
+                .setDescription(`Sayfa ${leaderboard.currentPage}/${leaderboard.totalPages}`)
+                .setTimestamp();
+
+            let description = '';
+            leaderboard.users.forEach((user, index) => {
+                const rank = (leaderboard.currentPage - 1) * 10 + index + 1;
+                let medal = '';
+                
+                if (rank === 1) medal = '🥇';
+                else if (rank === 2) medal = '🥈';
+                else if (rank === 3) medal = '🥉';
+                else medal = `${rank}.`;
+
+                description += `${medal} <@${user.userId}>\n`;
+                description += `💵 Nakit: ${economy.formatAmount(user.cash)} | `;
+                description += `🏦 Banka: ${economy.formatAmount(user.bank)}\n`;
+                description += `💰 Toplam: **${economy.formatAmount(user.total)}**\n\n`;
+            });
+
+            embed.setDescription(description);
+
+            // Update navigation buttons
+            const components = [];
+            if (leaderboard.totalPages > 1) {
+                const row = new MessageActionRow();
+                
+                if (leaderboard.currentPage > 1) {
+                    row.addComponents(
+                        new MessageButton()
+                            .setCustomId(`lb_prev_${leaderboard.currentPage - 1}`)
+                            .setLabel('◀ Önceki')
+                            .setStyle('SECONDARY')
+                    );
+                }
+
+                if (leaderboard.currentPage < leaderboard.totalPages) {
+                    row.addComponents(
+                        new MessageButton()
+                            .setCustomId(`lb_next_${leaderboard.currentPage + 1}`)
+                            .setLabel('Sonraki ▶')
+                            .setStyle('SECONDARY')
+                    );
+                }
+
+                if (row.components.length > 0) {
+                    components.push(row);
+                }
+            }
+
+            const messageOptions = { embeds: [embed] };
+            if (components.length > 0) {
+                messageOptions.components = components;
+            }
+
+            await interaction.editReply(messageOptions);
+            
+        } catch (error) {
+            console.error('Leaderboard pagination error:', error);
+            if (!interaction.replied && !interaction.deferred) {
+                await interaction.reply({
+                    content: '❌ Sayfa değiştirme hatası!',
                     ephemeral: true
                 });
             }

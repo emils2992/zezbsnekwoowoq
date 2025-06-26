@@ -100,6 +100,23 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 26, 2025. Implemented complete economy system with comprehensive money management and shopping features:
+  - Created .pay command for transferring money between users with flexible amount parsing (5k, 5e3, 5K formats)
+  - Added .work command with 1-minute cooldown earning 200 currency per use
+  - Implemented .balance command to view cash, bank, and total wealth for any user
+  - Created banking system with .deposit and .tk (withdraw) commands for secure money storage
+  - Built leaderboard system with .lb command showing paginated wealth rankings with navigation buttons
+  - Developed shop system: .shop to view items, .shop add for admins to add products, .buy to purchase items
+  - Added admin economy management: .add and .remove commands for authorized users to adjust balances
+  - Created .elog command to configure economy activity logging to designated channels
+  - Built comprehensive economy logging system tracking all transactions, work earnings, shop purchases, and admin actions
+  - Integrated economy utilities with flexible amount parsing supporting scientific notation and abbreviations
+  - Enhanced help system (.eyardım) with complete economy command documentation
+  - Added leaderboard pagination handler to button system for smooth navigation
+  - Economy data stored in JSON files with guild-specific organization for multi-server support
+  - All economy commands include proper permission checks and comprehensive error handling
+  - Currency formatting displays amounts in user-friendly K/M/B notation automatically
+
 - June 26, 2025. Added comprehensive transfer tracking system with .tf, .tfreset, and .yt commands:
   - Created .tf command for paginated transfer history viewing (10 transfers per page with navigation buttons)
   - Added .tfreset command that archives transfer data instead of deleting it (saves to transfers_archive.json)
