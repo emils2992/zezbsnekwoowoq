@@ -100,12 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 26, 2025. Fixed payment direction in contract and hire commands for correct transfer fee flow:
-  - Corrected payment system: target president (2nd tagged person) now pays transfer fee to president (1st person)
-  - Updated both contract and hire dual payment systems to reflect proper payment direction
-  - Target president pays transfer/loan fee to initiating president, player pays salary to initiating president
-  - Fixed payment instruction embeds to display correct payer and receiver for transfer fees
-  - Both contract (.contract @targetPresident @player) and hire (.hire @targetPresident @player) now work with corrected payment flow
+- June 26, 2025. Fixed payment direction in contract and hire commands - command user pays both amounts:
+  - Corrected payment system: command user (president who initiated) pays both transfer fee AND salary
+  - Contract system: command user pays transfer fee to target president, salary to player
+  - Hire system: command user pays loan fee to target president, salary to player
+  - Updated payment instruction embeds to show command user as sole payer for both amounts
+  - Both contract (.contract @targetPresident @player) and hire (.hire @targetPresident @player) now work with single-payer flow
   - Enhanced .remove command with "all" functionality to reset entire server economy with .remove all command
   - Only transfer authorities can use .remove all to clear all user balances and reset economy data to empty state
 
