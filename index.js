@@ -116,7 +116,8 @@ client.on('interactionCreate', async interaction => {
 
 // Select menu işleyicisi
 async function handleRoleButtons(client, interaction) {
-    const permissions = require('./utils/permissions');
+    const PermissionManager = require('./utils/permissions');
+    const permissions = new PermissionManager();
     const { MessageEmbed } = require('discord.js');
     const config = require('./config');
 
@@ -252,7 +253,8 @@ async function handleSelectMenu(client, interaction) {
         const roleType = customId.split('_')[2];
         const selectedRoleId = interaction.values[0];
         
-        const permissions = require('./utils/permissions');
+        const PermissionManager = require('./utils/permissions');
+        const permissions = new PermissionManager();
         const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
         
         try {
