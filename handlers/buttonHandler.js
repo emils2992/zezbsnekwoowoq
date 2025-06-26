@@ -2151,17 +2151,26 @@ class ButtonHandler {
                     reason: null
                 };
 
-                // Extract data based on transfer type
+                // Extract data based on transfer type - use actual team names from forms
                 if (transferData.type === 'trade') {
                     logData.player = `${transferData.wantedPlayer.user.username} ↔ ${transferData.givenPlayer.user.username}`;
-                    logData.fromTeam = transferData.targetPresident.user.username;
-                    logData.toTeam = transferData.president.user.username;
+                    // Use actual club names from the trade announcement
+                    const clubsField = announcementEmbed.fields.find(f => f.name.includes('Kulüpler'));
+                    if (clubsField && clubsField.value.includes('↔')) {
+                        const clubs = clubsField.value.split('↔');
+                        logData.fromTeam = clubs[1]?.trim().replace(/nin takımı$/, '') || transferData.president.user.username;
+                        logData.toTeam = clubs[0]?.trim().replace(/nin takımı$/, '') || transferData.targetPresident.user.username;
+                    } else {
+                        logData.fromTeam = transferData.targetPresident.user.username;
+                        logData.toTeam = transferData.president.user.username;
+                    }
                     if (transferData.tradeData) {
                         logData.amount = transferData.tradeData.additionalAmount;
                         logData.salary = `${transferData.tradeData.wantedPlayerSalary} / ${transferData.tradeData.givenPlayerSalary}`;
                     }
                 } else if (transferData.type === 'offer') {
                     const embedFields = announcementEmbed.fields;
+                    logData.fromTeam = 'Serbest'; // Free agent
                     logData.toTeam = embedFields.find(f => f.name.includes('Yeni Kulüp'))?.value || 'Bilinmiyor';
                     logData.salary = embedFields.find(f => f.name.includes('Maaş'))?.value || 'Bilinmiyor';
                     logData.duration = embedFields.find(f => f.name.includes('Sözleşme'))?.value || 'Bilinmiyor';
@@ -4295,9 +4304,11 @@ class ButtonHandler {
                 guild.name,
                 {
                     player: player.user.username,
-                    president: president.user.username,
+                    president: `${president.user.username} (${president.displayName})`, // Include display name for team context
                     expectedFee: bduyurData.expectedPrice || 'Belirtilmemiş',
-                    reason: bduyurData.transferType || 'Belirtilmemiş'
+                    reason: bduyurData.transferType || 'Belirtilmemiş',
+                    currentTeam: president.displayName, // Add current team info
+                    playerSalary: bduyurData.playerSalary || 'Belirtilmemiş'
                 }
             );
 

@@ -45,27 +45,31 @@ class GlobalLogger {
                     { name: '⏰ Tarih', value: new Date().toLocaleString('tr-TR'), inline: true }
                 );
 
-            // Add transfer-specific fields
+            // Add transfer-specific fields with better formatting
             if (transferData.player) {
-                logEmbed.addField('⚽ Oyuncu', transferData.player, true);
+                logEmbed.addFields({ name: '⚽ Oyuncu', value: transferData.player, inline: true });
             }
             if (transferData.fromTeam) {
-                logEmbed.addField('📤 Eski Takım', transferData.fromTeam, true);
+                // Clean up team names - remove Discord mentions and format properly
+                const cleanFromTeam = transferData.fromTeam.replace(/<@!?\d+>/g, '').replace(/nin takımı$/g, '').trim();
+                logEmbed.addFields({ name: '📤 Eski Takım', value: cleanFromTeam, inline: true });
             }
             if (transferData.toTeam) {
-                logEmbed.addField('📥 Yeni Takım', transferData.toTeam, true);
+                // Clean up team names - remove Discord mentions and format properly
+                const cleanToTeam = transferData.toTeam.replace(/<@!?\d+>/g, '').replace(/nin takımı$/g, '').trim();
+                logEmbed.addFields({ name: '📥 Yeni Takım', value: cleanToTeam, inline: true });
             }
-            if (transferData.amount) {
-                logEmbed.addField('💰 Ücret', transferData.amount, true);
+            if (transferData.amount && transferData.amount !== 'Bilinmiyor' && transferData.amount !== 'Belirtilmemiş') {
+                logEmbed.addFields({ name: '💰 Transfer Ücreti', value: transferData.amount, inline: true });
             }
-            if (transferData.salary) {
-                logEmbed.addField('💵 Maaş', transferData.salary, true);
+            if (transferData.salary && transferData.salary !== 'Bilinmiyor' && transferData.salary !== 'Belirtilmemiş') {
+                logEmbed.addFields({ name: '💵 Maaş', value: transferData.salary, inline: true });
             }
-            if (transferData.duration) {
-                logEmbed.addField('📅 Süre', transferData.duration, true);
+            if (transferData.duration && transferData.duration !== 'Bilinmiyor' && transferData.duration !== 'Belirtilmemiş') {
+                logEmbed.addFields({ name: '📅 Sözleşme Süresi', value: transferData.duration, inline: true });
             }
             if (transferData.reason) {
-                logEmbed.addField('📝 Sebep', transferData.reason, false);
+                logEmbed.addFields({ name: '📝 Sebep', value: transferData.reason, inline: false });
             }
 
             logEmbed.setTimestamp();
@@ -144,9 +148,11 @@ class GlobalLogger {
                 .addFields(
                     { name: '🏢 Sunucu', value: guildName, inline: true },
                     { name: '⚽ Oyuncu', value: listData.player, inline: true },
-                    { name: '👑 Başkan', value: listData.president, inline: true },
+                    { name: '👑 Başkan/Takım', value: listData.president, inline: true },
+                    { name: '🏟️ Mevcut Takım', value: listData.currentTeam || 'Belirtilmemiş', inline: true },
                     { name: '💰 Beklenen Ücret', value: listData.expectedFee || 'Belirtilmemiş', inline: true },
-                    { name: '📝 Sebep', value: listData.reason || 'Belirtilmemiş', inline: true },
+                    { name: '💵 Oyuncu Maaşı', value: listData.playerSalary || 'Belirtilmemiş', inline: true },
+                    { name: '📝 Transfer Türü', value: listData.reason || 'Belirtilmemiş', inline: true },
                     { name: '⏰ Tarih', value: new Date().toLocaleString('tr-TR'), inline: true }
                 )
                 .setTimestamp()
