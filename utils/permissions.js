@@ -260,19 +260,89 @@ class PermissionManager {
 
     async signPlayer(member) {
         try {
-            const roleData = this.getRoleData(member.guild.id);
-            const playerRoleId = roleData.player;
-            const freeAgentRoleId = roleData.freeAgent;
-
-            if (freeAgentRoleId && member.roles.cache.has(freeAgentRoleId)) {
-                await member.roles.remove(freeAgentRoleId);
+            const guildId = member.guild.id;
+            console.log(`Starting player signing for ${member.displayName} in guild ${guildId}`);
+            
+            const roleData = this.getRoleData(guildId);
+            console.log(`Role data retrieved:`, roleData);
+            
+            if (!roleData) {
+                console.log('❌ No role data found for guild');
+                return false;
             }
-
-            if (playerRoleId) {
-                await member.roles.add(playerRoleId);
+            
+            // Check bot permissions first
+            const botMember = member.guild.members.cache.get(member.guild.client.user.id);
+            if (!botMember) {
+                console.log('❌ Bot member not found in guild');
+                return false;
             }
-
-            return true;
+            
+            if (!botMember.permissions.has('MANAGE_ROLES')) {
+                console.log('❌ Bot does not have MANAGE_ROLES permission');
+                return false;
+            }
+            
+            let rolesChanged = false;
+            
+            // Remove free agent role if exists
+            if (roleData.freeAgent) {
+                console.log(`Checking free agent role: ${roleData.freeAgent}`);
+                const freeAgentRole = member.guild.roles.cache.get(roleData.freeAgent);
+                
+                if (freeAgentRole) {
+                    console.log(`Free agent role found: ${freeAgentRole.name}`);
+                    if (member.roles.cache.has(roleData.freeAgent)) {
+                        console.log(`User has free agent role, attempting to remove...`);
+                        // Check if bot can manage this role
+                        if (botMember.roles.highest.position > freeAgentRole.position) {
+                            await member.roles.remove(freeAgentRole);
+                            console.log(`✅ Removed free agent role (${freeAgentRole.name}) from ${member.displayName}`);
+                            rolesChanged = true;
+                        } else {
+                            console.log(`❌ Cannot remove free agent role - bot role position (${botMember.roles.highest.position}) <= free agent role position (${freeAgentRole.position})`);
+                            return false;
+                        }
+                    } else {
+                        console.log(`User doesn't have free agent role`);
+                    }
+                } else {
+                    console.log(`❌ Free agent role ${roleData.freeAgent} not found in guild`);
+                }
+            } else {
+                console.log(`No free agent role configured for guild ${guildId}`);
+            }
+            
+            // Add player role if exists
+            if (roleData.player) {
+                console.log(`Checking player role: ${roleData.player}`);
+                const playerRole = member.guild.roles.cache.get(roleData.player);
+                
+                if (playerRole) {
+                    console.log(`Player role found: ${playerRole.name}`);
+                    if (!member.roles.cache.has(roleData.player)) {
+                        console.log(`User doesn't have player role, attempting to add...`);
+                        // Check if bot can manage this role
+                        if (botMember.roles.highest.position > playerRole.position) {
+                            await member.roles.add(playerRole);
+                            console.log(`✅ Added player role (${playerRole.name}) to ${member.displayName}`);
+                            rolesChanged = true;
+                        } else {
+                            console.log(`❌ Cannot add player role - bot role position (${botMember.roles.highest.position}) <= player role position (${playerRole.position})`);
+                            return false;
+                        }
+                    } else {
+                        console.log(`User already has player role`);
+                    }
+                } else {
+                    console.log(`❌ Player role ${roleData.player} not found in guild`);
+                }
+            } else {
+                console.log(`No player role configured for guild ${guildId}`);
+            }
+            
+            console.log(`Player signing completed. Roles changed: ${rolesChanged}`);
+            return rolesChanged;
         } catch (error) {
             console.error('Futbolcu imzalama hatası:', error);
             return false;
