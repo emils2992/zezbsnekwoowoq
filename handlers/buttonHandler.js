@@ -482,10 +482,22 @@ class ButtonHandler {
         const guild = interaction.guild;
         
         console.log('Contract player button debug:', { buttonType, targetPresidentId, playerId, presidentId });
+        console.log('Contract payment debug - User IDs:', {
+            targetPresidentId: targetPresidentId,
+            playerId: playerId, 
+            presidentId: presidentId,
+            interactionUserId: interaction.user.id
+        });
         
         const player = await guild.members.fetch(playerId);
         const president = await guild.members.fetch(presidentId);
         const targetPresident = await guild.members.fetch(targetPresidentId);
+        
+        console.log('Contract payment debug - User mentions:', {
+            targetPresident: targetPresident.toString(),
+            player: player.toString(),
+            president: president.toString()
+        });
 
         if (buttonType === 'accept') {
             // Check if user is authorized (target player or transfer authority)
@@ -1709,9 +1721,24 @@ class ButtonHandler {
     async handleHirePlayerButton(client, interaction, params) {
         const [buttonType, targetPresidentId, playerId, presidentId] = params;
         const guild = interaction.guild;
+        
+        console.log('Hire player button debug:', { buttonType, targetPresidentId, playerId, presidentId });
+        console.log('Hire payment debug - User IDs:', {
+            targetPresidentId: targetPresidentId,
+            playerId: playerId, 
+            presidentId: presidentId,
+            interactionUserId: interaction.user.id
+        });
+        
         const targetPresident = await guild.members.fetch(targetPresidentId);
         const player = await guild.members.fetch(playerId);
         const president = await guild.members.fetch(presidentId);
+        
+        console.log('Hire payment debug - User mentions:', {
+            targetPresident: targetPresident.toString(),
+            player: player.toString(),
+            president: president.toString()
+        });
 
         if (buttonType === 'accept') {
             // Check if user is authorized (player or transfer authority)
