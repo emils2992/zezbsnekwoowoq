@@ -5,6 +5,8 @@ const channels = require('../utils/channels');
 const PermissionManager = require('../utils/permissions');
 const permissions = new PermissionManager();
 const globalLogger = require('../utils/globalLogger');
+const TransferTracker = require('../utils/transferTracker');
+const transferTracker = new TransferTracker();
 
 class ButtonHandler {
     constructor() {
@@ -219,6 +221,10 @@ class ButtonHandler {
             } catch (error) {
                 console.error('❌ Role management error in offer:', error);
             }
+
+            // Transfer tracker - mark player as transferred
+            transferTracker.markPlayerAsTransferred(guild.id, playerId, 'offer');
+            console.log(`🔄 Oyuncu transfer olarak işaretlendi: ${player.displayName} (offer)`);
             
             // Store pending payment info for this channel
             const pendingPayments = global.pendingPayments || new Map();
@@ -556,6 +562,10 @@ class ButtonHandler {
                 embed: embed,
                 payments: { president: false, player: false }
             });
+
+            // Transfer tracker - mark player as transferred
+            transferTracker.markPlayerAsTransferred(guild.id, playerId, 'contract');
+            console.log(`🔄 Oyuncu transfer olarak işaretlendi: ${player.displayName} (contract)`);
 
             await interaction.editReply({
                 content: `✅ ${player} sözleşmeyi kabul etti! ${president} her iki ödemeyi yapacak.`
@@ -3614,6 +3624,11 @@ class ButtonHandler {
             };
 
             console.log('📊 Trade data extracted for announcement:', tradeData);
+
+            // Transfer tracker - mark both players as transferred
+            transferTracker.markPlayerAsTransferred(guild.id, wantedPlayerId, 'trade');
+            transferTracker.markPlayerAsTransferred(guild.id, givenPlayerId, 'trade');
+            console.log(`🔄 Her iki oyuncu transfer olarak işaretlendi: ${wantedPlayer.displayName} ve ${givenPlayer.displayName} (trade)`);
 
             // Send transfer announcement with complete trade data
             await this.sendTransferAnnouncement(guild, {

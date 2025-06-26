@@ -100,6 +100,18 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 26, 2025. Implemented comprehensive transfer tracking system to prevent multiple transfers per player per period:
+  - Created TransferTracker utility class with JSON-based persistent storage in data/transferred_players.json
+  - Added transfer validation to .offer, .contract, and .trade commands - players can only be transferred once per period
+  - .hire command (kiralık) exempt from transfer tracking since loans are temporary arrangements
+  - Transfer tracking automatically marks players as transferred when offers, contracts, or trades are accepted
+  - .ac command (transfer period open) now resets all transfer records, allowing fresh transfer period
+  - Added .transferstatus command for transfer authorities to check individual player transfer status
+  - Enhanced help system to document transfer tracking rules and functionality
+  - System prevents scenario where player gets transferred multiple times (Emre→Emir→Kemal→Esin blocked, but Esin can still hire)
+  - Transfer records include player ID, transfer type (offer/contract/trade), and timestamp for audit trail
+  - Guild-specific tracking prevents cross-server interference in transfer management
+
 - June 26, 2025. Enhanced .oldurferdi aggression level and added 24-hour cooldown system:
   - Redesigned .oldurferdi to use single message updates instead of multiple messages to reduce spam
   - Now shows 3 events updating every 8 seconds: "Ferdi öldürüldü" → "Uzaylılar dünyayı ele geçirdi" → "Discord sunucuları patlatılıyor" → "Ferdi'nin mezarından gelen son mesaj: Pipim ağrıyor yardım edin amk!"

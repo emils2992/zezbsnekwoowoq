@@ -3,8 +3,10 @@ const config = require('../config');
 const PermissionManager = require('../utils/permissions');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
+const TransferTracker = require('../utils/transferTracker');
 
 const permissions = new PermissionManager();
+const transferTracker = new TransferTracker();
 
 module.exports = {
     name: 'contract',
@@ -65,6 +67,12 @@ module.exports = {
             // Oyuncunun müsait olup olmadığını kontrol et
             if (permissions.isFreeAgent(player)) {
                 return message.reply('❌ Bu oyuncu serbest! Serbest oyuncular için `.offer` komutunu kullanın.');
+            }
+
+            // Transfer kontrolü - oyuncu bu dönem transfer edilmiş mi?
+            const transferStatus = transferTracker.isPlayerTransferred(message.guild.id, playerUser.id);
+            if (transferStatus.isTransferred) {
+                return message.reply('❌ Bu oyuncu bu dönem zaten transfer yapıldı! Transfer dönemini yöneticiler sıfırlayabilir.');
             }
 
             // Modal formu butonunu göster

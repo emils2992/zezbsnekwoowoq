@@ -3,8 +3,10 @@ const config = require('../config');
 const PermissionManager = require('../utils/permissions');
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
+const TransferTracker = require('../utils/transferTracker');
 
 const permissions = new PermissionManager();
+const transferTracker = new TransferTracker();
 
 module.exports = {
     name: 'trade',
@@ -72,6 +74,17 @@ module.exports = {
 
             if (!permissions.isPlayer(givenPlayer)) {
                 return message.reply('❌ Verilecek oyuncu futbolcu rolüne sahip değil! Takas sadece futbolcular arasında yapılabilir, serbest futbolculara .offer kullanın.');
+            }
+
+            // Transfer kontrolleri - oyuncular bu dönem transfer edilmiş mi?
+            const wantedPlayerTransferStatus = transferTracker.isPlayerTransferred(message.guild.id, wantedPlayerUser.id);
+            if (wantedPlayerTransferStatus.isTransferred) {
+                return message.reply(`❌ İstenen oyuncu (${wantedPlayerUser}) bu dönem zaten transfer yapıldı! Transfer dönemini yöneticiler sıfırlayabilir.`);
+            }
+
+            const givenPlayerTransferStatus = transferTracker.isPlayerTransferred(message.guild.id, givenPlayerUser.id);
+            if (givenPlayerTransferStatus.isTransferred) {
+                return message.reply(`❌ Verilecek oyuncu (${givenPlayerUser}) bu dönem zaten transfer yapıldı! Transfer dönemini yöneticiler sıfırlayabilir.`);
             }
 
             // Modal göster

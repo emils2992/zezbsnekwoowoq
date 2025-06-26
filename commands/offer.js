@@ -4,6 +4,8 @@ const PermissionManager = require('../utils/permissions');
 const permissions = new PermissionManager();
 const embeds = require('../utils/embeds');
 const channels = require('../utils/channels');
+const TransferTracker = require('../utils/transferTracker');
+const transferTracker = new TransferTracker();
 
 module.exports = {
     name: 'offer',
@@ -47,6 +49,12 @@ module.exports = {
             // Futbolcu rolü kontrolü - futbolcu rolü varsa teklif gönderilemez (takımda olan oyuncular)
             if (permissions.isPlayer(targetMember)) {
                 return message.reply('❌ Bu kişi zaten bir takımda! Futbolculara teklif gönderilemez, sözleşme teklifi kullanın.');
+            }
+
+            // Transfer kontrolü - oyuncu bu dönem transfer edilmiş mi?
+            const transferStatus = transferTracker.isPlayerTransferred(message.guild.id, targetUser.id);
+            if (transferStatus.isTransferred) {
+                return message.reply('❌ Bu oyuncu bu dönem zaten transfer yapıldı! Transfer dönemini yöneticiler sıfırlayabilir.');
             }
 
             // Modal formu butonunu göster
