@@ -24,16 +24,17 @@ module.exports = {
                 return message.reply({ embeds: [embed] });
             }
 
-            if (args.length < 3) {
+            if (args.length < 4) {
                 const embed = new MessageEmbed()
                     .setColor('#FF0000')
                     .setTitle('❌ Hata')
-                    .setDescription('Kullanım: `.shop add ürün miktar`\nÖrnek: `.shop add Bugatti 50k`');
+                    .setDescription('Kullanım: `.shop add emoji ürün_adı fiyat`\nÖrnek: `.shop add 🚗 Bugatti 50k`');
                 return message.reply({ embeds: [embed] });
             }
 
-            const itemName = args[1];
-            const price = economy.parseAmount(args[2]);
+            const emoji = args[1];
+            const itemName = args[2];
+            const price = economy.parseAmount(args[3]);
 
             if (!price || price <= 0) {
                 const embed = new MessageEmbed()
@@ -43,13 +44,13 @@ module.exports = {
                 return message.reply({ embeds: [embed] });
             }
 
-            economy.addShopItem(message.guild.id, itemName, price);
+            economy.addShopItem(message.guild.id, itemName, price, emoji);
 
             const embed = new MessageEmbed()
                 .setColor('#00FF00')
                 .setTitle('🛍️ Ürün Eklendi')
-                .setDescription(`**${itemName}** mağazaya eklendi!`)
-                .addField('Ürün', itemName, true)
+                .setDescription(`${emoji} **${itemName}** mağazaya eklendi!`)
+                .addField('Ürün', `${emoji} ${itemName}`, true)
                 .addField('Fiyat', `💰 ${economy.formatAmount(price)}`, true)
                 .setTimestamp();
 
@@ -59,9 +60,57 @@ module.exports = {
             await logger.logTransaction(client, message.guild.id, {
                 type: 'shop_add',
                 admin: message.author.id,
-                item: itemName,
+                item: `${emoji} ${itemName}`,
                 price: economy.formatAmount(price)
             });
+
+            return;
+        }
+
+        // Shop remove komutu
+        if (args[0] === 'remove') {
+            // Yetki kontrolü
+            if (!permissions.isTransferAuthority(message.member)) {
+                const embed = new MessageEmbed()
+                    .setColor('#FF0000')
+                    .setTitle('❌ Yetki Hatası')
+                    .setDescription('Mağazadan ürün silmek için transfer yetkisi gerekiyor!');
+                return message.reply({ embeds: [embed] });
+            }
+
+            if (args.length < 2) {
+                const embed = new MessageEmbed()
+                    .setColor('#FF0000')
+                    .setTitle('❌ Hata')
+                    .setDescription('Kullanım: `.shop remove ürün_adı`\nÖrnek: `.shop remove Bugatti`');
+                return message.reply({ embeds: [embed] });
+            }
+
+            const itemName = args.slice(1).join(' ');
+            const result = economy.removeShopItem(message.guild.id, itemName);
+
+            if (result.success) {
+                const embed = new MessageEmbed()
+                    .setColor('#00FF00')
+                    .setTitle('🗑️ Ürün Silindi')
+                    .setDescription(`**${itemName}** mağazadan kaldırıldı!`)
+                    .setTimestamp();
+
+                await message.reply({ embeds: [embed] });
+
+                // Ekonomi loguna kaydet
+                await logger.logTransaction(client, message.guild.id, {
+                    type: 'shop_remove',
+                    admin: message.author.id,
+                    item: itemName
+                });
+            } else {
+                const embed = new MessageEmbed()
+                    .setColor('#FF0000')
+                    .setTitle('❌ Hata')
+                    .setDescription(result.error);
+                return message.reply({ embeds: [embed] });
+            }
 
             return;
         }
@@ -82,11 +131,14 @@ module.exports = {
         const embed = new MessageEmbed()
             .setColor('#0099FF')
             .setTitle('🛍️ Mağaza')
-            .setDescription('Ürün satın almak için: `.shop buy ürün_adı`')
+            .setDescription('Ürün satın almak için: `.buy ürün_adı`')
             .setTimestamp();
 
-        itemEntries.forEach(([item, price]) => {
-            embed.addField(item, `💰 ${economy.formatAmount(price)}`, true);
+        itemEntries.forEach(([item, data]) => {
+            const price = typeof data === 'object' ? data.price : data;
+            const emoji = typeof data === 'object' ? data.emoji : '📦';
+            const displayName = `${emoji} ${item}`;
+            embed.addField(displayName, `💰 ${economy.formatAmount(price)}`, true);
         });
 
         await message.reply({ embeds: [embed] });

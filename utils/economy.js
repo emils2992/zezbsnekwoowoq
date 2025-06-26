@@ -226,10 +226,25 @@ class EconomyManager {
     }
 
     // Shop işlemleri
-    addShopItem(guildId, itemName, price) {
+    addShopItem(guildId, itemName, price, emoji = '📦') {
         const shopData = this.getShopData(guildId);
-        shopData[itemName] = price;
+        shopData[itemName] = {
+            price: price,
+            emoji: emoji
+        };
         this.saveShopData(guildId, shopData);
+    }
+
+    removeShopItem(guildId, itemName) {
+        const shopData = this.getShopData(guildId);
+        
+        if (!shopData[itemName]) {
+            return { success: false, error: 'Bu ürün mağazada bulunamadı!' };
+        }
+        
+        delete shopData[itemName];
+        this.saveShopData(guildId, shopData);
+        return { success: true };
     }
 
     buyShopItem(guildId, userId, itemName) {
@@ -240,12 +255,28 @@ class EconomyManager {
             return { success: false, message: 'Bu ürün mağazada bulunmuyor!' };
         }
 
-        const price = shopData[itemName];
+        const itemData = shopData[itemName];
+        const price = typeof itemData === 'object' ? itemData.price : itemData;
+        const emoji = typeof itemData === 'object' ? itemData.emoji : '📦';
+
         if (userData.cash < price) {
             return { success: false, message: 'Yetersiz bakiye!' };
         }
 
         userData.cash -= price;
+        
+        // Envanterine ürün ekle
+        if (!userData.inventory) {
+            userData.inventory = {};
+        }
+        
+        if (!userData.inventory[itemName]) {
+            userData.inventory[itemName] = { count: 0, emoji: emoji };
+        }
+        
+        userData.inventory[itemName].count += 1;
+        userData.inventory[itemName].emoji = emoji;
+        
         this.setUserData(guildId, userId, userData);
 
         return { 

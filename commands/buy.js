@@ -31,11 +31,15 @@ module.exports = {
             return message.reply({ embeds: [embed] });
         }
 
+        const userData = economy.getUserData(message.guild.id, message.author.id);
+        const itemData = userData.inventory[itemName];
+        const emoji = itemData ? itemData.emoji : '📦';
+        
         const embed = new MessageEmbed()
             .setColor('#00FF00')
             .setTitle('🛍️ Satın Alma Başarılı!')
-            .setDescription(`**${result.item}** başarıyla satın alındı!`)
-            .addField('Ürün', result.item, true)
+            .setDescription(`${emoji} **${result.item}** başarıyla satın alındı!`)
+            .addField('Ürün', `${emoji} ${result.item}`, true)
             .addField('Ödenen Tutar', `💰 ${economy.formatAmount(result.price)}`, true)
             .addField('Kalan Bakiye', `💰 ${economy.formatAmount(result.newBalance)}`, true)
             .setTimestamp();
