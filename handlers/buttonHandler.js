@@ -2874,7 +2874,7 @@ class ButtonHandler {
                 .setCustomId('salary')
                 .setLabel('Maaş (Yıllık)')
                 .setStyle('SHORT')
-                .setPlaceholder('Örn: 6.000.000₺/yıl')
+                .setPlaceholder('Örn: 6M, 500k, 1.2B')
                 .setRequired(true);
 
             const contractInput = new TextInputComponent()
@@ -2888,7 +2888,7 @@ class ButtonHandler {
                 .setCustomId('bonus')
                 .setLabel('İmza Bonusu')
                 .setStyle('SHORT')
-                .setPlaceholder('Örn: 3.000.000₺')
+                .setPlaceholder('Örn: 3M, 200k, 500M')
                 .setRequired(false);
 
             const row1 = new MessageActionRow().addComponents(newTeamInput);
@@ -2923,7 +2923,7 @@ class ButtonHandler {
             .setCustomId('transfer_fee')
             .setLabel('Transfer Bedeli')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 15.000.000₺')
+            .setPlaceholder('Örn: 15M, 500k, 2B')
             .setRequired(true);
 
         const oldClubInput = new TextInputComponent()
@@ -2944,7 +2944,7 @@ class ButtonHandler {
             .setCustomId('salary')
             .setLabel('Maaş (Yıllık)')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 8.000.000₺/yıl')
+            .setPlaceholder('Örn: 8M, 500k, 1.2B')
             .setRequired(true);
 
         const contractInput = new TextInputComponent()
@@ -2996,7 +2996,7 @@ class ButtonHandler {
             .setCustomId('additional_amount')
             .setLabel('Ek Miktar')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 5.000.000₺')
+            .setPlaceholder('Örn: 5M, 200k, 1B')
             .setRequired(false);
 
         const wantedPlayerInput = new TextInputComponent()
@@ -3010,7 +3010,7 @@ class ButtonHandler {
             .setCustomId('salary')
             .setLabel('Maaş (Yıllık)')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 10.000.000₺/yıl')
+            .setPlaceholder('Örn: 10M, 500k, 1.5B')
             .setRequired(true);
 
         const contractInput = new TextInputComponent()
@@ -3044,7 +3044,7 @@ class ButtonHandler {
             .setCustomId('loan_fee')
             .setLabel('Kiralık Bedeli')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 2.000.000₺')
+            .setPlaceholder('Örn: 2M, 500k, 1.5B')
             .setRequired(true);
 
         const oldClubInput = new TextInputComponent()
@@ -3065,7 +3065,7 @@ class ButtonHandler {
             .setCustomId('salary')
             .setLabel('Maaş (Yıllık)')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 8.000.000₺/yıl')
+            .setPlaceholder('Örn: 8M, 500k, 1.2B')
             .setRequired(true);
 
         const contractInput = new TextInputComponent()
@@ -3323,14 +3323,14 @@ class ButtonHandler {
             .setCustomId('wanted_player_salary')
             .setLabel('İstenen Oyuncunun Maaşı')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 15.000.000₺/yıl')
+            .setPlaceholder('Örn: 15M, 800k, 2B')
             .setRequired(true);
 
         const givenPlayerSalaryInput = new TextInputComponent()
             .setCustomId('given_player_salary')
             .setLabel('Verilecek Oyuncunun Maaşı')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 10.000.000₺/yıl')
+            .setPlaceholder('Örn: 10M, 600k, 1.8B')
             .setRequired(true);
 
         const wantedPlayerContractInput = new TextInputComponent()
@@ -3384,7 +3384,7 @@ class ButtonHandler {
             .setCustomId('salary')
             .setLabel('Maaş Beklentim')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 5.000.000₺/yıl')
+            .setPlaceholder('Örn: 5M, 800k, 1.2B')
             .setRequired(true);
 
         const contractInput = new TextInputComponent()
@@ -3437,7 +3437,7 @@ class ButtonHandler {
             .setCustomId('compensation')
             .setLabel('Tazminat Miktarı')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 500.000₺')
+            .setPlaceholder('Örn: 500k, 1M, 2.5B')
             .setRequired(false);
 
         const newTeamInput = new TextInputComponent()
@@ -3946,7 +3946,7 @@ class ButtonHandler {
             .setCustomId('compensation')
             .setLabel('Tazminat')
             .setStyle('SHORT')
-            .setPlaceholder('Örn: 500.000 TL')
+            .setPlaceholder('Örn: 500k, 1M, 2B')
             .setRequired(true);
 
         const newTeamInput = new TextInputComponent()

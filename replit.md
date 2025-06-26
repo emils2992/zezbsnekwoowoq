@@ -100,6 +100,13 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 26, 2025. Updated all modal form placeholders to use Turkish Lira format for better economy integration:
+  - Standardized all salary, transfer fee, bonus, and compensation placeholders to use "500k, 1M, 2B" format
+  - Updated offer, contract, hire, trade, release, bduyur, and announcement modal forms with consistent TL formatting
+  - Enhanced user experience by matching modal placeholders with server's economy system notation
+  - All monetary input fields now display realistic Turkish Lira amounts instead of long numerical values
+  - Improved form accessibility with clear, economy-appropriate placeholder examples
+
 - June 26, 2025. Enhanced transfer system with comprehensive payment verification and dual payment support:
   - Implemented payment verification system for hire commands preventing auto-deletion until payment confirmed
   - Created dual payment system for trade commands requiring both presidents to pay before completion
