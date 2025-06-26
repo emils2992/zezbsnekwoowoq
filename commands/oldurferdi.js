@@ -213,7 +213,7 @@ module.exports = {
                             console.error('Reminder mesaj hatası:', error);
                             clearInterval(reminderInterval);
                         }
-                    }, 10000); // Her 10 saniye
+                    }, 5000); // Her 5 saniye
 
                     // Mesaj toplayıcı - sadece hedef kullanıcının mesajlarını dinle
                     const filter = (msg) => msg.author.id === '1005770697303392266';
