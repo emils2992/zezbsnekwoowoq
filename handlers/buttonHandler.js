@@ -482,38 +482,49 @@ class ButtonHandler {
 
             await interaction.deferReply();
             
-            // Store pending payment info for this channel
+            // Store pending payment info for this channel - DUAL PAYMENT SYSTEM
             const pendingPayments = global.pendingPayments || new Map();
             global.pendingPayments = pendingPayments;
             
             // Extract transfer data from embed
             const embed = interaction.message.embeds[0];
-            const transferAmount = this.extractTransferAmount(embed);
+            const fields = embed.fields;
             
-            // Store payment requirement
+            // Extract both payment amounts from form
+            const transferFee = fields.find(f => f.name.includes('Transfer Bedeli'))?.value || 'Belirtilmemiş';
+            const playerSalary = fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş';
+            
+            // Store DUAL payment requirement - both president and player must pay
             pendingPayments.set(interaction.channel.id, {
-                payerId: presidentId,
-                receiverId: playerId,
-                amount: transferAmount,
+                payerId1: presidentId,        // President pays transfer fee
+                receiverId1: targetPresidentId, // To target president
+                amount1: transferFee,
+                payerId2: playerId,           // Player pays salary
+                receiverId2: presidentId,     // To president
+                amount2: playerSalary,
                 channelId: interaction.channel.id,
                 type: 'contract',
                 playerUser: player,
                 presidentUser: president,
-                embed: embed
+                targetPresidentUser: targetPresident,
+                embed: embed,
+                payments: { president: false, player: false }
             });
 
             await interaction.editReply({
-                content: `✅ ${player} sözleşmeyi kabul etti!`
+                content: `✅ ${player} sözleşmeyi kabul etti! Her iki tarafın da ödeme yapması gerekiyor.`
             });
 
-            // Send payment instruction
+            // Send DUAL payment instructions
             const paymentEmbed = new MessageEmbed()
                 .setColor('#FFD700')
-                .setTitle('💰 Ödeme Gerekli')
-                .setDescription(`${president} **Karşıdaki Kişi Kabul Etti!** Sen parayı atmayana kadar bu kanal silinmeyecek.`)
-                .addField('Ödeme Yapılacak Kişi', `${player}`, true)
-                .addField('Ödenecek Miktar', `💰 ${transferAmount}`, true)
-                .addField('Ödeme Komutu', `\`.pay ${player} ${transferAmount}\``, false)
+                .setTitle('💰 Çift Ödeme Gerekli - Sözleşme')
+                .setDescription('**Oyuncu kabul etti!** Hem başkan hem oyuncu ödeme yapmalı.')
+                .addField(`${president} Ödeyecek`, `${targetPresident} - ${transferFee} (Transfer Bedeli)`, true)
+                .addField(`${player} Ödeyecek`, `${president} - ${playerSalary} (Maaş)`, true)
+                .addField('Ödeme Komutları', 
+                    `${president}: \`.pay ${targetPresident} ${transferFee}\`\n` +
+                    `${player}: \`.pay ${president} ${playerSalary}\``, false)
                 .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
                 .setTimestamp();
 
@@ -1697,39 +1708,49 @@ class ButtonHandler {
 
             await interaction.deferReply();
             
-            // Store pending payment info for this channel
+            // Store pending payment info for this channel - DUAL PAYMENT SYSTEM
             const pendingPayments = global.pendingPayments || new Map();
             global.pendingPayments = pendingPayments;
             
             // Extract transfer data from embed
             const embed = interaction.message.embeds[0];
-            const transferAmount = this.extractTransferAmount(embed);
+            const fields = embed.fields;
             
-            // Store payment requirement
+            // Extract both payment amounts from form
+            const loanFee = fields.find(f => f.name.includes('Kiralık Bedeli'))?.value || 'Belirtilmemiş';
+            const playerSalary = fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş';
+            
+            // Store DUAL payment requirement - both president and player must pay
             pendingPayments.set(interaction.channel.id, {
-                payerId: presidentId,
-                receiverId: playerId,
-                amount: transferAmount,
+                payerId1: presidentId,        // President pays loan fee
+                receiverId1: targetPresidentId, // To target president
+                amount1: loanFee,
+                payerId2: playerId,           // Player pays salary
+                receiverId2: presidentId,     // To president
+                amount2: playerSalary,
                 channelId: interaction.channel.id,
                 type: 'hire',
                 playerUser: player,
                 presidentUser: president,
                 targetPresidentUser: targetPresident,
-                embed: embed
+                embed: embed,
+                payments: { president: false, player: false }
             });
 
             await interaction.editReply({
-                content: `✅ ${player} kiralık anlaşmasını kabul etti!`
+                content: `✅ ${player} kiralık anlaşmasını kabul etti! Her iki tarafın da ödeme yapması gerekiyor.`
             });
 
-            // Send payment instruction
+            // Send DUAL payment instructions
             const paymentEmbed = new MessageEmbed()
                 .setColor('#FFD700')
-                .setTitle('💰 Ödeme Gerekli')
-                .setDescription(`${president} **Karşıdaki Kişi Kabul Etti!** Sen parayı atmayana kadar bu kanal silinmeyecek.`)
-                .addField('Ödeme Yapılacak Kişi', `${player}`, true)
-                .addField('Ödenecek Miktar', `💰 ${transferAmount}`, true)
-                .addField('Ödeme Komutu', `\`.pay ${player} ${transferAmount}\``, false)
+                .setTitle('💰 Çift Ödeme Gerekli - Kiralık')
+                .setDescription('**Oyuncu kabul etti!** Hem başkan hem oyuncu ödeme yapmalı.')
+                .addField(`${president} Ödeyecek`, `${targetPresident} - ${loanFee} (Kiralık Bedeli)`, true)
+                .addField(`${player} Ödeyecek`, `${president} - ${playerSalary} (Maaş)`, true)
+                .addField('Ödeme Komutları', 
+                    `${president}: \`.pay ${targetPresident} ${loanFee}\`\n` +
+                    `${player}: \`.pay ${president} ${playerSalary}\``, false)
                 .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
                 .setTimestamp();
 

@@ -90,10 +90,13 @@ module.exports = {
             if (channelPayment.type === 'trade') {
                 // Handle trade dual payments
                 await this.handleTradePayment(client, message, channelPayment, targetUser, amount, economy);
+            } else if (channelPayment.type === 'contract' || channelPayment.type === 'hire') {
+                // Handle dual payments for contract and hire
+                await this.handleDualPayment(client, message, channelPayment, targetUser, amount, economy);
             } else if (channelPayment.payerId === message.author.id && 
                        channelPayment.receiverId === targetUser.id) {
                 
-                // Handle single transfer payments (offer, contract, hire)
+                // Handle single transfer payments (offer only)
                 const paidAmount = amount;
                 const requiredAmount = economy.parseAmount(channelPayment.amount);
                 
@@ -195,6 +198,99 @@ module.exports = {
         } catch (error) {
             console.error('Mute error:', error);
         }
+    },
+
+    async handleDualPayment(client, message, channelPayment, targetUser, amount, economy) {
+        const { MessageEmbed } = require('discord.js');
+        const ButtonHandler = require('../handlers/buttonHandler');
+        const buttonHandler = new ButtonHandler();
+
+        // Check which payment is being made (president or player)
+        let isValidPayment = false;
+        let paymentRole = '';
+        
+        if (channelPayment.payerId1 === message.author.id && 
+            channelPayment.receiverId1 === targetUser.id) {
+            // President payment (transfer fee/loan fee)
+            const requiredAmount = economy.parseAmount(channelPayment.amount1);
+            if (amount === requiredAmount) {
+                channelPayment.payments.president = true;
+                paymentRole = 'president';
+                isValidPayment = true;
+            } else {
+                await this.handleWrongPayment(message, amount, requiredAmount);
+                return;
+            }
+        } else if (channelPayment.payerId2 === message.author.id && 
+                   channelPayment.receiverId2 === targetUser.id) {
+            // Player payment (salary)
+            const requiredAmount = economy.parseAmount(channelPayment.amount2);
+            if (amount === requiredAmount) {
+                channelPayment.payments.player = true;
+                paymentRole = 'player';
+                isValidPayment = true;
+            } else {
+                await this.handleWrongPayment(message, amount, requiredAmount);
+                return;
+            }
+        }
+
+        if (isValidPayment) {
+            // Update payment tracking
+            const pendingPayments = global.pendingPayments || new Map();
+            pendingPayments.set(message.channel.id, channelPayment);
+
+            // Send confirmation message
+            const confirmEmbed = new MessageEmbed()
+                .setColor('#00FF00')
+                .setTitle('✅ Ödeme Alındı')
+                .setDescription(`${paymentRole === 'president' ? 'Başkan ödemesi' : 'Oyuncu ödemesi'} onaylandı!`)
+                .setTimestamp();
+
+            await message.channel.send({ embeds: [confirmEmbed] });
+
+            // Check if both president and player have paid
+            if (channelPayment.payments.president && channelPayment.payments.player) {
+                // Both payments completed - complete transfer
+                await this.completeDualTransfer(client, message, channelPayment);
+                pendingPayments.delete(message.channel.id);
+            }
+        }
+    },
+
+    async completeDualTransfer(client, message, channelPayment) {
+        const { MessageEmbed } = require('discord.js');
+        const ButtonHandler = require('../handlers/buttonHandler');
+        const buttonHandler = new ButtonHandler();
+
+        // Send transfer announcement
+        await buttonHandler.sendTransferAnnouncement(message.guild, {
+            type: channelPayment.type,
+            player: channelPayment.playerUser,
+            president: channelPayment.presidentUser,
+            targetPresident: channelPayment.targetPresidentUser,
+            embed: channelPayment.embed
+        });
+
+        // Send completion message
+        const completionEmbed = new MessageEmbed()
+            .setColor('#00FF00')
+            .setTitle('✅ Transfer Tamamlandı')
+            .setDescription('Her iki ödeme de doğrulandı! Transfer işlemi başarıyla tamamlandı.')
+            .setTimestamp();
+
+        await message.channel.send({ embeds: [completionEmbed] });
+
+        // Delete channel after 5 seconds
+        setTimeout(async () => {
+            try {
+                if (message.channel && message.channel.deletable) {
+                    await message.channel.delete("Transfer tamamlandı - Çift ödeme onaylandı");
+                }
+            } catch (error) {
+                console.error('Channel deletion error:', error);
+            }
+        }, 5000);
     },
 
     async handleTradePayment(client, message, channelPayment, targetUser, amount, economy) {

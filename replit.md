@@ -108,16 +108,19 @@ The bot is configured for Replit deployment with:
   - Improved form accessibility with clear, economy-appropriate placeholder examples
 
 - June 26, 2025. Enhanced transfer system with comprehensive payment verification and dual payment support:
-  - Implemented payment verification system for hire commands preventing auto-deletion until payment confirmed
-  - Created dual payment system for trade commands requiring both presidents to pay before completion
-  - Enhanced .pay command to handle trade dual payments with proper tracking and completion logic
+  - Implemented dual payment system for contract commands: president pays transfer fee, player pays salary
+  - Implemented dual payment system for hire commands: president pays loan fee, player pays salary
+  - Enhanced .pay command to handle dual payments with proper tracking for both parties
+  - Contract payments: president pays transfer fee to target president, player pays salary to president
+  - Hire payments: president pays loan fee to target president, player pays salary to president
+  - Trade system maintains dual president payment structure (both presidents pay their players)
   - Added payment instruction embeds with clear commands and 5-hour mute warnings for incorrect amounts
-  - Trade channels now remain open until both presidents complete their payments to respective players
+  - Channels remain open until ALL required payments are completed and verified
   - Payment verification prevents channel deletion and ensures all transfers are financially completed
   - System monitors .pay commands and automatically completes transfers upon correct payment confirmation
   - Wrong payment amounts trigger 5-hour mute penalty with option for correction
   - Payment tracking system integrated with existing transfer workflow for seamless operation
-  - All transfer commands (.offer, .contract, .hire, .trade) now include payment verification stage
+  - All transfer commands (.offer, .contract, .hire, .trade) now include comprehensive payment verification
 
 - June 26, 2025. Implemented complete economy system with comprehensive money management and shopping features:
   - Created .pay command for transferring money between users with flexible amount parsing (5k, 5e3, 5K formats)
