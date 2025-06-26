@@ -159,10 +159,11 @@ class PermissionManager {
     async makePlayerFree(member) {
         try {
             const guildId = member.guild.id;
-            console.log(`Starting role management for ${member.displayName} in guild ${guildId}`);
+            console.log(`🔧 DEBUG: Starting role management for ${member.displayName} (ID: ${member.id}) in guild ${guildId}`);
             
             const roleData = this.getRoleData(guildId);
-            console.log(`Role data retrieved:`, roleData);
+            console.log(`🔧 DEBUG: Role data retrieved for guild:`, roleData);
+            console.log(`🔧 DEBUG: Player role ID: ${roleData.player}, Free agent role ID: ${roleData.freeAgent}`);
             
             if (!roleData) {
                 console.log('❌ No role data found for guild');
@@ -183,15 +184,19 @@ class PermissionManager {
             
             let rolesChanged = false;
             
+            // Show current user roles for debugging
+            const currentRoles = member.roles.cache.map(role => `${role.name} (${role.id})`).join(', ');
+            console.log(`🔧 DEBUG: User's current roles: ${currentRoles}`);
+            
             // Remove player role if exists
             if (roleData.player) {
-                console.log(`Checking player role: ${roleData.player}`);
+                console.log(`🔧 DEBUG: Checking player role: ${roleData.player}`);
                 const playerRole = member.guild.roles.cache.get(roleData.player);
                 
                 if (playerRole) {
-                    console.log(`Player role found: ${playerRole.name}`);
+                    console.log(`🔧 DEBUG: Player role found: ${playerRole.name}`);
                     if (member.roles.cache.has(roleData.player)) {
-                        console.log(`User has player role, attempting to remove...`);
+                        console.log(`🔧 DEBUG: User has player role, attempting to remove...`);
                         // Check if bot can manage this role (bot's highest role must be higher)
                         if (botMember.roles.highest.position > playerRole.position) {
                             await member.roles.remove(playerRole);
@@ -261,10 +266,11 @@ class PermissionManager {
     async signPlayer(member) {
         try {
             const guildId = member.guild.id;
-            console.log(`Starting player signing for ${member.displayName} in guild ${guildId}`);
+            console.log(`🔧 DEBUG: Starting player signing for ${member.displayName} (ID: ${member.id}) in guild ${guildId}`);
             
             const roleData = this.getRoleData(guildId);
-            console.log(`Role data retrieved:`, roleData);
+            console.log(`🔧 DEBUG: Role data retrieved for guild:`, roleData);
+            console.log(`🔧 DEBUG: Free agent role ID: ${roleData.freeAgent}, Player role ID: ${roleData.player}`);
             
             if (!roleData) {
                 console.log('❌ No role data found for guild');
@@ -285,15 +291,19 @@ class PermissionManager {
             
             let rolesChanged = false;
             
+            // Show current user roles for debugging
+            const currentRoles = member.roles.cache.map(role => `${role.name} (${role.id})`).join(', ');
+            console.log(`🔧 DEBUG: User's current roles: ${currentRoles}`);
+            
             // Remove free agent role if exists
             if (roleData.freeAgent) {
-                console.log(`Checking free agent role: ${roleData.freeAgent}`);
+                console.log(`🔧 DEBUG: Checking free agent role: ${roleData.freeAgent}`);
                 const freeAgentRole = member.guild.roles.cache.get(roleData.freeAgent);
                 
                 if (freeAgentRole) {
-                    console.log(`Free agent role found: ${freeAgentRole.name}`);
+                    console.log(`🔧 DEBUG: Free agent role found: ${freeAgentRole.name}`);
                     if (member.roles.cache.has(roleData.freeAgent)) {
-                        console.log(`User has free agent role, attempting to remove...`);
+                        console.log(`🔧 DEBUG: User has free agent role, attempting to remove...`);
                         // Check if bot can manage this role
                         if (botMember.roles.highest.position > freeAgentRole.position) {
                             await member.roles.remove(freeAgentRole);
