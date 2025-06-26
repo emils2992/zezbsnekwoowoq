@@ -96,7 +96,7 @@ module.exports = {
             } else if (channelPayment.payerId === message.author.id && 
                        channelPayment.receiverId === targetUser.id) {
                 
-                // Handle single transfer payments (offer only)
+                // Handle single transfer payments (offer and release_compensation)
                 const paidAmount = amount;
                 const requiredAmount = economy.parseAmount(channelPayment.amount);
                 
@@ -152,6 +152,9 @@ module.exports = {
                 president: channelPayment.presidentUser,
                 embed: channelPayment.embed
             });
+        } else if (channelPayment.type === 'release_compensation') {
+            // Send release announcement after compensation payment
+            await buttonHandler.sendReleaseTransferAnnouncement(message.guild, channelPayment.playerUser.user, channelPayment.releaseData, channelPayment.releaseType);
         }
 
         // Send completion message

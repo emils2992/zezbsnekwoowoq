@@ -1479,14 +1479,68 @@ class ButtonHandler {
                 compensation: embed.fields.find(f => f.name.includes('Tazminat'))?.value || '',
                 newTeam: embed.fields.find(f => f.name.includes('Yeni Takım'))?.value || ''
             };
-            
-            await this.sendReleaseTransferAnnouncement(guild, player.user, releaseData, releaseType);
 
             await interaction.deferReply();
             
-            await interaction.editReply({
-                content: `✅ Fesih kabul edildi! **${player.displayName}** artık serbest oyuncu ve roller güncellendi.`
-            });
+            // Check if compensation is required
+            const compensationAmount = releaseData.compensation?.trim();
+            if (compensationAmount && compensationAmount.toLowerCase() !== 'yok' && compensationAmount !== '') {
+                // Store payment requirement for compensation
+                const pendingPayments = global.pendingPayments || new Map();
+                global.pendingPayments = pendingPayments;
+                
+                pendingPayments.set(interaction.channel.id, {
+                    payerId: presidentId,      // President pays compensation
+                    receiverId: playerId,      // Player receives compensation
+                    amount: compensationAmount,
+                    channelId: interaction.channel.id,
+                    type: 'release_compensation',
+                    playerUser: player,
+                    presidentUser: president,
+                    embed: embed,
+                    releaseData: releaseData,
+                    releaseType: releaseType
+                });
+
+                await interaction.editReply({
+                    content: `✅ ${player} fesih teklifini kabul etti! ${president} tazminat ödemesi yapmalı.`
+                });
+
+                // Send payment instruction
+                const paymentEmbed = new MessageEmbed()
+                    .setColor('#FFD700')
+                    .setTitle('💰 Tazminat Ödemesi Gerekli')
+                    .setDescription(`${president} **Fesih kabul edildi!** Tazminat ödemesi yapmayana kadar bu kanal silinmeyecek.`)
+                    .addField('Tazminat Ödenecek Kişi', `${player}`, true)
+                    .addField('Ödenecek Tazminat', `💰 ${compensationAmount}`, true)
+                    .addField('Ödeme Komutu', `\`.pay ${player} ${compensationAmount}\``, false)
+                    .addField('⚠️ Uyarı', '**Tazminat miktarını doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
+                    .setTimestamp();
+
+                await interaction.channel.send({ embeds: [paymentEmbed] });
+
+            } else {
+                // No compensation required - complete release immediately
+                await this.sendReleaseTransferAnnouncement(guild, player.user, releaseData, releaseType);
+                
+                await interaction.editReply({
+                    content: `✅ Fesih kabul edildi! **${player.displayName}** artık serbest oyuncu ve roller güncellendi.`
+                });
+                
+                // Complete release immediately with channel deletion
+                setTimeout(async () => {
+                    try {
+                        const channelToDelete = interaction.channel;
+                        if (channelToDelete && channelToDelete.deletable) {
+                            console.log(`KANAL SİLİNİYOR ZORLA: ${channelToDelete.name}`);
+                            await channelToDelete.delete("Fesih tamamlandı - Kanal otomatik silindi");
+                            console.log('KANAL BAŞARIYLA SİLİNDİ');
+                        }
+                    } catch (error) {
+                        console.error('KANAL SİLME HATASI:', error);
+                    }
+                }, 5000);
+            }
 
             // Disable all buttons immediately
             const disabledButtons = interaction.message.components[0].components.map(button => 
@@ -3860,10 +3914,59 @@ class ButtonHandler {
                     newTeam: fields.find(f => f.name.includes('Yeni Takım'))?.value || ''
                 };
 
-                const channels = require('../utils/channels');
-                await channels.createFreeAgentAnnouncement(guild, playerToRelease, releaseData.reason, releaseData);
+                // Check if compensation is required
+                const compensationAmount = releaseData.compensation?.trim();
+                if (compensationAmount && compensationAmount.toLowerCase() !== 'yok' && compensationAmount !== '') {
+                    // Store payment requirement for compensation
+                    const pendingPayments = global.pendingPayments || new Map();
+                    global.pendingPayments = pendingPayments;
+                    
+                    pendingPayments.set(interaction.channel.id, {
+                        payerId: playerId,         // President pays compensation (playerId in brelease)
+                        receiverId: presidentId,   // Player receives compensation (presidentId in brelease)
+                        amount: compensationAmount,
+                        channelId: interaction.channel.id,
+                        type: 'release_compensation',
+                        playerUser: playerToRelease,
+                        presidentUser: president,
+                        embed: embed,
+                        releaseData: releaseData,
+                        releaseType: 'mutual'
+                    });
 
-                await interaction.editReply(`✅ ${playerToRelease.user} ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu ve roller güncellendi.`);
+                    await interaction.editReply(`✅ ${playerToRelease.user} ile karşılıklı fesih kabul edildi! ${president} tazminat ödemesi yapmalı.`);
+
+                    // Send payment instruction
+                    const paymentEmbed = new MessageEmbed()
+                        .setColor('#FFD700')
+                        .setTitle('💰 Tazminat Ödemesi Gerekli')
+                        .setDescription(`${president} **Fesih kabul edildi!** Tazminat ödemesi yapmayana kadar bu kanal silinmeyecek.`)
+                        .addField('Tazminat Ödenecek Kişi', `${playerToRelease.user}`, true)
+                        .addField('Ödenecek Tazminat', `💰 ${compensationAmount}`, true)
+                        .addField('Ödeme Komutu', `\`.pay ${playerToRelease.user} ${compensationAmount}\``, false)
+                        .addField('⚠️ Uyarı', '**Tazminat miktarını doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
+                        .setTimestamp();
+
+                    await interaction.channel.send({ embeds: [paymentEmbed] });
+
+                } else {
+                    // No compensation required - complete release immediately
+                    const channels = require('../utils/channels');
+                    await channels.createFreeAgentAnnouncement(guild, playerToRelease, releaseData.reason, releaseData);
+
+                    await interaction.editReply(`✅ ${playerToRelease.user} ile karşılıklı fesih tamamlandı! Oyuncu serbest futbolcu oldu ve roller güncellendi.`);
+                    
+                    // Complete release immediately with channel deletion
+                    setTimeout(async () => {
+                        try {
+                            if (interaction.channel && interaction.channel.deletable) {
+                                await interaction.channel.delete('Karşılıklı fesih tamamlandı');
+                            }
+                        } catch (error) {
+                            console.error('Kanal silme hatası:', error);
+                        }
+                    }, 5000);
+                }
             } catch (error) {
                 console.error('❌ BRelease kabul hatası:', error);
                 console.error('❌ BRelease button error stack:', error.stack);

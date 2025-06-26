@@ -86,6 +86,18 @@
       "fromTeam": "fbd",
       "toTeam": "dbbs",
       "reason": null
+    },
+    {
+      "player": "frozydebate ↔ Marpel",
+      "playerMention": null,
+      "type": "trade",
+      "date": "26.06.2025 14:50:39",
+      "timestamp": 1750949439716,
+      "fromTeam": "Apex Vouchernin takımı",
+      "toTeam": "emilswdnin takımı",
+      "presidentMention": "<@794205713533894696>'nin",
+      "targetPresidentMention": "<@1385545181595435068>'nin",
+      "tradeDetails": "frozydebate ↔ Marpel"
     }
   ]
 }

@@ -100,7 +100,13 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
-- June 26, 2025. Fixed role management in all transfer commands for automatic role updates:
+- June 26, 2025. Implemented compensation payment system for release commands with automatic role management:
+  - Added compensation payment system to .release and .brelease commands
+  - When "Ek Tazminat" field contains amount (like 500m), accepting user must pay compensation to released player
+  - If compensation field is empty or "yok", release completes immediately without payment requirement
+  - Payment instructions appear automatically with .pay command format and 5-hour mute warning
+  - Channel remains open until compensation payment is verified through .pay command
+  - Enhanced .pay command to handle release_compensation payment type with automatic announcement posting
   - Fixed all 4 release commands (.release, .brelease, .btrelease, .trelease) to properly manage roles when accepted
   - Players automatically lose "futbolcu" role and gain "serbest futbolcu" role when releases are confirmed
   - Fixed .offer command to automatically convert free agents to players when offers are accepted
