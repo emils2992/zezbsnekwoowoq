@@ -118,6 +118,7 @@ module.exports = {
         // Normal shop listesi
         const shopItems = economy.getShopItems(message.guild.id);
         const itemEntries = Object.entries(shopItems);
+        const userData = economy.getUserData(message.guild.id, message.author.id);
 
         if (itemEntries.length === 0) {
             const embed = new MessageEmbed()
@@ -131,14 +132,19 @@ module.exports = {
         const embed = new MessageEmbed()
             .setColor('#0099FF')
             .setTitle('🛍️ Mağaza')
-            .setDescription('Ürün satın almak için: `.buy ürün_adı`')
+            .setDescription('**Her üründen sadece 1 tane alabilirsin!**\nÜrün satın almak için: `.buy ürün_adı`\n\n✅ = Sahipsin | 🛒 = Satın alabilirsin')
             .setTimestamp();
 
         itemEntries.forEach(([item, data]) => {
             const price = typeof data === 'object' ? data.price : data;
             const emoji = typeof data === 'object' ? data.emoji : '📦';
+            
+            // Kullanıcının bu ürüne sahip olup olmadığını kontrol et
+            const hasItem = userData.inventory && userData.inventory[item] && userData.inventory[item].count > 0;
+            const status = hasItem ? '✅ Sahipsin' : '🛒 Satın alabilirsin';
             const displayName = `${emoji} ${item}`;
-            embed.addField(displayName, `💰 ${economy.formatAmount(price)}`, true);
+            
+            embed.addField(displayName, `💰 ${economy.formatAmount(price)}\n${status}`, true);
         });
 
         await message.reply({ embeds: [embed] });

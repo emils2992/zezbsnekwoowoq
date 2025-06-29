@@ -100,6 +100,14 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- June 29, 2025. Enhanced shop system with "1 item per category" limitation:
+  - Modified buyShopItem function to prevent purchasing duplicate items
+  - Users can only buy 1 of each shop item (no duplicates allowed)
+  - Shop display now shows ownership status: ✅ Sahipsin | 🛒 Satın alabilirsin
+  - Clear error messages when attempting to buy already-owned items
+  - Updated help documentation to reflect new shop limitations
+  - Inventory system maintains single-item ownership per product type
+
 - June 26, 2025. Implemented comprehensive transfer tracking system to prevent multiple transfers per player per period:
   - Created TransferTracker utility class with JSON-based persistent storage in data/transferred_players.json
   - Added transfer validation to .offer, .contract, and .trade commands - players can only be transferred once per period

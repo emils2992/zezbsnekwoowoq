@@ -261,23 +261,24 @@ class EconomyManager {
         const price = typeof itemData === 'object' ? itemData.price : itemData;
         const emoji = typeof itemData === 'object' ? itemData.emoji : '📦';
 
+        // Envanteri kontrol et
+        if (!userData.inventory) {
+            userData.inventory = {};
+        }
+        
+        // Eğer kullanıcı bu ürüne zaten sahipse satın alamaz
+        if (userData.inventory[itemName] && userData.inventory[itemName].count > 0) {
+            return { success: false, message: `❌ Bu üründen zaten sahipsin! Her üründen sadece 1 tane alabilirsin.\n${emoji} **${itemName}** - Sahip olduğun: ${userData.inventory[itemName].count}` };
+        }
+
         if (userData.cash < price) {
             return { success: false, message: 'Yetersiz bakiye!' };
         }
 
         userData.cash -= price;
         
-        // Envanterine ürün ekle
-        if (!userData.inventory) {
-            userData.inventory = {};
-        }
-        
-        if (!userData.inventory[itemName]) {
-            userData.inventory[itemName] = { count: 0, emoji: emoji };
-        }
-        
-        userData.inventory[itemName].count += 1;
-        userData.inventory[itemName].emoji = emoji;
+        // Envanterine ürün ekle (sadece 1 tane)
+        userData.inventory[itemName] = { count: 1, emoji: emoji };
         
         this.setUserData(guildId, userId, userData);
 
