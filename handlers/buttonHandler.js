@@ -1747,43 +1747,89 @@ class ButtonHandler {
             // Check if compensation is required
             const compensationAmount = releaseData.compensation?.trim();
             if (compensationAmount && compensationAmount.toLowerCase() !== 'yok' && compensationAmount !== '') {
-                // Store payment requirement for compensation
-                const pendingPayments = global.pendingPayments || new Map();
-                global.pendingPayments = pendingPayments;
+                // Economy manager for automatic compensation payment
+                const EconomyManager = require('../utils/economy');
+                const economy = new EconomyManager();
                 
-                pendingPayments.set(interaction.channel.id, {
-                    payerId: presidentId,      // President pays compensation
-                    receiverId: playerId,      // Player receives compensation
-                    amount: compensationAmount,
-                    channelId: interaction.channel.id,
-                    type: 'release_compensation',
-                    playerUser: player,
-                    presidentUser: president,
-                    embed: embed,
-                    releaseData: releaseData,
-                    releaseType: releaseType
-                });
-
+                // Parse compensation amount
+                const compensationValue = economy.parseAmount(compensationAmount);
+                
+                // Check if president has enough money
+                const presidentData = economy.getUserData(guild.id, presidentId);
+                const presidentBalance = presidentData.cash;
+                
+                if (presidentBalance < compensationValue) {
+                    await interaction.editReply({
+                        content: `❌ **Fesih İptal!** ${president} yeterli bakiye yok!\n**Gerekli tazminat:** ${economy.formatAmount(compensationValue)}\n**Mevcut bakiye:** ${economy.formatAmount(presidentBalance)}`
+                    });
+                    
+                    // Delete channel after 5 seconds
+                    setTimeout(async () => {
+                        try {
+                            if (interaction.channel && interaction.channel.deletable) {
+                                await interaction.channel.delete("Fesih iptal - Yetersiz bakiye");
+                            }
+                        } catch (error) {
+                            console.error('Channel deletion error:', error);
+                        }
+                    }, 5000);
+                    return;
+                }
+                
+                // Automatic compensation payment
+                const payment = economy.transferMoney(guild.id, presidentId, playerId, compensationValue);
+                if (!payment.success) {
+                    await interaction.editReply({
+                        content: `❌ **Fesih İptal!** Tazminat ödemesi başarısız: ${payment.message}`
+                    });
+                    
+                    // Delete channel after 5 seconds
+                    setTimeout(async () => {
+                        try {
+                            if (interaction.channel && interaction.channel.deletable) {
+                                await interaction.channel.delete("Fesih iptal - Ödeme hatası");
+                            }
+                        } catch (error) {
+                            console.error('Channel deletion error:', error);
+                        }
+                    }, 5000);
+                    return;
+                }
+                
+                // Send automatic payment confirmation
                 await interaction.editReply({
-                    content: `✅ ${player} fesih teklifini kabul etti! ${president} tazminat ödemesi yapmalı.`
+                    content: `✅ **Fesih Kabul Edildi!**\n\n**Otomatik Tazminat Ödemesi:**\n💰 ${economy.formatAmount(compensationValue)} → ${player}\n\n${president} tarafından otomatik olarak ödendi!`
                 });
-
-                // Send payment instruction
-                const paymentEmbed = new MessageEmbed()
-                    .setColor('#FFD700')
-                    .setTitle('💰 Tazminat Ödemesi Gerekli')
-                    .setDescription(`${president} **Fesih kabul edildi!** Tazminat ödemesi yapmayana kadar bu kanal silinmeyecek.`)
-                    .addField('Tazminat Ödenecek Kişi', `${player}`, true)
-                    .addField('Ödenecek Tazminat', `💰 ${compensationAmount}`, true)
-                    .addField('Ödeme Komutu', `\`.pay ${player} ${compensationAmount}\``, false)
-                    .addField('⚠️ Uyarı', '**Tazminat miktarını doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
-                    .setTimestamp();
-
-                await interaction.channel.send({ embeds: [paymentEmbed] });
                 
-                // Don't disable buttons or delete channel when compensation is required
-                console.log('Tazminat ödemesi gerekli - kanal açık kalıyor, butonlar aktif');
-                return; // Exit early to prevent button disabling and channel deletion
+                // Continue with release process
+                await this.sendReleaseTransferAnnouncement(guild, player.user, releaseData, releaseType);
+                
+                // Disable buttons and complete release
+                const disabledButtons = interaction.message.components[0].components.map(button => 
+                    new MessageButton()
+                        .setCustomId(button.customId)
+                        .setLabel(button.label)
+                        .setStyle(button.style)
+                        .setDisabled(true)
+                        .setEmoji(button.emoji || null)
+                );
+
+                await interaction.message.edit({
+                    embeds: interaction.message.embeds,
+                    components: [new MessageActionRow().addComponents(disabledButtons)]
+                });
+                
+                // Delete channel after 5 seconds
+                setTimeout(async () => {
+                    try {
+                        if (interaction.channel && interaction.channel.deletable) {
+                            await interaction.channel.delete("Fesih tamamlandı - Otomatik tazminat ödendi");
+                        }
+                    } catch (error) {
+                        console.error('Channel deletion error:', error);
+                    }
+                }, 5000);
+                return;
 
             } else {
                 // No compensation required - complete release immediately
@@ -4235,41 +4281,75 @@ class ButtonHandler {
                 // Check if compensation is required
                 const compensationAmount = releaseData.compensation?.trim();
                 if (compensationAmount && compensationAmount.toLowerCase() !== 'yok' && compensationAmount !== '') {
-                    // Store payment requirement for compensation
-                    const pendingPayments = global.pendingPayments || new Map();
-                    global.pendingPayments = pendingPayments;
+                    // Economy manager for automatic compensation payment
+                    const EconomyManager = require('../utils/economy');
+                    const economy = new EconomyManager();
                     
-                    pendingPayments.set(interaction.channel.id, {
-                        payerId: playerId,         // President pays compensation (playerId in brelease)
-                        receiverId: presidentId,   // Player receives compensation (presidentId in brelease)
-                        amount: compensationAmount,
-                        channelId: interaction.channel.id,
-                        type: 'release_compensation',
-                        playerUser: playerToRelease,
-                        presidentUser: president,
-                        embed: embed,
-                        releaseData: releaseData,
-                        releaseType: 'mutual'
+                    // Parse compensation amount
+                    const compensationValue = economy.parseAmount(compensationAmount);
+                    
+                    // Check if president has enough money (playerId in brelease is the president)
+                    const presidentData = economy.getUserData(guild.id, playerId);
+                    const presidentBalance = presidentData.cash;
+                    
+                    if (presidentBalance < compensationValue) {
+                        await interaction.editReply({
+                            content: `❌ **Fesih İptal!** ${president} yeterli bakiye yok!\n**Gerekli tazminat:** ${economy.formatAmount(compensationValue)}\n**Mevcut bakiye:** ${economy.formatAmount(presidentBalance)}`
+                        });
+                        
+                        // Delete channel after 5 seconds
+                        setTimeout(async () => {
+                            try {
+                                if (interaction.channel && interaction.channel.deletable) {
+                                    await interaction.channel.delete("Fesih iptal - Yetersiz bakiye");
+                                }
+                            } catch (error) {
+                                console.error('Channel deletion error:', error);
+                            }
+                        }, 5000);
+                        return;
+                    }
+                    
+                    // Automatic compensation payment (president pays player)
+                    const payment = economy.transferMoney(guild.id, playerId, presidentId, compensationValue);
+                    if (!payment.success) {
+                        await interaction.editReply({
+                            content: `❌ **Fesih İptal!** Tazminat ödemesi başarısız: ${payment.message}`
+                        });
+                        
+                        // Delete channel after 5 seconds
+                        setTimeout(async () => {
+                            try {
+                                if (interaction.channel && interaction.channel.deletable) {
+                                    await interaction.channel.delete("Fesih iptal - Ödeme hatası");
+                                }
+                            } catch (error) {
+                                console.error('Channel deletion error:', error);
+                            }
+                        }, 5000);
+                        return;
+                    }
+                    
+                    // Send automatic payment confirmation
+                    await interaction.editReply({
+                        content: `✅ **Karşılıklı Fesih Kabul Edildi!**\n\n**Otomatik Tazminat Ödemesi:**\n💰 ${economy.formatAmount(compensationValue)} → ${playerToRelease.user}\n\n${president} tarafından otomatik olarak ödendi!`
                     });
-
-                    await interaction.editReply(`✅ ${playerToRelease.user} ile karşılıklı fesih kabul edildi! ${president} tazminat ödemesi yapmalı.`);
-
-                    // Send payment instruction
-                    const paymentEmbed = new MessageEmbed()
-                        .setColor('#FFD700')
-                        .setTitle('💰 Tazminat Ödemesi Gerekli')
-                        .setDescription(`${president} **Fesih kabul edildi!** Tazminat ödemesi yapmayana kadar bu kanal silinmeyecek.`)
-                        .addField('Tazminat Ödenecek Kişi', `${playerToRelease.user}`, true)
-                        .addField('Ödenecek Tazminat', `💰 ${compensationAmount}`, true)
-                        .addField('Ödeme Komutu', `\`.pay ${playerToRelease.user} ${compensationAmount}\``, false)
-                        .addField('⚠️ Uyarı', '**Tazminat miktarını doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
-                        .setTimestamp();
-
-                    await interaction.channel.send({ embeds: [paymentEmbed] });
                     
-                    // Don't disable buttons or delete channel when compensation is required
-                    console.log('Tazminat ödemesi gerekli - BRelease kanalı açık kalıyor, butonlar aktif');
-                    return; // Exit early to prevent button disabling and channel deletion
+                    // Continue with release process
+                    const channels = require('../utils/channels');
+                    await channels.createFreeAgentAnnouncement(guild, playerToRelease, releaseData.reason, releaseData);
+                    
+                    // Delete channel after 5 seconds
+                    setTimeout(async () => {
+                        try {
+                            if (interaction.channel && interaction.channel.deletable) {
+                                await interaction.channel.delete("Karşılıklı fesih tamamlandı - Otomatik tazminat ödendi");
+                            }
+                        } catch (error) {
+                            console.error('Channel deletion error:', error);
+                        }
+                    }, 5000);
+                    return;
 
                 } else {
                     // No compensation required - complete release immediately
