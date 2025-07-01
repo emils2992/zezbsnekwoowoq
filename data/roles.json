@@ -23,6 +23,8 @@
     "president": "1378670911045238815",
     "player": "1378670846520066189",
     "freeAgent": "1378670867457900544",
-    "transferAuthority": "1378670836227244173"
+    "transferAuthority": "1378670836227244173",
+    "transferPeriodOpen": true,
+    "transferChannel": "1389593571417526423"
   }
 }

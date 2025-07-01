@@ -109,5 +109,36 @@
       "toTeam": "gs",
       "reason": null
     }
+  ],
+  "1367535510460825680": [
+    {
+      "player": "rachidx18",
+      "playerMention": "<@783408586121281588>",
+      "type": "offer",
+      "date": "01.07.2025 13:00:28",
+      "timestamp": 1751374828168,
+      "fromTeam": null,
+      "toTeam": "milan"
+    },
+    {
+      "player": "rachidx18",
+      "playerMention": "<@783408586121281588>",
+      "type": "contract",
+      "date": "01.07.2025 13:05:07",
+      "timestamp": 1751375107028,
+      "fromTeam": "Milan",
+      "toTeam": "Başakşehir",
+      "reason": null
+    },
+    {
+      "player": "rachidx18",
+      "playerMention": "<@783408586121281588>",
+      "type": "contract",
+      "date": "01.07.2025 13:13:30",
+      "timestamp": 1751375610900,
+      "fromTeam": "A",
+      "toTeam": "B",
+      "reason": null
+    }
   ]
 }
