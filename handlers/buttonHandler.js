@@ -7,6 +7,8 @@ const permissions = new PermissionManager();
 const globalLogger = require('../utils/globalLogger');
 const TransferTracker = require('../utils/transferTracker');
 const transferTracker = new TransferTracker();
+const EconomyManager = require('../utils/economy');
+const economy = new EconomyManager();
 
 class ButtonHandler {
     constructor() {
@@ -24,6 +26,130 @@ class ButtonHandler {
             }
         }
         return 'Belirtilmemiş';
+    }
+
+    // Extract specific monetary amounts from embed fields
+    extractAmountFromField(embed, fieldNames) {
+        if (!embed || !embed.fields) return null;
+        
+        for (const field of embed.fields) {
+            for (const fieldName of fieldNames) {
+                if (field.name.includes(fieldName)) {
+                    const amountText = field.value.replace(/💰|₺|TL|€/g, '').trim();
+                    const parsedAmount = economy.parseAmount(amountText);
+                    return parsedAmount > 0 ? parsedAmount : null;
+                }
+            }
+        }
+        return null;
+    }
+
+    // Process automatic payments for transfer commands
+    async processTransferPayment(interaction, commandUser, targetUser, transferAmount, salaryAmount, transferType) {
+        const guildId = interaction.guild.id;
+        
+        try {
+            // Check if command user has enough money
+            const commandUserData = economy.getUserData(guildId, commandUser.id);
+            const totalRequired = (transferAmount || 0) + (salaryAmount || 0);
+            
+            if (commandUserData.cash < totalRequired) {
+                const embed = new MessageEmbed()
+                    .setColor('#FF0000')
+                    .setTitle('💸 Transfer İptal - Yetersiz Bakiye')
+                    .setDescription(`❌ **Transfer iptal edildi!**\n\n**Gerekli toplam para:** ${economy.formatAmount(totalRequired)}\n**Mevcut paran:** ${economy.formatAmount(commandUserData.cash)}\n**Eksik:** ${economy.formatAmount(totalRequired - commandUserData.cash)}`)
+                    .addField('💡 Çözüm', 'Para kazanmak için:\n• `.work` - Çalışarak para kazan\n• `.tk miktar` - Bankadan para çek\n• Başka oyunculardan para iste', false)
+                    .setTimestamp();
+
+                await interaction.followUp({ embeds: [embed] });
+                return { success: false, reason: 'insufficient_funds' };
+            }
+
+            const payments = [];
+
+            // Process transfer fee payment
+            if (transferAmount && transferAmount > 0) {
+                const transferResult = economy.transferMoney(guildId, commandUser.id, targetUser.id, transferAmount);
+                if (transferResult.success) {
+                    payments.push({
+                        type: 'transfer',
+                        amount: transferAmount,
+                        to: targetUser.tag,
+                        description: transferType === 'hire' ? 'Kiralık Bedeli' : 'Transfer Bedeli'
+                    });
+                }
+            }
+
+            // Process salary payment (for contract/hire commands)
+            if (salaryAmount && salaryAmount > 0 && transferType !== 'offer') {
+                // Find the player (third person mentioned in contract/hire)
+                const embed = interaction.message.embeds[0];
+                const playerMention = this.findPlayerMention(embed, transferType);
+                
+                if (playerMention) {
+                    const playerId = playerMention.replace(/[<@!>]/g, '');
+                    const salaryResult = economy.transferMoney(guildId, commandUser.id, playerId, salaryAmount);
+                    if (salaryResult.success) {
+                        payments.push({
+                            type: 'salary',
+                            amount: salaryAmount,
+                            to: `<@${playerId}>`,
+                            description: 'Maaş Ödemesi'
+                        });
+                    }
+                }
+            }
+
+            // For offer command, pay the target user directly
+            if (transferType === 'offer' && salaryAmount && salaryAmount > 0) {
+                const offerResult = economy.transferMoney(guildId, commandUser.id, targetUser.id, salaryAmount);
+                if (offerResult.success) {
+                    payments.push({
+                        type: 'offer',
+                        amount: salaryAmount,
+                        to: targetUser.tag,
+                        description: 'Teklif Ödemesi'
+                    });
+                }
+            }
+
+            // Send payment confirmation
+            if (payments.length > 0) {
+                const paymentEmbed = new MessageEmbed()
+                    .setColor('#00FF00')
+                    .setTitle('💸 Otomatik Ödeme Tamamlandı')
+                    .setDescription(`✅ **Transfer ödemeleri başarılı!**\n\n💰 **Toplam ödenen:** ${economy.formatAmount(totalRequired)}`)
+                    .addField('📋 Ödeme Detayları', 
+                        payments.map(p => `💰 **${p.description}:** ${economy.formatAmount(p.amount)} → ${p.to}`).join('\n'), 
+                        false)
+                    .setTimestamp();
+
+                await interaction.followUp({ embeds: [paymentEmbed] });
+            }
+
+            return { success: true, payments };
+
+        } catch (error) {
+            console.error('Payment processing error:', error);
+            return { success: false, reason: 'processing_error' };
+        }
+    }
+
+    // Helper to find player mention in embed for salary payments
+    findPlayerMention(embed, transferType) {
+        if (!embed || !embed.description) return null;
+        
+        const mentionRegex = /<@!?(\d+)>/g;
+        const mentions = embed.description.match(mentionRegex);
+        
+        if (!mentions) return null;
+        
+        // For contract/hire, player is usually the third mention
+        if (transferType === 'contract' || transferType === 'hire') {
+            return mentions[2] || null; // Third mentioned user
+        }
+        
+        return null;
     }
 
     async handleButton(client, interaction) {
@@ -226,44 +352,43 @@ class ButtonHandler {
             transferTracker.markPlayerAsTransferred(guild.id, playerId, 'offer');
             console.log(`🔄 Oyuncu transfer olarak işaretlendi: ${player.displayName} (offer)`);
             
-            // Store pending payment info for this channel
-            const pendingPayments = global.pendingPayments || new Map();
-            global.pendingPayments = pendingPayments;
-            
-            // Extract transfer data from embed
+            // Extract transfer data from embed for automatic payment
             const embed = interaction.message.embeds[0];
-            const transferAmount = this.extractTransferAmount(embed);
+            const salaryAmount = this.extractAmountFromField(embed, ['Maaş', 'Yıllık Maaş', 'Ücret']);
             
-            // Store payment requirement
-            pendingPayments.set(interaction.channel.id, {
-                payerId: presidentId,
-                receiverId: playerId,
-                amount: transferAmount,
-                channelId: interaction.channel.id,
-                type: 'offer',
-                playerUser: player,
-                presidentUser: president,
-                embed: embed
-            });
+            // Process automatic payment
+            const paymentResult = await this.processTransferPayment(
+                interaction, 
+                president.user, 
+                player.user, 
+                null, // No transfer fee for offers
+                salaryAmount, 
+                'offer'
+            );
+
+            // If payment failed, cancel the transfer
+            if (!paymentResult.success) {
+                if (paymentResult.reason === 'insufficient_funds') {
+                    // Revert role changes
+                    try {
+                        await permissions.makePlayerFree(player);
+                        console.log(`🔄 Offer cancelled: Reverted roles for ${player.displayName}`);
+                    } catch (error) {
+                        console.error('Role revert error:', error);
+                    }
+                    
+                    // Remove transfer tracking
+                    transferTracker.removePlayerTransfer(guild.id, playerId);
+                    
+                    return; // Payment embed already sent by processTransferPayment
+                }
+            }
 
             if (!interaction.replied) {
                 await interaction.editReply({
                     content: `✅ ${player} teklifini kabul etti ve artık futbolcu rolüne sahip!`
                 });
             }
-
-            // Send payment instruction
-            const paymentEmbed = new MessageEmbed()
-                .setColor('#FFD700')
-                .setTitle('💰 Ödeme Gerekli')
-                .setDescription(`${president} **Karşıdaki Kişi Kabul Etti!** Sen parayı atmayana kadar bu kanal silinmeyecek.`)
-                .addField('Ödeme Yapılacak Kişi', `${player}`, true)
-                .addField('Ödenecek Miktar', `💰 ${transferAmount}`, true)
-                .addField('Ödeme Komutu', `\`.pay ${player} ${transferAmount}\``, false)
-                .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
-                .setTimestamp();
-
-            await interaction.channel.send({ embeds: [paymentEmbed] });
 
             // Disable all buttons
             const disabledButtons = interaction.message.components[0].components.map(button => 
