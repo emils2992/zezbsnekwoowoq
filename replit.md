@@ -100,6 +100,15 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- July 01, 2025. Enhanced form button security with comprehensive authorization controls:
+  - Added authorization checks to all form modal buttons to prevent unauthorized access
+  - Only the command creator (user who initiated the transfer) can now click their form buttons
+  - Security improvements applied to all transfer commands: offer, contract, trade, hire, release, brelease, btrelease, trelease
+  - Fixed permission vulnerability where any user could interact with transfer form buttons
+  - Added consistent error message "❌ Bu butonu sadece komutu yazan kişi kullanabilir!" for unauthorized attempts
+  - Form button protection covers: show_offer_modal_, show_contract_modal_, show_trade_modal_, show_hire_modal_, show_release_modal_, show_brelease_modal_, show_btrelease_modal_, show_trelease_modal_, show_announcement_modal_, show_bduyur_modal_
+  - Enhanced system security ensures proper command ownership throughout transfer workflows
+
 - July 01, 2025. Implemented fully automatic payment system for all transfer commands:
   - Contract (.contract): Bot automatically pays transfer fee to target president and salary to player
   - Hire (.hire): Bot automatically pays loan fee to target president and salary to player  

@@ -166,6 +166,23 @@ class ButtonHandler {
             const customId = interaction.customId;
             console.log(`Button interaction: ${customId} | Action: ${customId.split('_')[0]} | Params: ${customId.split('_').slice(1).join(', ')}`);
 
+            // Handle show_trade_modal_ buttons specially
+            if (customId.startsWith('show_trade_modal_')) {
+                const params = customId.split('_').slice(3); // Remove 'show', 'trade', 'modal'
+                
+                // Authorization check - only command creator can use their button
+                const commandCreatorId = params[3]; // For trade: [targetPresidentId, wantedPlayerId, givenPlayerId, presidentId]
+                if (interaction.user.id !== commandCreatorId) {
+                    return interaction.reply({
+                        content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                        ephemeral: true
+                    });
+                }
+                
+                await this.handleShowTradeForm(client, interaction, params);
+                return;
+            }
+
             // Special handling for contract_player buttons first
             if (customId.startsWith('contract_player_')) {
                 const params = customId.split('_').slice(2); // Remove 'contract' and 'player'
@@ -177,6 +194,15 @@ class ButtonHandler {
             // Handle show_hire_modal_ buttons specially
             if (customId.startsWith('show_hire_modal_')) {
                 const params = customId.split('_').slice(3); // Remove 'show', 'hire', 'modal'
+                
+                // Authorization check - only command creator can use their button
+                const commandCreatorId = params[2]; // For hire: [targetPresidentId, playerId, presidentId]
+                if (interaction.user.id !== commandCreatorId) {
+                    return interaction.reply({
+                        content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                        ephemeral: true
+                    });
+                }
                 
                 // Check if interaction is still valid
                 if (interaction.replied || interaction.deferred) {
@@ -191,6 +217,16 @@ class ButtonHandler {
             // Handle show_contract_modal_ buttons specially
             if (customId.startsWith('show_contract_modal_')) {
                 const params = customId.split('_').slice(3); // Remove 'show', 'contract', 'modal'
+                
+                // Authorization check - only command creator can use their button
+                const commandCreatorId = params[2]; // For contract: [targetPresidentId, playerId, presidentId]
+                if (interaction.user.id !== commandCreatorId) {
+                    return interaction.reply({
+                        content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                        ephemeral: true
+                    });
+                }
+                
                 await this.handleShowContractForm(client, interaction, params);
                 return;
             }
@@ -198,6 +234,16 @@ class ButtonHandler {
             // Handle show_trelease_modal_ buttons specially
             if (customId.startsWith('show_trelease_modal_')) {
                 const params = customId.split('_').slice(3); // Remove 'show', 'trelease', 'modal'
+                
+                // Authorization check - only command creator can use their button
+                const commandCreatorId = params[1]; // For trelease: [playerId, presidentId, releaseType]
+                if (interaction.user.id !== commandCreatorId) {
+                    return interaction.reply({
+                        content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                        ephemeral: true
+                    });
+                }
+                
                 await this.handleShowTReleaseForm(client, interaction, params);
                 return;
             }
@@ -205,7 +251,51 @@ class ButtonHandler {
             // Handle show_btrelease_modal_ buttons specially
             if (customId.startsWith('show_btrelease_modal_')) {
                 const params = customId.split('_').slice(3); // Remove 'show', 'btrelease', 'modal'
+                
+                // Authorization check - only command creator can use their button
+                const commandCreatorId = params[1]; // For btrelease: [playerId, presidentId, releaseType]
+                if (interaction.user.id !== commandCreatorId) {
+                    return interaction.reply({
+                        content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                        ephemeral: true
+                    });
+                }
+                
                 await this.handleShowBTReleaseForm(client, interaction, params);
+                return;
+            }
+
+            // Handle show_release_modal_ buttons specially
+            if (customId.startsWith('show_release_modal_')) {
+                const params = customId.split('_').slice(3); // Remove 'show', 'release', 'modal'
+                
+                // Authorization check - only command creator can use their button
+                const commandCreatorId = params[1]; // For release: [playerId, presidentId, releaseType]
+                if (interaction.user.id !== commandCreatorId) {
+                    return interaction.reply({
+                        content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                        ephemeral: true
+                    });
+                }
+                
+                await this.handleShowReleaseForm(client, interaction, params);
+                return;
+            }
+
+            // Handle show_brelease_modal_ buttons specially  
+            if (customId.startsWith('show_brelease_modal_')) {
+                const params = customId.split('_').slice(3); // Remove 'show', 'brelease', 'modal'
+                
+                // Authorization check - only command creator can use their button
+                const commandCreatorId = params[1]; // For brelease: [playerId, presidentId, releaseType] - player who initiated
+                if (interaction.user.id !== commandCreatorId) {
+                    return interaction.reply({
+                        content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                        ephemeral: true
+                    });
+                }
+                
+                await this.handleShowBreleaseForm(client, interaction, params);
                 return;
             }
 
@@ -265,12 +355,36 @@ class ButtonHandler {
                 case 'show':
                     if (customId.startsWith('show_announcement_modal_')) {
                         const params = customId.split('_').slice(3); // Remove 'show', 'announcement', 'modal'
+                        // Authorization check - only command creator can use their button
+                        const commandCreatorId = params[0]; // For announcement: [userId]
+                        if (interaction.user.id !== commandCreatorId) {
+                            return interaction.reply({
+                                content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                                ephemeral: true
+                            });
+                        }
                         await this.handleShowAnnouncementForm(client, interaction, params);
                     } else if (customId.startsWith('show_offer_modal_')) {
                         const params = customId.split('_').slice(3); // Remove 'show', 'offer', 'modal'
+                        // Authorization check - only command creator can use their button
+                        const commandCreatorId = params[1]; // For offer: [playerId, presidentId]
+                        if (interaction.user.id !== commandCreatorId) {
+                            return interaction.reply({
+                                content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                                ephemeral: true
+                            });
+                        }
                         await this.handleShowOfferForm(client, interaction, params);
                     } else if (customId.startsWith('show_bduyur_modal_')) {
                         const params = customId.split('_').slice(3); // Remove 'show', 'bduyur', 'modal'
+                        // Authorization check - only command creator can use their button
+                        const commandCreatorId = params[1]; // For bduyur: [playerId, presidentId]
+                        if (interaction.user.id !== commandCreatorId) {
+                            return interaction.reply({
+                                content: '❌ Bu butonu sadece komutu yazan kişi kullanabilir!',
+                                ephemeral: true
+                            });
+                        }
                         await this.handleShowBduyurForm(client, interaction, params);
                     } else {
                         await this.handleShowButton(client, interaction, params);
