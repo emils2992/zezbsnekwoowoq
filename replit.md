@@ -100,6 +100,19 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- July 01, 2025. Implemented fully automatic payment system for all transfer commands:
+  - Contract (.contract): Bot automatically pays transfer fee to target president and salary to player
+  - Hire (.hire): Bot automatically pays loan fee to target president and salary to player  
+  - Offer (.offer): Bot automatically pays salary directly to target player
+  - All transfers now check command user's balance BEFORE completion
+  - If insufficient funds, transfer is cancelled and roles are reverted
+  - Successful transfers show detailed payment confirmation with amounts and recipients
+  - Replaced manual .pay command requirement with instant automatic transactions
+  - Enhanced user experience: transfers complete in seconds instead of requiring manual payments
+  - Eliminated 5-hour mute penalties - transfers either succeed instantly or fail gracefully
+  - System prevents transfer completion when payment cannot be processed
+  - All transfer announcements and role changes happen only after successful payment verification
+
 - June 29, 2025. Enhanced shop system with "1 item per category" limitation:
   - Modified buyShopItem function to prevent purchasing duplicate items
   - Users can only buy 1 of each shop item (no duplicates allowed)

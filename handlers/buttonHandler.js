@@ -354,21 +354,53 @@ class ButtonHandler {
             
             // Extract transfer data from embed for automatic payment
             const embed = interaction.message.embeds[0];
-            const salaryAmount = this.extractAmountFromField(embed, ['Maaş', 'Yıllık Maaş', 'Ücret']);
+            const fields = embed.fields;
+            const salaryText = fields.find(f => f.name.includes('Maaş') || f.name.includes('Ücret'))?.value || 'Belirtilmemiş';
             
-            // Process automatic payment
-            const paymentResult = await this.processTransferPayment(
-                interaction, 
-                president.user, 
-                player.user, 
-                null, // No transfer fee for offers
-                salaryAmount, 
-                'offer'
-            );
-
-            // If payment failed, cancel the transfer
-            if (!paymentResult.success) {
-                if (paymentResult.reason === 'insufficient_funds') {
+            // Economy manager for automatic payments
+            const EconomyManager = require('../utils/economy');
+            const economy = new EconomyManager();
+            
+            // Parse amount
+            const salaryAmount = economy.parseAmount(salaryText);
+            
+            // Check if command user (president) has enough money
+            const presidentData = economy.getUserData(guild.id, presidentId);
+            const presidentBalance = presidentData.cash;
+            
+            if (presidentBalance < salaryAmount) {
+                // Revert role changes
+                try {
+                    await permissions.makePlayerFree(player);
+                    console.log(`🔄 Offer cancelled: Reverted roles for ${player.displayName}`);
+                } catch (error) {
+                    console.error('Role revert error:', error);
+                }
+                
+                // Remove transfer tracking
+                transferTracker.removePlayerTransfer(guild.id, playerId);
+                
+                await interaction.editReply({
+                    content: `❌ **Teklif İptal!** ${president} yeterli bakiye yok!\n**Gerekli:** ${economy.formatAmount(salaryAmount)}\n**Mevcut:** ${economy.formatAmount(presidentBalance)}`
+                });
+                
+                // Delete channel after 5 seconds
+                setTimeout(async () => {
+                    try {
+                        if (interaction.channel && interaction.channel.deletable) {
+                            await interaction.channel.delete("Teklif iptal - Yetersiz bakiye");
+                        }
+                    } catch (error) {
+                        console.error('Channel deletion error:', error);
+                    }
+                }, 5000);
+                return;
+            }
+            
+            // Automatic payment
+            if (salaryAmount && salaryAmount > 0) {
+                const payment = economy.transferMoney(guild.id, presidentId, playerId, salaryAmount);
+                if (!payment.success) {
                     // Revert role changes
                     try {
                         await permissions.makePlayerFree(player);
@@ -380,30 +412,62 @@ class ButtonHandler {
                     // Remove transfer tracking
                     transferTracker.removePlayerTransfer(guild.id, playerId);
                     
-                    return; // Payment embed already sent by processTransferPayment
+                    await interaction.editReply({
+                        content: `❌ **Teklif İptal!** Ödeme hatası: ${payment.message}`
+                    });
+                    
+                    // Delete channel after 5 seconds
+                    setTimeout(async () => {
+                        try {
+                            if (interaction.channel && interaction.channel.deletable) {
+                                await interaction.channel.delete("Teklif iptal - Ödeme hatası");
+                            }
+                        } catch (error) {
+                            console.error('Channel deletion error:', error);
+                        }
+                    }, 5000);
+                    return;
                 }
             }
 
-            if (!interaction.replied) {
-                await interaction.editReply({
-                    content: `✅ ${player} teklifini kabul etti ve artık futbolcu rolüne sahip!`
-                });
-            }
+            // Send automatic payment confirmation
+            await interaction.editReply({
+                content: `✅ **Teklif Kabul Edildi!**\n\n**Otomatik Ödeme:**\n💰 Maaş: ${economy.formatAmount(salaryAmount)} → ${player}\n\n${president} tarafından otomatik olarak ödendi!`
+            });
 
-            // Disable all buttons
-            const disabledButtons = interaction.message.components[0].components.map(button => 
+            // Send transfer announcement
+            await this.sendTransferAnnouncement(guild, {
+                type: 'offer',
+                player: player,
+                president: president,
+                embed: embed
+            });
+
+            // Disable buttons
+            const updatedEmbed = new MessageEmbed(embed);
+            const row = new MessageActionRow().addComponents(
                 new MessageButton()
-                    .setCustomId(button.customId)
-                    .setLabel(button.label)
-                    .setStyle(button.style)
+                    .setCustomId('completed')
+                    .setLabel('✅ Teklif Tamamlandı')
+                    .setStyle('SUCCESS')
                     .setDisabled(true)
-                    .setEmoji(button.emoji || null)
             );
 
             await interaction.message.edit({
-                embeds: interaction.message.embeds,
-                components: [new MessageActionRow().addComponents(disabledButtons)]
+                embeds: [updatedEmbed],
+                components: [row]
             });
+
+            // Delete channel after 5 seconds
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel && interaction.channel.deletable) {
+                        await interaction.channel.delete("Teklif tamamlandı - Otomatik ödeme");
+                    }
+                } catch (error) {
+                    console.error('Channel deletion error:', error);
+                }
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable offers
@@ -659,72 +723,135 @@ class ButtonHandler {
 
             await interaction.deferReply();
             
-            // Store pending payment info for this channel - DUAL PAYMENT SYSTEM
-            const pendingPayments = global.pendingPayments || new Map();
-            global.pendingPayments = pendingPayments;
-            
             // Extract transfer data from embed
             const embed = interaction.message.embeds[0];
             const fields = embed.fields;
             
             // Extract both payment amounts from form
-            const transferFee = fields.find(f => f.name.includes('Transfer Bedeli'))?.value || 'Belirtilmemiş';
-            const playerSalary = fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş';
+            const transferFeeText = fields.find(f => f.name.includes('Transfer Bedeli'))?.value || 'Belirtilmemiş';
+            const playerSalaryText = fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş';
             
-            // Store DUAL payment requirement - command user pays both amounts
-            pendingPayments.set(interaction.channel.id, {
-                payerId1: presidentId,        // Command user pays transfer fee
-                receiverId1: targetPresidentId, // To target president
-                amount1: transferFee,
-                payerId2: presidentId,        // Command user pays salary
-                receiverId2: playerId,        // To player
-                amount2: playerSalary,
-                channelId: interaction.channel.id,
-                type: 'contract',
-                playerUser: player,
-                presidentUser: president,
-                targetPresidentUser: targetPresident,
-                embed: embed,
-                payments: { president: false, player: false }
-            });
+            // Economy manager for automatic payments
+            const EconomyManager = require('../utils/economy');
+            const economy = new EconomyManager();
+            
+            // Parse amounts
+            const transferFee = economy.parseAmount(transferFeeText);
+            const playerSalary = economy.parseAmount(playerSalaryText);
+            const totalAmount = (transferFee || 0) + (playerSalary || 0);
+            
+            // Check if command user (president) has enough money
+            const presidentData = economy.getUserData(guild.id, presidentId);
+            const presidentBalance = presidentData.cash;
+            
+            if (presidentBalance < totalAmount) {
+                await interaction.editReply({
+                    content: `❌ **Transfer İptal!** ${president} yeterli bakiye yok!\n**Gerekli:** ${economy.formatAmount(totalAmount)}\n**Mevcut:** ${economy.formatAmount(presidentBalance)}`
+                });
+                
+                // Delete channel after 5 seconds
+                setTimeout(async () => {
+                    try {
+                        if (interaction.channel && interaction.channel.deletable) {
+                            await interaction.channel.delete("Transfer iptal - Yetersiz bakiye");
+                        }
+                    } catch (error) {
+                        console.error('Channel deletion error:', error);
+                    }
+                }, 5000);
+                return;
+            }
+            
+            // Automatic payments
+            let paymentSuccess = true;
+            let paymentErrors = [];
+            
+            // Payment 1: Transfer fee to target president
+            if (transferFee && transferFee > 0) {
+                const payment1 = economy.transferMoney(guild.id, presidentId, targetPresidentId, transferFee);
+                if (!payment1.success) {
+                    paymentSuccess = false;
+                    paymentErrors.push(`Transfer bedeli ödeme hatası: ${payment1.message}`);
+                }
+            }
+            
+            // Payment 2: Salary to player
+            if (playerSalary && playerSalary > 0) {
+                const payment2 = economy.transferMoney(guild.id, presidentId, playerId, playerSalary);
+                if (!payment2.success) {
+                    paymentSuccess = false;
+                    paymentErrors.push(`Maaş ödeme hatası: ${payment2.message}`);
+                }
+            }
+            
+            if (!paymentSuccess) {
+                await interaction.editReply({
+                    content: `❌ **Transfer İptal!** Ödeme hatası:\n${paymentErrors.join('\n')}`
+                });
+                
+                // Delete channel after 5 seconds
+                setTimeout(async () => {
+                    try {
+                        if (interaction.channel && interaction.channel.deletable) {
+                            await interaction.channel.delete("Transfer iptal - Ödeme hatası");
+                        }
+                    } catch (error) {
+                        console.error('Channel deletion error:', error);
+                    }
+                }, 5000);
+                return;
+            }
 
             // Transfer tracker - mark player as transferred
             transferTracker.markPlayerAsTransferred(guild.id, playerId, 'contract');
             console.log(`🔄 Oyuncu transfer olarak işaretlendi: ${player.displayName} (contract)`);
+            
+            // Send automatic payment confirmation
+            let paymentDetails = [];
+            if (transferFee && transferFee > 0) {
+                paymentDetails.push(`💰 Transfer bedeli: ${economy.formatAmount(transferFee)} → ${targetPresident}`);
+            }
+            if (playerSalary && playerSalary > 0) {
+                paymentDetails.push(`💰 Maaş: ${economy.formatAmount(playerSalary)} → ${player}`);
+            }
 
             await interaction.editReply({
-                content: `✅ ${player} sözleşmeyi kabul etti! ${president} her iki ödemeyi yapacak.`
+                content: `✅ **Sözleşme Kabul Edildi!**\n\n**Otomatik Ödemeler:**\n${paymentDetails.join('\n')}\n\n${president} tarafından otomatik olarak ödendi!`
             });
 
-            // Send DUAL payment instructions
-            const paymentEmbed = new MessageEmbed()
-                .setColor('#FFD700')
-                .setTitle('💰 Çift Ödeme Gerekli - Sözleşme')
-                .setDescription('**Oyuncu kabul etti!** Komutu kullanan başkan her iki ödemeyi de yapacak.')
-                .addField(`${president} Ödeyecek`, `${targetPresident} - ${transferFee} (Transfer Bedeli)`, true)
-                .addField(`${president} Ödeyecek`, `${player} - ${playerSalary} (Maaş)`, true)
-                .addField('Ödeme Komutları', 
-                    `${president}: \`.pay ${targetPresident} ${transferFee}\`\n` +
-                    `${president}: \`.pay ${player} ${playerSalary}\``, false)
-                .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
-                .setTimestamp();
+            // Send transfer announcement
+            await this.sendTransferAnnouncement(guild, {
+                type: 'contract',
+                player: player,
+                president: president,
+                embed: embed
+            });
 
-            await interaction.channel.send({ embeds: [paymentEmbed] });
-
-            // Disable all buttons
-            const disabledButtons = interaction.message.components[0].components.map(button => 
+            // Disable buttons
+            const updatedEmbed = new MessageEmbed(embed);
+            const row = new MessageActionRow().addComponents(
                 new MessageButton()
-                    .setCustomId(button.customId)
-                    .setLabel(button.label)
-                    .setStyle(button.style)
+                    .setCustomId('completed')
+                    .setLabel('✅ Transfer Tamamlandı')
+                    .setStyle('SUCCESS')
                     .setDisabled(true)
-                    .setEmoji(button.emoji || null)
             );
 
             await interaction.message.edit({
-                embeds: interaction.message.embeds,
-                components: [new MessageActionRow().addComponents(disabledButtons)]
+                embeds: [updatedEmbed],
+                components: [row]
             });
+
+            // Delete channel after 5 seconds
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel && interaction.channel.deletable) {
+                        await interaction.channel.delete("Transfer tamamlandı - Otomatik ödeme");
+                    }
+                } catch (error) {
+                    console.error('Channel deletion error:', error);
+                }
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable contract agreements
@@ -1953,68 +2080,131 @@ class ButtonHandler {
 
             await interaction.deferReply();
             
-            // Store pending payment info for this channel - DUAL PAYMENT SYSTEM
-            const pendingPayments = global.pendingPayments || new Map();
-            global.pendingPayments = pendingPayments;
-            
             // Extract transfer data from embed
             const embed = interaction.message.embeds[0];
             const fields = embed.fields;
             
             // Extract both payment amounts from form
-            const loanFee = fields.find(f => f.name.includes('Kiralık Bedeli'))?.value || 'Belirtilmemiş';
-            const playerSalary = fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş';
+            const loanFeeText = fields.find(f => f.name.includes('Kiralık Bedeli'))?.value || 'Belirtilmemiş';
+            const playerSalaryText = fields.find(f => f.name.includes('Maaş'))?.value || 'Belirtilmemiş';
             
-            // Store DUAL payment requirement - command user pays both amounts
-            pendingPayments.set(interaction.channel.id, {
-                payerId1: presidentId,        // Command user pays loan fee
-                receiverId1: targetPresidentId, // To target president
-                amount1: loanFee,
-                payerId2: presidentId,        // Command user pays salary
-                receiverId2: playerId,        // To player
-                amount2: playerSalary,
-                channelId: interaction.channel.id,
-                type: 'hire',
-                playerUser: player,
-                presidentUser: president,
-                targetPresidentUser: targetPresident,
-                embed: embed,
-                payments: { president: false, player: false }
-            });
+            // Economy manager for automatic payments
+            const EconomyManager = require('../utils/economy');
+            const economy = new EconomyManager();
+            
+            // Parse amounts
+            const loanFee = economy.parseAmount(loanFeeText);
+            const playerSalary = economy.parseAmount(playerSalaryText);
+            const totalAmount = (loanFee || 0) + (playerSalary || 0);
+            
+            // Check if command user (president) has enough money
+            const presidentData = economy.getUserData(guild.id, presidentId);
+            const presidentBalance = presidentData.cash;
+            
+            if (presidentBalance < totalAmount) {
+                await interaction.editReply({
+                    content: `❌ **Kiralık İptal!** ${president} yeterli bakiye yok!\n**Gerekli:** ${economy.formatAmount(totalAmount)}\n**Mevcut:** ${economy.formatAmount(presidentBalance)}`
+                });
+                
+                // Delete channel after 5 seconds
+                setTimeout(async () => {
+                    try {
+                        if (interaction.channel && interaction.channel.deletable) {
+                            await interaction.channel.delete("Kiralık iptal - Yetersiz bakiye");
+                        }
+                    } catch (error) {
+                        console.error('Channel deletion error:', error);
+                    }
+                }, 5000);
+                return;
+            }
+            
+            // Automatic payments
+            let paymentSuccess = true;
+            let paymentErrors = [];
+            
+            // Payment 1: Loan fee to target president
+            if (loanFee && loanFee > 0) {
+                const payment1 = economy.transferMoney(guild.id, presidentId, targetPresidentId, loanFee);
+                if (!payment1.success) {
+                    paymentSuccess = false;
+                    paymentErrors.push(`Kiralık bedeli ödeme hatası: ${payment1.message}`);
+                }
+            }
+            
+            // Payment 2: Salary to player
+            if (playerSalary && playerSalary > 0) {
+                const payment2 = economy.transferMoney(guild.id, presidentId, playerId, playerSalary);
+                if (!payment2.success) {
+                    paymentSuccess = false;
+                    paymentErrors.push(`Maaş ödeme hatası: ${payment2.message}`);
+                }
+            }
+            
+            if (!paymentSuccess) {
+                await interaction.editReply({
+                    content: `❌ **Kiralık İptal!** Ödeme hatası:\n${paymentErrors.join('\n')}`
+                });
+                
+                // Delete channel after 5 seconds
+                setTimeout(async () => {
+                    try {
+                        if (interaction.channel && interaction.channel.deletable) {
+                            await interaction.channel.delete("Kiralık iptal - Ödeme hatası");
+                        }
+                    } catch (error) {
+                        console.error('Channel deletion error:', error);
+                    }
+                }, 5000);
+                return;
+            }
+            
+            // Send automatic payment confirmation
+            let paymentDetails = [];
+            if (loanFee && loanFee > 0) {
+                paymentDetails.push(`💰 Kiralık bedeli: ${economy.formatAmount(loanFee)} → ${targetPresident}`);
+            }
+            if (playerSalary && playerSalary > 0) {
+                paymentDetails.push(`💰 Maaş: ${economy.formatAmount(playerSalary)} → ${player}`);
+            }
 
             await interaction.editReply({
-                content: `✅ ${player} kiralık anlaşmasını kabul etti! ${president} her iki ödemeyi yapacak.`
+                content: `✅ **Kiralık Anlaşması Kabul Edildi!**\n\n**Otomatik Ödemeler:**\n${paymentDetails.join('\n')}\n\n${president} tarafından otomatik olarak ödendi!`
             });
 
-            // Send DUAL payment instructions
-            const paymentEmbed = new MessageEmbed()
-                .setColor('#FFD700')
-                .setTitle('💰 Çift Ödeme Gerekli - Kiralık')
-                .setDescription('**Oyuncu kabul etti!** Komutu kullanan başkan her iki ödemeyi de yapacak.')
-                .addField(`${president} Ödeyecek`, `${targetPresident} - ${loanFee} (Kiralık Bedeli)`, true)
-                .addField(`${president} Ödeyecek`, `${player} - ${playerSalary} (Maaş)`, true)
-                .addField('Ödeme Komutları', 
-                    `${president}: \`.pay ${targetPresident} ${loanFee}\`\n` +
-                    `${president}: \`.pay ${player} ${playerSalary}\``, false)
-                .addField('⚠️ Uyarı', '**Fiyatı Doğru yazmazsan 5 Saat Mute yiyeceksin! Yanlış yazarsan telafisi vardır**', false)
-                .setTimestamp();
+            // Send transfer announcement
+            await this.sendTransferAnnouncement(guild, {
+                type: 'hire',
+                player: player,
+                president: president,
+                embed: embed
+            });
 
-            await interaction.channel.send({ embeds: [paymentEmbed] });
-
-            // Disable all buttons
-            const disabledButtons = interaction.message.components[0].components.map(button => 
+            // Disable buttons
+            const updatedEmbed = new MessageEmbed(embed);
+            const row = new MessageActionRow().addComponents(
                 new MessageButton()
-                    .setCustomId(button.customId)
-                    .setLabel(button.label)
-                    .setStyle(button.style)
+                    .setCustomId('completed')
+                    .setLabel('✅ Kiralık Tamamlandı')
+                    .setStyle('SUCCESS')
                     .setDisabled(true)
-                    .setEmoji(button.emoji || null)
             );
 
             await interaction.message.edit({
-                embeds: interaction.message.embeds,
-                components: [new MessageActionRow().addComponents(disabledButtons)]
+                embeds: [updatedEmbed],
+                components: [row]
             });
+
+            // Delete channel after 5 seconds
+            setTimeout(async () => {
+                try {
+                    if (interaction.channel && interaction.channel.deletable) {
+                        await interaction.channel.delete("Kiralık tamamlandı - Otomatik ödeme");
+                    }
+                } catch (error) {
+                    console.error('Channel deletion error:', error);
+                }
+            }, 5000);
 
         } else if (buttonType === 'reject') {
             // Anyone in the channel can reject unreasonable hire agreements
