@@ -100,6 +100,12 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- July 02, 2025. Updated hire command to work during closed transfer periods:
+  - Removed transfer period check from .hire command allowing loans to continue even when transfers are closed
+  - Hire commands (.hire) now exempt from .kapa (close transfer period) restrictions
+  - Other transfer commands (.contract, .trade) remain restricted during closed periods as intended
+  - Allows continuous player loan negotiations regardless of transfer window status
+
 - July 01, 2025. Enhanced form button security with comprehensive authorization controls:
   - Added authorization checks to all form modal buttons to prevent unauthorized access
   - Only the command creator (user who initiated the transfer) can now click their form buttons
