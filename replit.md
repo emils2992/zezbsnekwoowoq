@@ -100,6 +100,14 @@ The bot is configured for Replit deployment with:
 
 ## Changelog
 
+- July 02, 2025. Implemented automatic negotiation category management system:
+  - Bot now automatically creates additional categories (müzakere-2, müzakere-3, etc.) when first category reaches 45 channels
+  - Intelligent category selection always uses categories with available space before creating new ones
+  - Categories automatically positioned at top of server for easy access
+  - Prevents Discord's 50-channel category limit issues that were causing channel creation failures
+  - Enhanced logging shows category usage and creation process for debugging
+  - Fallback system ensures channel creation never fails due to category issues
+
 - July 02, 2025. Updated hire command to work during closed transfer periods:
   - Removed transfer period check from .hire command allowing loans to continue even when transfers are closed
   - Hire commands (.hire) now exempt from .kapa (close transfer period) restrictions

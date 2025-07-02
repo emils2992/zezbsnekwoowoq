@@ -50,28 +50,7 @@ class ChannelManager {
                 .slice(0, 100);
 
             // Müzakereler kategorisini bul veya oluştur - en üstte konumlandır
-            let category = guild.channels.cache.find(c => 
-                c.type === 'GUILD_CATEGORY' && 
-                c.name.toLowerCase().includes('müzakere')
-            );
-
-            if (!category) {
-                category = await guild.channels.create('müzakere-sözleşme', {
-                    type: 'GUILD_CATEGORY',
-                    permissionOverwrites: [
-                        {
-                            id: guild.roles.everyone,
-                            deny: ['VIEW_CHANNEL']
-                        }
-                    ]
-                });
-                
-                // Kategoriyi en üste taşı
-                await category.setPosition(0);
-            } else {
-                // Mevcut kategoriyi de en üste taşı
-                await category.setPosition(0);
-            }
+            let category = await this.findOrCreateNegotiationCategory(guild);
 
             // İzinleri ayarla
             const permissionOverwrites = [
@@ -128,17 +107,7 @@ class ChannelManager {
             }
 
             console.log(`[CHANNEL] Creating channel with name: ${channelName}`);
-            console.log(`[CHANNEL] Category:`, category ? category.name : 'No category');
-            
-            // Check category channel count before creation
-            const categoryChannels = guild.channels.cache.filter(ch => ch.parentId === category.id);
-            console.log(`[CHANNEL] Category has ${categoryChannels.size} channels`);
-            
-            if (categoryChannels.size >= 45) {
-                console.log(`[CHANNEL] Category approaching limit, cleaning up old channels...`);
-                const deletedCount = await this.cleanupOldChannels(guild);
-                console.log(`[CHANNEL] Cleaned up ${deletedCount} old channels`);
-            }
+            console.log(`[CHANNEL] Using category:`, category ? category.name : 'No category');
 
             // Kanalı oluştur
             const channel = await guild.channels.create(channelName, {
@@ -466,6 +435,93 @@ class ChannelManager {
         
         console.log(`✅ Cleanup completed: ${deletedCount} channels deleted`);
         return deletedCount;
+    }
+
+    async findOrCreateNegotiationCategory(guild) {
+        try {
+            // Find all existing negotiation categories
+            const categories = guild.channels.cache.filter(c => 
+                c.type === 'GUILD_CATEGORY' && 
+                (c.name.toLowerCase().includes('müzakere') || c.name.toLowerCase().includes('muzakere'))
+            );
+
+            console.log(`[CATEGORY] Found ${categories.size} existing negotiation categories`);
+
+            // If no categories exist, create the first one
+            if (categories.size === 0) {
+                console.log(`[CATEGORY] Creating first negotiation category`);
+                const category = await guild.channels.create('müzakere-sözleşme', {
+                    type: 'GUILD_CATEGORY',
+                    permissionOverwrites: [
+                        {
+                            id: guild.roles.everyone,
+                            deny: ['VIEW_CHANNEL']
+                        }
+                    ]
+                });
+                
+                await category.setPosition(0);
+                return category;
+            }
+
+            // Check each category to find one with space (less than 45 channels)
+            for (const category of categories.values()) {
+                const categoryChannels = guild.channels.cache.filter(ch => ch.parentId === category.id);
+                console.log(`[CATEGORY] Category "${category.name}" has ${categoryChannels.size} channels`);
+                
+                if (categoryChannels.size < 45) {
+                    // Move this category to top position
+                    await category.setPosition(0);
+                    return category;
+                }
+            }
+
+            // All categories are full, create a new one
+            const nextNumber = categories.size + 1;
+            const newCategoryName = nextNumber === 2 ? 'müzakere-2' : `müzakere-${nextNumber}`;
+            
+            console.log(`[CATEGORY] All categories full, creating new category: ${newCategoryName}`);
+            
+            const newCategory = await guild.channels.create(newCategoryName, {
+                type: 'GUILD_CATEGORY',
+                permissionOverwrites: [
+                    {
+                        id: guild.roles.everyone,
+                        deny: ['VIEW_CHANNEL']
+                    }
+                ]
+            });
+            
+            // Position the new category at the top
+            await newCategory.setPosition(0);
+            
+            console.log(`[CATEGORY] Successfully created new category: ${newCategoryName}`);
+            return newCategory;
+
+        } catch (error) {
+            console.error('Error in findOrCreateNegotiationCategory:', error);
+            
+            // Fallback: try to find any existing category or create default one
+            let fallbackCategory = guild.channels.cache.find(c => 
+                c.type === 'GUILD_CATEGORY' && 
+                (c.name.toLowerCase().includes('müzakere') || c.name.toLowerCase().includes('muzakere'))
+            );
+            
+            if (!fallbackCategory) {
+                fallbackCategory = await guild.channels.create('müzakere-sözleşme', {
+                    type: 'GUILD_CATEGORY',
+                    permissionOverwrites: [
+                        {
+                            id: guild.roles.everyone,
+                            deny: ['VIEW_CHANNEL']
+                        }
+                    ]
+                });
+                await fallbackCategory.setPosition(0);
+            }
+            
+            return fallbackCategory;
+        }
     }
 }
 
